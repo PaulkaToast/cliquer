@@ -1,2 +1,2 @@
-# Styxx
-Come sail away
+# Cliquer
+Come clique away
