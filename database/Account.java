@@ -4,11 +4,11 @@
 public class Account
 {
 	private long accountID;
-	private long moderatorID;
-	private String username;
+	private long moderatorID;		/* 0 if not a moderator				*/
+	private String username;		/* Must be unique					*/
 
 	private boolean isPublic;		
-	private double reputationReq;	/* Represents fraction of user rep */
+	private double reputationReq;	/* Represents fraction of user rep 	*/
 	private int proximityReq;
 
 	private int reputation;			
@@ -18,30 +18,47 @@ public class Account
 	private List<Long> friendIDs;
 	private List<Long> messageIDs;
 
+	public Account(String name, boolean create)
+	{
+		DBCollection collection = Converter.getCollection("Accounts");
+
+		DBObject query = new BasicDBObject("username", name);
+		DBCursor cursor = collection.find(query);
+		if(create && cursor == null)
+		{
+			this.username = name;
+			this.storeData();	
+		}
+		else if(cursor != null)
+		{
+			DBObject accountData = cursor.one();
+
+			this.accountID = (long)cursor.one().get("accountID");
+			this.moderatorID = (long)cursor.one().get("moderatorID");
+			this.username = (String)cursor.one().get("username");
+
+			this.isPublic = (boolean)cursor.one().get("isPublic");		
+			this.reputationReq = (double)cursor.one().get("reputationReq");
+			this.proximityReq = (int)cursor.one().get("proximityReq");
+
+			DBObject skillData = (List<DBObject>)cursor.one().get("skillList");
+			this.skills;
+			this.reputation = (int)cursor.one().get("reputation");			
+	
+			this.groupIDs;
+			this.friendIDs;
+			this.messageIDs;
+		}
+		else
+		{
+			this.accountID = 0;
+		}
+	}
+		
+
 	public void storeData()
 	{
-		MongoClient mongo = new MongoClient(
-							new MongoClientURI("mongodb://localhost:26074"));
-		DB database = mongoClient.getDB("Cliquer");
-		DBCollection collection = database.getCollection("Accounts");
-		List<BasicDBObject> skillList = new ArrayList<>();
-		for(Skill s : skills)
-		{
-			skillList.add(new BasicDBObject("skillID", s.getSkillID)
-								.append("skillName", s.getSkillName)
-								.append("skillLevel", s.getSkillLevel));
-		}
-		DBObject account = new BasicDBObject("accountID", this.accountID)
-								.append("moderatorID", this.moderatorID)
-								.append("username", this.username)
-								.append("isPublic", this.isPublic)
-								.append("reputationReq", this.reputationReq)
-								.append("proximityReq", this.proximityReq)
-								.append("reputation", this.reputation)
-								.append("skills", skillList)
-								.append("groupIDs", this.groupIDs)
-								.append("friendIDs", this.friendIDs)
-								.append("messageIDs", this.messageIDs);
-		collection.insert(account);
+		DBCollection collection = Converter.getCollection("Accounts");
+		collection.insert(Converter.toDBObject(this));
 	}
 }
