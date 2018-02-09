@@ -6,7 +6,7 @@ class PublicGroups extends Component {
   render() {
     return (
       <div className="PublicGroups">
-       
+    
       </div>
     );
   }

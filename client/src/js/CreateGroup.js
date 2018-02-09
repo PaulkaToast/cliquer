@@ -6,7 +6,7 @@ class CreateGroup extends Component {
   render() {
     return (
       <div className="CreateGroup">
-       
+      
       </div>
     );
   }

@@ -6,7 +6,7 @@ class Groups extends Component {
   render() {
     return (
       <div className="Groups">
-       
+
       </div>
     );
   }
