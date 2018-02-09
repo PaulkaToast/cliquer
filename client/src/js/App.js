@@ -22,12 +22,12 @@ class App extends Component {
           }/>
           <Route path="/login" render={() => 
             !this.loggedIn() 
-            ? <LogIn />
+            ? <Login />
             : <Redirect to="/groups"/>
           }/>
           <Route path="/" render={() => 
             !this.loggedIn() 
-            ? <LogIn />
+            ? <Login />
             : <Redirect to="/groups"/>
           }/>
         </Switch>
