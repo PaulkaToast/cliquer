@@ -6,4 +6,5 @@ After cloning the repository, import the folder as an existing project. It shoul
 
 ## Client Setup
 1. Run `npm install` or `yarn install` in the client folder of the project on your machine.
-2. Start the development server with `npm start` or `yarn start`
+2. Fill in the pertinent Firebase project information in the `/src/firebase/firebase.example.js` file, then rename the file to `firebase.js`
+3. Start the development server with `npm start` or `yarn start`

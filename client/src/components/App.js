@@ -17,12 +17,12 @@ class App extends Component {
       <div className="App">
         <Switch>
           <Route path="/login" render={(navProps) => 
-            !this.loggedIn() 
+            this.loggedIn() 
             ? <Login {...navProps} />
             : <Redirect to="/groups"/>
           }/>
           <Route path="/register" render={(navProps) =>
-            !this.loggedIn() 
+            this.loggedIn() 
             ? <Register {...navProps} />
             : <Redirect to="/groups"/>
           }/>
