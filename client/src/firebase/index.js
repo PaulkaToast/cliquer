@@ -1,7 +1,4 @@
-import * as auth from './auth';
-import * as firebase from './firebase';
+import  * as auth  from './auth'
+import { auth as firebase, facebookProvider } from './firebase'
 
-export {
-  auth,
-  firebase,
-};
+export { auth, firebase, facebookProvider }

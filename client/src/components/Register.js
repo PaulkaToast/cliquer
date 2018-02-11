@@ -1,9 +1,7 @@
 import React, { Component } from 'react'
-import { auth } from '../firebase'
+
 import '../css/Register.css'
-import { history } from '../redux/store'
-import { logIn } from '../redux/actions/actionCreator'
-import { connect } from 'react-redux'
+import { auth } from '../firebase'
 
 class Register extends Component {
 
@@ -18,20 +16,16 @@ class Register extends Component {
   handleSubmit = (ev) => {
     ev.preventDefault()
     if(ev.target.passwordOne.value !== ev.target.passwordTwo.value) {
-      alert('Passwords do not match!')
+      this.setState({ error: { message: 'Passwords do not match!' } })
     } else {
       const username = ev.target.username.value
       const email = ev.target.email.value
       const passwordOne = ev.target.passwordOne.value
 
       auth.createUserWithEmailAndPassword(email, passwordOne)
-        .then(authUser => {
-          this.props.logIn(authUser)
-          history.push('/groups');
-        })
         .catch(error => {
-          this.setState({ error });
-        });
+          this.setState({ error })
+        })
     }
   }
 
@@ -70,14 +64,8 @@ class Register extends Component {
           { this.state.error && <p>{this.state.error.message}</p> }
         </form>
       </div>
-    );
+    )
   }
 }
 
-const mapDispatchToProps = (dispatch) => {
-	return {
-		logIn: (user) => dispatch(logIn(user))
-	}
-}
-
-export default connect(null, mapDispatchToProps)(Register);
+export default Register
