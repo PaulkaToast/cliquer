@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import '../css/PublicGroups.css';
+import React, { Component } from 'react'
+import '../css/PublicGroups.css'
 
 class PublicGroups extends Component {
 
@@ -8,8 +8,8 @@ class PublicGroups extends Component {
       <div className="PublicGroups">
     
       </div>
-    );
+    )
   }
 }
 
-export default PublicGroups;
+export default PublicGroups

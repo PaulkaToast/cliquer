@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import '../css/Profile.css';
+import React, { Component } from 'react'
+import '../css/Profile.css'
 
 class Profile extends Component {
 
@@ -8,8 +8,8 @@ class Profile extends Component {
       <div className="Profile">
  
       </div>
-    );
+    )
   }
 }
 
-export default Profile;
+export default Profile

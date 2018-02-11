@@ -24,8 +24,8 @@ class Main extends Component {
             <Route path='/' render={(navProps) => <Redirect to="/groups" />}/>
         </Switch>
       </div>
-    );
+    )
   }
 }
 
-export default Main;
+export default Main

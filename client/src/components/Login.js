@@ -62,7 +62,7 @@ class Login extends Component {
             Log In with Facebook
           </button>
       </div>
-    );
+    )
   }
 }
 

@@ -1,7 +1,7 @@
 import * as firebase from 'firebase'
 
 // Initialize Firebase
-var config = {
+const config = {
   apiKey: "YOUR API KEY",
   authDomain: "YOUR AUTH DOMAIN",
   databaseURL: "YOUR DATABASE URL",
@@ -11,11 +11,14 @@ var config = {
 }
 
 if (!firebase.apps.length) {
-  firebase.initializeApp(config);
+  firebase.initializeApp(config)
 }
 
-const auth = firebase.auth();
+const auth = firebase.auth()
+firebase.auth().useDeviceLanguage()
+const facebookProvider = new firebase.auth.FacebookAuthProvider()
 
 export {
   auth,
-};
+  facebookProvider
+}

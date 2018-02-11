@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 import { Route, Redirect, Switch } from 'react-router'
-import { connect } from 'react-redux';
+import { connect } from 'react-redux'
 
-import '../css/App.css';
+import '../css/App.css'
 import { firebase } from '../firebase'
 import { logIn, logOut } from '../redux/actions'
 
@@ -46,7 +46,7 @@ class App extends Component {
         this.props.logOut(authUser)
       }
       this.setState({ isLoading: false })
-    });
+    })
   }
 
   render() {

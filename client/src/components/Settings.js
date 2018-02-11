@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import '../css/Settings.css';
+import React, { Component } from 'react'
+import '../css/Settings.css'
 
 class Settings extends Component {
 
@@ -8,8 +8,8 @@ class Settings extends Component {
       <div className="Settings">
       
       </div>
-    );
+    )
   }
 }
 
-export default Settings;
+export default Settings

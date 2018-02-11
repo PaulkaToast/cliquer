@@ -16,8 +16,8 @@ class Navbar extends Component {
           Log Out
         </button>
       </div>
-    );
+    )
   }
 }
 
-export default Navbar;
+export default Navbar
