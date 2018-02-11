@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Route, Redirect, Switch } from 'react-router'
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 
 import '../css/App.css';
 import { firebase } from '../firebase'
@@ -21,12 +21,25 @@ class App extends Component {
       isLoading: true,
     }
   }
+
   loggedIn = () => {
     return this.props.loggedIn
   }
 
+  isLoggedInWithFacebook = () => {
+    if(this.props.loggedIn) {
+      const providers = this.props.user.providerData
+      for (const i in providers) {
+        if (providers[i].providerId === 'facebook.com') {
+          return true
+        }
+      }
+    }
+    return false 
+  }
+
   componentDidMount() {
-    firebase.auth.onAuthStateChanged(authUser => {
+    firebase.onAuthStateChanged(authUser => {
       if(authUser) {
         this.props.logIn(authUser)
       } else {

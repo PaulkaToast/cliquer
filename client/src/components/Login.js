@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import '../css/Login.css'
-import { auth } from '../firebase'
+import { auth, facebookProvider } from '../firebase'
 
 class Login extends Component {
 
@@ -22,7 +22,14 @@ class Login extends Component {
     auth.logInWithEmailAndPassword(email, password)
       .catch(error => {
         this.setState({ error })
-      });
+      })
+  }
+
+  logInWithFacebook = () => {
+    auth.signInWithFacebook(facebookProvider)
+      .catch(function(error) {
+        this.setState({ error })
+      })
   }
 
 
@@ -35,7 +42,7 @@ class Login extends Component {
             name="email"
             type="text"
             placeholder="Email Address"
-            />
+          />
           <input
             required
             name="password"
@@ -48,10 +55,16 @@ class Login extends Component {
 
           { this.state.error && <p>{this.state.error.message}</p> }
         </form>
+          <button 
+            type="button"
+            onClick={this.logInWithFacebook}
+          >
+            Log In with Facebook
+          </button>
       </div>
     );
   }
 }
 
-export default Login;
+export default Login
 

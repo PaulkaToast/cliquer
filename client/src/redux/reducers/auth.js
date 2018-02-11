@@ -1,6 +1,6 @@
 function auth(state = {}, action) {
     switch(action.type) {
-        case 'LOG_IN' : 
+        case 'LOG_IN': 
             return Object.assign({}, state, {
                 user: action.user,
                 loggedIn: true,
@@ -11,7 +11,7 @@ function auth(state = {}, action) {
                 loggedIn: false,
             })
         default:
-            return state;
+            return state
     }
 }
 

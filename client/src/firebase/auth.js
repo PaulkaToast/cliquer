@@ -19,3 +19,6 @@ auth.sendPasswordResetEmail(email);
 //Password Change
 export const doPasswordUpdate = (password) =>
 auth.currentUser.updatePassword(password);
+
+export const signInWithFacebook = (provider) =>
+auth.signInWithPopup(provider)
