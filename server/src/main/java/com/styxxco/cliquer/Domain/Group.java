@@ -1,34 +1,37 @@
 
-package com.styxxco.cliquer.Domain;
+package com.styxxco.cliquer;
+
+import java.util.*;
+import org.springframework.data.annotation.Id;
 
 /* Serves as the entity representing user and moderator data.	*/
 /* Extended by the Moderator class								*/
 
-@Getter
-@ToString(exclude = {"messageID", "type"})
+@lombok.Getter
+@lombok.ToString(exclude = {"messageID", "type"})
 
 public class Group
 {
-	@Id private final String groupID;
+	//@Id private final String groupID;
 
-	@Setter private String groupName;
-	@Setter private String groupPurpose;
+	@lombok.Setter private String groupName;
+	@lombok.Setter private String groupPurpose;
 	
-	private List<Skill> skillReqs;
-	@Setter private int reputationReq;
-	@Setter private int proximityReq;
+	private ArrayList<Skill> skillReqs;
+	@lombok.Setter private int reputationReq;
+	@lombok.Setter private int proximityReq;
 
-	@Setter private String groupLeaderID;
-	private List<String> groupMemberIDs;	/* Account ID of the group members */
+	@lombok.Setter private String groupLeaderID;
+	private ArrayList<String> groupMemberIDs;	/* Account ID of the group members */
 	/* private ChatLog chat */
 
-	public Group(@NonNull String groupName, String groupPurpose, String groupLeaderID)
+	public Group(@lombok.NonNull String groupName, String groupPurpose, String groupLeaderID)
 	{
 		this.groupName = groupName;
 		this.groupPurpose = groupPurpose;
 		this.groupLeaderID = groupLeaderID;
 
-		this.skillReqs = new ArrayList<String>();
+		this.skillReqs = new ArrayList<Skill>();
 		this.reputationReq = 0;
 		this.proximityReq = 0;
 		this.groupMemberIDs = new ArrayList<String>();
@@ -36,13 +39,14 @@ public class Group
 
 	public void addSkillReq(String skillName, int skillLevel)
 	{
-		skillReqs.add(new Skill(skillName, skillLevel);
+		skillReqs.add(new Skill(skillName, skillLevel));
 	}
 
+	/*
 	public Message makeAccountInvite(String content)
 	{
 		return new Message(content, this.groupID, "Group Invite");
 	}
-		
+	*/	
 }
 

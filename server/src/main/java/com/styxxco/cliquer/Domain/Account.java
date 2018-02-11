@@ -1,41 +1,44 @@
 
-package com.styxxco.cliquer.Domain;
+package com.styxxco.cliquer;
+
+import java.util.*;
+import org.springframework.data.annotation.Id;
 
 /* Serves as the entity representing user and moderator data.	*/
 /* Extended by the Moderator class								*/
 
-@Getter
-@ToString(of = {"username", "firstName", "lastName", "reputation"})
+@lombok.Getter
+@lombok.ToString(of = {"username", "firstName", "lastName", "reputation"})
 
 public class Account
 {
-	@Id private final String accountID;
+	//@Id private final String accountID;
 
-	@Setter private boolean isModerator;
-    @Setter private String username;			/* Must be unique					*/
-    @Setter private String firstName;
-	@Setter private String lastName;
+	@lombok.Setter private boolean isModerator;
+    @lombok.Setter private String username;			/* Must be unique					*/
+    @lombok.Setter private String firstName;
+	@lombok.Setter private String lastName;
 	/*@Setter private Location location;*/
 	
-	@Setter private boolean isPublic;
-	@Setter private boolean isFacebookLinked;
-	@Setter private double reputationReq;		/* Represents fraction of user rep 	*/
-	@Setter private int proximityReq;
+	@lombok.Setter private boolean isPublic;
+	@lombok.Setter private boolean isFacebookLinked;
+	@lombok.Setter private double reputationReq;		/* Represents fraction of user rep 	*/
+	@lombok.Setter private int proximityReq;
 	
-	@Setter private int reputation;			
-	private List<Skill> skills;
+	@lombok.Setter private int reputation;			
+	private ArrayList<Skill> skills;
 	
-	private List<String> groupIDs;
-	private List<String> friendIDs;
-	private List<String> messageIDs;
+	private ArrayList<String> groupIDs;
+	private ArrayList<String> friendIDs;
+	private ArrayList<String> messageIDs;
 	
-	public Account(@NonNull String username, String firstName, String lastName)
+	public Account(@lombok.NonNull String username, String firstName, String lastName)
 	{
 		this.username = username;
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.isModerator = 0;
-		this.isPublic = 0;
+		this.isModerator = false;
+		this.isPublic = false;
 		this.reputationReq = 0;
 		this.proximityReq = 0;
 		this.reputation = 0;
@@ -49,7 +52,7 @@ public class Account
 	{
 		for(Skill s : this.skills)
 		{
-			if(s.skillName == skillName)
+			if(s.getSkillName() == skillName)
 			{
 				return s;
 			}
@@ -57,7 +60,7 @@ public class Account
 		return null;
 	}
 
-	public void addSkill(@NonNull Skill skill)
+	public void addSkill(@lombok.NonNull Skill skill)
 	{
 		this.skills.add(skill);
 	}
@@ -66,9 +69,9 @@ public class Account
 	{
 		for(Skill s : this.skills)
 		{
-			if(s.skillName == skillName)
+			if(s.getSkillName() == skillName)
 			{
-				skills.remove(indexOf(s));
+				skills.remove(skills.indexOf(s));
 				return true;
 			}
 		}
@@ -82,18 +85,18 @@ public class Account
 
 	public boolean meetSkillReq(Skill skill)
 	{
-		Skill candidate = getSkill(skill.skillName);
-		if(candidate && candidate.skillLevel >= skill.skillLevel)
+		Skill candidate = getSkill(skill.getSkillName());
+		if(candidate != null && candidate.getSkillLevel() >= skill.getSkillLevel())
 		{
 			return true;
 		}
 		return false;
 	}
 
-	public Message makeFriendInvite(String content)
+	/*public Message makeFriendInvite(String content)
 	{
 		return new Message(content, this.accountID, "Friend Invite");
 	}
-
+	*/
 
 }
