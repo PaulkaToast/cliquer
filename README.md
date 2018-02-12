@@ -2,7 +2,15 @@
 Come clique away
 
 ## Spring Setup
-After cloning the repository, import the folder as an existing project. It should detect maven dependencies and prompt for maven information. After finalizing the project, configure Spring to have the main class point to `CliquerApplication.java`
+### MongoDB
+1. Install MongoDB a defined here [MongoDB Manual](https://docs.mongodb.com/manual/installation/ "MongoDB Installation Manual")
+2. If you wish to add authentication, change database name, or change the default port, update the `application.properties` file in Spring
+### Spring
+1. Import from existing code in your IDEA and point to the server folder
+2. If needed, manually set to a Maven project model
+3. Your IDEA should display a project snapshot `com.styxxco.cliquer:X.X.X-SNAPSHOT`
+4. After creating the project, add the Lombok plugin to your IDEA to remove warnings
+5. Ensure the main class is pointed to `com.styxxco.cliquer.CliquerApplication` in order to run
 
 ## Client Setup
 1. Run `npm install` or `yarn install` in the client folder of the project on your machine.
