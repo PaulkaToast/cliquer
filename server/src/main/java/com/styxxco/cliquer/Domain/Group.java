@@ -1,5 +1,5 @@
 
-package com.styxxco.cliquer;
+package com.styxxco.cliquer.domain;
 
 import java.util.*;
 import org.springframework.data.annotation.Id;
@@ -12,7 +12,7 @@ import org.springframework.data.annotation.Id;
 
 public class Group
 {
-	//@Id private final String groupID;
+	@Id private String groupID;
 
 	@lombok.Setter private String groupName;
 	@lombok.Setter private String groupPurpose;

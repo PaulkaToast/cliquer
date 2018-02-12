@@ -1,5 +1,5 @@
 
-package com.styxxco.cliquer;
+package com.styxxco.cliquer.domain;
 
 import org.springframework.data.annotation.Id;
 
@@ -11,7 +11,7 @@ import org.springframework.data.annotation.Id;
 
 public class Message
 {
-	//@Id private final String messageID;
+	@Id private String messageID;
 
 	private final String content;		/* The actual message in the Message		*/
 	private final String senderID;		/* MongoDB ID of entity that sent message	*/

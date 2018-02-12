@@ -1,5 +1,5 @@
 
-package com.styxxco.cliquer;
+package com.styxxco.cliquer.domain;
 
 import org.springframework.data.annotation.Id;
 
@@ -12,8 +12,7 @@ import org.springframework.data.annotation.Id;
 
 public class Skill
 {
-	//@Id private final String skillID;
-
+	@Id private String skillID;
 	private String skillName;
 	private int skillLevel;
 

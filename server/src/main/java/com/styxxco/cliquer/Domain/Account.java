@@ -1,5 +1,5 @@
 
-package com.styxxco.cliquer;
+package com.styxxco.cliquer.domain;
 
 import java.util.*;
 import org.springframework.data.annotation.Id;
@@ -12,7 +12,7 @@ import org.springframework.data.annotation.Id;
 
 public class Account
 {
-	//@Id private final String accountID;
+	@Id private String accountID;
 
 	@lombok.Setter private boolean isModerator;
     @lombok.Setter private String username;			/* Must be unique					*/
