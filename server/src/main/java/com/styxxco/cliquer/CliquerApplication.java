@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 @SpringBootApplication
 public class CliquerApplication {
 
-	@Autowired private AccountRepository accountRepository;
-
 	public static void main(String[] args) {
 		SpringApplication.run(CliquerApplication.class, args);
 	}

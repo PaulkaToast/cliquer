@@ -1,8 +1,10 @@
 
-package com.styxxco.cliquer;
+package com.styxxco.cliquer.domain;
+
+import lombok.Generated;
+import org.springframework.data.annotation.Id;
 
 import java.util.*;
-import org.springframework.data.annotation.Id;
 
 /* Serves as the entity representing user and moderator data.	*/
 /* Extended by the Moderator class								*/
@@ -12,7 +14,9 @@ import org.springframework.data.annotation.Id;
 
 public class Account
 {
-	//@Id private final String accountID;
+	@Id
+	@Generated
+	private Long accountID;
 
 	@lombok.Setter private boolean isModerator;
     @lombok.Setter private String username;			/* Must be unique					*/

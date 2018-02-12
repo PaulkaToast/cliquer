@@ -1,17 +1,20 @@
 
-package com.styxxco.cliquer;
-
-import org.springframework.data.annotation.Id;
+package com.styxxco.cliquer.domain;
 
 /* Serves as the entity representing user and moderator data.	*/
 /* Extended by the Moderator class								*/
+
+import lombok.Generated;
+import org.springframework.data.annotation.Id;
 
 @lombok.Getter
 @lombok.ToString(exclude = {"messageID", "type"})
 
 public class Message
 {
-	//@Id private final String messageID;
+	@Id
+	@Generated
+	private Long messageID;
 
 	private final String content;		/* The actual message in the Message		*/
 	private final String senderID;		/* MongoDB ID of entity that sent message	*/

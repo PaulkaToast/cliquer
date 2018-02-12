@@ -1,11 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.springframework.org/schema/mvc">
 <head>
-    <title>React App</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no"/>
+    <meta name="theme-color" content="#000000"/>
+    <link rel="manifest" th:href="@{/json/manifest.json}"/>
+    <link rel="shortcut icon" th:href="@{/ico/favicon.ico}"/>
+    <title>My Movie List</title>
+    <link th:href="@{/css/main.b0f3b44c.css}" rel="stylesheet"/>
 </head>
 <body>
-
-    <h1>REACT APP</h1>
-
+<noscript>You need to enable JavaScript to run this app.</noscript>
+<div id="root"></div>
+<script type="text/javascript" th:src="@{/js/main.2e6dba32.js}"></script>
 </body>
 </html>

@@ -1,18 +1,22 @@
 
-package com.styxxco.cliquer;
+package com.styxxco.cliquer.domain;
+
+import lombok.Generated;
+import org.springframework.data.annotation.Id;
 
 import java.util.*;
-import org.springframework.data.annotation.Id;
 
 /* Serves as the entity representing user and moderator data.	*/
 /* Extended by the Moderator class								*/
 
 @lombok.Getter
-@lombok.ToString(exclude = {"messageID", "type"})
+@lombok.ToString(exclude = {"groupID"})
 
 public class Group
 {
-	//@Id private final String groupID;
+	@Id
+	@Generated
+	private Long groupID;
 
 	@lombok.Setter private String groupName;
 	@lombok.Setter private String groupPurpose;

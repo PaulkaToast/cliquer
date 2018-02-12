@@ -1,10 +1,11 @@
 
-package com.styxxco.cliquer;
-
-import org.springframework.data.annotation.Id;
+package com.styxxco.cliquer.domain;
 
 /* Serves as the entity representing user and moderator data.	*/
 /* Extended by the Moderator class								*/
+
+import lombok.Generated;
+import org.springframework.data.annotation.Id;
 
 @lombok.Getter
 @lombok.Setter
@@ -12,7 +13,9 @@ import org.springframework.data.annotation.Id;
 
 public class Skill
 {
-	//@Id private final String skillID;
+	@Id
+	@Generated
+	private Long skillID;
 
 	private String skillName;
 	private int skillLevel;
@@ -22,4 +25,5 @@ public class Skill
 		this.skillName = name;
 		this.skillLevel = level;
 	}
+
 }
