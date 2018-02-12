@@ -41,7 +41,7 @@ class Login extends Component {
         <Row>
           <Col className="sign-up-container" md={{ size: 4, offset: 8 }}>
             <Link to="/register">
-              <Button outline color="secondary">
+              <Button color="secondary">
                 Sign Up
               </Button>
             </Link>
@@ -66,12 +66,13 @@ class Login extends Component {
           />
           <Button type="submit" color="primary" size="lg" block>Sign In</Button>
           { this.state.error && <p>{this.state.error.message}</p> }
-          
-          <Button type="submit" color="info" size="lg" block 
-            onClick={this.logInWithFacebook}
-          >
-            Sign In with Facebook
-          </Button>
+
+          <div className="fb-container">
+            <button type="button" className="btn btn-lg btn-block btn-social btn-facebook" 
+              onClick={this.logInWithFacebook}>
+              <i className="fa fa-facebook fa-fw"></i> Sign in with Facebook
+            </button>
+          </div>
         </form>
       </div>
       </Container>
