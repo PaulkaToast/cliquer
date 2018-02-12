@@ -16,7 +16,7 @@ public class Account
 {
 	@Id
 	@Generated
-	private Long accountID;
+	private String accountID;
 
 	@lombok.Setter private boolean isModerator;
     @lombok.Setter private String username;			/* Must be unique					*/

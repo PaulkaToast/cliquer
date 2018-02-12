@@ -16,7 +16,7 @@ public class Group
 {
 	@Id
 	@Generated
-	private Long groupID;
+	private String groupID;
 
 	@lombok.Setter private String groupName;
 	@lombok.Setter private String groupPurpose;

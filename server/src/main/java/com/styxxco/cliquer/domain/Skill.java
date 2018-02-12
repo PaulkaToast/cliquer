@@ -15,7 +15,7 @@ public class Skill
 {
 	@Id
 	@Generated
-	private Long skillID;
+	private String skillID;
 
 	private String skillName;
 	private int skillLevel;

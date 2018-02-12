@@ -14,7 +14,7 @@ public class Message
 {
 	@Id
 	@Generated
-	private Long messageID;
+	private String messageID;
 
 	private final String content;		/* The actual message in the Message		*/
 	private final String senderID;		/* MongoDB ID of entity that sent message	*/
