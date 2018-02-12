@@ -5,6 +5,7 @@ import { Route } from 'react-router'
 import { ConnectedRouter as Router } from 'react-router-redux'
 import { Provider } from 'react-redux'
 
+import 'bootstrap/dist/css/bootstrap.css';
 import './css/index.css'
 import App from './components/App'
 import registerServiceWorker from './registerServiceWorker'

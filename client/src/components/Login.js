@@ -1,4 +1,6 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+import { Container, Row, Col, Button } from 'reactstrap';
 
 import '../css/Login.css'
 import { auth, facebookProvider } from '../firebase'
@@ -35,33 +37,44 @@ class Login extends Component {
 
   render() {
     return (
-      <div className="Login">
+      <Container fluid>
+        <Row>
+          <Col className="sign-up-container" md={{ size: 4, offset: 8 }}>
+            <Link to="/register">
+              <Button outline color="secondary">
+                Sign Up
+              </Button>
+            </Link>
+          </Col>
+        </Row>
+      <div className="Login form-signin">
           <form onSubmit={this.handleSubmit}>
-          <input
-            required
+          <h2 className="form-signin-heading">Sign In </h2>
+          <label htmlFor="inputEmail" className="sr-only">Email address</label>
+          <input id="inputEmail" className="form-control" 
+            required autoFocus
             name="email"
-            type="text"
+            type="email"
             placeholder="Email Address"
           />
-          <input
+          <label htmlFor="inputPassword" className="sr-only">Password</label>
+          <input id="inputPassword" className="form-control"
             required
             name="password"
             type="password"
             placeholder="Password"
           />
-          <button type="submit">
-            Log In
-          </button>
-
+          <Button type="submit" color="primary" size="lg" block>Sign In</Button>
           { this.state.error && <p>{this.state.error.message}</p> }
-        </form>
-          <button 
-            type="button"
+          
+          <Button type="submit" color="info" size="lg" block 
             onClick={this.logInWithFacebook}
           >
-            Log In with Facebook
-          </button>
+            Sign In with Facebook
+          </Button>
+        </form>
       </div>
+      </Container>
     )
   }
 }
