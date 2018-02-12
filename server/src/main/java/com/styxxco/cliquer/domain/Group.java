@@ -1,7 +1,7 @@
 
 package com.styxxco.cliquer.domain;
 
-import lombok.Generated;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 
 import java.util.*;
@@ -9,8 +9,8 @@ import java.util.*;
 /* Serves as the entity representing user and moderator data.	*/
 /* Extended by the Moderator class								*/
 
-@lombok.Getter
-@lombok.ToString(exclude = {"groupID"})
+@Getter
+@ToString(exclude = {"groupID"})
 
 public class Group
 {
@@ -18,18 +18,18 @@ public class Group
 	@Generated
 	private String groupID;
 
-	@lombok.Setter private String groupName;
-	@lombok.Setter private String groupPurpose;
+	@Setter private String groupName;
+	@Setter private String groupPurpose;
 	
 	private ArrayList<Skill> skillReqs;
-	@lombok.Setter private int reputationReq;
-	@lombok.Setter private int proximityReq;
+	@Setter private int reputationReq;
+	@Setter private int proximityReq;
 
-	@lombok.Setter private String groupLeaderID;
+	@Setter private String groupLeaderID;
 	private ArrayList<String> groupMemberIDs;	/* Account ID of the group members */
 	/* private ChatLog chat */
 
-	public Group(@lombok.NonNull String groupName, String groupPurpose, String groupLeaderID)
+	public Group(@NonNull String groupName, String groupPurpose, String groupLeaderID)
 	{
 		this.groupName = groupName;
 		this.groupPurpose = groupPurpose;

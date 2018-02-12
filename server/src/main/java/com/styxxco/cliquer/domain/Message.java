@@ -4,11 +4,11 @@ package com.styxxco.cliquer.domain;
 /* Serves as the entity representing user and moderator data.	*/
 /* Extended by the Moderator class								*/
 
-import lombok.Generated;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 
-@lombok.Getter
-@lombok.ToString(exclude = {"messageID", "type"})
+@Getter
+@ToString(exclude = {"messageID", "type"})
 
 public class Message
 {

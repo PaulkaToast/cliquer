@@ -1,7 +1,7 @@
 
 package com.styxxco.cliquer.domain;
 
-import lombok.Generated;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 
 import java.util.*;
@@ -9,8 +9,8 @@ import java.util.*;
 /* Serves as the entity representing user and moderator data.	*/
 /* Extended by the Moderator class								*/
 
-@lombok.Getter
-@lombok.ToString(of = {"username", "firstName", "lastName", "reputation"})
+@Getter
+@ToString(of = {"username", "firstName", "lastName", "reputation"})
 
 public class Account
 {
@@ -18,25 +18,25 @@ public class Account
 	@Generated
 	private String accountID;
 
-	@lombok.Setter private boolean isModerator;
-    @lombok.Setter private String username;			/* Must be unique					*/
-    @lombok.Setter private String firstName;
-	@lombok.Setter private String lastName;
+	@Setter private boolean isModerator;
+    @Setter private String username;			/* Must be unique					*/
+    @Setter private String firstName;
+	@Setter private String lastName;
 	/*@Setter private Location location;*/
 	
-	@lombok.Setter private boolean isPublic;
-	@lombok.Setter private boolean isFacebookLinked;
-	@lombok.Setter private double reputationReq;		/* Represents fraction of user rep 	*/
-	@lombok.Setter private int proximityReq;
+	@Setter private boolean isPublic;
+	@Setter private boolean isFacebookLinked;
+	@Setter private double reputationReq;		/* Represents fraction of user rep 	*/
+	@Setter private int proximityReq;
 	
-	@lombok.Setter private int reputation;			
+	@Setter private int reputation;			
 	private ArrayList<Skill> skills;
 	
 	private ArrayList<String> groupIDs;
 	private ArrayList<String> friendIDs;
 	private ArrayList<String> messageIDs;
 	
-	public Account(@lombok.NonNull String username, String firstName, String lastName)
+	public Account(@NonNull String username, String firstName, String lastName)
 	{
 		this.username = username;
 		this.firstName = firstName;
@@ -64,7 +64,7 @@ public class Account
 		return null;
 	}
 
-	public void addSkill(@lombok.NonNull Skill skill)
+	public void addSkill(@NonNull Skill skill)
 	{
 		this.skills.add(skill);
 	}
