@@ -6,7 +6,7 @@
 }
 
 .sign-up-container {
-    text-align: right;
+    text-align: center;
     margin-top: 6px;
 }
 
@@ -22,6 +22,7 @@
 
 .logo img {
     width: 300px;
+    padding-top: 50px
 }
 
 .fb-container {

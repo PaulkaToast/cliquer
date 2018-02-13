@@ -40,15 +40,6 @@ class Login extends Component {
     return (
       <Container fluid>
         <Row>
-          <Col className="sign-up-container" md={{ size: 4, offset: 8 }}>
-            <Link to="/register">
-              <Button color="secondary">
-                Sign Up
-              </Button>
-            </Link>
-          </Col>
-        </Row>
-        <Row>
           <Col className="logo" md={{ size: 4, offset:4}}>
             <img src={Logo} alt="" />
           </Col>
@@ -56,7 +47,6 @@ class Login extends Component {
         
       <div className="Login form-signin">
           <form onSubmit={this.handleSubmit}>
-          <h2 className="form-signin-heading">Sign In </h2>
           <label htmlFor="inputEmail" className="sr-only">Email address</label>
           <input id="inputEmail" className="form-control" 
             required autoFocus
@@ -71,17 +61,24 @@ class Login extends Component {
             type="password"
             placeholder="Password"
           />
-          <Button type="submit" color="primary" size="lg" block>Sign In</Button>
+          <Button type="submit" color="primary" size="lg" block>Log In</Button>
           { this.state.error && <p>{this.state.error.message}</p> }
 
           <div className="fb-container">
             <button type="button" className="btn btn-lg btn-block btn-social btn-facebook" 
               onClick={this.logInWithFacebook}>
-              <i className="fa fa-facebook fa-fw"></i> Sign in with Facebook
+              <i className="fa fa-facebook fa-fw"></i> Log in with Facebook
             </button>
           </div>
         </form>
       </div>
+      <Row>
+          <Col className="sign-up-container" md={{ size: 4, offset: 4 }}>
+            <Link to="/register">
+                Create an Account
+            </Link>
+          </Col>
+        </Row>
       </Container>
     )
   }
