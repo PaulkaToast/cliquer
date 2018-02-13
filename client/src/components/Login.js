@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Container, Row, Col, Button } from 'reactstrap';
 
 import '../css/Login.css'
+import Logo from '../images/cliquerLogo.png';
 import { auth, facebookProvider } from '../firebase'
 
 class Login extends Component {
@@ -47,6 +48,12 @@ class Login extends Component {
             </Link>
           </Col>
         </Row>
+        <Row>
+          <Col className="logo" md={{ size: 4, offset:4}}>
+            <img src={Logo} alt="" />
+          </Col>
+        </Row>
+        
       <div className="Login form-signin">
           <form onSubmit={this.handleSubmit}>
           <h2 className="form-signin-heading">Sign In </h2>
