@@ -18,14 +18,21 @@ public class Group
 	@Generated
 	private String groupID;
 
-	@Setter private String groupName;
-	@Setter private String groupPurpose;
+	@Setter
+    private String groupName;
+	@Setter
+    private String groupPurpose;
 	
 	private ArrayList<Skill> skillReqs;
-	@Setter private int reputationReq;
-	@Setter private int proximityReq;
+	@Setter
+    private boolean isPublic;
+	@Setter
+    private int reputationReq;
+	@Setter
+    private int proximityReq;
 
-	@Setter private String groupLeaderID;
+	@Setter
+    private String groupLeaderID;
 	private ArrayList<String> groupMemberIDs;	/* Account ID of the group members */
 	/* private ChatLog chat */
 
@@ -36,6 +43,7 @@ public class Group
 		this.groupLeaderID = groupLeaderID;
 
 		this.skillReqs = new ArrayList<Skill>();
+		this.isPublic = false;
 		this.reputationReq = 0;
 		this.proximityReq = 0;
 		this.groupMemberIDs = new ArrayList<String>();

@@ -18,18 +18,24 @@ public class Account
 	@Generated
 	private String accountID;
 
-	@Setter private boolean isModerator;
-    @Setter private String username;			/* Must be unique					*/
-    @Setter private String firstName;
-	@Setter private String lastName;
+    private String username;			/* Must be unique, equivalent to uid in frontend */
+    @Setter
+	private String firstName;
+	@Setter
+	private String lastName;
 	/*@Setter private Location location;*/
+
+	@Setter
+	private boolean isModerator;
+	@Setter
+	private boolean isPublic;
+	@Setter
+	private double reputationReq;		/* Represents fraction of user rep */
+	@Setter
+	private int proximityReq;
 	
-	@Setter private boolean isPublic;
-	@Setter private boolean isFacebookLinked;
-	@Setter private double reputationReq;		/* Represents fraction of user rep 	*/
-	@Setter private int proximityReq;
-	
-	@Setter private int reputation;			
+	@Setter
+	private int reputation;
 	private ArrayList<Skill> skills;
 	
 	private ArrayList<String> groupIDs;

@@ -4,9 +4,11 @@ package com.styxxco.cliquer.database;
 import com.styxxco.cliquer.domain.Group;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+import java.util.ArrayList;
+
 public interface GroupRepository extends MongoRepository<Group, String>
 {
 	public Group findByGroupID(String groupID);
-	public Group findByGroupName(String groupName);
-	public Group findByGroupLeaderID(String accountID);
+	public ArrayList<Group> findByGroupName(String groupName);
+	public ArrayList<Group> findByGroupLeaderID(String accountID);
 }
