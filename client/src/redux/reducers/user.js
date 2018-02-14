@@ -1,16 +1,20 @@
-function auth(state = {}, action) {
+function user(state = {}, action) {
     switch(action.type) {
         case 'LOG_IN': 
             return Object.assign({}, state, {
-                loggedIn: true,
+                data: action.user,
             })
         case 'LOG_OUT':
             return Object.assign({}, state, {
-                loggedIn: false,
+                data: null,
+            })
+        case 'UPDATE_USER':
+            return Object.assign({}, state, {
+                data: action.data,
             })
         default:
             return state
     }
 }
 
-export default auth
+export default user

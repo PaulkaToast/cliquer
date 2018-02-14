@@ -6,7 +6,6 @@ import '../css/App.css'
 import { firebase } from '../firebase'
 import { logIn, logOut } from '../redux/actions'
 
-
 import Login from './Login'
 import Register from './Register'
 import Main from './Main'
@@ -41,6 +40,7 @@ class App extends Component {
   componentDidMount() {
     firebase.onAuthStateChanged(authUser => {
       if(authUser) {
+        console.log(authUser)
         this.props.logIn(authUser)
       } else {
         this.props.logOut(authUser)
@@ -80,7 +80,7 @@ class App extends Component {
 
 const mapStateToProps = (state) => {
 	return {
-    user: state.auth.user,
+    user: state.user.data,
     loggedIn: state.auth.loggedIn
 	}
 }

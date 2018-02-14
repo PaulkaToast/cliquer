@@ -62,7 +62,6 @@ class Login extends Component {
             placeholder="Password"
           />
           <Button type="submit" color="primary" size="lg" block>Log In</Button>
-          { this.state.error && <p>{this.state.error.message}</p> }
 
           <div className="fb-container">
             <button type="button" className="btn btn-lg btn-block btn-social btn-facebook" 
@@ -70,6 +69,8 @@ class Login extends Component {
               <i className="fa fa-facebook fa-fw"></i> Log in with Facebook
             </button>
           </div>
+
+          { this.state.error && <p>{this.state.error.message}</p> }
         </form>
       </div>
       <Row>
