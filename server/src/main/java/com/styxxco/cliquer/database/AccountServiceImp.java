@@ -115,7 +115,7 @@ public class AccountServiceImp implements AccountService
         if(!user.isPublic())
         {
             /* Mask all information except name and reputation */
-            user.setSkills(null);
+            user.setSkillIDs(null);
             user.setGroupIDs(null);
             user.setFriendIDs(null);
         }
@@ -131,21 +131,30 @@ public class AccountServiceImp implements AccountService
     @Override
     public Account addSkill(String username, String skillName, int skillLevel)
     {
-        Skill check = skillRepository.findBySkillName(skillName);
-        if(check == null)
+        ArrayList<Skill> check = skillRepository.findBySkillName(skillName);
+        if(check.isEmpty())
         {
             logger.info("Skill " + skillName + " is invalid");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
-        check = user.getSkill(skillName);
-        if(check != null)
+        if(user == null)
         {
-            logger.info("User " + username + " already has skill " + skillName);
+            logger.info("User " + username + " not found");
             return null;
         }
+        for(ObjectId skillID : user.getSkillIDs())
+        {
+            Skill skill = skillRepository.findBySkillID(skillID);
+            if(skill.getSkillName().equals(skillName))
+            {
+                logger.info("User " + username + " already has skill " + skillName);
+                return null;
+            }
+        }
         Skill skill = new Skill(skillName, skillLevel);
-        user.addSkill(skill);
+        skillRepository.save(skill);
+        user.addSkill(skill.getSkillID());
         accountRepository.save(user);
         return user;
     }
@@ -154,15 +163,24 @@ public class AccountServiceImp implements AccountService
     public Account removeSkill(String username, String skillName)
     {
         Account user = accountRepository.findByUsername(username);
-        Skill skill = user.getSkill(skillName);
-        if(skill == null)
+        if(user == null)
         {
-            logger.info("User " + username + " does not have skill " + skillName);
+            logger.info("User " + username + " not found");
             return null;
         }
-        user.removeSkill(skillName);
-        accountRepository.save(user);
-        return user;
+        for(int i = 0; i < user.getSkillIDs().size(); i++)
+        {
+            Skill skill = skillRepository.findBySkillID(user.getSkillIDs().get(i));
+            if(skill.getSkillName().equals(skillName))
+            {
+                user.removeSkill(i);
+                skillRepository.delete(skill);
+                accountRepository.save(user);
+                return user;
+            }
+        }
+        logger.info("User " + username + " does not have skill " + skillName);
+        return null;
     }
 
     @Override

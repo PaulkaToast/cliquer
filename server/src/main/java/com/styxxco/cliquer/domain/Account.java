@@ -30,7 +30,7 @@ public class Account
 	private int proximityReq;
 
 	private int reputation;
-	private ArrayList<Skill> skills;
+	private ArrayList<ObjectId> skillIDs;
 
 	private ArrayList<ObjectId> groupIDs;
 	private ArrayList<ObjectId> friendIDs;
@@ -47,55 +47,25 @@ public class Account
 		this.reputationReq = 0;
 		this.proximityReq = 0;
 		this.reputation = 0;
-		this.skills = new ArrayList<>();
+		this.skillIDs = new ArrayList<>();
 		this.groupIDs = new ArrayList<>();
 		this.friendIDs = new ArrayList<>();
 		this.messageIDs = new ArrayList<>();
 	}
 
-	public Skill getSkill(String skillName)
+	public void addSkill(ObjectId skillID)
 	{
-		for(Skill s : this.skills)
-		{
-			if(s.getSkillName() == skillName)
-			{
-				return s;
-			}
-		}
-		return null;
+		this.skillIDs.add(skillID);
 	}
 
-	public void addSkill(@NonNull Skill skill)
+	public void removeSkill(int index)
 	{
-		this.skills.add(skill);
-	}
-
-	public boolean removeSkill(String skillName)
-	{
-		for(Skill s : this.skills)
-		{
-			if(s.getSkillName() == skillName)
-			{
-				skills.remove(skills.indexOf(s));
-				return true;
-			}
-		}
-		return false;
+		skillIDs.remove(index);
 	}
 
 	public void sendMessage(ObjectId messageID)
 	{
 		this.messageIDs.add(messageID);
-	}
-
-	public boolean meetSkillReq(Skill skill)
-	{
-		Skill candidate = getSkill(skill.getSkillName());
-		if(candidate != null && candidate.getSkillLevel() >= skill.getSkillLevel())
-		{
-			return true;
-		}
-		return false;
 	}
 
 	/*public Message makeFriendInvite(String content)

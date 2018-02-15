@@ -64,20 +64,18 @@ public class CliquerApplicationTests {
 		assertEquals("Montgomery", shawn.getLastName());
 
 		jordan.setPublic(true);
-		Skill skill = new Skill("Lifting", 1);
-		skillRepository.save(skill);
-		jordan.addSkill(skill);
+		ObjectId test = new ObjectId();
+		jordan.addSkill(test);
 		accountRepository.save(jordan);
 		retreive = service.getPublicProfile(jordan.getAccountID());
-		assertEquals(1, retreive.getSkill("Lifting").getSkillLevel());
+		assertEquals(test, retreive.getSkillIDs().get(0));
 
 		shawn.setPublic(false);
-		skill = new Skill("Programming", 8);
-		skillRepository.save(skill);
-		shawn.addSkill(skill);
+		test = new ObjectId();
+		shawn.addSkill(test);
 		accountRepository.save(shawn);
 		retreive = service.getPublicProfile(shawn.getAccountID());
-		assertNull(retreive.getSkills());
+		assertNull(retreive.getSkillIDs());
 	}
 
 }
