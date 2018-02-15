@@ -15,7 +15,7 @@ import org.springframework.data.annotation.Id;
 public class Skill
 {
 	@Id
-	private ObjectId skillID;
+	private final ObjectId skillID;
 
 	private String skillName;
 	private int skillLevel;

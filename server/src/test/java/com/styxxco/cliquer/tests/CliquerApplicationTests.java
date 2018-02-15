@@ -60,17 +60,21 @@ public class CliquerApplicationTests {
 		assertNull(retreive);
 
 		retreive = service.getMemberProfile(shawn.getAccountID());
-		assertNull(retreive.getAccountID());
+		assertNull(retreive.getUsername());
 		assertEquals("Montgomery", shawn.getLastName());
 
 		jordan.setPublic(true);
-		jordan.addSkill(new Skill("Lifting", 1));
+		Skill skill = new Skill("Lifting", 1);
+		skillRepository.save(skill);
+		jordan.addSkill(skill);
 		accountRepository.save(jordan);
 		retreive = service.getPublicProfile(jordan.getAccountID());
 		assertEquals(1, retreive.getSkill("Lifting").getSkillLevel());
 
 		shawn.setPublic(false);
-		shawn.addSkill(new Skill("Programming", 8));
+		skill = new Skill("Programming", 8);
+		skillRepository.save(skill);
+		shawn.addSkill(skill);
 		accountRepository.save(shawn);
 		retreive = service.getPublicProfile(shawn.getAccountID());
 		assertNull(retreive.getSkills());
