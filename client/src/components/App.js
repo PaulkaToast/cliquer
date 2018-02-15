@@ -40,7 +40,7 @@ class App extends Component {
   componentDidMount() {
     firebase.onAuthStateChanged(authUser => {
       if(authUser) {
-        console.log(authUser)
+        console.log(authUser.getIdToken())
         this.props.logIn(authUser)
       } else {
         this.props.logOut(authUser)
