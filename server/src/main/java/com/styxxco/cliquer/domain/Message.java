@@ -21,6 +21,9 @@ public class Message
 
 	private final String type;			/* Dictates behavior on user interation		*/
 
+	@Setter
+	private boolean read;
+
 	/* Types are:
 	 * - "Group Invite"
 	 * - "Friend Invite"
@@ -34,6 +37,7 @@ public class Message
 		this.content = content;
 		this.senderID = senderID;
 		this.type = type;
+		this.read = false;
 	}
 }
 

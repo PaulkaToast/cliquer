@@ -10,6 +10,7 @@ import java.util.*;
 /* Extended by the Moderator class								*/
 
 @Getter
+@Setter
 @ToString(of = {"username", "firstName", "lastName", "reputation"})
 
 public class Account
@@ -19,25 +20,18 @@ public class Account
 	private String accountID;
 
     private String username;			/* Must be unique, equivalent to uid in frontend */
-    @Setter
 	private String firstName;
-	@Setter
 	private String lastName;
-	/*@Setter private Location location;*/
+	/* private Location location;*/
 
-	@Setter
 	private boolean isModerator;
-	@Setter
 	private boolean isPublic;
-	@Setter
 	private double reputationReq;		/* Represents fraction of user rep */
-	@Setter
 	private int proximityReq;
-	
-	@Setter
+
 	private int reputation;
 	private ArrayList<Skill> skills;
-	
+
 	private ArrayList<String> groupIDs;
 	private ArrayList<String> friendIDs;
 	private ArrayList<String> messageIDs;

@@ -6,6 +6,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface AccountRepository extends MongoRepository<Account, String>
 {
-	public Account findByUsername(String username);
-	public Account findByAccountID(String accountID);
+	Account findByUsername(String username);
+	Account findByAccountID(String accountID);
 }
