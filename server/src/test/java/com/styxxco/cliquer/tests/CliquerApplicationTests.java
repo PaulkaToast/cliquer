@@ -3,6 +3,7 @@ package com.styxxco.cliquer.tests;
 import com.styxxco.cliquer.database.*;
 import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Skill;
+import com.styxxco.cliquer.service.impl.AccountServiceImpl;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
@@ -43,7 +44,7 @@ public class CliquerApplicationTests {
 	public void testAccountRetreival()
 	{
 		accountRepository.deleteAll();
-		AccountServiceImp service = new AccountServiceImp(accountRepository, skillRepository, messageRepository, groupRepository);
+		AccountServiceImpl service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
 		Account jordan = service.createAccount("reed226", "Jordan", "Reed");
 		assertNotNull(jordan);

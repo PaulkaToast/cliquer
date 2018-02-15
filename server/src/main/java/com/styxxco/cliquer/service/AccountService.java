@@ -1,11 +1,13 @@
-package com.styxxco.cliquer.database;
+package com.styxxco.cliquer.service;
 
 import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Message;
+import com.styxxco.cliquer.domain.RegisterUser;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.ArrayList;
 
-public interface AccountService {
+public interface AccountService extends UserDetailsService {
     Account createAccount(String username, String firstName, String lastName);
 
     Account getUserProfile(String username);
@@ -17,4 +19,6 @@ public interface AccountService {
     Account removeSkill(String username, String skillName);
 
     ArrayList<Message> getNewMessages(String username);
+
+    Account registerUser(RegisterUser init);
 }

@@ -1,28 +1,65 @@
-package com.styxxco.cliquer.database;
+package com.styxxco.cliquer.service.impl;
 
-import com.styxxco.cliquer.domain.Account;
-import com.styxxco.cliquer.domain.Skill;
-import com.styxxco.cliquer.domain.Message;
+import com.styxxco.cliquer.database.*;
+import com.styxxco.cliquer.domain.*;
+import com.styxxco.cliquer.security.SecurityConfiguration;
+import com.styxxco.cliquer.service.AccountService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import javax.annotation.PostConstruct;
+import java.util.*;
 
-public class AccountServiceImp implements AccountService
+@Service(value = AccountServiceImpl.NAME)
+public class AccountServiceImpl implements AccountService
 {
-    private static final Logger logger = LoggerFactory.getLogger(AccountServiceImp.class);
+    public final static String NAME = "AccountService";
 
-    private final AccountRepository accountRepository;
-    private final SkillRepository skillRepository;
-    private final MessageRepository messageRepository;
-    private final GroupRepository groupRepository;
+    private final static Logger logger = LoggerFactory.getLogger(AccountServiceImpl.class);
 
-    public AccountServiceImp(AccountRepository ar, SkillRepository sr, MessageRepository mr, GroupRepository gr)
+    @Autowired
+    private AccountRepository accountRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private SkillRepository skillRepository;
+
+    @Autowired
+    private MessageRepository messageRepository;
+
+    @Autowired
+    private GroupRepository groupRepoitory;
+
+    public AccountServiceImpl(AccountRepository ar, SkillRepository sr, MessageRepository mr, GroupRepository gr)
     {
         this.accountRepository = ar;
         this.skillRepository = sr;
         this.messageRepository = mr;
-        this.groupRepository = gr;
+        this.groupRepoitory = gr;
+    }
+
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        UserDetails userDetails = accountRepository.findByUsername(username);
+        if (userDetails == null)
+            return null;
+
+        Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
+        for (GrantedAuthority role: userDetails.getAuthorities()) {
+            grantedAuthorities.add(new SimpleGrantedAuthority(role.getAuthority()));
+        }
+
+        return new User(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities());
     }
 
     @Override
@@ -37,6 +74,52 @@ public class AccountServiceImp implements AccountService
         Account user = new Account(username, firstName, lastName);
         this.accountRepository.save(user);
         return user;
+    }
+
+    @Override
+    @Transactional
+    @Secured(value = SecurityConfiguration.Roles.ROLE_ANONYMOUS)
+    public Account registerUser(RegisterUser init) {
+
+        Account userLoaded = accountRepository.findByUsername(init.getUserName());
+
+        if (userLoaded == null) {
+            Account account = new Account(init.getUserName(), init.getEmail());
+            account.setAuthorities(getUserRoles());
+            account.setPassword(UUID.randomUUID().toString());
+            accountRepository.save(account);
+            logger.info("registerUser -> user created");
+            return account;
+        } else {
+            logger.info("registerUser -> user exists");
+            return userLoaded;
+        }
+    }
+
+    @PostConstruct
+    public void init() {
+        if (accountRepository.count() == 0) {
+                Account account = new Account("mod", "mod", "test@gmail.com");
+                account.setAuthorities(getModRoles());
+                accountRepository.save(account);
+        }
+    }
+
+    private List<Role> getModRoles() {
+        return Collections.singletonList(getRole(SecurityConfiguration.Roles.ROLE_MOD));
+    }
+
+    private List<Role> getUserRoles() {
+        return Collections.singletonList(getRole(SecurityConfiguration.Roles.ROLE_USER));
+    }
+
+    private Role getRole(String authority) {
+        Role modRole = roleRepository.findByAuthority(authority);
+        if (modRole == null) {
+            return new Role(authority);
+        } else {
+            return modRole;
+        }
     }
 
     @Override
