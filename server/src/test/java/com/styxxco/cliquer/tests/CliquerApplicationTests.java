@@ -103,13 +103,13 @@ public class CliquerApplicationTests {
 		retrieve = service.getUserProfile("montgo38");
 		assertEquals(shawn.getAccountID(), retrieve.getAccountID());
 
+		Skill skill = new Skill("Programming", 1);
+		skillRepository.save(skill);
 		modify = service.addSkill("reed226", "Lifting", 1);
 		assertNull(modify);
 		retrieve = service.getUserProfile("reed226");
 		assertEquals(0, retrieve.getSkillIDs().size());
-
-		Skill skill = new Skill("Programming", 1);
-		skillRepository.save(skill);
+		
 		skill = new Skill("Board Gaming", 1);
 		skillRepository.save(skill);
 		service.addSkill("montgo38", "Programming", 8);
