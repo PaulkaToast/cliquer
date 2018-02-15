@@ -42,6 +42,10 @@ public class Account implements UserDetails {
 	private ArrayList<String> friendIDs;
 	private ArrayList<String> messageIDs;
 
+	public Account() {
+
+	}
+
 	public Account(String username, String email) {
 		this.username = username;
 		this.email = email;
