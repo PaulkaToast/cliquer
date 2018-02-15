@@ -58,9 +58,9 @@ public class Account
 		this.skillIDs.add(skillID);
 	}
 
-	public void removeSkill(int index)
+	public void removeSkill(ObjectId skillID)
 	{
-		skillIDs.remove(index);
+		skillIDs.remove(skillIDs.indexOf(skillID));
 	}
 
 	public void sendMessage(ObjectId messageID)

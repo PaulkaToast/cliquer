@@ -129,6 +129,43 @@ public class AccountServiceImp implements AccountService
     }
 
     @Override
+    public ArrayList<Skill> getAllSkills(String username)
+    {
+        Account user = accountRepository.findByUsername(username);
+        if(user == null)
+        {
+            logger.info("User " + username + " not found");
+            return null;
+        }
+        ArrayList<Skill> skills = new ArrayList<>();
+        for(ObjectId skillID : user.getSkillIDs())
+        {
+            Skill skill = skillRepository.findBySkillID(skillID);
+            skills.add(skill);
+        }
+        return skills;
+    }
+
+    public Skill getSkill(String username, String skillName)
+    {
+        Account user = accountRepository.findByUsername(username);
+        if(user == null)
+        {
+            logger.info("User " + username + " not found");
+            return null;
+        }
+        ArrayList<Skill> skills = this.getAllSkills(username);
+        for(Skill skill : skills)
+        {
+            if(skill.getSkillName().equals(skillName))
+            {
+                return skill;
+            }
+        }
+        return null;
+    }
+
+    @Override
     public Account addSkill(String username, String skillName, int skillLevel)
     {
         ArrayList<Skill> check = skillRepository.findBySkillName(skillName);
@@ -143,14 +180,10 @@ public class AccountServiceImp implements AccountService
             logger.info("User " + username + " not found");
             return null;
         }
-        for(ObjectId skillID : user.getSkillIDs())
+        if(this.getSkill(username, skillName) != null)
         {
-            Skill skill = skillRepository.findBySkillID(skillID);
-            if(skill.getSkillName().equals(skillName))
-            {
-                logger.info("User " + username + " already has skill " + skillName);
-                return null;
-            }
+            logger.info("User " + username + " already has skill " + skillName);
+            return null;
         }
         Skill skill = new Skill(skillName, skillLevel);
         skillRepository.save(skill);
@@ -168,18 +201,14 @@ public class AccountServiceImp implements AccountService
             logger.info("User " + username + " not found");
             return null;
         }
-        for(int i = 0; i < user.getSkillIDs().size(); i++)
+        Skill skill = this.getSkill(username, skillName);
+        if(this.getSkill(username, skillName) == null)
         {
-            Skill skill = skillRepository.findBySkillID(user.getSkillIDs().get(i));
-            if(skill.getSkillName().equals(skillName))
-            {
-                user.removeSkill(i);
-                skillRepository.delete(skill);
-                accountRepository.save(user);
-                return user;
-            }
+            logger.info("User " + username + " does not have skill " + skillName);
+            return null;
+
         }
-        logger.info("User " + username + " does not have skill " + skillName);
+        user.removeSkill(skill.getSkillID());
         return null;
     }
 

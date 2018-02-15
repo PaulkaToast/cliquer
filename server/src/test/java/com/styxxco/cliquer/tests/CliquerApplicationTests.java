@@ -24,6 +24,7 @@ public class CliquerApplicationTests {
 	@Autowired
 	public GroupRepository groupRepository;
 
+	/* Test basic storage of data in MongoDB */
 	@Test
 	public void testDatabase() {
 		accountRepository.deleteAll();
@@ -41,8 +42,9 @@ public class CliquerApplicationTests {
 		assertEquals("Shawn", user.getFirstName());
 	}
 
+	/* Test account retrieval services */
 	@Test
-	public void testAccountRetreival()
+	public void testAccountRetrieval()
 	{
 		accountRepository.deleteAll();
 		AccountServiceImp service = new AccountServiceImp(accountRepository, skillRepository, messageRepository, groupRepository);
@@ -53,29 +55,76 @@ public class CliquerApplicationTests {
 		Account shawn = service.createAccount("montgo38", "Shawn", "Montgomery");
 		assertNotNull(shawn);
 
-		Account retreive = service.getUserProfile(shawn.getUsername());
-		assertEquals("Shawn", retreive.getFirstName());
+		Account retrieve = service.getUserProfile(shawn.getUsername());
+		assertEquals("Shawn", retrieve.getFirstName());
 
-		retreive = service.getUserProfile("reed");
-		assertNull(retreive);
+		retrieve = service.getUserProfile("reed");
+		assertNull(retrieve);
 
-		retreive = service.getMemberProfile(shawn.getAccountID());
-		assertNull(retreive.getUsername());
+		retrieve = service.getMemberProfile(shawn.getAccountID());
+		assertNull(retrieve.getUsername());
 		assertEquals("Montgomery", shawn.getLastName());
 
 		jordan.setPublic(true);
 		ObjectId test = new ObjectId();
 		jordan.addSkill(test);
 		accountRepository.save(jordan);
-		retreive = service.getPublicProfile(jordan.getAccountID());
-		assertEquals(test, retreive.getSkillIDs().get(0));
+		retrieve = service.getPublicProfile(jordan.getAccountID());
+		assertEquals(test, retrieve.getSkillIDs().get(0));
 
 		shawn.setPublic(false);
 		test = new ObjectId();
 		shawn.addSkill(test);
 		accountRepository.save(shawn);
-		retreive = service.getPublicProfile(shawn.getAccountID());
-		assertNull(retreive.getSkillIDs());
+		retrieve = service.getPublicProfile(shawn.getAccountID());
+		assertNull(retrieve.getSkillIDs());
+	}
+
+	/* Test account modification services */
+	@Test
+	public void testAccountModification()
+	{
+		accountRepository.deleteAll();
+		AccountServiceImp service = new AccountServiceImp(accountRepository, skillRepository, messageRepository, groupRepository);
+
+		Account jordan = service.createAccount("reed226", "Jordan", "Reed");
+		assertNotNull(jordan);
+
+		Account shawn = service.createAccount("montgo38", "Shawn", "Montgomery");
+		assertNotNull(shawn);
+		
+		Account modify = service.updateUserProfile("reed226", "firstName", "William");
+		assertEquals("William", modify.getFirstName());
+		Account retrieve = service.getUserProfile("reed226");
+		assertEquals("William", retrieve.getFirstName());
+
+		modify = service.updateUserProfile("montgo38", "accountID", new ObjectId().toString());
+		assertNull(modify);
+		retrieve = service.getUserProfile("montgo38");
+		assertEquals(shawn.getAccountID(), retrieve.getAccountID());
+
+		modify = service.addSkill("reed226", "Lifting", 1);
+		assertNull(modify);
+		retrieve = service.getUserProfile("reed226");
+		assertEquals(0, retrieve.getSkillIDs().size());
+
+		Skill skill = new Skill("Programming", 1);
+		skillRepository.save(skill);
+		skill = new Skill("Board Gaming", 1);
+		skillRepository.save(skill);
+		service.addSkill("montgo38", "Programming", 8);
+		service.addSkill("montgo38", "Board Gaming", 6);
+		skill = service.getSkill("montgo38", "Programming");
+		assertEquals("Programming", skill.getSkillName());
+		skill = service.getSkill("montgo38", "Board Gaming");
+		assertEquals(6, skill.getSkillLevel());
+
+		ObjectId skillID = skill.getSkillID();
+		service.removeSkill("montgo38", "Board Gaming");
+		skill = service.getSkill("montgo38", "Board Gaming");
+		assertNull(skill);
+		skill = skillRepository.findBySkillID(skillID);
+		assertNull(skill);
 	}
 
 }
