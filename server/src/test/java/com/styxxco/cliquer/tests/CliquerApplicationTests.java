@@ -3,6 +3,7 @@ package com.styxxco.cliquer.tests;
 import com.styxxco.cliquer.database.*;
 import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Skill;
+import org.bson.types.ObjectId;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
@@ -29,7 +30,7 @@ public class CliquerApplicationTests {
 
 		Account jordan = new Account("reed226", "Jordan", "Reed");
 		Account shawn = new Account("montgo38", "Shawn", "Montgomery");
-		String id = shawn.getAccountID();
+		ObjectId id = shawn.getAccountID();
 
 		accountRepository.save(jordan);
 		accountRepository.save(shawn);
