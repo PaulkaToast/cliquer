@@ -5,6 +5,7 @@ package com.styxxco.cliquer.domain;
 /* Extended by the Moderator class								*/
 
 import lombok.*;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
 @Getter
@@ -14,14 +15,14 @@ import org.springframework.data.annotation.Id;
 public class Skill
 {
 	@Id
-	@Generated
-	private String skillID;
+	private ObjectId skillID;
 
 	private String skillName;
 	private int skillLevel;
 
 	public Skill(String name, int level)			/* Constructor for creating a skill for an account	*/
 	{
+		this.skillID = new ObjectId();
 		this.skillName = name;
 		this.skillLevel = level;
 	}

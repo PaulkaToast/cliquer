@@ -2,6 +2,7 @@
 package com.styxxco.cliquer.domain;
 
 import lombok.*;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
 import java.util.*;
@@ -16,8 +17,7 @@ import java.util.*;
 public class Account
 {
 	@Id
-	@Generated
-	private String accountID;
+	private final ObjectId accountID;
 
     private String username;			/* Must be unique, equivalent to uid in frontend */
 	private String firstName;
@@ -32,12 +32,13 @@ public class Account
 	private int reputation;
 	private ArrayList<Skill> skills;
 
-	private ArrayList<String> groupIDs;
-	private ArrayList<String> friendIDs;
-	private ArrayList<String> messageIDs;
+	private ArrayList<ObjectId> groupIDs;
+	private ArrayList<ObjectId> friendIDs;
+	private ArrayList<ObjectId> messageIDs;
 	
 	public Account(@NonNull String username, String firstName, String lastName)
 	{
+		this.accountID = new ObjectId();
 		this.username = username;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -46,10 +47,10 @@ public class Account
 		this.reputationReq = 0;
 		this.proximityReq = 0;
 		this.reputation = 0;
-		this.skills = new ArrayList<Skill>();
-		this.groupIDs = new ArrayList<String>();
-		this.friendIDs = new ArrayList<String>();
-		this.messageIDs = new ArrayList<String>();
+		this.skills = new ArrayList<>();
+		this.groupIDs = new ArrayList<>();
+		this.friendIDs = new ArrayList<>();
+		this.messageIDs = new ArrayList<>();
 	}
 
 	public Skill getSkill(String skillName)
@@ -82,7 +83,7 @@ public class Account
 		return false;
 	}
 
-	public void sendMessage(String messageID)
+	public void sendMessage(ObjectId messageID)
 	{
 		this.messageIDs.add(messageID);
 	}

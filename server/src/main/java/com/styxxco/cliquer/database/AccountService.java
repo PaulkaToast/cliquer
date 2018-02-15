@@ -2,6 +2,7 @@ package com.styxxco.cliquer.database;
 
 import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Message;
+import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 
@@ -10,8 +11,8 @@ public interface AccountService {
 
     Account getUserProfile(String username);
     Account updateUserProfile(String username, String field, String value);
-    Account getMemberProfile(String accountID);
-    Account getPublicProfile(String accountID);
+    Account getMemberProfile(ObjectId accountID);
+    Account getPublicProfile(ObjectId accountID);
 
     Account addSkill(String username, String skillName, int skillLevel);
     Account removeSkill(String username, String skillName);

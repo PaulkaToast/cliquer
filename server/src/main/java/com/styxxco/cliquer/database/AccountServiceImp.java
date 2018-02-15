@@ -3,6 +3,7 @@ package com.styxxco.cliquer.database;
 import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Skill;
 import com.styxxco.cliquer.domain.Message;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +86,7 @@ public class AccountServiceImp implements AccountService
     }
 
     @Override
-    public Account getMemberProfile(String accountID)
+    public Account getMemberProfile(ObjectId accountID)
     {
         Account user = accountRepository.findByAccountID(accountID);
         if(user == null)
@@ -103,7 +104,7 @@ public class AccountServiceImp implements AccountService
     }
 
     @Override
-    public Account getPublicProfile(String accountID)
+    public Account getPublicProfile(ObjectId accountID)
     {
         Account user = accountRepository.findByAccountID(accountID);
         if(user == null)
@@ -174,7 +175,7 @@ public class AccountServiceImp implements AccountService
             return null;
         }
         ArrayList<Message> messages = new ArrayList<>();
-        for(String id : user.getMessageIDs())
+        for(ObjectId id : user.getMessageIDs())
         {
             Message message = messageRepository.findByMessageID(id);
             if(!message.isRead())

@@ -40,6 +40,7 @@ public class CliquerApplicationTests {
 		assertEquals("Shawn", user.getFirstName());
 	}
 
+	@Test
 	public void testAccountRetreival()
 	{
 		accountRepository.deleteAll();

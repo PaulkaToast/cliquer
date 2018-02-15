@@ -5,6 +5,7 @@ package com.styxxco.cliquer.domain;
 /* Extended by the Moderator class								*/
 
 import lombok.*;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
 @Getter
@@ -13,8 +14,7 @@ import org.springframework.data.annotation.Id;
 public class Message
 {
 	@Id
-	@Generated
-	private String messageID;
+	private final ObjectId messageID;
 
 	private final String content;		/* The actual message in the Message		*/
 	private final String senderID;		/* MongoDB ID of entity that sent message	*/
@@ -34,6 +34,7 @@ public class Message
 
 	public Message(String content, String senderID, String type)
 	{
+		this.messageID = new ObjectId();
 		this.content = content;
 		this.senderID = senderID;
 		this.type = type;
