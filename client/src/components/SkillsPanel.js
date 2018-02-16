@@ -1,6 +1,10 @@
 import React, { Component } from 'react'
+import { findDOMNode } from 'react-dom'
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import { connect } from 'react-redux'
+import Autosuggest from 'react-autosuggest'
+import AutosuggestHighlightMatch from 'autosuggest-highlight/match'
+import AutosuggestHighlightParse from 'autosuggest-highlight/parse'
 
 import '../css/SkillsPanel.css'
 import { addSkills } from '../redux/actions'
@@ -11,25 +15,81 @@ class SkillsPanel extends Component {
     this.state = {
       modal: false,
       newSkills: [],
+      suggestions: [],
+      value: '',
       animation: '',
       listClass: '',
     }
   }
 
+  skills = ['Java', 'JavaScript', 'Basketball', 'Swimming', 'React']
+
+
+  escapeRegexCharacters = (str) => {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+  
+  getSuggestions = (value) => {
+    const escapedValue = this.escapeRegexCharacters(value.trim());
+    
+    if (escapedValue === '') {
+      return [];
+    }
+  
+    const regex = new RegExp('\\b' + escapedValue, 'i');
+    
+    return this.skills.filter(skill => regex.test(this.getSuggestionValue(skill)));
+  }
+
+  getSuggestions = value => {
+    const inputValue = value.trim().toLowerCase();
+    const inputLength = inputValue.length;
+  
+    return inputLength === 0 ? [] : this.skills.filter(skill =>
+      skill.toLowerCase().slice(0, inputLength) === inputValue
+    )
+  }
+
+  onChange = (event, { newValue }) => {
+    this.setState({
+      value: newValue
+    });
+  };
+
+  // Autosuggest will call this function every time you need to update suggestions.
+  // You already implemented this logic above, so just use it.
+  onSuggestionsFetchRequested = ({ value }) => {
+    this.setState({
+      suggestions: this.getSuggestions(value)
+    });
+  };
+
+  // Autosuggest will call this function every time you need to clear suggestions.
+  onSuggestionsClearRequested = () => {
+    this.setState({
+      suggestions: []
+    });
+  };
+
   toggle = () => {
     if(this.state.modal) {
-      this.setState({ newSkills: [], modal: false })
+      this.setState({ newSkills: [], modal: false, value: '', suggestions: [] })
     } else {
       this.setState({ modal: true })
     }
   }
 
   shakeInput = () => {
-    this.setState({ animation: 'animated headShake invalid'}, () => {
-      setTimeout(() => {
-        this.setState({ animation: ''})
-      }, 750)
-    })
+    let element = document.getElementById("skillInput")
+    element.classList.toggle("animated")
+    element.classList.toggle("headShake")
+    element.classList.toggle("invalid")
+
+    setTimeout(() => {
+      element.classList.toggle("animated")
+      element.classList.toggle("headShake")
+      element.classList.toggle("invalid")
+    }, 750)
   }
 
   addSkills = () => {
@@ -56,13 +116,34 @@ class SkillsPanel extends Component {
     } else {
       this.shakeInput()
     }
-    ev.target.reset()
+    this.setState({ value: '' })
   }
   
   deleteNewSkill = (skill) => {
     const newSkills = [...this.state.newSkills]
     newSkills.splice(newSkills.indexOf(skill), 1)
     this.setState({ newSkills })
+  }
+
+  renderSuggestion = (suggestion, { query }) => {
+    const matches = AutosuggestHighlightMatch(suggestion, query);
+    const parts = AutosuggestHighlightParse(suggestion, matches);
+  
+    return (
+      <span className={'suggestion-content'}>
+        <span className="name">
+          {
+            parts.map((part, index) => {
+              const className = part.highlight ? 'highlight' : null;
+  
+              return (
+                <span className={className} key={index}>{part.text}</span>
+              );
+            })
+          }
+        </span>
+      </span>
+    )
   }
 
   renderNewSkillList = () => {
@@ -80,17 +161,40 @@ class SkillsPanel extends Component {
     )
   }
 
+  renderInputComponent = inputProps => {
+    return (
+      <input 
+        className={`${this.state.animation} new-skill-input form-control`}
+        id="skillInput"
+        required
+        autoFocus
+        name="skill"
+        type="text"
+        {...inputProps}
+      />
+    )
+  }
+
   renderSkillsForm = () => {
+    const { value, suggestions } = this.state
+
+    const inputProps = {
+      placeholder: 'Type a skill',
+      value,
+      onChange: this.onChange
+    }
+
     return (
       <form className="skill-form" onSubmit={this.handleSubmit}>
-        <input 
-            className={`${this.state.animation} new-skill-input form-control`}
-            required
-            autoFocus
-            name="skill"
-            type="text"
-            placeholder="Search for skills"
-          />
+        <Autosuggest
+          suggestions={suggestions}
+          onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+          onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+          getSuggestionValue={suggestion => suggestion}
+          renderSuggestion={this.renderSuggestion}
+          renderInputComponent={this.renderInputComponent}
+          inputProps={inputProps}
+        />
       </form>
     )
   }
