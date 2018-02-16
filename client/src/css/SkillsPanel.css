@@ -1,0 +1,39 @@
+.new-skills {
+    max-height: 350px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.new-skills.sliding {
+    overflow-y: hidden !important;
+}
+
+.new-skills .new-skill { 
+    color: #2E4057;
+}
+
+.new-skills .delete {
+    cursor: pointer;
+    color: #A3A3A3;
+}
+
+.new-skills .delete:hover {
+    color: #2E4057;
+}
+
+.new-skills .skill-text {
+    margin-left: 1rem;
+}
+
+.new-skill-input {
+    -webkit-animation-duration: 0.75s;
+    outline: none;
+    transition-duration: 0.25s;
+    
+}
+
+.new-skill-input.invalid {
+    border-color: red !important;
+}
+
+

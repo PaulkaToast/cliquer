@@ -4,3 +4,10 @@ export function updateUserData(data) {
         data
     }
 }
+
+export function addSkills(skills) {
+    return {
+        type: 'ADD_SKILLS',
+        skills
+    }
+}

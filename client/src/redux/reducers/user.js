@@ -12,6 +12,10 @@ function user(state = {}, action) {
             return Object.assign({}, state, {
                 data: action.data,
             })
+        case 'ADD_SKILLS': 
+            return Object.assign({}, state, {
+                skills: state.skills ? [...state.skills].concat(action.skills) : action.skills
+            })
         default:
             return state
     }

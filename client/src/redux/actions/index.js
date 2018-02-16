@@ -1,2 +1,2 @@
 export { logIn, logOut } from './auth'
-export { updateUserData } from './user'
+export { updateUserData, addSkills } from './user'
