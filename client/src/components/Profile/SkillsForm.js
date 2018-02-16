@@ -1,17 +1,17 @@
 import React, { Component } from 'react'
-import { findDOMNode } from 'react-dom'
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import { connect } from 'react-redux'
 import Autosuggest from 'react-autosuggest'
 import AutosuggestHighlightMatch from 'autosuggest-highlight/match'
 import AutosuggestHighlightParse from 'autosuggest-highlight/parse'
 
-import '../css/SkillsPanel.css'
-import { addSkills } from '../redux/actions'
+import '../../css/SkillsForm.css'
+import { addSkills } from '../../redux/actions'
 
-class SkillsPanel extends Component {
+class SkillsForm extends Component {
+
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       modal: false,
       newSkills: [],
@@ -24,26 +24,25 @@ class SkillsPanel extends Component {
 
   skills = ['Java', 'JavaScript', 'Basketball', 'Swimming', 'React']
 
-
   escapeRegexCharacters = (str) => {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   }
-  
+
   getSuggestions = (value) => {
-    const escapedValue = this.escapeRegexCharacters(value.trim());
+    const escapedValue = this.escapeRegexCharacters(value.trim())
     
     if (escapedValue === '') {
       return [];
     }
   
-    const regex = new RegExp('\\b' + escapedValue, 'i');
+    const regex = new RegExp('\\b' + escapedValue, 'i')
     
-    return this.skills.filter(skill => regex.test(this.getSuggestionValue(skill)));
+    return this.skills.filter(skill => regex.test(this.getSuggestionValue(skill)))
   }
 
   getSuggestions = value => {
-    const inputValue = value.trim().toLowerCase();
-    const inputLength = inputValue.length;
+    const inputValue = value.trim().toLowerCase()
+    const inputLength = inputValue.length
   
     return inputLength === 0 ? [] : this.skills.filter(skill =>
       skill.toLowerCase().slice(0, inputLength) === inputValue
@@ -51,25 +50,16 @@ class SkillsPanel extends Component {
   }
 
   onChange = (event, { newValue }) => {
-    this.setState({
-      value: newValue
-    });
-  };
+    this.setState({ value: newValue })
+  }
 
-  // Autosuggest will call this function every time you need to update suggestions.
-  // You already implemented this logic above, so just use it.
   onSuggestionsFetchRequested = ({ value }) => {
-    this.setState({
-      suggestions: this.getSuggestions(value)
-    });
-  };
+    this.setState({ suggestions: this.getSuggestions(value) })
+  }
 
-  // Autosuggest will call this function every time you need to clear suggestions.
   onSuggestionsClearRequested = () => {
-    this.setState({
-      suggestions: []
-    });
-  };
+    this.setState({ suggestions: [] })
+  }
 
   toggle = () => {
     if(this.state.modal) {
@@ -126,19 +116,18 @@ class SkillsPanel extends Component {
   }
 
   renderSuggestion = (suggestion, { query }) => {
-    const matches = AutosuggestHighlightMatch(suggestion, query);
-    const parts = AutosuggestHighlightParse(suggestion, matches);
+    const matches = AutosuggestHighlightMatch(suggestion, query)
+    const parts = AutosuggestHighlightParse(suggestion, matches)
   
     return (
       <span className={'suggestion-content'}>
         <span className="name">
           {
             parts.map((part, index) => {
-              const className = part.highlight ? 'highlight' : null;
-  
+              const className = part.highlight ? 'highlight' : null
               return (
                 <span className={className} key={index}>{part.text}</span>
-              );
+              )
             })
           }
         </span>
@@ -177,7 +166,6 @@ class SkillsPanel extends Component {
 
   renderSkillsForm = () => {
     const { value, suggestions } = this.state
-
     const inputProps = {
       placeholder: 'Type a skill',
       value,
@@ -198,11 +186,10 @@ class SkillsPanel extends Component {
       </form>
     )
   }
-
   render() {
     return (
-      <div className="SkillsPanel">
-        <Button color="danger" onClick={this.toggle}>Modal</Button>
+      <div className="SkillsForm">
+        <Button color="danger" onClick={this.toggle}>Add skills</Button>
         <Modal isOpen={this.state.modal} toggle={this.toggle} className="add-skills-modal">
           <ModalHeader toggle={this.toggle}>Add Skills</ModalHeader>
           <ModalBody>
@@ -225,4 +212,5 @@ const mapDispatchToProps = (dispatch) => {
 	}
 }
 
-export default connect(null, mapDispatchToProps)(SkillsPanel)
+export default connect(null, mapDispatchToProps)(SkillsForm)
+

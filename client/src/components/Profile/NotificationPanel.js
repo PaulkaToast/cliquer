@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import '../css/NotificationPanel.css'
+import '../../css/NotificationPanel.css'
 
 class NotificationPanel extends Component {
 

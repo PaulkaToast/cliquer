@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Container, Row, Col, Button } from 'reactstrap';
 
 import '../css/Login.css'
-import Logo from '../images/cliquerLogo.png';
+import Logo from '../img/cliquerLogo.png';
 import { auth, facebookProvider } from '../firebase'
 
 class Login extends Component {

@@ -4,9 +4,9 @@ import '../css/Main.css'
 
 import Navbar from './Navbar'
 import CreateGroup from './CreateGroup'
-import Groups from './Groups'
+import Groups from './Groups/Groups'
 import PublicGroups from './PublicGroups'
-import Profile from './Profile'
+import Profile from './Profile/Profile'
 import Settings from './Settings'
 
 class Main extends Component {

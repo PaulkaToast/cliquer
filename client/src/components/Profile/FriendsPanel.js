@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import '../css/FriendsPanel.css'
+import '../../css/FriendsPanel.css'
 
 class FriendsPanel extends Component {
 

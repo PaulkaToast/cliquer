@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import '../css/Groups.css'
+import '../../css/Groups.css'
 
 class Groups extends Component {
 
