@@ -61,7 +61,7 @@
   box-shadow: 0 0 0 0.2rem rgba(82, 70, 86, 0.25);
 }
 
-.react-autosuggest_input.invalid {
+.react-autosuggest__input.invalid {
   border-color: red !important;
 }
 

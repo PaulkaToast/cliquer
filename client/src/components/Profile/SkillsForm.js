@@ -24,15 +24,11 @@ class SkillsForm extends Component {
 
   skills = ['Java', 'JavaScript', 'Basketball', 'Swimming', 'React']
 
-  escapeRegexCharacters = (str) => {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  }
-
   getSuggestions = (value) => {
-    const escapedValue = this.escapeRegexCharacters(value.trim())
+    const escapedValue = value.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
     
     if (escapedValue === '') {
-      return [];
+      return []
     }
   
     const regex = new RegExp('\\b' + escapedValue, 'i')
@@ -71,6 +67,7 @@ class SkillsForm extends Component {
 
   shakeInput = () => {
     let element = document.getElementById("skillInput")
+    console.log
     element.classList.toggle("animated")
     element.classList.toggle("headShake")
     element.classList.toggle("invalid")
@@ -87,9 +84,16 @@ class SkillsForm extends Component {
     this.toggle()
   }
 
+  contains = (skill) => {
+    for(const i in this.skills) {
+      if(this.skills[i].toLowerCase() === skill.toLowerCase()) return this.skills[i]
+    }
+    return false
+  }
+
   handleSubmit = (ev) => {
     ev.preventDefault()
-    const skill = ev.target.skill.value
+    let skill = ev.target.skill.value
     const newSkills = [...this.state.newSkills]
 
     if(document.querySelector('.new-skills').clientHeight < 350) {
@@ -100,7 +104,7 @@ class SkillsForm extends Component {
       })
     }
 
-    if(!newSkills.includes(skill)) {
+    if((skill = this.contains(skill)) && !newSkills.includes(skill)) {
       newSkills.push(skill)
       this.setState({ newSkills })
     } else {
