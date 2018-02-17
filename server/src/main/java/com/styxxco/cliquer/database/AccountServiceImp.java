@@ -179,7 +179,6 @@ public class AccountServiceImp implements AccountService
             logger.info("User " + username + " not found");
             return null;
         }
-        Account user = accountRepository.findByUsername(username);
         ArrayList<Skill> skills = this.getAllUserSkills(username);
         for(Skill skill : skills)
         {

@@ -20,11 +20,11 @@ public class Skill implements Comparable<Skill>
 	private String skillName;
 	private int skillLevel;
 
-	public Skill(String name, int level)			/* Constructor for creating a skill for an account	*/
+	public Skill(String skillName, int skillLevel)			/* Constructor for creating a skill for an account	*/
 	{
 		this.skillID = new ObjectId();
-		this.skillName = name;
-		this.skillLevel = level;
+		this.skillName = skillName;
+		this.skillLevel = skillLevel;
 	}
 
 	@Override
