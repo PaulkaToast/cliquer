@@ -12,7 +12,7 @@ import org.springframework.data.annotation.Id;
 @Setter
 @ToString(exclude = {"skillID"})
 
-public class Skill
+public class Skill implements Comparable<Skill>
 {
 	@Id
 	private final ObjectId skillID;
@@ -27,4 +27,9 @@ public class Skill
 		this.skillLevel = level;
 	}
 
+	@Override
+	public int compareTo(Skill skill)
+	{
+		return this.skillName.compareTo(skill.skillName);
+	}
 }

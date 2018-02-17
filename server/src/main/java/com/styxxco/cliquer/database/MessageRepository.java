@@ -7,5 +7,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface MessageRepository extends MongoRepository<Message, String>
 {
+	boolean existsByMessageID(ObjectId messageID);
 	Message findByMessageID(ObjectId messageID);
 }

@@ -85,6 +85,7 @@ public class CliquerApplicationTests {
 	public void testAccountModification()
 	{
 		accountRepository.deleteAll();
+		skillRepository.deleteAll();
 		AccountServiceImp service = new AccountServiceImp(accountRepository, skillRepository, messageRepository, groupRepository);
 
 		Account jordan = service.createAccount("reed226", "Jordan", "Reed");
@@ -103,14 +104,14 @@ public class CliquerApplicationTests {
 		retrieve = service.getUserProfile("montgo38");
 		assertEquals(shawn.getAccountID(), retrieve.getAccountID());
 
-		Skill skill = new Skill("Programming", 1);
+		Skill skill = new Skill("Programming", 0);
 		skillRepository.save(skill);
 		modify = service.addSkill("reed226", "Lifting", 1);
 		assertNull(modify);
 		retrieve = service.getUserProfile("reed226");
 		assertEquals(0, retrieve.getSkillIDs().size());
-		
-		skill = new Skill("Board Gaming", 1);
+
+		skill = new Skill("Board Gaming", 0);
 		skillRepository.save(skill);
 		service.addSkill("montgo38", "Programming", 8);
 		service.addSkill("montgo38", "Board Gaming", 6);

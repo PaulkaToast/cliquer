@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class AccountServiceImp implements AccountService
 {
@@ -29,8 +30,7 @@ public class AccountServiceImp implements AccountService
     @Override
     public Account createAccount(String username, String firstName, String lastName)
     {
-        Account check = accountRepository.findByUsername(username);
-        if(check != null)
+        if(accountRepository.existsByUsername(username))
         {
             logger.info("User " + username + " already exists");
             return null;
@@ -43,18 +43,23 @@ public class AccountServiceImp implements AccountService
     @Override
     public Account getUserProfile(String username)
     {
-        Account user = accountRepository.findByUsername(username);
-        if(user == null)
+        if(!accountRepository.existsByUsername(username))
         {
             logger.info("User " + username + " not found");
             return null;
         }
+        Account user = accountRepository.findByUsername(username);
         return user;
     }
 
     @Override
     public Account updateUserProfile(String username, String field, String value)
     {
+        if(!accountRepository.existsByUsername(username))
+        {
+            logger.info("User " + username + " not found");
+            return null;
+        }
         Account user = accountRepository.findByUsername(username);
         switch(field)
         {
@@ -88,12 +93,12 @@ public class AccountServiceImp implements AccountService
     @Override
     public Account getMemberProfile(ObjectId accountID)
     {
-        Account user = accountRepository.findByAccountID(accountID);
-        if(user == null)
+        if(!accountRepository.existsByAccountID(accountID))
         {
             logger.info("User " + accountID + " not found");
             return null;
         }
+        Account user = accountRepository.findByAccountID(accountID);
         /* Mask private information and settings */
         user.setUsername(null);
         user.setModerator(false);
@@ -106,12 +111,12 @@ public class AccountServiceImp implements AccountService
     @Override
     public Account getPublicProfile(ObjectId accountID)
     {
-        Account user = accountRepository.findByAccountID(accountID);
-        if(user == null)
+        if(!accountRepository.existsByAccountID(accountID))
         {
             logger.info("User " + accountID + " not found");
             return null;
         }
+        Account user = accountRepository.findByAccountID(accountID);
         if(!user.isPublic())
         {
             /* Mask all information except name and reputation */
@@ -129,14 +134,35 @@ public class AccountServiceImp implements AccountService
     }
 
     @Override
-    public ArrayList<Skill> getAllSkills(String username)
+    public Skill addSkillToDatabase(String skillName)
     {
-        Account user = accountRepository.findByUsername(username);
-        if(user == null)
+        if(skillRepository.existsBySkillName(skillName))
+        {
+            logger.info("Skill " + skillName + " is already in database");
+            return null;
+        }
+        Skill skill = new Skill(skillName, 0);
+        skillRepository.save(skill);
+        return skill;
+    }
+
+    @Override
+    public ArrayList<Skill> getAllValidSkills()
+    {
+        ArrayList<Skill> skills = skillRepository.findBySkillLevel(0);
+        Collections.sort(skills);
+        return skills;
+    }
+
+    @Override
+    public ArrayList<Skill> getAllUserSkills(String username)
+    {
+        if(!accountRepository.existsByUsername(username))
         {
             logger.info("User " + username + " not found");
             return null;
         }
+        Account user = accountRepository.findByUsername(username);
         ArrayList<Skill> skills = new ArrayList<>();
         for(ObjectId skillID : user.getSkillIDs())
         {
@@ -148,13 +174,13 @@ public class AccountServiceImp implements AccountService
 
     public Skill getSkill(String username, String skillName)
     {
-        Account user = accountRepository.findByUsername(username);
-        if(user == null)
+        if(!accountRepository.existsByUsername(username))
         {
             logger.info("User " + username + " not found");
             return null;
         }
-        ArrayList<Skill> skills = this.getAllSkills(username);
+        Account user = accountRepository.findByUsername(username);
+        ArrayList<Skill> skills = this.getAllUserSkills(username);
         for(Skill skill : skills)
         {
             if(skill.getSkillName().equals(skillName))
@@ -168,21 +194,25 @@ public class AccountServiceImp implements AccountService
     @Override
     public Account addSkill(String username, String skillName, int skillLevel)
     {
-        ArrayList<Skill> check = skillRepository.findBySkillName(skillName);
-        if(check.isEmpty())
+        if(!skillRepository.existsBySkillName(skillName))
         {
             logger.info("Skill " + skillName + " is invalid");
             return null;
         }
-        Account user = accountRepository.findByUsername(username);
-        if(user == null)
+        if(!accountRepository.existsByUsername(username))
         {
             logger.info("User " + username + " not found");
             return null;
         }
+        Account user = accountRepository.findByUsername(username);
         if(this.getSkill(username, skillName) != null)
         {
             logger.info("User " + username + " already has skill " + skillName);
+            return null;
+        }
+        if(skillLevel < 0 || skillLevel > 10)
+        {
+            logger.info("Skill level " + skillLevel + " is invalid");
             return null;
         }
         Skill skill = new Skill(skillName, skillLevel);
@@ -195,12 +225,12 @@ public class AccountServiceImp implements AccountService
     @Override
     public Account removeSkill(String username, String skillName)
     {
-        Account user = accountRepository.findByUsername(username);
-        if(user == null)
+        if(!accountRepository.existsByUsername(username))
         {
             logger.info("User " + username + " not found");
             return null;
         }
+        Account user = accountRepository.findByUsername(username);
         Skill skill = this.getSkill(username, skillName);
         if(this.getSkill(username, skillName) == null)
         {
@@ -208,19 +238,21 @@ public class AccountServiceImp implements AccountService
             return null;
 
         }
+        skillRepository.delete(skill);
         user.removeSkill(skill.getSkillID());
-        return null;
+        accountRepository.save(user);
+        return user;
     }
 
     @Override
     public ArrayList<Message> getNewMessages(String username)
     {
-        Account user = accountRepository.findByUsername(username);
-        if(user == null)
+        if(!accountRepository.existsByUsername(username))
         {
             logger.info("User " + username + " not found");
             return null;
         }
+        Account user = accountRepository.findByUsername(username);
         ArrayList<Message> messages = new ArrayList<>();
         for(ObjectId id : user.getMessageIDs())
         {

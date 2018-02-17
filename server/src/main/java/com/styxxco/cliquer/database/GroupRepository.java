@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 public interface GroupRepository extends MongoRepository<Group, String>
 {
+	boolean existsByGroupID(ObjectId groupID);
 	Group findByGroupID(ObjectId groupID);
 	ArrayList<Group> findByGroupName(String groupName);
 	ArrayList<Group> findByGroupLeaderID(ObjectId accountID);
