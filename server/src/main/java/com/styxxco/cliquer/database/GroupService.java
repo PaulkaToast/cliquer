@@ -16,6 +16,9 @@ public interface GroupService {
 
     /* Group Modification */
     Group updateGroupSettings(ObjectId groupID, ObjectId groupLeaderID, String field, String value);
+    boolean hasGroupMember(Group group, ObjectId accountID);
     Group addGroupMember(ObjectId groupID, ObjectId groupLeaderID, ObjectId accountID);
     Group removeGroupMember(ObjectId groupID, ObjectId groupLeaderID, ObjectId accountID);
+
+    /* TODO Skill Requirements */
 }

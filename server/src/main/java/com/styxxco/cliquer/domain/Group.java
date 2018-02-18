@@ -11,6 +11,7 @@ import java.util.*;
 /* Extended by the Moderator class								*/
 
 @Getter
+@Setter
 @ToString(exclude = {"groupID"})
 
 public class Group
@@ -18,25 +19,19 @@ public class Group
 	@Id
 	private final ObjectId groupID;
 
-	@Setter
     private String groupName;
-	@Setter
     private String groupPurpose;
 	
-	private ArrayList<Skill> skillReqs;
-	@Setter
+	private ArrayList<ObjectId> skillReqs;
     private boolean isPublic;
-	@Setter
-    private int reputationReq;
-	@Setter
+    private double reputationReq;			/* Fraction of leader's reputation */
     private int proximityReq;
 
-	@Setter
     private ObjectId groupLeaderID;
 	private ArrayList<ObjectId> groupMemberIDs;	/* Account ID of the group members */
 	/* private ChatLog chat */
 
-	public Group(@NonNull String groupName, String groupPurpose, ObjectId groupLeaderID)
+	public Group(String groupName, String groupPurpose, ObjectId groupLeaderID)
 	{
 		this.groupID = new ObjectId();
 		this.groupName = groupName;
@@ -45,14 +40,25 @@ public class Group
 
 		this.skillReqs = new ArrayList<>();
 		this.isPublic = false;
-		this.reputationReq = 0;
+		this.reputationReq = 0.0;
 		this.proximityReq = 0;
 		this.groupMemberIDs = new ArrayList<>();
+		this.groupMemberIDs.add(groupLeaderID);
 	}
 
-	public void addSkillReq(String skillName, int skillLevel)
+	public void addSkillReq(Skill skill)
 	{
-		skillReqs.add(new Skill(skillName, skillLevel));
+		skillReqs.add(skill.getSkillID());
+	}
+
+	public void addGroupMember(ObjectId accountID)
+	{
+		groupMemberIDs.add(accountID);
+	}
+
+	public void removeGroupMember(ObjectId accountID)
+	{
+		groupMemberIDs.remove(accountID);
 	}
 
 	/*

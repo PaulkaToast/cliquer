@@ -36,7 +36,7 @@ public class Account
 	private ArrayList<ObjectId> friendIDs;
 	private ArrayList<ObjectId> messageIDs;
 	
-	public Account(@NonNull String username, String firstName, String lastName)
+	public Account(String username, String firstName, String lastName)
 	{
 		this.accountID = new ObjectId();
 		this.username = username;

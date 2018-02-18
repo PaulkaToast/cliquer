@@ -28,7 +28,7 @@ public class AccountServiceImp implements AccountService
     }
 
     @Override
-    public Account createAccount(String username, String firstName, String lastName)
+    public Account createAccount( String username, String firstName, String lastName)
     {
         if(accountRepository.existsByUsername(username))
         {
@@ -67,8 +67,17 @@ public class AccountServiceImp implements AccountService
             case "lastName" : user.setLastName(value); break;
             case "isPublic" : user.setPublic(Boolean.parseBoolean(value)); break;
             case "reputationReq" :
-                double repReq = Double.parseDouble(value);
-                if(repReq <= 0.0 || repReq > 1.0)
+                double repReq;
+                try
+                {
+                    repReq = Double.parseDouble(value);
+                }
+                catch(NumberFormatException e)
+                {
+                    logger.info("Invalid reputation requirement");
+                    return null;
+                }
+                if(repReq < 0.0 || repReq > 1.0)
                 {
                     logger.info("Invalid reputation requirement");
                     return null;
@@ -76,12 +85,23 @@ public class AccountServiceImp implements AccountService
                 user.setReputationReq(repReq);
                 break;
             case "proximityReq" :
-                int proxReq = Integer.parseInt(value);
+                int proxReq;
+                try
+                {
+                    proxReq = Integer.parseInt(value);
+                }
+                catch(NumberFormatException e)
+                {
+                    logger.info("Invalid proximity requirement");
+                    return null;
+                }
                 if(proxReq <= 0)
                 {
                     logger.info("Invalid proximity requirement");
+                    return null;
                 }
-                user.setProximityReq(proxReq); break;
+                user.setProximityReq(proxReq);
+                break;
             default:
                 logger.info("Field " + field + " is invalid");
                 return null;
