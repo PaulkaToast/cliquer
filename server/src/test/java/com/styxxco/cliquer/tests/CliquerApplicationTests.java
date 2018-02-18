@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class CliquerApplicationTests {
@@ -165,6 +167,99 @@ public class CliquerApplicationTests {
 		retrieve = groupService.getPublicGroup(cliquer.getGroupID());
 		assertNull(retrieve.getGroupMemberIDs());
 	}
+
+	/* Test group modification services */
+	@Test
+	public void testGroupModification()
+	{
+		accountRepository.deleteAll();
+		groupRepository.deleteAll();
+		AccountServiceImp accountService = new AccountServiceImp(accountRepository, skillRepository, messageRepository, groupRepository);
+		GroupServiceImp groupService = new GroupServiceImp(accountRepository, skillRepository, messageRepository, groupRepository);
+
+		Account jordan = accountService.createAccount("reed226", "Jordan", "Reed");
+		Account shawn = accountService.createAccount("montgo38", "Shawn", "Montgomery");
+		Account kevin = accountService.createAccount("knagar", "Kevin", "Nagar");
+
+		Group cliquer = groupService.createGroup(
+				"Cliquer",
+				"To create a web app that facilitates the teaming of people who may have never met before",
+				jordan.getAccountID());
+		cliquer.addGroupMember(shawn.getAccountID());
+		groupRepository.save(cliquer);
+
+		Group retrieve = groupService.getUserGroup(cliquer.getGroupID(), shawn.getAccountID());
+		assertEquals(jordan.getAccountID(), retrieve.getGroupLeaderID());
+
+		retrieve = groupService.getUserGroup(cliquer.getGroupID(), kevin.getAccountID());
+		assertNull(retrieve);
+
+		cliquer.setPublic(true);
+		groupRepository.save(cliquer);
+		retrieve = groupService.getPublicGroup(cliquer.getGroupID());
+		assertEquals(jordan.getAccountID(), retrieve.getGroupLeaderID());
+
+		cliquer.setPublic(false);
+		groupRepository.save(cliquer);
+		retrieve = groupService.getPublicGroup(cliquer.getGroupID());
+		assertNull(retrieve.getGroupMemberIDs());
+	}
+
+	/* Stress test for creating skills. Also populates valid skills in database */
+	@Test
+	public void populateSkills()
+	{
+		AccountServiceImp service = new AccountServiceImp(accountRepository, skillRepository, messageRepository, groupRepository);
+
+		assertNotNull(service.addSkillToDatabase("Java"));
+		assertNull(service.addSkillToDatabase("Java"));
+		assertNull(service.addSkillToDatabase("Java"));
+
+		assertNotNull(service.addSkillToDatabase("JavaScript"));
+		assertNotNull(service.addSkillToDatabase("C"));
+		assertNotNull(service.addSkillToDatabase("C++"));
+		assertNotNull(service.addSkillToDatabase("Python"));
+		assertNotNull(service.addSkillToDatabase("C#"));
+		assertNull(service.addSkillToDatabase("C"));
+		assertNotNull(service.addSkillToDatabase("Ruby"));
+		assertNotNull(service.addSkillToDatabase("Pascal"));
+		assertNotNull(service.addSkillToDatabase("ARM"));
+		assertNotNull(service.addSkillToDatabase("x86"));
+		assertNotNull(service.addSkillToDatabase("Verilog"));
+		assertNotNull(service.addSkillToDatabase("VIM"));
+		assertNotNull(service.addSkillToDatabase("Microsoft Word"));
+		assertNotNull(service.addSkillToDatabase("Google Sheets"));
+		assertNull(service.addSkillToDatabase("ARM"));
+		assertNotNull(service.addSkillToDatabase("Swift"));
+		assertNotNull(service.addSkillToDatabase("Real Time Strategy Games"));
+		assertNotNull(service.addSkillToDatabase("Role-Playing Games"));
+		assertNotNull(service.addSkillToDatabase("Board Games"));
+		assertNotNull(service.addSkillToDatabase("Platformer Games"));
+		assertNull(service.addSkillToDatabase("Real Time Strategy Games"));
+		assertNotNull(service.addSkillToDatabase("Massively Multiplayer Online Role-Playing Games"));
+		assertNull(service.addSkillToDatabase("Google Sheets"));
+		assertNotNull(service.addSkillToDatabase("Basketball"));
+		assertNotNull(service.addSkillToDatabase("Lifting"));
+		assertNotNull(service.addSkillToDatabase("Football"));
+		assertNotNull(service.addSkillToDatabase("Volleyball"));
+		assertNotNull(service.addSkillToDatabase("Baseball"));
+		assertNull(service.addSkillToDatabase("Basketball"));
+		assertNotNull(service.addSkillToDatabase("Soccer"));
+		assertNotNull(service.addSkillToDatabase("Tennis"));
+		assertNull(service.addSkillToDatabase("Ruby"));
+		assertNull(service.addSkillToDatabase("Pascal"));
+		assertNull(service.addSkillToDatabase("ARM"));
+		assertNull(service.addSkillToDatabase("x86"));
+		assertNull(service.addSkillToDatabase("Verilog"));
+		assertNull(service.addSkillToDatabase("VIM"));
+		assertNull(service.addSkillToDatabase("Microsoft Word"));
+		assertNull(service.addSkillToDatabase("Google Sheets"));
+		assertNotNull(service.addSkillToDatabase("Really Long Skill Name That Likely Needs To Be Shortened When It Is Shown On The Front End"));
+
+		ArrayList<Skill> skills = service.getAllValidSkills();
+		System.out.println(skills);
+	}
+
 
 
 }
