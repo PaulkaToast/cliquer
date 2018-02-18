@@ -2,6 +2,7 @@ package com.styxxco.cliquer.tests;
 
 import com.styxxco.cliquer.database.*;
 import com.styxxco.cliquer.domain.Account;
+import com.styxxco.cliquer.domain.Group;
 import com.styxxco.cliquer.domain.Skill;
 import org.bson.types.ObjectId;
 import org.junit.Test;
@@ -127,5 +128,43 @@ public class CliquerApplicationTests {
 		skill = skillRepository.findBySkillID(skillID);
 		assertNull(skill);
 	}
+
+	/* Test group retrieval services */
+	@Test
+	public void testGroupRetrieval()
+	{
+		accountRepository.deleteAll();
+		groupRepository.deleteAll();
+		AccountServiceImp accountService = new AccountServiceImp(accountRepository, skillRepository, messageRepository, groupRepository);
+		GroupServiceImp groupService = new GroupServiceImp(accountRepository, skillRepository, messageRepository, groupRepository);
+
+		Account jordan = accountService.createAccount("reed226", "Jordan", "Reed");
+		Account shawn = accountService.createAccount("montgo38", "Shawn", "Montgomery");
+		Account kevin = accountService.createAccount("knagar", "Kevin", "Nagar");
+
+		Group cliquer = groupService.createGroup(
+				"Cliquer",
+				"To create a web app that facilitates the teaming of people who may have never met before",
+				jordan.getAccountID());
+		cliquer.addGroupMember(shawn.getAccountID());
+		groupRepository.save(cliquer);
+
+		Group retrieve = groupService.getUserGroup(cliquer.getGroupID(), shawn.getAccountID());
+		assertEquals(jordan.getAccountID(), retrieve.getGroupLeaderID());
+
+		retrieve = groupService.getUserGroup(cliquer.getGroupID(), kevin.getAccountID());
+		assertNull(retrieve);
+
+		cliquer.setPublic(true);
+		groupRepository.save(cliquer);
+		retrieve = groupService.getPublicGroup(cliquer.getGroupID());
+		assertEquals(jordan.getAccountID(), retrieve.getGroupLeaderID());
+
+		cliquer.setPublic(false);
+		groupRepository.save(cliquer);
+		retrieve = groupService.getPublicGroup(cliquer.getGroupID());
+		assertNull(retrieve.getGroupMemberIDs());
+	}
+
 
 }

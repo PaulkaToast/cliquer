@@ -20,7 +20,7 @@ public class Message
 	private final ObjectId messageID;
 
 	private final String content;		/* The actual message in the Message		*/
-	private final String senderID;		/* MongoDB ID of entity that sent message	*/
+	private final ObjectId senderID;	/* MongoDB ID of entity that sent message	*/
 
 	private final String type;			/* Dictates behavior on user interation		*/
 	private final LocalTime creationTime;
@@ -37,11 +37,11 @@ public class Message
 	 * - "Profile Notification"
 	 */
 
-	public Message(String content, String senderID, String type)
+	public Message(ObjectId senderID, String content, String type)
 	{
 		this.messageID = new ObjectId();
-		this.content = content;
 		this.senderID = senderID;
+		this.content = content;
 		this.type = type;
 		this.creationTime = LocalTime.now();
 		this.creationDate = LocalDate.now();

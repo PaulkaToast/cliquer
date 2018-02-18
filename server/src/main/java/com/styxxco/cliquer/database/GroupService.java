@@ -2,6 +2,8 @@ package com.styxxco.cliquer.database;
 
 import com.styxxco.cliquer.domain.Group;
 import com.styxxco.cliquer.domain.Account;
+import com.styxxco.cliquer.domain.Message;
+import com.styxxco.cliquer.domain.Skill;
 import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
@@ -20,5 +22,12 @@ public interface GroupService {
     Group addGroupMember(ObjectId groupID, ObjectId groupLeaderID, ObjectId accountID);
     Group removeGroupMember(ObjectId groupID, ObjectId groupLeaderID, ObjectId accountID);
 
-    /* TODO Skill Requirements */
+    /* Skill centered services */
+    ArrayList<Skill> getAllSkillReqs(ObjectId groupID);
+    Skill getSkillReq(ObjectId groupID, String skillName);
+    Group addSkillReq(ObjectId groupID, ObjectId groupLeaderID, String skillName, int skillLevel);
+    Group removeSkillReq(ObjectId groupID, ObjectId groupLeaderID, String skillName);
+
+    /* Message centered services */
+    Message sendMessage(ObjectId groupID, ObjectId senderID, ObjectId receiverId, String content, String type);
 }

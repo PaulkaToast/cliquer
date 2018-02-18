@@ -60,13 +60,29 @@ public class Account
 
 	public void removeSkill(ObjectId skillID)
 	{
-		skillIDs.remove(skillIDs.indexOf(skillID));
+		this.skillIDs.remove(skillID);
 	}
 
-	public void sendMessage(ObjectId messageID)
+	public void addMessage(ObjectId messageID)
 	{
 		this.messageIDs.add(messageID);
 	}
+
+	public void removeMessage(ObjectId messageID)
+	{
+		this.messageIDs.remove(messageID);
+	}
+
+	public void addGroup(ObjectId groupID)
+	{
+		this.groupIDs.add(groupID);
+	}
+
+	public void removeGroup(ObjectId groupID)
+	{
+		this.groupIDs.remove(groupID);
+	}
+
 
 	/*public Message makeFriendInvite(String content)
 	{

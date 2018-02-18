@@ -1,6 +1,7 @@
 package com.styxxco.cliquer.database;
 
 import com.styxxco.cliquer.domain.Account;
+import com.styxxco.cliquer.domain.Group;
 import com.styxxco.cliquer.domain.Skill;
 import com.styxxco.cliquer.domain.Message;
 import org.bson.types.ObjectId;
@@ -19,12 +20,15 @@ public class AccountServiceImp implements AccountService
     private final MessageRepository messageRepository;
     private final GroupRepository groupRepository;
 
+    private final GroupServiceImp groupService;
+
     public AccountServiceImp(AccountRepository ar, SkillRepository sr, MessageRepository mr, GroupRepository gr)
     {
         this.accountRepository = ar;
         this.skillRepository = sr;
         this.messageRepository = mr;
         this.groupRepository = gr;
+        this.groupService = new GroupServiceImp(ar, sr, mr, gr);
     }
 
     @Override
@@ -192,6 +196,7 @@ public class AccountServiceImp implements AccountService
         return skills;
     }
 
+    @Override
     public Skill getSkill(String username, String skillName)
     {
         if(!accountRepository.existsByUsername(username))
@@ -251,7 +256,7 @@ public class AccountServiceImp implements AccountService
         }
         Account user = accountRepository.findByUsername(username);
         Skill skill = this.getSkill(username, skillName);
-        if(this.getSkill(username, skillName) == null)
+        if(skill == null)
         {
             logger.info("User " + username + " does not have skill " + skillName);
             return null;
@@ -279,9 +284,68 @@ public class AccountServiceImp implements AccountService
             if(!message.isRead())
             {
                 messages.add(message);
+                message.setRead(true);
             }
         }
         return messages;
     }
+
+    @Override
+    public Message sendMessage(String username, ObjectId receiverID, String content, String type)
+    {
+        if(!accountRepository.existsByUsername(username))
+        {
+            logger.info("User " + username + " not found");
+            return null;
+        }
+        if(!accountRepository.existsByAccountID(receiverID))
+        {
+            logger.info("User " + username + " not found");
+            return null;
+        }
+        Account sender = accountRepository.findByUsername(username);
+        Account receiver = accountRepository.findByAccountID(receiverID);
+        Message message = new Message(sender.getAccountID(), content, type);
+        messageRepository.save(message);
+        receiver.addMessage(message.getMessageID());
+        accountRepository.save(receiver);
+        return message;
+    }
+
+    /* TODO: Sprint 2 */
+    @Override
+    public Account joinGroup(String username, ObjectId groupID)
+    {
+        return null;
+    }
+
+    @Override
+    public Account leaveGroup(String username, ObjectId groupID)
+    {
+        if(!accountRepository.existsByUsername(username))
+        {
+            logger.info("User " + username + " not found");
+            return null;
+        }
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            logger.info("Group " + groupID + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        Group group = groupRepository.findByGroupID(groupID);
+        if(!groupService.hasGroupMember(group, user.getAccountID()))
+        {
+            logger.info("User " + username + " is not in group " + groupID);
+            return null;
+        }
+        group.removeGroupMember(user.getAccountID());
+        groupRepository.save(group);
+        user.removeGroup(groupID);
+        accountRepository.save(user);
+        return user;
+
+    }
+
 }
 

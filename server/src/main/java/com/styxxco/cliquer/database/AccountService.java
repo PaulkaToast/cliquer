@@ -29,4 +29,9 @@ public interface AccountService {
 
     /* Message centered services */
     ArrayList<Message> getNewMessages(String username);
+    Message sendMessage(String username, ObjectId receiverID, String content, String type);
+
+    /* Group centered services */
+    Account joinGroup(String username, ObjectId groupID);
+    Account leaveGroup(String username, ObjectId groupID);
 }

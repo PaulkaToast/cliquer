@@ -1,9 +1,14 @@
 package com.styxxco.cliquer.database;
 
+import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Group;
+import com.styxxco.cliquer.domain.Message;
+import com.styxxco.cliquer.domain.Skill;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
 
 public class GroupServiceImp implements GroupService
 {
@@ -182,6 +187,9 @@ public class GroupServiceImp implements GroupService
         }
         group.addGroupMember(accountID);
         groupRepository.save(group);
+        Account member = accountRepository.findByAccountID(accountID);
+        member.addGroup(groupID);
+        accountRepository.save(member);
         return group;
     }
 
@@ -211,6 +219,130 @@ public class GroupServiceImp implements GroupService
         }
         group.removeGroupMember(accountID);
         groupRepository.save(group);
+        Account member = accountRepository.findByAccountID(accountID);
+        member.removeGroup(groupID);
+        accountRepository.save(member);
         return group;
+    }
+
+    @Override
+    public ArrayList<Skill> getAllSkillReqs(ObjectId groupID)
+    {
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            logger.info("Group " + groupID + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupID);
+        ArrayList<Skill> skills = new ArrayList<>();
+        for(ObjectId skillID : group.getSkillReqs())
+        {
+            Skill skill = skillRepository.findBySkillID(skillID);
+            skills.add(skill);
+        }
+        return skills;
+    }
+
+    @Override
+    public Skill getSkillReq(ObjectId groupID, String skillName)
+    {
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            logger.info("Group " + groupID + " not found");
+            return null;
+        }
+        ArrayList<Skill> skills = this.getAllSkillReqs(groupID);
+        for(Skill skill : skills)
+        {
+            if(skill.getSkillName().equals(skillName))
+            {
+                return skill;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Group addSkillReq(ObjectId groupID, ObjectId groupLeaderID, String skillName, int skillLevel)
+    {
+        if(!skillRepository.existsBySkillName(skillName))
+        {
+            logger.info("Skill " + skillName + " is invalid");
+            return null;
+        }
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            logger.info("Group " + groupID + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupID);
+        if(!group.getGroupLeaderID().equals(groupLeaderID))
+        {
+            logger.info("User " + groupLeaderID + " is not the leader of group " + groupID);
+            return null;
+        }
+        if(this.getSkillReq(groupID, skillName) != null)
+        {
+            logger.info("Group " + groupID + " already has skill requirement " + skillName);
+            return null;
+        }
+        if(skillLevel < 0 || skillLevel > 10)
+        {
+            logger.info("Skill level " + skillLevel + " is invalid");
+            return null;
+        }
+        Skill skill = new Skill(skillName, skillLevel);
+        skillRepository.save(skill);
+        group.addSkillReq(skill.getSkillID());
+        groupRepository.save(group);
+        return group;
+    }
+
+    @Override
+    public Group removeSkillReq(ObjectId groupID, ObjectId groupLeaderID, String skillName)
+    {
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            logger.info("Group " + groupID + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupID);
+        if(!group.getGroupLeaderID().equals(groupLeaderID))
+        {
+            logger.info("User " + groupLeaderID + " is not the leader of group " + groupID);
+            return null;
+        }
+        Skill skill = this.getSkillReq(groupID, skillName);
+        if(skill == null)
+        {
+            logger.info("Group " + groupID + " does not have skill requirement " + skillName);
+            return null;
+        }
+        skillRepository.delete(skill);
+        group.removeSkillReq(skill.getSkillID());
+        groupRepository.save(group);
+        return group;
+    }
+
+    @Override
+    public Message sendMessage(ObjectId groupID, ObjectId senderID, ObjectId receiverID, String content, String type)
+    {
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            logger.info("Group " + groupID + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupID);
+        if(!group.getGroupLeaderID().equals(senderID))
+        {
+            logger.info("User " + senderID + " is not the leader of group " + groupID);
+            return null;
+        }
+        Account receiver = accountRepository.findByAccountID(receiverID);
+        Message message = new Message(groupID, content, type);
+        messageRepository.save(message);
+        receiver.addMessage(message.getMessageID());
+        accountRepository.save(receiver);
+        return message;
     }
 }

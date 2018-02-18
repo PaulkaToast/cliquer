@@ -46,9 +46,14 @@ public class Group
 		this.groupMemberIDs.add(groupLeaderID);
 	}
 
-	public void addSkillReq(Skill skill)
+	public void addSkillReq(ObjectId skillID)
 	{
-		skillReqs.add(skill.getSkillID());
+		skillReqs.add(skillID);
+	}
+
+	public void removeSkillReq(ObjectId skillID)
+	{
+		skillReqs.remove(skillID);
 	}
 
 	public void addGroupMember(ObjectId accountID)
