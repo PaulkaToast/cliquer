@@ -1,10 +1,9 @@
-package com.styxxco.cliquer.service.impl;
+package com.styxxco.cliquer.security;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.tasks.Task;
 import com.google.firebase.tasks.Tasks;
-import com.styxxco.cliquer.security.FirebaseTokenHolder;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.util.StringUtils;
 
@@ -16,9 +15,7 @@ public class FirebaseParser {
         }
         try {
             Task<FirebaseToken> authTask = FirebaseAuth.getInstance().verifyIdToken(idToken);
-
             Tasks.await(authTask);
-
             return new FirebaseTokenHolder(authTask.getResult());
         } catch (Exception e) {
             throw new FirebaseTokenInvalidException(e.getMessage());

@@ -43,7 +43,7 @@ public class Account implements UserDetails {
 	private ArrayList<String> messageIDs;
 
 	public Account() {
-
+		//Empty for injection creation
 	}
 
 	public Account(String username, String email) {

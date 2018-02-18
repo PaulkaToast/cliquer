@@ -87,6 +87,7 @@ public class AccountServiceImpl implements AccountService
             Account account = new Account(init.getUserName(), init.getEmail());
             account.setAuthorities(getUserRoles());
             account.setPassword(UUID.randomUUID().toString());
+            System.out.println(account.toString());
             accountRepository.save(account);
             logger.info("registerUser -> user created");
             return account;
@@ -111,6 +112,11 @@ public class AccountServiceImpl implements AccountService
 
     private List<Role> getUserRoles() {
         return Collections.singletonList(getRole(SecurityConfiguration.Roles.ROLE_USER));
+    }
+
+    @Override
+    public List<Role> getAnonRoles() {
+        return Collections.singletonList(getRole(SecurityConfiguration.Roles.ROLE_ANONYMOUS));
     }
 
     private Role getRole(String authority) {

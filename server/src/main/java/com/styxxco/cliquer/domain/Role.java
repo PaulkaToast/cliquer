@@ -22,4 +22,9 @@ public class Role implements GrantedAuthority {
         this.authority = authority;
     }
 
+    @Override
+    public String toString() {
+        return authority;
+    }
+
 }

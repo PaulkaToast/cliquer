@@ -3,9 +3,11 @@ package com.styxxco.cliquer.service;
 import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Message;
 import com.styxxco.cliquer.domain.RegisterUser;
+import com.styxxco.cliquer.domain.Role;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface AccountService extends UserDetailsService {
     Account createAccount(String username, String firstName, String lastName);
@@ -21,4 +23,5 @@ public interface AccountService extends UserDetailsService {
     ArrayList<Message> getNewMessages(String username);
 
     Account registerUser(RegisterUser init);
+    List<Role> getAnonRoles();
 }
