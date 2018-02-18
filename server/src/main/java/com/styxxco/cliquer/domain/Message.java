@@ -8,6 +8,9 @@ import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 @Getter
 @ToString(exclude = {"messageID", "type"})
 
@@ -20,6 +23,8 @@ public class Message
 	private final String senderID;		/* MongoDB ID of entity that sent message	*/
 
 	private final String type;			/* Dictates behavior on user interation		*/
+	private final LocalTime creationTime;
+	private final LocalDate creationDate;
 
 	@Setter
 	private boolean read;
@@ -38,6 +43,8 @@ public class Message
 		this.content = content;
 		this.senderID = senderID;
 		this.type = type;
+		this.creationTime = LocalTime.now();
+		this.creationDate = LocalDate.now();
 		this.read = false;
 	}
 }

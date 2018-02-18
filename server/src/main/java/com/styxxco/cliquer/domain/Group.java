@@ -32,11 +32,11 @@ public class Group
     private int proximityReq;
 
 	@Setter
-    private String groupLeaderID;
+    private ObjectId groupLeaderID;
 	private ArrayList<ObjectId> groupMemberIDs;	/* Account ID of the group members */
 	/* private ChatLog chat */
 
-	public Group(@NonNull String groupName, String groupPurpose, String groupLeaderID)
+	public Group(@NonNull String groupName, String groupPurpose, ObjectId groupLeaderID)
 	{
 		this.groupID = new ObjectId();
 		this.groupName = groupName;
