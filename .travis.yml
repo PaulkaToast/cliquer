@@ -4,7 +4,8 @@ matrix:
       node_js:
         - node
       before_script:
-        - cd client
+        - cd clien
+        - touch src/firebase/firebase.js
         - npm install
 
 notifications:
