@@ -4,7 +4,7 @@ matrix:
       node_js:
         - node
       before_script:
-        - cd clien
+        - cd client
         - touch src/firebase/firebase.js
         - npm install
 
