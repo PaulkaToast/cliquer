@@ -1,0 +1,96 @@
+.Groups {
+    display: flex;
+    height: 100vh;
+    align-items: stretch; 
+}
+
+.GroupList {
+    border-left: 1px solid #eee;
+    border-right: 1px solid #eee;
+    width: 30rem;
+    text-align: left;
+  }
+  
+  @media (max-width: 800px) {
+    .GroupList {
+      width: 20rem;
+    }
+  }
+  
+  .GroupList h3 {
+    color: #999;
+    text-transform: uppercase;
+    font-size: 2rem;
+    font-family: Helvetica;
+    font-weight: 300;
+    letter-spacing: 3px;
+    margin: 20px 2rem;
+  }
+  
+  ul#groups a,
+  ul#groups a:link,
+  ul#groups a:visited,
+  ul#groups a:hover,
+  ul#groups a:active {
+    color: inherit;
+    text-decoration: none;
+  }
+  
+  ul#groups {
+    border-top: 1px solid #eee;
+    overflow-y: scroll;
+    height: calc(100vh - 72px);
+    list-style: none;
+    margin-top: 1em;
+    padding: 0;
+    width: 100%;
+    color: #999;
+  }
+  
+  ul#groups > li {
+    height: 100px;
+    font-size: 90%;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  
+  ul#groups li,
+  ul#groups li * {
+    transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out;
+  }
+  
+  ul#groups li .group {
+    border-top: 1px solid #eee;
+    margin: 0 2rem;
+    padding: 1rem 4px; 
+  }
+  ul#groups a:first-of-type li .group {
+    border-top: none; 
+  }
+  ul#groups li:hover {
+    background-color: #008BF8;
+  }
+  ul#groups li:hover,
+  ul#groups li:hover .group * {
+    color: white !important;
+    text-decoration: none !important;
+  }
+  ul#groups li:hover .group {
+    border-color: transparent;
+  }
+  ul#groups li .group-name {
+    color: #4a4a4a;
+    font-family: "Fauna One";
+    font-size: 120%;
+    font-weight: 400;
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+  }
+
+  ul#groups li .group {
+    display: block;
+    height: 100px;
+    padding: 1em;
+    text-decoration: none;
+  }
