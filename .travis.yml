@@ -3,6 +3,7 @@ matrix:
     - language: node_js
       before_script:
         - cd client
+        - npm install
 
 notifications:
   email: false
