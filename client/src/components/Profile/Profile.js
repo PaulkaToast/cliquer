@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import '../../css/Profile.css'
+//import '../../css/Profile.css'
 import SkillsPanel from './SkillsPanel'
 import FriendsPanel from './FriendsPanel'
 import UserInfo from './UserInfo'
