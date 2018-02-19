@@ -6,7 +6,12 @@ class Chat extends Component {
   render() {
     return (
       <div className="Chat">
-       CHAT
+        <div className="header">
+          <h3>Group Name</h3>
+        </div>
+        <div className="body">
+          <h3>Group chat system is currently under construction. Check back in sprint 2!</h3>
+        </div>
       </div>
     )
   }
