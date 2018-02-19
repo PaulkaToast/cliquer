@@ -60,7 +60,7 @@ class Login extends Component {
             name="password"
             type="password"
             placeholder="Password"
-          />
+          /> 
           <Button type="submit" color="primary" size="lg" block>Log In</Button>
 
           <div className="fb-container">

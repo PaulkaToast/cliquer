@@ -1,0 +1,18 @@
+matrix:
+  include:
+    - language: node_js
+      node_js:
+        - node
+      install:
+        - npm install -g codecov
+      before_script:
+        - cd client
+        - touch src/firebase/firebase.js
+        - npm install
+      script:
+        - npm run-script coverage
+      after_script:
+        - codecov -t "c40160c7-daa8-4fbc-99df-f7383a356af3" -F react
+
+notifications:
+  email: false
