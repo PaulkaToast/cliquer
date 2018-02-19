@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
+import { Link } from 'react-router-dom'
+import { Container, Row, Col, Button } from 'reactstrap'
 
 import '../css/Register.css'
+import Logo from '../img/cliquerLogo.png'
 import { auth } from '../firebase'
 
 
@@ -39,46 +42,66 @@ class Register extends Component {
 
   render() {
     return (
-      <div className="Register">
+      <Container fluid>
+        <Row>
+          <Col className="logo" md={{ size: 4, offset:4}}>
+            <img src={Logo} alt="" />
+          </Col>
+        </Row>
+      <div className="form-register">
+        <label htmlFor="input-first-name" className="sr-only">Blah</label>
         <form onSubmit={this.handleSubmit}>
-          <input
-            required
+          <input id="input-first-name" className="form-control"
+            required autoFocus
             name="firstName"
             type="text"
             placeholder="First Name"
           />
-          <input
+          <input id="input-last-name" className="form-control"
             required
             autoFocus
             name="lastName"
             type="text"
             placeholder="Last Name"
           />
-          <input
+          <input id="input-email" className="form-control"
             required
             name="email"
             type="text"
             placeholder="Email Address"
           />
-          <input
+          <input id="input-password" className="form-control"
             required
             name="passwordOne"
             type="password"
             placeholder="Password"
           />
-          <input
+          <input id="confirm-password" className="form-control"
             required
             name="passwordTwo"
             type="password"
             placeholder="Confirm Password"
           />
-          <button type="submit">
-            Register
-          </button>
+          <Button type="submit" color="primary" size="lg" block>Register</Button>
+          
+          <div className="fb-container">
+            <button type="button" className="btn btn-lg btn-block btn-social btn-facebook" 
+              onClick={this.logInWithFacebook}>
+              <i className="fa fa-facebook fa-fw"></i> Register with Facebook
+            </button>
+          </div>
 
           { this.state.error && <p>{this.state.error.message}</p> }
         </form>
       </div>
+      <Row>
+          <Col className="login-container" md={{ size: 4, offset: 4 }}>
+            <Link to="/login">
+                Already have an account? Log In
+            </Link>
+          </Col>
+        </Row>
+      </Container>
     )
   }
 }
