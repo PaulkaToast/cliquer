@@ -1,4 +1,4 @@
-package com.styxxco.cliquer.database;
+package com.styxxco.cliquer.service;
 
 import com.styxxco.cliquer.domain.Group;
 import com.styxxco.cliquer.domain.Account;

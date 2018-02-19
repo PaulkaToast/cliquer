@@ -4,7 +4,11 @@ import com.styxxco.cliquer.database.*;
 import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Group;
 import com.styxxco.cliquer.domain.Skill;
+import com.styxxco.cliquer.service.AccountService;
+import com.styxxco.cliquer.service.GroupService;
+import com.styxxco.cliquer.service.impl.GroupServiceImpl;
 import org.bson.types.ObjectId;
+import com.styxxco.cliquer.service.impl.AccountServiceImpl;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
@@ -50,7 +54,7 @@ public class CliquerApplicationTests {
 	public void testAccountRetrieval()
 	{
 		accountRepository.deleteAll();
-		AccountServiceImp service = new AccountServiceImp(accountRepository, skillRepository, messageRepository, groupRepository);
+		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
 		Account jordan = service.createAccount("reed226", "Jordan", "Reed");
 		assertNotNull(jordan);
@@ -89,14 +93,14 @@ public class CliquerApplicationTests {
 	{
 		accountRepository.deleteAll();
 		skillRepository.deleteAll();
-		AccountServiceImp service = new AccountServiceImp(accountRepository, skillRepository, messageRepository, groupRepository);
+		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
 		Account jordan = service.createAccount("reed226", "Jordan", "Reed");
 		assertNotNull(jordan);
 
 		Account shawn = service.createAccount("montgo38", "Shawn", "Montgomery");
 		assertNotNull(shawn);
-		
+
 		Account modify = service.updateUserProfile("reed226", "firstName", "William");
 		assertEquals("William", modify.getFirstName());
 		Account retrieve = service.getUserProfile("reed226");
@@ -137,8 +141,8 @@ public class CliquerApplicationTests {
 	{
 		accountRepository.deleteAll();
 		groupRepository.deleteAll();
-		AccountServiceImp accountService = new AccountServiceImp(accountRepository, skillRepository, messageRepository, groupRepository);
-		GroupServiceImp groupService = new GroupServiceImp(accountRepository, skillRepository, messageRepository, groupRepository);
+		AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+		GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
 		Account jordan = accountService.createAccount("reed226", "Jordan", "Reed");
 		Account shawn = accountService.createAccount("montgo38", "Shawn", "Montgomery");
@@ -174,8 +178,8 @@ public class CliquerApplicationTests {
 	{
 		accountRepository.deleteAll();
 		groupRepository.deleteAll();
-		AccountServiceImp accountService = new AccountServiceImp(accountRepository, skillRepository, messageRepository, groupRepository);
-		GroupServiceImp groupService = new GroupServiceImp(accountRepository, skillRepository, messageRepository, groupRepository);
+		AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+		GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
 		Account jordan = accountService.createAccount("reed226", "Jordan", "Reed");
 		Account shawn = accountService.createAccount("montgo38", "Shawn", "Montgomery");
@@ -209,7 +213,7 @@ public class CliquerApplicationTests {
 	@Test
 	public void populateSkills()
 	{
-		AccountServiceImp service = new AccountServiceImp(accountRepository, skillRepository, messageRepository, groupRepository);
+		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
 		assertNotNull(service.addSkillToDatabase("Java"));
 		assertNull(service.addSkillToDatabase("Java"));

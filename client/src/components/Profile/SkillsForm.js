@@ -67,7 +67,6 @@ class SkillsForm extends Component {
 
   shakeInput = () => {
     let element = document.getElementById("skillInput")
-    console.log
     element.classList.toggle("animated")
     element.classList.toggle("headShake")
     element.classList.toggle("invalid")
@@ -86,7 +85,7 @@ class SkillsForm extends Component {
 
   contains = (skill) => {
     for(const i in this.skills) {
-      if(this.skills[i].toLowerCase() === skill.toLowerCase()) return this.skills[i]
+      if(this.skills[i].toLowerCase() === skill.trim().toLowerCase()) return this.skills[i]
     }
     return false
   }
