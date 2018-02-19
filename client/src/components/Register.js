@@ -49,7 +49,6 @@ class Register extends Component {
           </Col>
         </Row>
       <div className="form-register">
-        <label htmlFor="input-first-name" className="sr-only">Blah</label>
         <form onSubmit={this.handleSubmit}>
           <input id="input-first-name" className="form-control"
             required autoFocus
