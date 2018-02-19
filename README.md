@@ -1,10 +1,13 @@
 # Cliquer
 Come clique away
 
-## Spring Setup
+## Server Setup
 ### MongoDB
-1. Install MongoDB a defined here [MongoDB Manual](https://docs.mongodb.com/manual/installation/ "MongoDB Installation Manual")
+1. Install MongoDB as defined here [MongoDB Manual](https://docs.mongodb.com/manual/installation/ "MongoDB Installation Manual")
 2. If you wish to add authentication, change database name, or change the default port, update the `application.properties` file in Spring
+### Firebase
+1. Create admin service account configuration as defined here [Firebase Manual](https://firebase.google.com/docs/database/rest/auth "Google Firebase REST Manual")
+2. Copy the configuration json to the file `FirebaseConfigurationJSON-example.json` and rename to `FirebaseConfigurationJSON.json`
 ### Spring
 1. Import from existing code in your IDEA and point to the server folder
 2. If needed, manually set to a Maven project model

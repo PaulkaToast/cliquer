@@ -48,6 +48,7 @@ public class FirebaseFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
             } catch (FirebaseParser.FirebaseTokenInvalidException e) {
                 log.info("Authentication error: User is no longer authenticated");
+                filterChain.doFilter(request, response);
             }
         }
     }

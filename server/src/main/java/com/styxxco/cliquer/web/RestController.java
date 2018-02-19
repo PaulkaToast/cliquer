@@ -23,15 +23,15 @@ public class RestController {
     @Autowired
     private FirebaseService firebaseService;
 
-
-    @RequestMapping(value = "/open/index", method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)
+    @RequestMapping(value = "/login", method = RequestMethod.GET)
     public String index() {
         return "index";
     }
 
-    @RequestMapping(value = "/open/signup", method = RequestMethod.POST)
-    public void signUp(@RequestHeader(value = "X-Authorization-Firebase") String firebaseToken) {
+    @RequestMapping(value = "/signup", method = RequestMethod.POST)
+    public String signUp(@RequestHeader(value = "X-Authorization-Firebase", required = true) String firebaseToken) {
         firebaseService.registerUser(firebaseToken);
+        return "greeting";
     }
 
     @RequestMapping(value = "/api/getProfile", method = RequestMethod.GET)

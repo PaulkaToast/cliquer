@@ -62,7 +62,8 @@ public class SecurityConfiguration {
         protected void configure(HttpSecurity http) throws Exception {
             http.addFilterBefore(tokenAuthorizationFilter(), BasicAuthenticationFilter.class)
                     .authorizeRequests()
-                    .antMatchers("/open/**").permitAll()
+                    .antMatchers("/login").permitAll()
+                    .antMatchers("/signup").permitAll()
                     .antMatchers("/api/**").hasRole(Roles.USER)
                     .antMatchers("/**").denyAll()
                     .and().csrf().disable()

@@ -1,4 +1,5 @@
 target/
+src/main/resources/static
 src/main/resources/templates
 src/main/resources/FirebaseConfigurationJSON.json
 !.mvn/wrapper/maven-wrapper.jar
