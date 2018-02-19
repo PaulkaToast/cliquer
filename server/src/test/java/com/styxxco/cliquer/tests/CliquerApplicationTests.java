@@ -5,6 +5,7 @@ import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Group;
 import com.styxxco.cliquer.domain.Skill;
 import org.bson.types.ObjectId;
+import com.styxxco.cliquer.service.impl.AccountServiceImpl;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
@@ -50,7 +51,7 @@ public class CliquerApplicationTests {
 	public void testAccountRetrieval()
 	{
 		accountRepository.deleteAll();
-		AccountServiceImp service = new AccountServiceImp(accountRepository, skillRepository, messageRepository, groupRepository);
+		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
 		Account jordan = service.createAccount("reed226", "Jordan", "Reed");
 		assertNotNull(jordan);
@@ -96,7 +97,7 @@ public class CliquerApplicationTests {
 
 		Account shawn = service.createAccount("montgo38", "Shawn", "Montgomery");
 		assertNotNull(shawn);
-		
+
 		Account modify = service.updateUserProfile("reed226", "firstName", "William");
 		assertEquals("William", modify.getFirstName());
 		Account retrieve = service.getUserProfile("reed226");

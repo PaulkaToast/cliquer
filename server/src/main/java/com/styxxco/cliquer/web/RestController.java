@@ -6,6 +6,8 @@ import com.styxxco.cliquer.domain.Message;
 import com.styxxco.cliquer.domain.Skill;
 import com.styxxco.cliquer.domain.Group;
 import org.bson.types.ObjectId;
+import com.styxxco.cliquer.service.AccountService;
+import com.styxxco.cliquer.service.FirebaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,19 +23,13 @@ import java.util.ArrayList;
 public class RestController {
 
     @Autowired
-    private AccountRepository accountRepository;
-    @Autowired
-    private MessageRepository messageRepository;
-    @Autowired
-    private SkillRepository skillRepository;
-    @Autowired
-    private GroupRepository groupRepository;
+    private AccountService accountService;
 
-    private AccountServiceImp accountService =
-            new AccountServiceImp(accountRepository, skillRepository, messageRepository, groupRepository);
+    @Autowired
+    private FirebaseService firebaseService;
 
 
-    @RequestMapping(value = "/", method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)
+    @RequestMapping(value = "/open/index", method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)
     public String index() {
         return "index";
     }
@@ -41,11 +37,9 @@ public class RestController {
     @RequestMapping(value = "getProfile", method = RequestMethod.GET)
     public @ResponseBody Object getUserProfile(@RequestParam(value="identifier") String identifier,
                                                @RequestParam(value="type") String type,
-                                               @RequestHeader HttpHeaders headers)
-    {
+                                               @RequestHeader HttpHeaders headers) {
         Account user;
-        switch(type)
-        {
+        switch (type) {
             case "user":
                 user = accountService.getUserProfile(identifier);
                 break;
@@ -60,11 +54,16 @@ public class RestController {
             default:
                 return HttpStatus.BAD_REQUEST;
         }
-        if(user == null)
-        {
+        if (user == null) {
             return HttpStatus.BAD_REQUEST;
         }
         return user;
+    }
+
+    @RequestMapping(value = "/open/signup", method = RequestMethod.POST)
+    public String signUp(@RequestHeader(value = "X-Authorization-Firebase") String firebaseToken) {
+        firebaseService.registerUser(firebaseToken);
+        return "greeting";
     }
 
     @RequestMapping(value = "createProfile", method = RequestMethod.POST)

@@ -1,13 +1,17 @@
-package com.styxxco.cliquer.database;
+package com.styxxco.cliquer.service;
 
 import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Message;
 import com.styxxco.cliquer.domain.Skill;
 import org.bson.types.ObjectId;
+import com.styxxco.cliquer.domain.RegisterUser;
+import com.styxxco.cliquer.domain.Role;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public interface AccountService {
+public interface AccountService extends UserDetailsService {
     /* Account Creation */
     Account createAccount(String username, String firstName, String lastName);
 
@@ -34,4 +38,7 @@ public interface AccountService {
     /* Group centered services */
     Account joinGroup(String username, ObjectId groupID);
     Account leaveGroup(String username, ObjectId groupID);
+
+    Account registerUser(RegisterUser init);
+    List<Role> getAnonRoles();
 }
