@@ -1,25 +1,31 @@
-package com.styxxco.cliquer.database;
+package com.styxxco.cliquer.service.impl;
 
+import com.styxxco.cliquer.database.AccountRepository;
+import com.styxxco.cliquer.database.GroupRepository;
+import com.styxxco.cliquer.database.MessageRepository;
+import com.styxxco.cliquer.database.SkillRepository;
 import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Group;
 import com.styxxco.cliquer.domain.Message;
 import com.styxxco.cliquer.domain.Skill;
+import com.styxxco.cliquer.service.GroupService;
+import lombok.extern.log4j.Log4j;
 import org.bson.types.ObjectId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-public class GroupServiceImp implements GroupService
-{
-    private static final Logger logger = LoggerFactory.getLogger(GroupServiceImp.class);
+@Log4j
+@Service(value = GroupServiceImpl.NAME)
+public class GroupServiceImpl implements GroupService {
+    public final static String NAME = "GroupService";
 
     private final AccountRepository accountRepository;
     private final SkillRepository skillRepository;
     private final MessageRepository messageRepository;
     private final GroupRepository groupRepository;
 
-    public GroupServiceImp(AccountRepository ar, SkillRepository sr, MessageRepository mr, GroupRepository gr)
+    public GroupServiceImpl(AccountRepository ar, SkillRepository sr, MessageRepository mr, GroupRepository gr)
     {
         this.accountRepository = ar;
         this.skillRepository = sr;
@@ -32,7 +38,7 @@ public class GroupServiceImp implements GroupService
     {
         if(!accountRepository.existsByAccountID(groupLeaderID))
         {
-            logger.info("User " + groupLeaderID + " not found");
+            log.info("User " + groupLeaderID + " not found");
             return null;
         }
         Group group = new Group(groupName, groupPurpose, groupLeaderID);
@@ -45,12 +51,12 @@ public class GroupServiceImp implements GroupService
     {
         if(!accountRepository.existsByAccountID(accountID))
         {
-            logger.info("User " + accountID + " not found");
+            log.info("User " + accountID + " not found");
             return null;
         }
         if(!groupRepository.existsByGroupID(groupID))
         {
-            logger.info("Group " + groupID + " not found");
+            log.info("Group " + groupID + " not found");
             return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
@@ -61,7 +67,7 @@ public class GroupServiceImp implements GroupService
                 return group;
             }
         }
-        logger.info("User " + accountID + " is not a member of group " + groupID);
+        log.info("User " + accountID + " is not a member of group " + groupID);
         return null;
     }
 
@@ -70,7 +76,7 @@ public class GroupServiceImp implements GroupService
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
-            logger.info("Group " + groupID + " not found");
+            log.info("Group " + groupID + " not found");
             return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
@@ -89,13 +95,13 @@ public class GroupServiceImp implements GroupService
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
-            logger.info("Group " + groupID + " not found");
+            log.info("Group " + groupID + " not found");
             return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
         if(!group.getGroupLeaderID().equals(groupLeaderID))
         {
-            logger.info("User " + groupLeaderID + " is not the leader of group " + groupID);
+            log.info("User " + groupLeaderID + " is not the leader of group " + groupID);
             return null;
         }
         switch(field)
@@ -112,12 +118,12 @@ public class GroupServiceImp implements GroupService
                 }
                 catch(NumberFormatException e)
                 {
-                    logger.info("Invalid reputation requirement");
+                    log.info("Invalid reputation requirement");
                     return null;
                 }
                 if(repReq < 0.0 || repReq > 1.0)
                 {
-                    logger.info("Invalid reputation requirement");
+                    log.info("Invalid reputation requirement");
                     return null;
                 }
                 group.setReputationReq(repReq);
@@ -130,18 +136,18 @@ public class GroupServiceImp implements GroupService
                 }
                 catch(NumberFormatException e)
                 {
-                    logger.info("Invalid proximity requirement");
+                    log.info("Invalid proximity requirement");
                     return null;
                 }
                 if(proxReq <= 0)
                 {
-                    logger.info("Invalid proximity requirement");
+                    log.info("Invalid proximity requirement");
                     return null;
                 }
                 group.setProximityReq(proxReq);
                 break;
             default:
-                logger.info("Field " + field + " is invalid");
+                log.info("Field " + field + " is invalid");
                 return null;
         }
         groupRepository.save(group);
@@ -166,23 +172,23 @@ public class GroupServiceImp implements GroupService
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
-            logger.info("Group " + groupID + " not found");
+            log.info("Group " + groupID + " not found");
             return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
         if(!group.getGroupLeaderID().equals(groupLeaderID))
         {
-            logger.info("User " + groupLeaderID + " is not the leader of group " + groupID);
+            log.info("User " + groupLeaderID + " is not the leader of group " + groupID);
             return null;
         }
         if(!accountRepository.existsByAccountID(accountID))
         {
-            logger.info("User " + accountID + " not found");
+            log.info("User " + accountID + " not found");
             return null;
         }
         if(this.hasGroupMember(group, accountID))
         {
-            logger.info("User " + accountID + " is already in group " + groupID);
+            log.info("User " + accountID + " is already in group " + groupID);
             return null;
         }
         group.addGroupMember(accountID);
@@ -198,23 +204,23 @@ public class GroupServiceImp implements GroupService
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
-            logger.info("Group " + groupID + " not found");
+            log.info("Group " + groupID + " not found");
             return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
         if(!group.getGroupLeaderID().equals(groupLeaderID))
         {
-            logger.info("User " + groupLeaderID + " is not the leader of group " + groupID);
+            log.info("User " + groupLeaderID + " is not the leader of group " + groupID);
             return null;
         }
         if(!accountRepository.existsByAccountID(accountID))
         {
-            logger.info("User " + accountID + " not found");
+            log.info("User " + accountID + " not found");
             return null;
         }
         if(!this.hasGroupMember(group, accountID))
         {
-            logger.info("User " + accountID + " is not in group " + groupID);
+            log.info("User " + accountID + " is not in group " + groupID);
             return null;
         }
         group.removeGroupMember(accountID);
@@ -230,7 +236,7 @@ public class GroupServiceImp implements GroupService
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
-            logger.info("Group " + groupID + " not found");
+            log.info("Group " + groupID + " not found");
             return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
@@ -248,7 +254,7 @@ public class GroupServiceImp implements GroupService
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
-            logger.info("Group " + groupID + " not found");
+            log.info("Group " + groupID + " not found");
             return null;
         }
         ArrayList<Skill> skills = this.getAllSkillReqs(groupID);
@@ -267,28 +273,28 @@ public class GroupServiceImp implements GroupService
     {
         if(!skillRepository.existsBySkillName(skillName))
         {
-            logger.info("Skill " + skillName + " is invalid");
+            log.info("Skill " + skillName + " is invalid");
             return null;
         }
         if(!groupRepository.existsByGroupID(groupID))
         {
-            logger.info("Group " + groupID + " not found");
+            log.info("Group " + groupID + " not found");
             return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
         if(!group.getGroupLeaderID().equals(groupLeaderID))
         {
-            logger.info("User " + groupLeaderID + " is not the leader of group " + groupID);
+            log.info("User " + groupLeaderID + " is not the leader of group " + groupID);
             return null;
         }
         if(this.getSkillReq(groupID, skillName) != null)
         {
-            logger.info("Group " + groupID + " already has skill requirement " + skillName);
+            log.info("Group " + groupID + " already has skill requirement " + skillName);
             return null;
         }
         if(skillLevel < 0 || skillLevel > 10)
         {
-            logger.info("Skill level " + skillLevel + " is invalid");
+            log.info("Skill level " + skillLevel + " is invalid");
             return null;
         }
         Skill skill = new Skill(skillName, skillLevel);
@@ -303,19 +309,19 @@ public class GroupServiceImp implements GroupService
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
-            logger.info("Group " + groupID + " not found");
+            log.info("Group " + groupID + " not found");
             return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
         if(!group.getGroupLeaderID().equals(groupLeaderID))
         {
-            logger.info("User " + groupLeaderID + " is not the leader of group " + groupID);
+            log.info("User " + groupLeaderID + " is not the leader of group " + groupID);
             return null;
         }
         Skill skill = this.getSkillReq(groupID, skillName);
         if(skill == null)
         {
-            logger.info("Group " + groupID + " does not have skill requirement " + skillName);
+            log.info("Group " + groupID + " does not have skill requirement " + skillName);
             return null;
         }
         skillRepository.delete(skill);
@@ -329,13 +335,13 @@ public class GroupServiceImp implements GroupService
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
-            logger.info("Group " + groupID + " not found");
+            log.info("Group " + groupID + " not found");
             return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
         if(!group.getGroupLeaderID().equals(senderID))
         {
-            logger.info("User " + senderID + " is not the leader of group " + groupID);
+            log.info("User " + senderID + " is not the leader of group " + groupID);
             return null;
         }
         Account receiver = accountRepository.findByAccountID(receiverID);

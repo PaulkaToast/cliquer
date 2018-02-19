@@ -1,6 +1,7 @@
 package com.styxxco.cliquer.security;
 
 import com.styxxco.cliquer.service.FirebaseService;
+import lombok.extern.log4j.Log4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,8 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 
+@Log4j
 public class FirebaseFilter extends OncePerRequestFilter {
 
     private static String HEADER_NAME = "X-Authorization-Firebase";
@@ -46,7 +47,7 @@ public class FirebaseFilter extends OncePerRequestFilter {
 
                 filterChain.doFilter(request, response);
             } catch (FirebaseParser.FirebaseTokenInvalidException e) {
-                throw new SecurityException(e);
+                log.info("Authentication error: User is no longer authenticated");
             }
         }
     }

@@ -7,9 +7,5 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 @ControllerAdvice
 public class RestAdvice {
 
-    public String handleFirebaseAuthException(SecurityException e) {
-        log.info("Authentication error", e);
-        return null;
-    }
 
 }

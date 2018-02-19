@@ -4,14 +4,13 @@ import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Group;
 import com.styxxco.cliquer.domain.Skill;
 import com.styxxco.cliquer.domain.Message;
+import com.styxxco.cliquer.service.GroupService;
+import lombok.extern.log4j.Log4j;
 import org.bson.types.ObjectId;
 import com.styxxco.cliquer.database.*;
 import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.security.SecurityConfiguration;
 import com.styxxco.cliquer.service.AccountService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,19 +21,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 
+@Log4j
 @Service(value = AccountServiceImpl.NAME)
 public class AccountServiceImpl implements AccountService
 {
     public final static String NAME = "AccountService";
 
-    private final static Logger logger = LoggerFactory.getLogger(AccountServiceImpl.class);
-
-    private final GroupServiceImp groupService;
-
-    public AccountServiceImp(AccountRepository ar, SkillRepository sr, MessageRepository mr, GroupRepository gr)
     @Autowired
     private AccountRepository accountRepository;
 
@@ -51,7 +45,7 @@ public class AccountServiceImpl implements AccountService
     private GroupRepository groupRepository;
 
     @Autowired
-    private GroupServiceImp groupService;
+    private GroupService groupService;
 
     public AccountServiceImpl(AccountRepository ar, SkillRepository sr, MessageRepository mr, GroupRepository gr)
     {
@@ -59,7 +53,6 @@ public class AccountServiceImpl implements AccountService
         this.skillRepository = sr;
         this.messageRepository = mr;
         this.groupRepository = gr;
-        this.groupService = new GroupServiceImp(ar, sr, mr, gr);
         this.groupRepository = gr;
     }
 
@@ -81,7 +74,7 @@ public class AccountServiceImpl implements AccountService
     {
         if(accountRepository.existsByUsername(username))
         {
-            logger.info("User " + username + " already exists");
+            log.info("User " + username + " already exists");
             return null;
         }
         Account user = new Account(username, firstName, lastName);
@@ -102,10 +95,10 @@ public class AccountServiceImpl implements AccountService
             account.setPassword(UUID.randomUUID().toString());
             System.out.println(account.toString());
             accountRepository.save(account);
-            logger.info("registerUser -> user created");
+            log.info("registerUser -> user created");
             return account;
         } else {
-            logger.info("registerUser -> user exists");
+            log.info("registerUser -> user exists");
             return userLoaded;
         }
     }
@@ -137,7 +130,7 @@ public class AccountServiceImpl implements AccountService
     {
         if(!accountRepository.existsByUsername(username))
         {
-            logger.info("User " + username + " not found");
+            log.info("User " + username + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
@@ -149,7 +142,7 @@ public class AccountServiceImpl implements AccountService
     {
         if(!accountRepository.existsByUsername(username))
         {
-            logger.info("User " + username + " not found");
+            log.info("User " + username + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
@@ -166,12 +159,12 @@ public class AccountServiceImpl implements AccountService
                 }
                 catch(NumberFormatException e)
                 {
-                    logger.info("Invalid reputation requirement");
+                    log.info("Invalid reputation requirement");
                     return null;
                 }
                 if(repReq < 0.0 || repReq > 1.0)
                 {
-                    logger.info("Invalid reputation requirement");
+                    log.info("Invalid reputation requirement");
                     return null;
                 }
                 user.setReputationReq(repReq);
@@ -184,18 +177,18 @@ public class AccountServiceImpl implements AccountService
                 }
                 catch(NumberFormatException e)
                 {
-                    logger.info("Invalid proximity requirement");
+                    log.info("Invalid proximity requirement");
                     return null;
                 }
                 if(proxReq <= 0)
                 {
-                    logger.info("Invalid proximity requirement");
+                    log.info("Invalid proximity requirement");
                     return null;
                 }
                 user.setProximityReq(proxReq);
                 break;
             default:
-                logger.info("Field " + field + " is invalid");
+                log.info("Field " + field + " is invalid");
                 return null;
         }
         accountRepository.save(user);
@@ -207,7 +200,7 @@ public class AccountServiceImpl implements AccountService
     {
         if(!accountRepository.existsByAccountID(accountID))
         {
-            logger.info("User " + accountID + " not found");
+            log.info("User " + accountID + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(accountID);
@@ -225,7 +218,7 @@ public class AccountServiceImpl implements AccountService
     {
         if(!accountRepository.existsByAccountID(accountID))
         {
-            logger.info("User " + accountID + " not found");
+            log.info("User " + accountID + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(accountID);
@@ -250,7 +243,7 @@ public class AccountServiceImpl implements AccountService
     {
         if(skillRepository.existsBySkillName(skillName))
         {
-            logger.info("Skill " + skillName + " is already in database");
+            log.info("Skill " + skillName + " is already in database");
             return null;
         }
         Skill skill = new Skill(skillName, 0);
@@ -271,7 +264,7 @@ public class AccountServiceImpl implements AccountService
     {
         if(!accountRepository.existsByUsername(username))
         {
-            logger.info("User " + username + " not found");
+            log.info("User " + username + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
@@ -289,7 +282,7 @@ public class AccountServiceImpl implements AccountService
     {
         if(!accountRepository.existsByUsername(username))
         {
-            logger.info("User " + username + " not found");
+            log.info("User " + username + " not found");
             return null;
         }
         ArrayList<Skill> skills = this.getAllUserSkills(username);
@@ -308,23 +301,23 @@ public class AccountServiceImpl implements AccountService
     {
         if(!skillRepository.existsBySkillName(skillName))
         {
-            logger.info("Skill " + skillName + " is invalid");
+            log.info("Skill " + skillName + " is invalid");
             return null;
         }
         if(!accountRepository.existsByUsername(username))
         {
-            logger.info("User " + username + " not found");
+            log.info("User " + username + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
         if(this.getSkill(username, skillName) != null)
         {
-            logger.info("User " + username + " already has skill " + skillName);
+            log.info("User " + username + " already has skill " + skillName);
             return null;
         }
         if(skillLevel < 0 || skillLevel > 10)
         {
-            logger.info("Skill level " + skillLevel + " is invalid");
+            log.info("Skill level " + skillLevel + " is invalid");
             return null;
         }
         Skill skill = new Skill(skillName, skillLevel);
@@ -339,14 +332,14 @@ public class AccountServiceImpl implements AccountService
     {
         if(!accountRepository.existsByUsername(username))
         {
-            logger.info("User " + username + " not found");
+            log.info("User " + username + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
         Skill skill = this.getSkill(username, skillName);
         if(skill == null)
         {
-            logger.info("User " + username + " does not have skill " + skillName);
+            log.info("User " + username + " does not have skill " + skillName);
             return null;
 
         }
@@ -361,7 +354,7 @@ public class AccountServiceImpl implements AccountService
     {
         if(!accountRepository.existsByUsername(username))
         {
-            logger.info("User " + username + " not found");
+            log.info("User " + username + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
@@ -383,12 +376,12 @@ public class AccountServiceImpl implements AccountService
     {
         if(!accountRepository.existsByUsername(username))
         {
-            logger.info("User " + username + " not found");
+            log.info("User " + username + " not found");
             return null;
         }
         if(!accountRepository.existsByAccountID(receiverID))
         {
-            logger.info("User " + username + " not found");
+            log.info("User " + username + " not found");
             return null;
         }
         Account sender = accountRepository.findByUsername(username);
@@ -412,19 +405,19 @@ public class AccountServiceImpl implements AccountService
     {
         if(!accountRepository.existsByUsername(username))
         {
-            logger.info("User " + username + " not found");
+            log.info("User " + username + " not found");
             return null;
         }
         if(!groupRepository.existsByGroupID(groupID))
         {
-            logger.info("Group " + groupID + " not found");
+            log.info("Group " + groupID + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
         Group group = groupRepository.findByGroupID(groupID);
         if(!groupService.hasGroupMember(group, user.getAccountID()))
         {
-            logger.info("User " + username + " is not in group " + groupID);
+            log.info("User " + username + " is not in group " + groupID);
             return null;
         }
         group.removeGroupMember(user.getAccountID());

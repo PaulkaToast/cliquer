@@ -42,11 +42,8 @@ public class Account implements UserDetails {
     private List<ObjectId> friendIDs;
     private List<ObjectId> messageIDs;
 
-	public Account() {
-		//Empty for injection creation
-	}
-
 	public Account(String username, String email) {
+		this.accountID = new ObjectId();
 		this.username = username;
 		this.email = email;
 		this.isModerator = false;
