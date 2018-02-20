@@ -160,6 +160,11 @@ public class CliquerApplicationTests {
 		service.addSkill("rbuckmas", "Programming", 4);
 		service.addSkill("montgo38", "Programming", 7);
 
+		accountRepository.save(reed);
+		accountRepository.save(buckmaster);
+		accountRepository.save(rhys);
+		accountRepository.save(shawn);
+
 		ArrayList<Account> search = service.searchByFirstName("Jordan");
 		assertEquals(2, search.size());
 		assertNull(search.get(0).getUsername());
@@ -248,6 +253,47 @@ public class CliquerApplicationTests {
 				jordan.getAccountID());
 		cliquer.addGroupMember(shawn.getAccountID());
 		groupRepository.save(cliquer);
+
+		Group modify = groupService.updateGroupSettings(cliquer.getGroupID(), shawn.getAccountID(), "reputationReq", "0.6");
+		assertNull(modify);
+
+		modify = groupService.updateGroupSettings(cliquer.getGroupID(), jordan.getAccountID(), "reputationReq", "0.6");
+		assertEquals(new Double(0.6), new Double(modify.getReputationReq()));
+		Group retrieve = groupService.getUserGroup(cliquer.getGroupID(), shawn.getAccountID());
+		assertEquals(new Double(0.6), new Double(retrieve.getReputationReq()));
+
+
+		accountService.addSkillToDatabase("Programming");
+		accountService.addSkillToDatabase("Lifting");
+		modify = groupService.addSkillReq(cliquer.getGroupID(), jordan.getAccountID(), "Programming", 5);
+		Skill skill = groupService.getSkillReq(cliquer.getGroupID(), "Lifting");
+		assertNull(skill);
+		skill = groupService.getSkillReq(cliquer.getGroupID(), "Programming");
+		assertEquals("Programming", skill.getSkillName());
+		assertEquals(5, skill.getSkillLevel());
+
+		modify = groupService.removeSkillReq(cliquer.getGroupID(), jordan.getAccountID(), "Programming");
+		skill = groupService.getSkillReq(cliquer.getGroupID(), "Programming");
+		assertNull(skill);
+
+		modify = groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID());
+		Account account = accountService.getMemberProfile(modify.getGroupMemberIDs().get(2));
+		assertEquals("Kevin", account.getFirstName());
+		assertEquals(3, modify.getGroupMemberIDs().size());
+		assertEquals(cliquer.getGroupID(), account.getGroupIDs().get(0));
+
+		modify = groupService.removeGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID());
+		account = accountService.getMemberProfile(modify.getGroupMemberIDs().get(1));
+		assertEquals("Nagar", account.getLastName());
+		assertEquals(2, modify.getGroupMemberIDs().size());
+		assertEquals(0, account.getGroupIDs().size());
+
+		account = accountService.leaveGroup(kevin.getUsername(), cliquer.getGroupID());
+		assertEquals(0, account.getGroupIDs());
+		retrieve = groupService.getUserGroup(cliquer.getGroupID(), jordan.getAccountID());
+		account = accountService.getMemberProfile(retrieve.getGroupMemberIDs().get(0));
+		assertEquals("Jordan", account.getFirstName());
+		assertEquals(1, modify.getGroupMemberIDs().size());
 	}
 
 	@Test
@@ -271,7 +317,7 @@ public class CliquerApplicationTests {
 
 		newMessages = service.getNewMessages("montgo38");
 		assertEquals(1, newMessages.size());
-		assertEquals("Pretty please be my friend", newMessages.get(0).getContent());
+		assertEquals("Pretty please be my friend?", newMessages.get(0).getContent());
 	}
 
 	/* Stress test for creating skills. Also populates valid skills in database */
