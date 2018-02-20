@@ -5,30 +5,47 @@ import { NavLink } from 'react-router-dom'
 import { Button, ButtonGroup } from 'reactstrap'
 
 import '../../css/Groups.css'
+import { history } from '../../redux/store'
 import Group from './Group'
 import Chat from './Chat'
 import GroupMembers from './GroupMembers'
 import GroupSettings from './GroupSettings'
 
 class Groups extends Component {
-  componentDidMount = () => {
-
+  constructor(props) {
+    super(props)
+    this.state = {
+      members: 'active',
+      settings: '',
+    }
   }
 
   renderGroupsList = () => {
+    const { groups } = this.props
     return (
       <div className="groups-list">
-        <h3>Groups</h3>
+        <div className="header">
+          <h3>Groups</h3>
+        </div>
         <ul id="groups">
-            {this.props.groups.map((group, i) => {
+            {Object.keys(groups).map((gid, i) => {
               return <Group
-                group={group}
+                group={groups[gid]}
                 key={i}
               />
             })}
         </ul>
       </div>
     )
+  }
+
+  toggle = (tab) => {
+    if(tab === 'members' && this.state.members !== 'active' ) {
+      this.setState({ members: 'active', settings: '' }, () => history.push('/groups/temp'))
+    }
+    if(tab === 'settings' && this.state.settings !== 'active' ) {
+      this.setState({ members: '', settings: 'active' }, () => history.push('/groups/temp/settings'))
+    }
   }
 
   render() {
@@ -38,8 +55,8 @@ class Groups extends Component {
         <Chat />
         <div className="right-panel">
           <ButtonGroup>
-            <Button onClick={() => this.props.history.push('/groups/temp')}>Members</Button>{' '}
-            <Button onClick={() => this.props.history.push('/groups/temp/settings')}>Settings</Button>
+            <Button className={this.state.members} onClick={() => this.toggle('members')}><h3>Members</h3></Button>{' '}
+            <Button className={this.state.settings} onClick={() => this.toggle('settings')}><h3>Settings</h3></Button>
           </ButtonGroup>
           <Switch>
             <Route exact path="/groups/:gid" render={(navProps) => <GroupMembers {...this.props} {...navProps}/>}/>

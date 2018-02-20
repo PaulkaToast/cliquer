@@ -10,12 +10,6 @@
     margin-top: 6px;
 }
 
-.btn-facebook {
-    color: #fff;
-    background-color: #3b5998;
-    border-color: rgba(0,0,0,0.2);
-}
-
 .logo {
     text-align: center;
 }
@@ -25,16 +19,23 @@
     padding-top: 50px
 }
 
-.fb-container {
-    margin-top: 10px;
-}
-
 #inputPassword {
     margin-top: 10px;
     margin-bottom: 10px;
 }
+
 .form-signin-heading {
     text-align: center;
+}
+
+.btn-facebook {
+    color: #fff;
+    background-color: #3b5998;
+    border-color: rgba(0,0,0,0.2);
+}
+
+.fb-container {
+    margin-top: 10px;
 }
 
 .btn-social {

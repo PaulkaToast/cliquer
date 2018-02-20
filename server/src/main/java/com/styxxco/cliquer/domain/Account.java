@@ -43,6 +43,10 @@ public class Account implements UserDetails {
     private List<ObjectId> friendIDs;
     private List<ObjectId> messageIDs;
 
+    public Account() {
+    	this.accountID = new ObjectId();
+	}
+
 	public Account(String username, String email) {
 		this.accountID = new ObjectId();
 		this.username = username;
