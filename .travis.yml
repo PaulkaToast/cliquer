@@ -14,5 +14,13 @@ matrix:
       after_script:
         - codecov -t "c40160c7-daa8-4fbc-99df-f7383a356af3" -F react
 
+  - language: java
+    services: mongodb
+    sudo: false
+    before_script: cd server
+    script: "mvn cobertura:cobertura"
+    after_success:
+      - bash <(curl -s https://codecov.io/bash) -F server -t "c40160c7-daa8-4fbc-99df-f7383a356af3"
+    
 notifications:
   email: false
