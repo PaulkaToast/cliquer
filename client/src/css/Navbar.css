@@ -1,29 +1,9 @@
-.Navbar ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    width: 200px;
-    background-color: #f1f1f1;
+/*.nav-links{
+    -webkit-text-fill-color: rgb(255, 255, 255);
+    text-decoration-color: "secondary";
 }
+*/
 
-.Navbar li a {
-    display: block;
-    color: #000;
-    padding: 8px 16px;
-    text-decoration: none;
-}
-
-.Navbar li a:hover {
-    background-color: #555;
-    color: white;
-}
-
-.Navbar ul {
-    position: fixed;
-    top: 0;
-    width: 100%;
-}
-
-.Navbar .active {
-    background-color: #4CAF50;
+.cliquer-brand {
+    color: white !important;
 }
