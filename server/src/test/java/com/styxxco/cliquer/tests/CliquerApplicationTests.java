@@ -291,7 +291,7 @@ public class CliquerApplicationTests {
 		assertEquals(0, account.getGroupIDs().size());
 
 		account = accountService.leaveGroup(kevin.getUsername(), cliquer.getGroupID());
-		assertEquals(0, account.getGroupIDs());
+		assertEquals(0, account.getGroupIDs().size());
 		retrieve = groupService.getUserGroup(cliquer.getGroupID(), jordan.getAccountID());
 		account = accountService.getMemberProfile(retrieve.getGroupMemberIDs().get(0));
 		assertEquals("Jordan", account.getFirstName());
