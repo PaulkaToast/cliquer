@@ -3,6 +3,7 @@ package com.styxxco.cliquer.tests;
 import com.styxxco.cliquer.database.*;
 import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Group;
+import com.styxxco.cliquer.domain.Message;
 import com.styxxco.cliquer.domain.Skill;
 import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.GroupService;
@@ -49,9 +50,9 @@ public class CliquerApplicationTests {
 		assertEquals("Shawn", user.getFirstName());
 	}
 
-	/* Test account retrieval services */
+	/* Test account creation and retrieval services */
 	@Test
-	public void testAccountRetrieval()
+	public void testAccountCreationAndRetrieval()
 	{
 		accountRepository.deleteAll();
 		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
@@ -96,10 +97,7 @@ public class CliquerApplicationTests {
 		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
 		Account jordan = service.createAccount("reed226", "Jordan", "Reed");
-		assertNotNull(jordan);
-
 		Account shawn = service.createAccount("montgo38", "Shawn", "Montgomery");
-		assertNotNull(shawn);
 
 		Account modify = service.updateUserProfile("reed226", "firstName", "William");
 		assertEquals("William", modify.getFirstName());
@@ -135,11 +133,72 @@ public class CliquerApplicationTests {
 		assertNull(skill);
 	}
 
+	/* Test account searching services and ranking */
+	@Test
+	public void testAccountSearchingAndRanking()
+	{
+		accountRepository.deleteAll();
+		skillRepository.deleteAll();
+		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+
+		Account reed = service.createAccount("reed226", "Jordan", "Reed");
+		Account buckmaster = service.createAccount("buckmast", "Jordan", "Buckmaster");
+		Account rhys = service.createAccount("rbuckmas", "Rhys", "Buckmaster");
+		Account shawn = service.createAccount("montgo38", "Shawn", "Montgomery");
+
+		reed.setReputation(5);
+		buckmaster.setReputation(69);
+		rhys.setReputation(5);
+		shawn.setReputation(6);
+
+		Skill skill = new Skill("Programming", 0);
+		skillRepository.save(skill);
+		service.addSkill("reed226", "Programming", 7);
+		Account test = service.addSkill("buckmast", "Programming", -2);
+		assertNull(test);
+		service.addSkill("buckmast", "Programming", 8);
+		service.addSkill("rbuckmas", "Programming", 4);
+		service.addSkill("montgo38", "Programming", 7);
+
+		ArrayList<Account> search = service.searchByFirstName("Jordan");
+		assertEquals(true, search.contains(reed));
+		assertEquals(true, search.contains(buckmaster));
+		assertEquals(false, search.contains(rhys));
+		assertEquals(false, search.contains(shawn));
+
+		search = service.searchByLastName("Buckmaster");
+		assertEquals(false, search.contains(reed));
+		assertEquals(true, search.contains(buckmaster));
+		assertEquals(true, search.contains(rhys));
+		assertEquals(false, search.contains(shawn));
+
+		search = service.searchByReputation(6);
+		assertEquals(false, search.contains(reed));
+		assertEquals(true, search.contains(buckmaster));
+		assertEquals(false, search.contains(rhys));
+		assertEquals(true, search.contains(shawn));
+
+		search = service.searchBySkill("Programming", 7);
+		assertEquals(true, search.contains(reed));
+		assertEquals(true, search.contains(buckmaster));
+		assertEquals(false, search.contains(rhys));
+		assertEquals(true, search.contains(shawn));
+
+		search = service.searchBySkill("Programming", 9);
+		assertEquals(true, search.isEmpty());
+
+		assertEquals(new Double(50.0), new Double(service.getReputationRanking("reed226")));
+		assertEquals(new Double(100.0), new Double(service.getReputationRanking("buckmast")));
+		assertEquals(new Double(50.0), new Double(service.getReputationRanking("rbuckmas")));
+		assertEquals(new Double(75.0), new Double(service.getReputationRanking("montgo38")));
+	}
+
 	/* Test group retrieval services */
 	@Test
 	public void testGroupRetrieval()
 	{
 		accountRepository.deleteAll();
+		skillRepository.deleteAll();
 		groupRepository.deleteAll();
 		AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 		GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
@@ -177,6 +236,7 @@ public class CliquerApplicationTests {
 	public void testGroupModification()
 	{
 		accountRepository.deleteAll();
+		skillRepository.deleteAll();
 		groupRepository.deleteAll();
 		AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 		GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
@@ -191,28 +251,43 @@ public class CliquerApplicationTests {
 				jordan.getAccountID());
 		cliquer.addGroupMember(shawn.getAccountID());
 		groupRepository.save(cliquer);
+	}
 
-		Group retrieve = groupService.getUserGroup(cliquer.getGroupID(), shawn.getAccountID());
-		assertEquals(jordan.getAccountID(), retrieve.getGroupLeaderID());
+	@Test
+	public void testAccountMessaging()
+	{
+		accountRepository.deleteAll();
+		skillRepository.deleteAll();
+		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
-		retrieve = groupService.getUserGroup(cliquer.getGroupID(), kevin.getAccountID());
-		assertNull(retrieve);
+		Account jordan = service.createAccount("reed226", "Jordan", "Reed");
+		Account shawn = service.createAccount("montgo38", "Shawn", "Montgomery");
 
-		cliquer.setPublic(true);
-		groupRepository.save(cliquer);
-		retrieve = groupService.getPublicGroup(cliquer.getGroupID());
-		assertEquals(jordan.getAccountID(), retrieve.getGroupLeaderID());
+		Message first = service.sendMessage("reed226", shawn.getAccountID(), "Be my friend?", "Friend Invite");
+		Message second = service.sendMessage("reed226", shawn.getAccountID(), "Please be my friend?", "Friend Invite");
 
-		cliquer.setPublic(false);
-		groupRepository.save(cliquer);
-		retrieve = groupService.getPublicGroup(cliquer.getGroupID());
-		assertNull(retrieve.getGroupMemberIDs());
+		ArrayList<Message> newMessages = service.getNewMessages("montgo38");
+		assertEquals(true, newMessages.contains(first));
+		assertEquals(true, shawn.getMessageIDs().contains(first.getMessageID()));
+		assertEquals(true, newMessages.contains(second));
+		assertEquals(true, shawn.getMessageIDs().contains(second.getMessageID()));
+
+		Message third = service.sendMessage("reed226", shawn.getAccountID(), "Pretty please be my friend?", "Friend Invite");
+
+		newMessages = service.getNewMessages("montgo38");
+		assertEquals(false, newMessages.contains(first));
+		assertEquals(true, shawn.getMessageIDs().contains(first.getMessageID()));
+		assertEquals(false, newMessages.contains(second));
+		assertEquals(true, shawn.getMessageIDs().contains(second.getMessageID()));
+		assertEquals(true, newMessages.contains(third));
+		assertEquals(true, shawn.getMessageIDs().contains(third.getMessageID()));
 	}
 
 	/* Stress test for creating skills. Also populates valid skills in database */
 	@Test
 	public void populateSkills()
 	{
+		skillRepository.deleteAll();
 		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
 		assertNotNull(service.addSkillToDatabase("Java"));

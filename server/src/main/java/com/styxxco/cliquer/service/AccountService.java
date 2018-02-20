@@ -1,11 +1,7 @@
 package com.styxxco.cliquer.service;
 
-import com.styxxco.cliquer.domain.Account;
-import com.styxxco.cliquer.domain.Message;
-import com.styxxco.cliquer.domain.Skill;
+import com.styxxco.cliquer.domain.*;
 import org.bson.types.ObjectId;
-import com.styxxco.cliquer.domain.RegisterUser;
-import com.styxxco.cliquer.domain.Role;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.ArrayList;
@@ -13,17 +9,25 @@ import java.util.List;
 
 public interface AccountService extends UserDetailsService {
     /* Account Creation */
+    Account registerUser(RegisterUser init);
     Account createAccount(String username, String firstName, String lastName);
 
     /* Account Access */
     Account getUserProfile(String username);
     Account getMemberProfile(ObjectId accountID);
+    Account maskPublicProfile(Account account);
     Account getPublicProfile(ObjectId accountID);
 
     /* Account Modification */
     Account updateUserProfile(String username, String field, String value);
     Account addSkill(String username, String skillName, int skillLevel);
     Account removeSkill(String username, String skillName);
+
+    /* Account Searching */
+    ArrayList<Account> searchByFirstName(String firstName);
+    ArrayList<Account> searchByLastName(String lastName);
+    ArrayList<Account> searchByReputation(int minimumRep);
+    ArrayList<Account> searchBySkill(String skillName, int minimumLevel);
 
     /* Skill centered services */
     Skill addSkillToDatabase(String skillName);
@@ -39,6 +43,6 @@ public interface AccountService extends UserDetailsService {
     Account joinGroup(String username, ObjectId groupID);
     Account leaveGroup(String username, ObjectId groupID);
 
-    Account registerUser(RegisterUser init);
     List<Role> getAnonRoles();
+    double getReputationRanking(String username);
 }
