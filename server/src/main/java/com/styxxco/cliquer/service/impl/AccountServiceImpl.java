@@ -53,6 +53,7 @@ public class AccountServiceImpl implements AccountService
         this.skillRepository = sr;
         this.messageRepository = mr;
         this.groupRepository = gr;
+        this.groupService = new GroupServiceImpl(ar, sr, mr, gr);
     }
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
