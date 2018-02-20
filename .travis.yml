@@ -21,7 +21,9 @@ matrix:
         BUILD_LANG: java
       services: mongodb
       sudo: false
-      before_script: cd server
+      before_script: 
+        - cd server
+        - wget -O src/main/resources/FirebaseConfigurationJSON.json "$FIREBASE_CONFIG_URL"
       script: "mvn test"
       after_success:
         - bash <(curl -s https://codecov.io/bash) -F server -t "c40160c7-daa8-4fbc-99df-f7383a356af3"
