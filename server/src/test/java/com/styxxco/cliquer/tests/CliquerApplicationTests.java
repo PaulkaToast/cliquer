@@ -151,6 +151,11 @@ public class CliquerApplicationTests {
 		rhys.setReputation(5);
 		shawn.setReputation(6);
 
+		accountRepository.save(reed);
+		accountRepository.save(buckmaster);
+		accountRepository.save(rhys);
+		accountRepository.save(shawn);
+
 		Skill skill = new Skill("Programming", 0);
 		skillRepository.save(skill);
 		service.addSkill("reed226", "Programming", 7);
@@ -160,10 +165,6 @@ public class CliquerApplicationTests {
 		service.addSkill("rbuckmas", "Programming", 4);
 		service.addSkill("montgo38", "Programming", 7);
 
-		accountRepository.save(reed);
-		accountRepository.save(buckmaster);
-		accountRepository.save(rhys);
-		accountRepository.save(shawn);
 
 		ArrayList<Account> search = service.searchByFirstName("Jordan");
 		assertEquals(2, search.size());
@@ -286,6 +287,7 @@ public class CliquerApplicationTests {
 		account = accountService.getMemberProfile(modify.getGroupMemberIDs().get(1));
 		assertEquals("Nagar", account.getLastName());
 		assertEquals(2, modify.getGroupMemberIDs().size());
+		account = accountService.getUserProfile(shawn.getUsername());
 		assertEquals(0, account.getGroupIDs().size());
 
 		account = accountService.leaveGroup(kevin.getUsername(), cliquer.getGroupID());
