@@ -70,7 +70,7 @@ public class AccountServiceImpl implements AccountService
     }
 
     @Override
-    public Account createAccount( String username, String firstName, String lastName)
+    public Account createAccount(String username, String firstName, String lastName)
     {
         if(accountRepository.existsByUsername(username))
         {
@@ -80,6 +80,29 @@ public class AccountServiceImpl implements AccountService
         Account user = new Account(username, firstName, lastName);
         this.accountRepository.save(user);
         return user;
+    }
+
+    @Override
+    public String deleteAccount(String username)
+    {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        for(ObjectId groupID : user.getGroupIDs())
+        {
+            Group group = groupRepository.findByGroupID(groupID);
+            group.removeGroupMember(user.getAccountID());
+            if(group.getGroupLeaderID().equals(user.getAccountID()))
+            {
+                group.setGroupLeaderID(group.getGroupMemberIDs().get(0));
+            }
+            groupRepository.save(group);
+        }
+        accountRepository.delete(user);
+        return "Success";
     }
 
     @Override
@@ -482,6 +505,21 @@ public class AccountServiceImpl implements AccountService
         {
             log.info("User " + username + " is not in group " + groupID);
             return null;
+        }
+        if(group.getGroupLeaderID().equals(user.getAccountID()))
+        {
+            if(group.getGroupMemberIDs().size() == 1)
+            {
+                groupRepository.delete(group);
+                user.removeGroup(groupID);
+                accountRepository.save(user);
+                return user;
+            }
+            else
+            {
+                group.setGroupLeaderID(group.getGroupMemberIDs().get(0));
+            }
+
         }
         group.removeGroupMember(user.getAccountID());
         groupRepository.save(group);

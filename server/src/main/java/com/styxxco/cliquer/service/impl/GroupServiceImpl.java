@@ -47,6 +47,31 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    public String deleteGroup(ObjectId groupID, ObjectId groupLeaderID)
+    {
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            log.info("Group " + groupID + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupID);
+        if(!group.getGroupLeaderID().equals(groupLeaderID))
+        {
+            log.info("User " + groupLeaderID + " is not the leader of group " + groupID);
+            return null;
+        }
+        for(ObjectId accountID : group.getGroupMemberIDs())
+        {
+            Account account = accountRepository.findByAccountID(accountID);
+            account.removeGroup(groupID);
+            accountRepository.save(account);
+        }
+        groupRepository.delete(group);
+        return "Success";
+
+    }
+
+    @Override
     public Group getUserGroup(ObjectId groupID, ObjectId accountID)
     {
         if(!accountRepository.existsByAccountID(accountID))

@@ -322,6 +322,12 @@ public class CliquerApplicationTests {
 		assertEquals("Pretty please be my friend?", newMessages.get(0).getContent());
 	}
 
+	@Test
+	public void testAccountAndGroupDeletion()
+	{
+		
+	}
+
 	/* Stress test for creating skills. Also populates valid skills in database */
 	@Test
 	public void populateSkills()

@@ -22,6 +22,7 @@ public interface AccountService extends UserDetailsService {
     Account updateUserProfile(String username, String field, String value);
     Account addSkill(String username, String skillName, int skillLevel);
     Account removeSkill(String username, String skillName);
+    String deleteAccount(String username);
 
     /* Account Searching */
     ArrayList<Account> searchByFirstName(String firstName);
