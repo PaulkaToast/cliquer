@@ -325,7 +325,52 @@ public class CliquerApplicationTests {
 	@Test
 	public void testAccountAndGroupDeletion()
 	{
+		accountRepository.deleteAll();
+		skillRepository.deleteAll();
+		groupRepository.deleteAll();
+		AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+		GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
+		Account jordan = accountService.createAccount("reed226", "Jordan", "Reed");
+		Account shawn = accountService.createAccount("montgo38", "Shawn", "Montgomery");
+		Account kevin = accountService.createAccount("knagar", "Kevin", "Nagar");
+
+		Group cliquer = groupService.createGroup(
+				"Cliquer",
+				"To create a web app that facilitates the teaming of people who may have never met before",
+				jordan.getAccountID());
+		groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID());
+		groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID());
+		groupRepository.save(cliquer);
+
+		Group hoops = groupService.createGroup(
+				"Hoops",
+				"Play ball",
+				kevin.getAccountID());
+		groupService.addGroupMember(hoops.getGroupID(), kevin.getAccountID(), jordan.getAccountID());
+		groupRepository.save(cliquer);
+
+		String result = accountService.deleteAccount(jordan.getUsername());
+		assertNotNull(result);
+		Group retrieve = groupService.getUserGroup(cliquer.getGroupID(), shawn.getAccountID());
+		Account account = accountRepository.findByAccountID(retrieve.getGroupLeaderID());
+		assertEquals("Shawn", account.getFirstName());
+
+		retrieve = groupService.getUserGroup(hoops.getGroupID(), kevin.getAccountID());
+		assertEquals(1, retrieve.getGroupMemberIDs().size());
+
+		account = accountRepository.findByUsername(jordan.getUsername());
+		assertNull(account);
+
+		result = groupService.deleteGroup(cliquer.getGroupID(), shawn.getAccountID());
+		assertNotNull(result);
+		retrieve = groupService.getUserGroup(cliquer.getGroupID(), shawn.getAccountID());
+		assertNull(retrieve);
+
+		account = accountRepository.findByUsername(shawn.getUsername());
+		assertEquals(0, account.getGroupIDs().size());
+		account = accountRepository.findByUsername(kevin.getUsername());
+		assertEquals(1, account.getGroupIDs().size());
 	}
 
 	/* Stress test for creating skills. Also populates valid skills in database */
