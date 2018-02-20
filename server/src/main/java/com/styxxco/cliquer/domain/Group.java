@@ -21,6 +21,7 @@ public class Group
 
     private String groupName;
     private String groupPurpose;
+    private byte[] groupPic;
 	
 	private ArrayList<ObjectId> skillReqs;
     private boolean isPublic;
@@ -38,6 +39,7 @@ public class Group
 		this.groupPurpose = groupPurpose;
 		this.groupLeaderID = groupLeaderID;
 
+		this.groupPic = null;
 		this.skillReqs = new ArrayList<>();
 		this.isPublic = false;
 		this.reputationReq = 0.0;

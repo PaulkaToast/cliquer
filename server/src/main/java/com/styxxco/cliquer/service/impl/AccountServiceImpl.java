@@ -58,7 +58,7 @@ public class AccountServiceImpl implements AccountService
         this.skillRepository = sr;
         this.messageRepository = mr;
         this.groupRepository = gr;
-        this.groupRepository = gr;
+        this.groupService = new GroupServiceImpl(ar, sr, mr, gr);
     }
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -218,6 +218,25 @@ public class AccountServiceImpl implements AccountService
         user.setReputationReq(-1.0);
         return user;
     }
+    
+    @Override
+    public Account maskPublicProfile(Account account)
+    {
+        if(!account.isPublic())
+        {
+            /* Mask all information except name and reputation */
+            account.setSkillIDs(null);
+            account.setGroupIDs(null);
+            account.setFriendIDs(null);
+        }
+        /* Mask private information and settings */
+        account.setUsername(null);
+        account.setModerator(false);
+        account.setMessageIDs(null);
+        account.setProximityReq(-1);
+        account.setReputationReq(-1.0);
+        return account;
+    }
 
     @Override
     public Account getPublicProfile(ObjectId accountID)
@@ -228,20 +247,63 @@ public class AccountServiceImpl implements AccountService
             return null;
         }
         Account user = accountRepository.findByAccountID(accountID);
-        if(!user.isPublic())
+        return this.maskPublicProfile(user);
+    }
+
+    @Override
+    public ArrayList<Account> searchByFirstName(String firstName)
+    {
+        ArrayList<Account> accounts = accountRepository.findByFirstName(firstName);
+        ArrayList<Account> masked = new ArrayList<>();
+        for(Account account : accounts)
         {
-            /* Mask all information except name and reputation */
-            user.setSkillIDs(null);
-            user.setGroupIDs(null);
-            user.setFriendIDs(null);
+            masked.add(this.maskPublicProfile(account));
         }
-        /* Mask private information and settings */
-        user.setUsername(null);
-        user.setModerator(false);
-        user.setMessageIDs(null);
-        user.setProximityReq(-1);
-        user.setReputationReq(-1.0);
-        return user;
+        return masked;
+    }
+
+    @Override
+    public ArrayList<Account> searchByLastName(String lastName)
+    {
+        ArrayList<Account> accounts = accountRepository.findByLastName(lastName);
+        ArrayList<Account> masked = new ArrayList<>();
+        for(Account account : accounts)
+        {
+            masked.add(this.maskPublicProfile(account));
+        }
+        return masked;
+    }
+
+    @Override
+    public ArrayList<Account> searchByReputation(int minimumRep)
+    {
+        List<Account> accounts = accountRepository.findAll();
+        ArrayList<Account> qualified = new ArrayList<>();
+        for(Account account : accounts)
+        {
+            if(account.getReputation() >= minimumRep)
+            {
+                qualified.add(this.maskPublicProfile(account));
+            }
+        }
+        return qualified;
+    }
+
+    /* TODO Decide if private accounts should come up, since skills are private information */
+    @Override
+    public ArrayList<Account> searchBySkill(String skillName, int minimumLevel)
+    {
+        List<Account> accounts = accountRepository.findAll();
+        ArrayList<Account> qualified = new ArrayList<>();
+        for(Account account : accounts)
+        {
+            Skill skill = this.getSkill(account.getUsername(), skillName);
+            if(skill != null && skill.getSkillLevel() >= minimumLevel)
+            {
+                qualified.add(this.maskPublicProfile(account));
+            }
+        }
+        return qualified;
     }
 
     @Override
@@ -372,6 +434,7 @@ public class AccountServiceImpl implements AccountService
             {
                 messages.add(message);
                 message.setRead(true);
+                messageRepository.save(message);
             }
         }
         return messages;
@@ -432,6 +495,26 @@ public class AccountServiceImpl implements AccountService
         accountRepository.save(user);
         return user;
 
+    }
+
+    public double getReputationRanking(String username)
+    {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return 0.0;
+        }
+        Account user = accountRepository.findByUsername(username);
+        List<Account> accounts = accountRepository.findAll();
+        ArrayList<Integer> reputations = new ArrayList<>();
+        for(Account account : accounts)
+        {
+            reputations.add(account.getReputation());
+        }
+        Collections.sort(reputations);
+        int rank = reputations.lastIndexOf(user.getReputation()) + 1;
+        double percentile = (100.0*rank)/reputations.size();
+        return percentile;
     }
 
 }
