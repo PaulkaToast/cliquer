@@ -161,28 +161,23 @@ public class CliquerApplicationTests {
 		service.addSkill("montgo38", "Programming", 7);
 
 		ArrayList<Account> search = service.searchByFirstName("Jordan");
-		assertEquals(true, search.contains(reed));
-		assertEquals(true, search.contains(buckmaster));
-		assertEquals(false, search.contains(rhys));
-		assertEquals(false, search.contains(shawn));
+		assertEquals(2, search.size());
+		assertEquals("Jordan", search.get(0).getFirstName());
 
 		search = service.searchByLastName("Buckmaster");
-		assertEquals(false, search.contains(reed));
-		assertEquals(true, search.contains(buckmaster));
-		assertEquals(true, search.contains(rhys));
-		assertEquals(false, search.contains(shawn));
+		assertEquals(2, search.size());
+		assertEquals("Buckmaster", search.get(0));
 
-		search = service.searchByReputation(6);
-		assertEquals(false, search.contains(reed));
-		assertEquals(true, search.contains(buckmaster));
-		assertEquals(false, search.contains(rhys));
-		assertEquals(true, search.contains(shawn));
+		search = service.searchByReputation(7);
+		assertEquals(1, search.size());
+		assertEquals("buckmast", search.get(0).getUsername());
 
 		search = service.searchBySkill("Programming", 7);
-		assertEquals(true, search.contains(reed));
-		assertEquals(true, search.contains(buckmaster));
-		assertEquals(false, search.contains(rhys));
-		assertEquals(true, search.contains(shawn));
+		assertEquals(3, search.size());
+		assertNotEquals("Rhys", search.get(0).getFirstName());
+		assertNotEquals("Rhys", search.get(1).getFirstName());
+		assertNotEquals("Rhys", search.get(2).getFirstName());
+
 
 		search = service.searchBySkill("Programming", 9);
 		assertEquals(true, search.isEmpty());
@@ -267,20 +262,14 @@ public class CliquerApplicationTests {
 		Message second = service.sendMessage("reed226", shawn.getAccountID(), "Please be my friend?", "Friend Invite");
 
 		ArrayList<Message> newMessages = service.getNewMessages("montgo38");
-		assertEquals(true, newMessages.contains(first));
-		assertEquals(true, shawn.getMessageIDs().contains(first.getMessageID()));
-		assertEquals(true, newMessages.contains(second));
-		assertEquals(true, shawn.getMessageIDs().contains(second.getMessageID()));
+		assertEquals(2, newMessages.size());
+		assertEquals("Friend Invite", newMessages.get(0).getType());
 
 		Message third = service.sendMessage("reed226", shawn.getAccountID(), "Pretty please be my friend?", "Friend Invite");
 
 		newMessages = service.getNewMessages("montgo38");
-		assertEquals(false, newMessages.contains(first));
-		assertEquals(true, shawn.getMessageIDs().contains(first.getMessageID()));
-		assertEquals(false, newMessages.contains(second));
-		assertEquals(true, shawn.getMessageIDs().contains(second.getMessageID()));
-		assertEquals(true, newMessages.contains(third));
-		assertEquals(true, shawn.getMessageIDs().contains(third.getMessageID()));
+		assertEquals(1, newMessages.size());
+		assertEquals("Pretty please be my friend", newMessages.get(0).getContent());
 	}
 
 	/* Stress test for creating skills. Also populates valid skills in database */
