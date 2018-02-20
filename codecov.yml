@@ -1,2 +1,4 @@
 fixes:
+  - "src/main::server/src/main"
+  - "src/test::server/src/test"
   - "src/::client/src/"
