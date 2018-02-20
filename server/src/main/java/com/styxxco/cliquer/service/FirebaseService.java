@@ -14,7 +14,9 @@ public interface FirebaseService {
 
     void registerUser(String firebaseToken);
     Account getUser(String uid);
-    List<Role> getAnonRoles();
+    Collection<? extends GrantedAuthority> getAnonRoles();
+    Collection<? extends GrantedAuthority> getModRoles();
+    Collection<? extends GrantedAuthority> getUserRoles();
     Collection<? extends GrantedAuthority> getUserRoles(String username);
 
 

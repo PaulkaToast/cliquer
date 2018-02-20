@@ -54,8 +54,21 @@ public class FirebaseServiceImpl implements FirebaseService {
     }
 
     @Override
-    public List<Role> getAnonRoles() {
-        return accountService.getAnonRoles();
+    public Collection<? extends GrantedAuthority> getAnonRoles() {
+        Collection<? extends GrantedAuthority> roles = accountService.getAnonRoles();
+        return roles;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getUserRoles() {
+        Collection<? extends GrantedAuthority> roles = accountService.getUserRoles();
+        return roles;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getModRoles() {
+        Collection<? extends GrantedAuthority> roles = accountService.getModRoles();
+        return roles;
     }
 
 }

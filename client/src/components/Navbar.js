@@ -1,23 +1,35 @@
 import React, { Component } from 'react'
-
+import { Button, Navbar, NavbarBrand, Nav, NavItem, NavLink, Collapse } from 'reactstrap'
 import '../css/Navbar.css'
+import Logo from '../img/cliquerLogo-sm.png'
 import { auth } from '../firebase'
 
-class Navbar extends Component {
-
+class Navigationbar extends Component {
+//
 
   render() {
     return (
-      <div className="Navbar">
-        <button
-          type="button"
-          onClick={auth.logOut}
-        >
-          Log Out
-        </button>
+      <div>
+        <Navbar color="primary" dark expand="md">
+        <NavbarBrand className="cliquer-brand"><img src={Logo} alt="" /></NavbarBrand>
+          <Nav className="mr-auto" navbar>
+             <NavItem>
+              <NavLink href="/groups">Groups</NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink href="/profile">Profile</NavLink>
+            </NavItem>
+            
+            </Nav>
+            <Nav className="ml-auto" navbar>
+            <NavItem>
+              <Button color="secondary" onClick={auth.logOut}>Log Out</Button>
+            </NavItem>
+            </Nav>
+        </Navbar>
       </div>
     )
   }
 }
 
-export default Navbar
+export default Navigationbar

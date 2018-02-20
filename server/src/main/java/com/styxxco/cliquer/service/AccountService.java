@@ -45,5 +45,7 @@ public interface AccountService extends UserDetailsService {
     Account leaveGroup(String username, ObjectId groupID);
 
     List<Role> getAnonRoles();
+    List<Role> getUserRoles();
+    List<Role> getModRoles();
     double getReputationRanking(String username);
 }
