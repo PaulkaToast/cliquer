@@ -427,6 +427,7 @@ public class AccountServiceImpl implements AccountService
             {
                 messages.add(message);
                 message.setRead(true);
+                messageRepository.save(message);
             }
         }
         return messages;

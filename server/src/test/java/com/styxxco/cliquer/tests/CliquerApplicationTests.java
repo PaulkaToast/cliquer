@@ -162,15 +162,17 @@ public class CliquerApplicationTests {
 
 		ArrayList<Account> search = service.searchByFirstName("Jordan");
 		assertEquals(2, search.size());
+		assertNull(search.get(0).getUsername());
 		assertEquals("Jordan", search.get(0).getFirstName());
 
 		search = service.searchByLastName("Buckmaster");
 		assertEquals(2, search.size());
-		assertEquals("Buckmaster", search.get(0));
+		assertEquals("Buckmaster", search.get(0).getLastName());
 
 		search = service.searchByReputation(7);
 		assertEquals(1, search.size());
-		assertEquals("buckmast", search.get(0).getUsername());
+		assertEquals("Jordan", search.get(0).getFirstName());
+		assertEquals("Buckmaster", search.get(0).getLastName());
 
 		search = service.searchBySkill("Programming", 7);
 		assertEquals(3, search.size());
