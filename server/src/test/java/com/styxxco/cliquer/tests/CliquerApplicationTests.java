@@ -271,7 +271,7 @@ public class CliquerApplicationTests {
 		assertNull(skill);
 		skill = groupService.getSkillReq(cliquer.getGroupID(), "Programming");
 		assertEquals("Programming", skill.getSkillName());
-		assertEquals(5, skill.getSkillLevel());
+		assertEquals(4, skill.getSkillLevel());
 
 		modify = groupService.removeSkillReq(cliquer.getGroupID(), jordan.getAccountID(), "Programming");
 		skill = groupService.getSkillReq(cliquer.getGroupID(), "Programming");
@@ -325,7 +325,7 @@ public class CliquerApplicationTests {
 	@Test
 	public void testAccountAndGroupDeletion()
 	{
-		
+
 	}
 
 	/* Stress test for creating skills. Also populates valid skills in database */
