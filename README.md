@@ -15,8 +15,9 @@ Come clique away
 1. Create admin service account configuration as defined here [Firebase Manual](https://firebase.google.com/docs/database/rest/auth "Google Firebase REST Manual")
 2. Copy the configuration json to the file `FirebaseConfigurationJSON-example.json` and rename to `FirebaseConfigurationJSON.json`
 ### Spring
-1. Run `mvn clean package install` in the server folder of the project on your machine.
-2. Start with `mvn spring-boot:run`
+1. Add a SSL certificate to the resources folder or remove any `server.ssl` from `application.properties`
+2. Run `mvn clean package install` in the server folder of the project on your machine.
+3. Start with `mvn spring-boot:run`
 
 ## Client Setup
 1. Run `npm install` or `yarn install` in the client folder of the project on your machine.

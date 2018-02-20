@@ -13,6 +13,7 @@ import com.styxxco.cliquer.security.SecurityConfiguration;
 import com.styxxco.cliquer.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -46,6 +47,10 @@ public class AccountServiceImpl implements AccountService
 
     @Autowired
     private GroupService groupService;
+
+    public AccountServiceImpl() {
+
+    }
 
     public AccountServiceImpl(AccountRepository ar, SkillRepository sr, MessageRepository mr, GroupRepository gr)
     {
@@ -84,7 +89,6 @@ public class AccountServiceImpl implements AccountService
 
     @Override
     @Transactional
-    @Secured(value = SecurityConfiguration.Roles.ROLE_ANONYMOUS)
     public Account registerUser(RegisterUser init) {
 
         Account userLoaded = accountRepository.findByUsername(init.getUserName());
@@ -103,11 +107,13 @@ public class AccountServiceImpl implements AccountService
         }
     }
 
-    private List<Role> getModRoles() {
+    @Override
+    public List<Role> getModRoles() {
         return Collections.singletonList(getRole(SecurityConfiguration.Roles.ROLE_MOD));
     }
 
-    private List<Role> getUserRoles() {
+    @Override
+    public List<Role> getUserRoles() {
         return Collections.singletonList(getRole(SecurityConfiguration.Roles.ROLE_USER));
     }
 

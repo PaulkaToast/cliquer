@@ -1,7 +1,8 @@
 target/
-src/main/resources/static
-src/main/resources/templates
+src/main/resources/static/*
+src/main/resources/templates/*
 src/main/resources/FirebaseConfigurationJSON.json
+src/main/resources/keystore.p12
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###

@@ -41,4 +41,6 @@ public interface AccountService extends UserDetailsService {
 
     Account registerUser(RegisterUser init);
     List<Role> getAnonRoles();
+    List<Role> getUserRoles();
+    List<Role> getModRoles();
 }
