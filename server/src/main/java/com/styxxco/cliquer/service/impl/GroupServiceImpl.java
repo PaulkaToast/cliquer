@@ -41,8 +41,11 @@ public class GroupServiceImpl implements GroupService {
             log.info("User " + groupLeaderID + " not found");
             return null;
         }
+        Account user = accountRepository.findByAccountID(groupLeaderID);
         Group group = new Group(groupName, groupPurpose, groupLeaderID);
         this.groupRepository.save(group);
+        user.addGroup(group.getGroupID());
+        this.accountRepository.save(user);
         return group;
     }
 

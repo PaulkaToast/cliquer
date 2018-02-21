@@ -422,9 +422,6 @@ public class CliquerApplicationTests {
 		assertNull(service.addSkillToDatabase("Microsoft Word"));
 		assertNull(service.addSkillToDatabase("Google Sheets"));
 		assertNotNull(service.addSkillToDatabase("Really Long Skill Name That Likely Needs To Be Shortened When It Is Shown On The Front End"));
-
-		ArrayList<Skill> skills = service.getAllValidSkills();
-		System.out.println(skills);
 	}
 
 
