@@ -341,14 +341,12 @@ public class CliquerApplicationTests {
 				jordan.getAccountID());
 		groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID());
 		groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID());
-		groupRepository.save(cliquer);
 
 		Group hoops = groupService.createGroup(
 				"Hoops",
 				"Play ball",
 				kevin.getAccountID());
 		groupService.addGroupMember(hoops.getGroupID(), kevin.getAccountID(), jordan.getAccountID());
-		groupRepository.save(cliquer);
 
 		String result = accountService.deleteAccount(jordan.getUsername());
 		assertNotNull(result);
