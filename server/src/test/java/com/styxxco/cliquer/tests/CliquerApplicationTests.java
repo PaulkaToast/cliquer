@@ -195,10 +195,10 @@ public class CliquerApplicationTests {
 		search = service.searchBySkill("Programming", 9);
 		assertEquals(true, search.isEmpty());
 
-		assertEquals(new Double(50.0), new Double(service.getReputationRanking("reed226")));
+		assertEquals(new Double(75.0), new Double(service.getReputationRanking("reed226")));
 		assertEquals(new Double(100.0), new Double(service.getReputationRanking("buckmast")));
-		assertEquals(new Double(50.0), new Double(service.getReputationRanking("rbuckmas")));
-		assertEquals(new Double(75.0), new Double(service.getReputationRanking("montgo38")));
+		assertEquals(new Double(25.0), new Double(service.getReputationRanking("rbuckmas")));
+		assertEquals(new Double(50.0), new Double(service.getReputationRanking("montgo38")));
 	}
 
 	/* Test group retrieval services */
