@@ -1,4 +1,42 @@
-.form-group.required label:after {
-    content:"*";
-    color:red;
-  }
+.CreateGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.CreateGroup .form-group.required label:after {
+  content:"*";
+  color:red;
+}
+
+.CreateGroup .create-group-form {
+  width: 75%;
+  margin-top: 1rem;
+}
+
+.CreateGroup .skills-form {
+  width: 75%;
+}
+
+.CreateGroup button {
+  margin-top: 1rem;
+  width: 15%;
+  background-color: #2E4057;
+}
+
+.CreateGroup button:hover {
+  margin-top: calc(1rem + 1px) !important;
+  background-color: #487272;
+  color: #fff;
+}
+
+.CreateGroup h3 {
+  margin-top: 1rem;
+  margin-bottom: 0;
+  padding: 0;
+  color: #2E4057;
+}
+
+.CreateGroup label {
+  color: #2E4057;
+}

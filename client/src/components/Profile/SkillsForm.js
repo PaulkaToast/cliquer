@@ -140,7 +140,7 @@ class SkillsForm extends Component {
         className={`${this.state.animation} new-skill-input form-control`}
         id="skillInput"
         required
-        autoFocus
+        autoFocus={this.props.autoFocus}
         name="skill"
         type="text"
         {...inputProps}

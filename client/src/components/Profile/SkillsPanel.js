@@ -36,7 +36,7 @@ class SkillsPanel extends Component {
         <Modal isOpen={this.state.modal} toggle={this.toggle} className="add-skills-modal">
           <ModalHeader toggle={this.toggle}>Add Skills</ModalHeader>
           <ModalBody>
-            <SkillsForm toggle={this.toggle} addSkills={this.addSkills}/>
+            <SkillsForm toggle={this.toggle} addSkills={this.addSkills} autoFocus={true}/>
           </ModalBody>
           <ModalFooter>
             <Button color="primary" onClick={this.addSkills}>Add Skills</Button>{' '}
