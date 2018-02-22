@@ -151,6 +151,11 @@ public class CliquerApplicationTests {
 		rhys.setReputation(5);
 		shawn.setReputation(6);
 
+		reed.setPublic(true);
+		buckmaster.setPublic(true);
+		rhys.setPublic(true);
+		shawn.setPublic(true);
+
 		accountRepository.save(reed);
 		accountRepository.save(buckmaster);
 		accountRepository.save(rhys);
@@ -308,14 +313,14 @@ public class CliquerApplicationTests {
 		Account jordan = service.createAccount("reed226", "Jordan", "Reed");
 		Account shawn = service.createAccount("montgo38", "Shawn", "Montgomery");
 
-		Message first = service.sendMessage("reed226", shawn.getAccountID(), "Be my friend?", "Friend Invite");
-		Message second = service.sendMessage("reed226", shawn.getAccountID(), "Please be my friend?", "Friend Invite");
+		Message first = service.sendMessage("reed226", shawn.getAccountID(), "Be my friend?", 1);
+		Message second = service.sendMessage("reed226", shawn.getAccountID(), "Please be my friend?", 1);
 
 		ArrayList<Message> newMessages = service.getNewMessages("montgo38");
 		assertEquals(2, newMessages.size());
-		assertEquals("Friend Invite", newMessages.get(0).getType());
+		assertEquals(1, newMessages.get(0).getType());
 
-		Message third = service.sendMessage("reed226", shawn.getAccountID(), "Pretty please be my friend?", "Friend Invite");
+		Message third = service.sendMessage("reed226", shawn.getAccountID(), "Pretty please be my friend?", 1);
 
 		newMessages = service.getNewMessages("montgo38");
 		assertEquals(1, newMessages.size());

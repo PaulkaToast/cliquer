@@ -38,7 +38,7 @@ public interface AccountService extends UserDetailsService {
 
     /* Message centered services */
     ArrayList<Message> getNewMessages(String username);
-    Message sendMessage(String username, ObjectId receiverID, String content, String type);
+    Message sendMessage(String username, ObjectId receiverID, String content, int type);
 
     /* Group centered services */
     Account joinGroup(String username, ObjectId groupID);

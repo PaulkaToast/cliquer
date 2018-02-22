@@ -359,7 +359,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Message sendMessage(ObjectId groupID, ObjectId senderID, ObjectId receiverID, String content, String type)
+    public Message sendMessage(ObjectId groupID, ObjectId senderID, ObjectId receiverID, String content, int type)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {

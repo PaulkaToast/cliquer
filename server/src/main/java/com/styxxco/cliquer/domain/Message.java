@@ -22,7 +22,7 @@ public class Message
 	private final String content;		/* The actual message in the Message		*/
 	private final ObjectId senderID;	/* MongoDB ID of entity that sent message	*/
 
-	private final String type;			/* Dictates behavior on user interation		*/
+	private final int type;			/* Dictates behavior on user interation		*/
 	private final LocalTime creationTime;
 	private final LocalDate creationDate;
 
@@ -30,14 +30,14 @@ public class Message
 	private boolean read;
 
 	/* Types are:
-	 * - "Group Invite"
-	 * - "Friend Invite"
-	 * - "Moderator Flag"
-	 * - "Group Notification"
-	 * - "Profile Notification"
+	 * 0 - Group Invite
+	 * 1 - Friend Invite
+	 * 2 - Moderator Flag
+	 * 3 - Group Notification
+	 * 4 - Profile Notification
 	 */
 
-	public Message(ObjectId senderID, String content, String type)
+	public Message(ObjectId senderID, String content, int type)
 	{
 		this.messageID = new ObjectId();
 		this.senderID = senderID;
