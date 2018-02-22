@@ -12,6 +12,7 @@ class Profile extends Component {
     return (
       <div className="Profile">
         <SkillsPanel />
+        <NotificationPanel notifications={[{messageID: 111, type: 0}]}/>
       </div>
     )
   }
