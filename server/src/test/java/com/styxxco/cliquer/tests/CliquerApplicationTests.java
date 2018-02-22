@@ -146,7 +146,7 @@ public class CliquerApplicationTests {
 		Account rhys = service.createAccount("rbuckmas", "Rhys", "Buckmaster");
 		Account shawn = service.createAccount("montgo38", "Shawn", "Montgomery");
 
-		reed.setReputation(5);
+		reed.setReputation(7);
 		buckmaster.setReputation(69);
 		rhys.setReputation(5);
 		shawn.setReputation(6);
@@ -174,22 +174,22 @@ public class CliquerApplicationTests {
 		ArrayList<Account> search = service.searchByFirstName("Jordan");
 		assertEquals(2, search.size());
 		assertNull(search.get(0).getUsername());
-		assertEquals("Jordan", search.get(0).getFirstName());
+		assertEquals("Buckmaster", search.get(0).getLastName());
 
 		search = service.searchByLastName("Buckmaster");
 		assertEquals(2, search.size());
-		assertEquals("Buckmaster", search.get(0).getLastName());
+		assertEquals("Rhys", search.get(1).getLastName());
 
-		search = service.searchByReputation(7);
-		assertEquals(1, search.size());
-		assertEquals("Jordan", search.get(0).getFirstName());
+		search = service.searchByReputation(6);
+		assertEquals(3, search.size());
+		assertEquals("Shawn", search.get(2).getFirstName());
 		assertEquals("Buckmaster", search.get(0).getLastName());
 
 		search = service.searchBySkill("Programming", 7);
 		assertEquals(3, search.size());
-		assertNotEquals("Rhys", search.get(0).getFirstName());
-		assertNotEquals("Rhys", search.get(1).getFirstName());
-		assertNotEquals("Rhys", search.get(2).getFirstName());
+		assertEquals("Buckmaster", search.get(0).getLastName());
+		assertEquals("Montgomery", search.get(1).getLastName());
+		assertEquals("Reed", search.get(2).getLastName());
 
 
 		search = service.searchBySkill("Programming", 9);
