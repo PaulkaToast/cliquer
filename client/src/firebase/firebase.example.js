@@ -1,6 +1,6 @@
 import * as firebase from 'firebase'
 
-// Initialize Firebase
+// Initialize Firebase.
 const config = {
   apiKey: "YOUR API KEY",
   authDomain: "YOUR AUTH DOMAIN",
@@ -17,8 +17,10 @@ if (!firebase.apps.length) {
 const auth = firebase.auth()
 firebase.auth().useDeviceLanguage()
 const facebookProvider = new firebase.auth.FacebookAuthProvider()
+const credential = firebase.auth.EmailAuthProvider.credential
 
 export {
   auth,
-  facebookProvider
+  facebookProvider,
+  credential
 }

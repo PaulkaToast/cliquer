@@ -11,14 +11,14 @@ class Login extends Component {
   constructor(props) {
     super(props)
 
-    this.state = { 
+    this.state = {
       error: '',
     }
   }
 
   handleSubmit = (ev) => {
     ev.preventDefault()
-   
+
     const email = ev.target.email.value
     const password = ev.target.password.value
 
@@ -30,7 +30,7 @@ class Login extends Component {
 
   logInWithFacebook = () => {
     auth.signInWithFacebook(facebookProvider)
-      .catch(function(error) {
+      .catch(error => {
         this.setState({ error })
       })
   }
@@ -44,11 +44,11 @@ class Login extends Component {
             <img src={Logo} alt="" />
           </Col>
         </Row>
-        
+
       <div className="Login form-signin">
           <form onSubmit={this.handleSubmit}>
           <label htmlFor="inputEmail" className="sr-only">Email address</label>
-          <input id="inputEmail" className="form-control" 
+          <input id="inputEmail" className="form-control"
             required autoFocus
             name="email"
             type="email"
@@ -60,11 +60,11 @@ class Login extends Component {
             name="password"
             type="password"
             placeholder="Password"
-          /> 
+          />
           <Button type="submit" color="primary" size="lg" block>Log In</Button>
 
           <div className="fb-container">
-            <button type="button" className="btn btn-lg btn-block btn-social btn-facebook" 
+            <button type="button" className="btn btn-lg btn-block btn-social btn-facebook"
               onClick={this.logInWithFacebook}>
               <i className="fa fa-facebook fa-fw"></i> Log in with Facebook
             </button>
@@ -86,4 +86,3 @@ class Login extends Component {
 }
 
 export default Login
-
