@@ -16,14 +16,22 @@ class SearchResults extends Component {
 
   renderUserPreview = (user, i) => {
     //may need to change button function to be a prop later (to allow reusing for group member searching)
+    console.log('here')
     return (
       <div className="user-result" key={i}>
-        <div className="user-icon">ICON</div>
-        <div className="user-info">
+        <div className="left-content">
+          <div className="user-icon">ICON</div>
+        </div>
+        <div className="right-content">
+          <div className="right-top-content">
             <div className="user-name">{user.name}</div>
             <div className="user-reputation">{user.reputation}</div>
-            <Button color="success" onClick={() => this.props.sendFriendRequest(user)}>Send Friend Request</Button>
+          </div>
+          <div className="right-bottom-content">
+            <div className="user-bio">{user.bio ? user.bio : 'This user has no bio.'}</div>
+          </div>
         </div>
+        <Button color="success" className="request" onClick={() => this.props.sendFriendRequest(user)}>Send Friend Request</Button>
       </div>
     )
   }
@@ -32,9 +40,22 @@ class SearchResults extends Component {
     const { results } = this.props
     if(results) {
       return (
-        <ul className="results-list">
-          {results.map((result, i) => renderResult(result, i))}
-        </ul>
+        <div className="list-container">
+          <ul className="results-list">
+            {results.map((result, i) => {
+              if(i % 2 === 0) {
+               return renderResult(result, i)
+              }
+            })}
+          </ul>
+          <ul className="results-list">
+            {results.map((result, i) => {
+              if(i % 2 === 1) {
+                return renderResult(result, i)
+              } 
+            })}
+          </ul>
+        </div>
       )
     }
   }

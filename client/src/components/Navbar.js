@@ -56,7 +56,7 @@ class NavigationBar extends Component {
               <NavLink href="/create">Create a Group</NavLink>
             </NavItem> 
             <NavItem>
-              <NavLink href="/settings">Public Groups</NavLink>
+              <NavLink href="/public">Public Groups</NavLink>
             </NavItem> 
             <NavItem>
               <NavLink href="/profile">Profile</NavLink>

@@ -22,7 +22,7 @@ class Main extends Component {
             <Route path="/public" render={(navProps) => <PublicGroups {...navProps} />}/>
             <Route path="/profile" render={(navProps) => <Profile {...navProps} />}/>
             <Route path="/settings" render={(navProps) => <Settings {...navProps} />}/>
-            <Route path="/search/:category/:query" render={(navProps) => <SearchResults {...navProps} {...this.props} results={[{name: 'Jordan', reputation: '42'}]} />}/>
+            <Route path="/search/:category/:query" render={(navProps) => <SearchResults {...navProps} {...this.props} results={[{name: 'Jordan', reputation: '42'}, {name: 'Shawn', reputation: '42'}, {name: 'Max', reputation: '42'}]} />}/>
             <Route path='/' render={(navProps) => <Redirect to="/groups" />}/>
         </Switch>
       </div>

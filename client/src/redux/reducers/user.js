@@ -16,6 +16,23 @@ function user(state = {}, action) {
             return Object.assign({}, state, {
                 skills: state.skills ? [...state.skills].concat(action.skills) : action.skills
             })
+        case 'ADD_NEW_SKILL':
+            let temp
+            if(state.newSkills) {
+                temp = [...state.newSkills]
+                temp.push(action.skill)
+            }
+            return Object.assign({}, state, {
+                newSkills: state.newSkills ? temp : [action.skill]
+            })
+        case 'DELETE_NEW_SKILL':
+            return Object.assign({}, state, {
+                newSkills: state.newSkills ? [...state.newSkills].splice(state.newSkills.indexOf(action.skill), 1) : []
+            })
+        case 'CLEAR_NEW_SKILLS':
+            return Object.assign({}, state, {
+                newSkills: []
+            })
         default:
             return state
     }
