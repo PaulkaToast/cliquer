@@ -4,6 +4,10 @@
 }
 */
 
-.cliquer-brand {
+.Navbar .cliquer-brand {
     color: white !important;
+}
+
+.Navbar .search {
+    width: 40rem;
 }

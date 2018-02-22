@@ -8,8 +8,8 @@ class MemberPreview extends Component {
       <div className="MemberPreview">
         <div className="member-icon">ICON</div>
         <div className="member-info">
-            <div className="member-name">NAME</div>
-            <div className="member-role">ROLE</div>
+            <div className="member-name">{member.name}</div>
+            <div className="member-role">{member.role}</div>
         </div>
       </div>
     )
