@@ -178,7 +178,7 @@ public class CliquerApplicationTests {
 
 		search = service.searchByLastName("Buckmaster");
 		assertEquals(2, search.size());
-		assertEquals("Rhys", search.get(1).getLastName());
+		assertEquals("Rhys", search.get(1).getFirstName());
 
 		search = service.searchByReputation(6);
 		assertEquals(3, search.size());
