@@ -334,7 +334,8 @@ public class AccountServiceImpl implements AccountService
         ArrayList<Account> qualified = new ArrayList<>();
         for(int i = 10; i >= minimumLevel; i--)
         {
-            for (Account account : accounts)
+            List<Account> temp = accounts;
+            for (Account account : temp)
             {
                 if(!account.isPublic())
                 {
