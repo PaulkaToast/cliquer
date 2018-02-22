@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Button } from 'reactstrap'
+import { Container, Row, Col, Button } from 'reactstrap'
 import { connect } from 'react-redux'
 
 import '../css/Settings.css'
@@ -20,30 +20,36 @@ class Settings extends Component {
 
     const oldPassword = ev.target.oldPassword.value
     const newPassword = ev.target.newPassword.value
-    const confirmPassword = ev.target.newPassword.value
+    const confirmPassword = ev.target.confirmPassword.value
 
     const user = firebase.currentUser
 
     const cred = credential(user.email, oldPassword)
 
-    user.reauthenticateWithCredential(cred)
-      .catch(error => {
+    user.reauthenticateWithCredential(cred).then(function() {
+      if(newPassword !== confirmPassword) {
+        this.setState({ error: { message: "Passwords do not match!" } })
+      } else {
+        auth.doPasswordUpdate(newPassword).then(function(){
+          window.alert("Password Updated Successfully")
+        }).catch(error => {
+          console.log(error)
+          this.setState({ error })
+        })}
+    }).catch(error => {
         this.setState({ error })
       })
-
-    if(newPassword !== confirmPassword) {
-      this.setState({ error: { message: "Passwords do not match!" } })
-    } else {
-      auth.doPasswordUpdate(newPassword)
-      .catch(error => {
-        console.log(error)
-        this.setState({ error })
-      })}
   }
 
   render() {
     return (
-      <div className="Settings">
+      <Container>
+      <Row>
+          <Col className="change-password-container" md={{ size: 4, offset: 4 }}>
+                Change Password
+          </Col>
+        </Row>
+      <div className="Settings form-password" md={{ size: 4, offset: 4}}>
         <form onSubmit={this.changePassword}>
           <label htmlFor="inputOldPassword" className="sr-only">Old Password</label>
           <input id="inputOldPassword" className="form-control"
@@ -66,11 +72,12 @@ class Settings extends Component {
             type="password"
             placeholder="Confirm Password"
           />
-          <Button type="submit" color="primary" size="lg" block>Change Password</Button>
+          <Button type="submit" color="primary" size="lg" block>Submit</Button>
 
           { this.state.error && <p>{this.state.error.message}</p> }
         </form>
       </div>
+      </Container>
     )
   }
 }

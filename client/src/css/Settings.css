@@ -1,0 +1,32 @@
+.form-password {
+    max-width: 330px;
+    padding: 0px;
+    margin: 0 auto;
+    margin-top: 1.5em;
+}
+
+.form-password-heading {
+    text-align: center;
+}
+
+.change-password-container {
+    text-align: center;
+    font-size: 32px;
+    margin-top: 0.75em;
+    color: #A3A3A3
+}
+
+#inputOldPassword {
+    margin-top: 0px;
+    margin-bottom: 1.2em;
+}
+
+#inputNewPassword {
+    margin-top: 0.6em;
+    margin-bottom: 0.6em;
+}
+
+#confirmNewPassword {
+    margin-top: 0.6em;
+    margin-bottom: 0.6em;
+}
