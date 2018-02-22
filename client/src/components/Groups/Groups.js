@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Switch, Route } from 'react-router'
-import { NavLink } from 'react-router-dom'
 import { Button, ButtonGroup } from 'reactstrap'
 
 import '../../css/Groups.css'
@@ -75,4 +74,4 @@ const mapStateToProps = (state) => {
 	}
 }
 
-export default connect(mapStateToProps )(Groups)
+export default connect(mapStateToProps)(Groups)

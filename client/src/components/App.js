@@ -21,6 +21,17 @@ class App extends Component {
     }
   }
 
+  componentDidMount() {
+    firebase.onAuthStateChanged(authUser => {
+      if(authUser) {
+        this.props.logIn(authUser)
+      } else {
+        this.props.logOut(authUser)
+      }
+      this.setState({ isLoading: false })
+    })
+  }
+
   loggedIn = () => {
     return this.props.loggedIn
   }
@@ -37,15 +48,8 @@ class App extends Component {
     return false 
   }
 
-  componentDidMount() {
-    firebase.onAuthStateChanged(authUser => {
-      if(authUser) {
-        this.props.logIn(authUser)
-      } else {
-        this.props.logOut(authUser)
-      }
-      this.setState({ isLoading: false })
-    })
+  sendFriendRequest = (user) => {
+    //API call for friend request, redux
   }
 
   render() {
@@ -67,6 +71,7 @@ class App extends Component {
             ? <Main 
                 {...this.props}
                 logOut={this.logOut}
+                sendFriendRequest={this.sendFriendRequest}
               />
             : <Redirect to="/login" />
           }/>
