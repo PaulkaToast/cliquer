@@ -1,6 +1,6 @@
 import * as firebase from 'firebase'
 
-// Initialize Firebase
+// Initialize Firebase.
 const config = {
   apiKey: "YOUR API KEY",
   authDomain: "YOUR AUTH DOMAIN",
