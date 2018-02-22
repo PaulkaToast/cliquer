@@ -334,18 +334,11 @@ public class AccountServiceImpl implements AccountService
         ArrayList<Account> qualified = new ArrayList<>();
         for(int i = 10; i >= minimumLevel; i--)
         {
-            List<Account> temp = accounts;
-            for (Account account : temp)
+            for (Account account : accounts)
             {
-                if(!account.isPublic())
-                {
-                    accounts.remove(account);
-                    continue;
-                }
                 Skill skill = this.getSkill(account.getUsername(), skillName);
-                if (skill != null && skill.getSkillLevel() == i)
+                if (account.isPublic() && skill != null && skill.getSkillLevel() == i)
                 {
-                    accounts.remove(account);
                     qualified.add(this.maskPublicProfile(account));
                 }
             }
