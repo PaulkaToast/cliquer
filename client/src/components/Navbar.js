@@ -19,7 +19,9 @@ class Navigationbar extends Component {
             <NavItem>
               <NavLink href="/profile">Profile</NavLink>
             </NavItem>
-            
+            <NavItem>
+              <NavLink href="/settings">Settings</NavLink>
+            </NavItem> 
             </Nav>
             <Nav className="ml-auto" navbar>
             <NavItem>

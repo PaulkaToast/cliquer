@@ -55,8 +55,8 @@ class Groups extends Component {
         <Chat />
         <div className="right-panel">
           <ButtonGroup>
-            <Button className={this.state.members} onClick={() => this.toggle('members')}><h3>Members</h3></Button>{' '}
-            <Button className={this.state.settings} onClick={() => this.toggle('settings')}><h3>Settings</h3></Button>
+            <Button className={`${this.state.members} nav-button`} onClick={() => this.toggle('members')}><h3>Members</h3></Button>{' '}
+            <Button className={`${this.state.settings} nav-button`} onClick={() => this.toggle('settings')}><h3>Settings</h3></Button>
           </ButtonGroup>
           <Switch>
             <Route exact path="/groups/:gid" render={(navProps) => <GroupMembers {...this.props} {...navProps}/>}/>
