@@ -180,6 +180,11 @@ public class CliquerApplicationTests {
 		assertEquals(2, search.size());
 		assertEquals("Rhys", search.get(1).getFirstName());
 
+		search = service.searchByFullName("Jordan", "Buckmaster");
+		assertEquals(1, search.size());
+		assertEquals("Jordan", search.get(0).getFirstName());
+		assertEquals("Buckmaster", search.get(0).getLastName());
+
 		search = service.searchByReputation(6);
 		assertEquals(3, search.size());
 		assertEquals("Shawn", search.get(2).getFirstName());

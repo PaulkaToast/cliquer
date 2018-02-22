@@ -302,6 +302,22 @@ public class AccountServiceImpl implements AccountService
     }
 
     @Override
+    public ArrayList<Account> searchByFullName(String firstName, String lastName)
+    {
+        ArrayList<Account> accounts = accountRepository.findByFirstName(firstName);
+        ArrayList<Account> masked = new ArrayList<>();
+        for(Account account : accounts)
+        {
+            if(account.getLastName().equals(lastName))
+            {
+                masked.add(this.maskPublicProfile(account));
+            }
+        }
+        return masked;
+    }
+
+
+    @Override
     public ArrayList<Account> searchByReputation(int minimumRep)
     {
         List<Account> accounts = accountRepository.findAll();

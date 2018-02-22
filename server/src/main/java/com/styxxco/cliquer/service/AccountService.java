@@ -27,6 +27,7 @@ public interface AccountService extends UserDetailsService {
     /* Account Searching */
     ArrayList<Account> searchByFirstName(String firstName);
     ArrayList<Account> searchByLastName(String lastName);
+    ArrayList<Account> searchByFullName(String firstName, String lastName);
     ArrayList<Account> searchByReputation(int minimumRep);
     ArrayList<Account> searchBySkill(String skillName, int minimumLevel);
 
