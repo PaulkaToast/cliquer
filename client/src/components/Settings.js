@@ -31,7 +31,7 @@ class Settings extends Component {
     const user = firebase.currentUser
     const cred = credential(user.email, password)
 
-    user.reauthenticateWithCredential(cred).then(function() {
+    user.reauthenticateWithCredential(cred).then(func => {
       this.props.deleteProfile(`https://cliquer.com/api/deleteProfile?username=${this.props.user.uid}`, { 'X-Authorization-Firebase': this.props.token })
       this.props.logOut()
     }).catch(error => {
