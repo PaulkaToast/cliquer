@@ -60,13 +60,21 @@ public class SecurityConfiguration {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            http.addFilterBefore(tokenAuthorizationFilter(), BasicAuthenticationFilter.class)
+            http
+                    .cors()
+                    .and()
+                    .addFilterBefore(tokenAuthorizationFilter(), BasicAuthenticationFilter.class)
+                    .headers()
+                        .frameOptions().sameOrigin()
+                        .httpStrictTransportSecurity().disable()
+                    .and()
                     .authorizeRequests()
-                    .antMatchers("/login").permitAll()
-                    .antMatchers("/signup").permitAll()
-                    .antMatchers("/api/**").hasRole(Roles.USER)
-                    .antMatchers("/**").denyAll()
-                    .and().csrf().disable()
+                        .antMatchers("/login").permitAll()
+                        .antMatchers("/register").permitAll()
+                        .antMatchers("/api/**").hasRole(Roles.USER)
+                        .antMatchers("/**").denyAll()
+                    .and()
+                    .csrf().disable()
                     .anonymous().authorities(Roles.ROLE_ANONYMOUS);
         }
 

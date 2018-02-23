@@ -111,15 +111,15 @@ public class CliquerApplicationTests {
 
 		Skill skill = new Skill("Programming", 0);
 		skillRepository.save(skill);
-		modify = service.addSkill("reed226", "Lifting", 1);
+		modify = service.addSkill("reed226", "Lifting", "1");
 		assertNull(modify);
 		retrieve = service.getUserProfile("reed226");
 		assertEquals(0, retrieve.getSkillIDs().size());
 
 		skill = new Skill("Board Gaming", 0);
 		skillRepository.save(skill);
-		service.addSkill("montgo38", "Programming", 8);
-		service.addSkill("montgo38", "Board Gaming", 6);
+		service.addSkill("montgo38", "Programming", "8");
+		service.addSkill("montgo38", "Board Gaming", "6");
 		skill = service.getSkill("montgo38", "Programming");
 		assertEquals("Programming", skill.getSkillName());
 		skill = service.getSkill("montgo38", "Board Gaming");
@@ -163,12 +163,12 @@ public class CliquerApplicationTests {
 
 		Skill skill = new Skill("Programming", 0);
 		skillRepository.save(skill);
-		service.addSkill("reed226", "Programming", 7);
-		Account test = service.addSkill("buckmast", "Programming", -2);
+		service.addSkill("reed226", "Programming", "7");
+		Account test = service.addSkill("buckmast", "Programming", "-2");
 		assertNull(test);
-		service.addSkill("buckmast", "Programming", 8);
-		service.addSkill("rbuckmas", "Programming", 4);
-		service.addSkill("montgo38", "Programming", 7);
+		service.addSkill("buckmast", "Programming", "8");
+		service.addSkill("rbuckmas", "Programming", "4");
+		service.addSkill("montgo38", "Programming", "7");
 
 
 		ArrayList<Account> search = service.searchByFirstName("Jordan");

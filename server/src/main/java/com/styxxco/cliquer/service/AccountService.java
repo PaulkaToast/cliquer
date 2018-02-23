@@ -1,6 +1,7 @@
 package com.styxxco.cliquer.service;
 
 import com.styxxco.cliquer.domain.*;
+import com.styxxco.cliquer.security.FirebaseTokenHolder;
 import org.bson.types.ObjectId;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -9,7 +10,7 @@ import java.util.List;
 
 public interface AccountService extends UserDetailsService {
     /* Account Creation */
-    Account registerUser(RegisterUser init);
+    Account registerUser(FirebaseTokenHolder tokenHolder, String firstName, String lastName);
     Account createAccount(String username, String email, String firstName, String lastName);
 
     /* Account Access */
@@ -20,7 +21,7 @@ public interface AccountService extends UserDetailsService {
 
     /* Account Modification */
     Account updateUserProfile(String username, String field, String value);
-    Account addSkill(String username, String skillName, int skillLevel);
+    Account addSkill(String username, String skillName, String skillLevel);
     Account removeSkill(String username, String skillName);
     String deleteAccount(String username);
 
@@ -44,6 +45,7 @@ public interface AccountService extends UserDetailsService {
     /* Group centered services */
     Account joinGroup(String username, ObjectId groupID);
     Account leaveGroup(String username, ObjectId groupID);
+    Account addFriend(String username, String friendName);
 
     List<Role> getAnonRoles();
     List<Role> getUserRoles();

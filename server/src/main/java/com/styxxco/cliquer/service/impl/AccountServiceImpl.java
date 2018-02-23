@@ -4,6 +4,7 @@ import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Group;
 import com.styxxco.cliquer.domain.Skill;
 import com.styxxco.cliquer.domain.Message;
+import com.styxxco.cliquer.security.FirebaseTokenHolder;
 import com.styxxco.cliquer.service.GroupService;
 import lombok.extern.log4j.Log4j;
 import org.bson.types.ObjectId;
@@ -112,20 +113,20 @@ public class AccountServiceImpl implements AccountService
 
     @Override
     @Transactional
-    public Account registerUser(RegisterUser init) {
+    public Account registerUser(FirebaseTokenHolder tokenHolder, String firstName, String lastName) {
 
-        Account userLoaded = accountRepository.findByUsername(init.getUserName());
+        Account userLoaded = accountRepository.findByUsername(tokenHolder.getUid());
 
         if (userLoaded == null) {
-            Account account = createAccount(init.getUserName(), init.getEmail(), init.getFirstName(), init.getLastName());
+            Account account = createAccount(tokenHolder.getUid(), tokenHolder.getEmail(), firstName, lastName);
             account.setAuthorities(getUserRoles());
             account.setPassword(UUID.randomUUID().toString());
             System.out.println(account.toString());
             accountRepository.save(account);
-            log.info("registerUser -> user \"" + init.getFirstName() + " " + init.getLastName() + "\" created");
+            log.info("registerUser -> user \"" + tokenHolder.getName() + "\" created");
             return account;
         } else {
-            log.info("registerUser -> user \"" + init.getUserName() + "\" exists");
+            log.info("registerUser -> user \"" + tokenHolder.getUid() + "\" exists");
             return userLoaded;
         }
     }
@@ -421,7 +422,7 @@ public class AccountServiceImpl implements AccountService
     }
 
     @Override
-    public Account addSkill(String username, String skillName, int skillLevel)
+    public Account addSkill(String username, String skillName, String skillString)
     {
         if(!skillRepository.existsBySkillName(skillName))
         {
@@ -438,6 +439,12 @@ public class AccountServiceImpl implements AccountService
         {
             log.info("User " + username + " already has skill " + skillName);
             return null;
+        }
+        int skillLevel = 0;
+        try {
+            skillLevel = Integer.parseInt(skillString);
+        } catch (NumberFormatException e) {
+            log.info("Could not parse " + skillString + " as an integer");
         }
         if(skillLevel < 0 || skillLevel > 10)
         {
@@ -522,6 +529,13 @@ public class AccountServiceImpl implements AccountService
     @Override
     public Account joinGroup(String username, ObjectId groupID)
     {
+        return null;
+    }
+
+    @Override
+    public Account addFriend(String username, String friendName) {
+        Account user = getUserProfile(username);
+        Account friend = getUserProfile(friendName);
         return null;
     }
 

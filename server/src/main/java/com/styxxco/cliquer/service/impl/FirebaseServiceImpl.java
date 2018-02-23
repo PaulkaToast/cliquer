@@ -1,8 +1,6 @@
 package com.styxxco.cliquer.service.impl;
 
 import com.styxxco.cliquer.domain.Account;
-import com.styxxco.cliquer.domain.RegisterUser;
-import com.styxxco.cliquer.domain.Role;
 import com.styxxco.cliquer.security.FirebaseParser;
 import com.styxxco.cliquer.security.FirebaseTokenHolder;
 import com.styxxco.cliquer.service.AccountService;
@@ -15,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.Collection;
-import java.util.List;
 
 @Service
 public class FirebaseServiceImpl implements FirebaseService {
@@ -36,7 +33,7 @@ public class FirebaseServiceImpl implements FirebaseService {
             throw new IllegalArgumentException("FirebaseTokenBlank");
         }
         FirebaseTokenHolder tokenHolder = parseToken(firebaseToken);
-        return accountService.registerUser(new RegisterUser(tokenHolder.getUid(), tokenHolder.getEmail(), firstName, lastName));
+        return accountService.registerUser(tokenHolder, firstName, lastName);
     }
 
     @Override

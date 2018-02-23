@@ -4,6 +4,7 @@ import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Message;
 import com.styxxco.cliquer.domain.Skill;
 import com.styxxco.cliquer.security.FirebaseFilter;
+import lombok.extern.log4j.Log4j;
 import org.bson.types.ObjectId;
 import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.FirebaseService;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 
+@Log4j
 @Controller
 public class RestController {
 
@@ -25,12 +27,14 @@ public class RestController {
 
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public String index() {
+        log.info("Index called");
         return "index";
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public @ResponseBody Object register(@RequestHeader(value = FirebaseFilter.HEADER_NAME) String firebaseToken, @RequestParam(value = "firstName") String firstName, @RequestParam(value = "lastName") String lastName) {
-        Account a = firebaseService.registerUser(firebaseToken, firstName, lastName);
+    public @ResponseBody Object register(@RequestHeader(value = FirebaseFilter.HEADER_NAME) String firebaseToken, @RequestParam(value ="first") String first, @RequestParam(value="last") String last) {
+        log.info("Register called");
+        Account a = firebaseService.registerUser(firebaseToken, first, last);
         return getUserProfile(a.getUsername(), "user");
     }
 
@@ -71,6 +75,35 @@ public class RestController {
         return user;
     }
 
+    @RequestMapping(value = "/api/deleteProfile", method = RequestMethod.POST)
+    public @ResponseBody Object deleteAccount(@RequestParam(value="username") String username) {
+        log.info("Skill list called");
+        String success = accountService.deleteAccount(username);
+        if (success == null) {
+            return HttpStatus.BAD_REQUEST;
+        }
+        log.info(success);
+        return success;
+    }
+
+    @RequestMapping(value = "/api/addFriend", method = RequestMethod.POST)
+    public @ResponseBody Object addFriend(@RequestParam(value="username") String username, @RequestParam(value="friend") String friend) {
+
+        return null;
+    }
+
+    /* TODO: removeFriend */
+
+    /* TODO: createGroup */
+
+    /* TODO: deleteGroup */
+
+    /* TODO: inviteToGroup */
+
+    /* TODO: leaveGroup */
+
+    /* TODO: getUserGroups */
+
     @RequestMapping(value = "/api/getSkillList", method = RequestMethod.GET)
     public @ResponseBody Object getSkillList() {
         ArrayList<Skill> skills = accountService.getAllValidSkills();
@@ -95,7 +128,7 @@ public class RestController {
     public @ResponseBody Object addSkill(@RequestParam(value="username") String username,
                                          @RequestParam(value="name") String skillName,
                                          @RequestParam(value="level") String skillLevel) {
-        Account user = accountService.addSkill(username, skillName, Integer.parseInt(skillLevel));
+        Account user = accountService.addSkill(username, skillName, skillLevel);
         if(user == null)
         {
             return HttpStatus.BAD_REQUEST;
@@ -123,6 +156,4 @@ public class RestController {
         }
         return messages;
     }
-
-    /* TODO Group Endpoints */
 }

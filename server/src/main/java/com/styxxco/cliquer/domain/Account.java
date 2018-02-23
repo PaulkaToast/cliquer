@@ -31,8 +31,15 @@ public class Account implements UserDetails {
 
 	private boolean isModerator;
 	private boolean isPublic;
+	private boolean facebookLinked;
 	private double reputationReq;		/* Represents fraction of user rep */
 	private int proximityReq;
+
+	/* Inherited from UserDetails */
+	private boolean accountLocked;
+	private boolean accountExpired;
+	private boolean accountEnabled;
+	private boolean credentialsExpired;
 
 	private int reputation;
 
@@ -61,6 +68,11 @@ public class Account implements UserDetails {
 		this.groupIDs = new ArrayList<>();
 		this.friendIDs = new ArrayList<>();
 		this.messageIDs = new ArrayList<>();
+		this.accountLocked = false;
+		this.accountExpired = false;
+		this.accountEnabled = true;
+		this.credentialsExpired = false;
+		this.facebookLinked = false;
 	}
 
 	public void addSkill(ObjectId skillID)
@@ -101,20 +113,24 @@ public class Account implements UserDetails {
 		this.authorities = authorities;
 	}
 
+	@Override
 	public boolean isAccountNonExpired() {
-		return false;
+		return !accountExpired;
 	}
 
+	@Override
 	public boolean isAccountNonLocked() {
-		return false;
+		return !accountLocked;
 	}
 
+	@Override
 	public boolean isCredentialsNonExpired() {
-		return false;
+		return !credentialsExpired;
 	}
 
+	@Override
 	public boolean isEnabled() {
-		return false;
+		return accountEnabled;
 	}
 
 	/*public Message makeFriendInvite(String content)
