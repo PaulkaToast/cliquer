@@ -15,6 +15,9 @@ class GroupSettings extends Component {
 
   render() {
     const { groups, isOwner } = this.props
+    console.log(groups)
+    console.log(this.props.match.params.gid)
+    console.log(groups['test'])
     const group = groups[this.props.match.params.gid]
     return (
       <div className="GroupSettings">

@@ -8,6 +8,22 @@ function auth(state = {}, action) {
             return Object.assign({}, state, {
                 loggedIn: false,
             })
+        case 'SET_TOKEN':
+            return Object.assign({}, state, {
+                token: action.token,
+            })
+        case 'REGISTER_HAS_ERROR':
+            return Object.assign({}, state, {
+                hasError: action.hasError,
+            })
+        case 'REGISTER_SUCCESS':
+            return Object.assign({}, state, {
+                data: action.data,
+            })
+        case 'REGISTER_IS_LOADING':
+            return Object.assign({}, state, {
+                isLoading: action.isLoading,
+            })
         default:
             return state
     }

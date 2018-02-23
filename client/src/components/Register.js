@@ -1,11 +1,12 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import { Container, Row, Col, Button } from 'reactstrap'
+import { connect } from 'react-redux'
 
 import '../css/Register.css'
 import Logo from '../img/cliquerLogo.png'
-import { auth } from '../firebase'
-
+import { auth, firebase } from '../firebase'
+import { registerUser, setToken } from '../redux/actions'
 
 class Register extends Component {
 
@@ -30,6 +31,15 @@ class Register extends Component {
         .then(authUser => {
           authUser.updateProfile({
             displayName: `${firstName} ${lastName}`,
+          }).then(() => {
+            firebase.currentUser.getIdToken(true)
+            .then((token) => {
+              this.props.setToken(token)
+              this.props.register('https://10.0.0.222:17922/register', { 'X-Authorization-Firebase': this.props.token})
+            })
+            .catch((error) => {
+              console.log(error)
+            })
           }).catch((error) => {
             console.log(error)
           })
@@ -105,4 +115,17 @@ class Register extends Component {
   }
 }
 
-export default Register
+const mapStateToProps = (state) => {
+	return {
+    token: state.auth.token,
+	}
+}
+
+const mapDispatchToProps = (dispatch) => {
+	return {
+    register: (url, headers) => dispatch(registerUser(url, headers)),
+    setToken: (token) => dispatch(registerUser)
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Register)

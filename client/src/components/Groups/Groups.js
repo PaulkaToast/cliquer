@@ -50,10 +50,10 @@ class Groups extends Component {
 
   toggle = (tab) => {
     if(tab === 'members' && this.state.members !== 'active' ) {
-      this.setState({ members: 'active', settings: '' }, () => history.push('/groups/temp'))
+      this.setState({ members: 'active', settings: '' }, () => history.push('/groups/test'))
     }
     if(tab === 'settings' && this.state.settings !== 'active' ) {
-      this.setState({ members: '', settings: 'active' }, () => history.push('/groups/temp/settings'))
+      this.setState({ members: '', settings: 'active' }, () => history.push('/groups/test/settings'))
     }
   }
 
