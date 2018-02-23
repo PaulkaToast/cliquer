@@ -33,19 +33,9 @@ public class RestAPITests {
     private FirebaseService firebaseService;
 
     @Test
-    public void signUpWithoutFirebase() throws Exception {
+    public void testLoginPage() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .post("/signup");
-
-        MvcResult result = mockMvc.perform(requestBuilder).andReturn();
-        Assert.assertEquals(result.getResponse().getStatus(), 400);
-    }
-
-    @Test
-    public void signUpWithFirebase() throws Exception {
-        RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .post("/signup")
-                .header("X-Authorization-Firebase", "dummy");
+                .get("/login");
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         Assert.assertEquals(result.getResponse().getStatus(), 200);
@@ -55,7 +45,7 @@ public class RestAPITests {
     public void getProfileValid() throws Exception {
         String username = "someUser";
         ObjectId id = new ObjectId();
-        Account fakeUser = new Account(username, "Some", "User");
+        Account fakeUser = new Account(username, "example@example.com", "Some", "User");
 
         Mockito.when(
                 accountService.getUserProfile(username)
