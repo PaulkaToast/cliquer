@@ -9,10 +9,18 @@ class GroupSettings extends Component {
 
   }
 
+  disbandGroup = () => {
+
+  }
+
   render() {
+    const { groups, isOwner } = this.props
+    const group = groups[this.props.match.params.gid]
     return (
       <div className="GroupSettings">
-        <Button type="submit" color="warning" size="lg" onClick={this.leaveGroup}>Leave Group</Button>
+        {isOwner(group) && <Button type="button" size="lg" onClick={() => this.props.allowUserRating(group)}>Allow Rating</Button>}
+        <Button type="button" size="lg" onClick={this.leaveGroup}>Leave Group</Button>
+        {isOwner(group) && <Button type="button" size="lg" onClick={this.disbandGroup}>Disband Group</Button>}
       </div>
     )
   }

@@ -19,6 +19,16 @@ class Groups extends Component {
     }
   }
 
+  isOwner = (group) => {
+    return group.owner && this.props.user.uid === group.owner.uid
+  }
+
+  allowUserRating = (group) => {
+    if(this.isOwner(group)) {
+      //REDUX action to change groups.rating to true
+    }
+  }
+
   renderGroupsList = () => {
     const { groups } = this.props
     return (
@@ -58,8 +68,8 @@ class Groups extends Component {
             <Button className={`${this.state.settings} nav-button`} onClick={() => this.toggle('settings')}><h3>Settings</h3></Button>
           </ButtonGroup>
           <Switch>
-            <Route exact path="/groups/:gid" render={(navProps) => <GroupMembers {...this.props} {...navProps}/>}/>
-            <Route path="/groups/:gid/settings" render={(navProps) => <GroupSettings {...this.props} {...navProps}/>}/>
+            <Route exact path="/groups/:gid" render={(navProps) => <GroupMembers {...this.props} {...navProps} isOwner={this.isOwner}/>}/>
+            <Route path="/groups/:gid/settings" render={(navProps) => <GroupSettings {...this.props} {...navProps} isOwner={this.isOwner} allowUserRating={this.allowUserRating}/>}/>
           </Switch>
         </div>
       </div>
