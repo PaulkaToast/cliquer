@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { Alert } from 'reactstrap'
 import '../../css/Chat.css'
 
 class Chat extends Component {
@@ -9,8 +10,10 @@ class Chat extends Component {
         <div className="header">
           <h3>Group Name</h3>
         </div>
-        <div className="body">
-          <h3>Group chat system is currently under construction. Check back in sprint 2!</h3>
+        <div>
+          <Alert color="danger">
+          Group chat system is currently under construction. Check back in sprint 2!
+          </Alert>
         </div>
       </div>
     )

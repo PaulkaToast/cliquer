@@ -4,7 +4,7 @@ import { Button, Navbar, NavbarBrand, Nav, NavItem, NavLink,
          Input, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap'
 
 import '../css/Navbar.css'
-import Logo from '../img/cliquerLogo-sm.png'
+import Logo from '../img/cliquerLogo-sm2.png'
 import { auth } from '../firebase'
 import { history } from '../redux/store'
 
@@ -85,9 +85,9 @@ class NavigationBar extends Component {
               </InputGroup>
             </Nav>
             <Nav className="ml-auto" navbar>
-              <NavItem>
-                <Button color="secondary" onClick={auth.logOut}>Log Out</Button>
-              </NavItem>
+            <NavItem>
+              <Button color="secondary" className="btn-sm" onClick={auth.logOut}>Log Out</Button>
+            </NavItem>
             </Nav>
         </Navbar>
       </div>
