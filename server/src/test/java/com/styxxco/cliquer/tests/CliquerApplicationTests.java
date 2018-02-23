@@ -37,8 +37,8 @@ public class CliquerApplicationTests {
 	public void testDatabase() {
 		accountRepository.deleteAll();
 
-		Account jordan = new Account("reed226", "Jordan", "Reed");
-		Account shawn = new Account("montgo38", "Shawn", "Montgomery");
+		Account jordan = new Account("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+		Account shawn = new Account("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 		ObjectId id = shawn.getAccountID();
 
 		accountRepository.save(jordan);
@@ -57,10 +57,10 @@ public class CliquerApplicationTests {
 		accountRepository.deleteAll();
 		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
-		Account jordan = service.createAccount("reed226", "Jordan", "Reed");
+		Account jordan = service.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
 		assertNotNull(jordan);
 
-		Account shawn = service.createAccount("montgo38", "Shawn", "Montgomery");
+		Account shawn = service.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 		assertNotNull(shawn);
 
 		Account retrieve = service.getUserProfile(shawn.getUsername());
@@ -96,8 +96,8 @@ public class CliquerApplicationTests {
 		skillRepository.deleteAll();
 		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
-		Account jordan = service.createAccount("reed226", "Jordan", "Reed");
-		Account shawn = service.createAccount("montgo38", "Shawn", "Montgomery");
+		Account jordan = service.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+		Account shawn = service.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 
 		Account modify = service.updateUserProfile("reed226", "firstName", "William");
 		assertEquals("William", modify.getFirstName());
@@ -141,10 +141,10 @@ public class CliquerApplicationTests {
 		skillRepository.deleteAll();
 		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
-		Account reed = service.createAccount("reed226", "Jordan", "Reed");
-		Account buckmaster = service.createAccount("buckmast", "Jordan", "Buckmaster");
-		Account rhys = service.createAccount("rbuckmas", "Rhys", "Buckmaster");
-		Account shawn = service.createAccount("montgo38", "Shawn", "Montgomery");
+		Account reed = service.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+		Account buckmaster = service.createAccount("buckmast", "buckmast@purdue.edu","Jordan", "Buckmaster");
+		Account rhys = service.createAccount("rbuckmas", "rbuckmas@purdue.edu",  "Rhys", "Buckmaster");
+		Account shawn = service.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 
 		reed.setReputation(5);
 		buckmaster.setReputation(69);
@@ -206,9 +206,9 @@ public class CliquerApplicationTests {
 		AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 		GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
-		Account jordan = accountService.createAccount("reed226", "Jordan", "Reed");
-		Account shawn = accountService.createAccount("montgo38", "Shawn", "Montgomery");
-		Account kevin = accountService.createAccount("knagar", "Kevin", "Nagar");
+		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+		Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
 
 		Group cliquer = groupService.createGroup(
 				"Cliquer",
@@ -244,9 +244,9 @@ public class CliquerApplicationTests {
 		AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 		GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
-		Account jordan = accountService.createAccount("reed226", "Jordan", "Reed");
-		Account shawn = accountService.createAccount("montgo38", "Shawn", "Montgomery");
-		Account kevin = accountService.createAccount("knagar", "Kevin", "Nagar");
+		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+		Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
 
 		Group cliquer = groupService.createGroup(
 				"Cliquer",
@@ -305,8 +305,8 @@ public class CliquerApplicationTests {
 		skillRepository.deleteAll();
 		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
-		Account jordan = service.createAccount("reed226", "Jordan", "Reed");
-		Account shawn = service.createAccount("montgo38", "Shawn", "Montgomery");
+		Account jordan = service.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+		Account shawn = service.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 
 		Message first = service.sendMessage("reed226", shawn.getAccountID(), "Be my friend?", "Friend Invite");
 		Message second = service.sendMessage("reed226", shawn.getAccountID(), "Please be my friend?", "Friend Invite");
@@ -331,9 +331,9 @@ public class CliquerApplicationTests {
 		AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 		GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
-		Account jordan = accountService.createAccount("reed226", "Jordan", "Reed");
-		Account shawn = accountService.createAccount("montgo38", "Shawn", "Montgomery");
-		Account kevin = accountService.createAccount("knagar", "Kevin", "Nagar");
+		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+		Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
 
 		Group cliquer = groupService.createGroup(
 				"Cliquer",

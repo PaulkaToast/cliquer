@@ -3,6 +3,7 @@ package com.styxxco.cliquer.web;
 import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Message;
 import com.styxxco.cliquer.domain.Skill;
+import com.styxxco.cliquer.security.FirebaseFilter;
 import org.bson.types.ObjectId;
 import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.FirebaseService;
@@ -27,16 +28,15 @@ public class RestController {
         return "index";
     }
 
-    @RequestMapping(value = "/signup", method = RequestMethod.POST)
-    public String signUp(@RequestHeader(value = "X-Authorization-Firebase", required = true) String firebaseToken) {
-        firebaseService.registerUser(firebaseToken);
-        return "greeting";
+    @RequestMapping(value = "/register", method = RequestMethod.POST)
+    public @ResponseBody Object register(@RequestHeader(value = FirebaseFilter.HEADER_NAME) String firebaseToken, @RequestParam(value = "firstName") String firstName, @RequestParam(value = "lastName") String lastName) {
+        Account a = firebaseService.registerUser(firebaseToken, firstName, lastName);
+        return getUserProfile(a.getUsername(), "user");
     }
 
     @RequestMapping(value = "/api/getProfile", method = RequestMethod.GET)
     public @ResponseBody Object getUserProfile(@RequestParam(value="identifier") String identifier,
-                                               @RequestParam(value="type") String type,
-                                               @RequestHeader HttpHeaders headers) {
+                                               @RequestParam(value="type") String type) {
         Account user;
         switch (type) {
             case "user":
@@ -59,26 +59,10 @@ public class RestController {
         return user;
     }
 
-    @RequestMapping(value = "/api/createProfile", method = RequestMethod.POST)
-    public @ResponseBody Object createProfile(@RequestParam(value="username") String username,
-                                              @RequestParam(value="first") String firstName,
-                                              @RequestParam(value="last") String lastName,
-                                              @RequestHeader HttpHeaders headers)
-    {
-        Account user = accountService.createAccount(username, firstName, lastName);
-        if(user == null)
-        {
-            return HttpStatus.BAD_REQUEST;
-        }
-        return user;
-    }
-
     @RequestMapping(value = "/api/updateProfile", method = RequestMethod.POST)
     public @ResponseBody Object updateProfile(@RequestParam(value="username") String username,
                                               @RequestParam(value="key") String key,
-                                              @RequestParam(value="value") String value,
-                                              @RequestHeader HttpHeaders headers)
-    {
+                                              @RequestParam(value="value") String value) {
         Account user = accountService.updateUserProfile(username, key, value);
         if(user == null)
         {
@@ -88,8 +72,7 @@ public class RestController {
     }
 
     @RequestMapping(value = "/api/getSkillList", method = RequestMethod.GET)
-    public @ResponseBody Object getSkillList(@RequestHeader HttpHeaders headers)
-    {
+    public @ResponseBody Object getSkillList() {
         ArrayList<Skill> skills = accountService.getAllValidSkills();
         if(skills == null)
         {
@@ -99,9 +82,7 @@ public class RestController {
     }
 
     @RequestMapping(value = "/api/getSkills", method = RequestMethod.GET)
-    public @ResponseBody Object getSkills(@RequestParam(value="username") String username,
-                                          @RequestHeader HttpHeaders headers)
-    {
+    public @ResponseBody Object getSkills(@RequestParam(value="username") String username) {
         ArrayList<Skill> skills = accountService.getAllUserSkills(username);
         if(skills == null)
         {
@@ -113,9 +94,7 @@ public class RestController {
     @RequestMapping(value = "/api/addSkill", method = RequestMethod.POST)
     public @ResponseBody Object addSkill(@RequestParam(value="username") String username,
                                          @RequestParam(value="name") String skillName,
-                                         @RequestParam(value="level") String skillLevel,
-                                         @RequestHeader HttpHeaders headers)
-    {
+                                         @RequestParam(value="level") String skillLevel) {
         Account user = accountService.addSkill(username, skillName, Integer.parseInt(skillLevel));
         if(user == null)
         {
@@ -126,9 +105,7 @@ public class RestController {
 
     @RequestMapping(value = "/api/removeSkill", method = RequestMethod.POST)
     public @ResponseBody Object removeSkill(@RequestParam(value="username") String username,
-                                            @RequestParam(value="name") String skillName,
-                                            @RequestHeader HttpHeaders headers)
-    {
+                                            @RequestParam(value="name") String skillName) {
         Account user = accountService.removeSkill(username, skillName);
         if(user == null)
         {
@@ -138,9 +115,7 @@ public class RestController {
     }
 
     @RequestMapping(value = "/api/getMessages", method = RequestMethod.GET)
-    public @ResponseBody Object getMessages(@RequestParam(value="username") String username,
-                                            @RequestHeader HttpHeaders headers)
-    {
+    public @ResponseBody Object getMessages(@RequestParam(value="username") String username) {
         ArrayList<Message> messages = accountService.getNewMessages(username);
         if(messages == null)
         {

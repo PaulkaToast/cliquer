@@ -47,26 +47,11 @@ public class Account implements UserDetails {
     	this.accountID = new ObjectId();
 	}
 
-	public Account(String username, String email) {
-		this.accountID = new ObjectId();
-		this.username = username;
-		this.email = email;
-		this.profilePic = null;
-		this.isModerator = false;
-		this.isPublic = false;
-		this.reputationReq = 0;
-		this.proximityReq = 0;
-		this.reputation = 0;
-        this.skillIDs = new ArrayList<>();
-		this.groupIDs = new ArrayList<>();
-		this.friendIDs = new ArrayList<>();
-		this.messageIDs = new ArrayList<>();
-	}
-
-	public Account(@NonNull String username, String firstName, String lastName)
+	public Account(@NonNull String username, String email, String firstName, String lastName)
 	{
 		this.accountID = new ObjectId();
 		this.username = username;
+		this.email = email;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.isModerator = false;

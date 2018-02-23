@@ -31,12 +31,12 @@ public class FirebaseServiceImpl implements FirebaseService {
 
     @Transactional
     @Override
-    public void registerUser(String firebaseToken) {
+    public Account registerUser(String firebaseToken, String firstName, String lastName) {
         if (StringUtils.isEmpty(firebaseToken)) {
             throw new IllegalArgumentException("FirebaseTokenBlank");
         }
         FirebaseTokenHolder tokenHolder = parseToken(firebaseToken);
-        accountService.registerUser(new RegisterUser(tokenHolder.getUid(), tokenHolder.getEmail()));
+        return accountService.registerUser(new RegisterUser(tokenHolder.getUid(), tokenHolder.getEmail(), firstName, lastName));
     }
 
     @Override

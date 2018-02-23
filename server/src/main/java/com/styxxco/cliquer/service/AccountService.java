@@ -10,7 +10,7 @@ import java.util.List;
 public interface AccountService extends UserDetailsService {
     /* Account Creation */
     Account registerUser(RegisterUser init);
-    Account createAccount(String username, String firstName, String lastName);
+    Account createAccount(String username, String email, String firstName, String lastName);
 
     /* Account Access */
     Account getUserProfile(String username);

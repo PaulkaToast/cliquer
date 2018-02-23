@@ -18,7 +18,7 @@ import java.util.Collection;
 @Log4j
 public class FirebaseFilter extends OncePerRequestFilter {
 
-    private static String HEADER_NAME = "X-Authorization-Firebase";
+    public static final String HEADER_NAME = "X-Authorization-Firebase";
 
     private FirebaseService firebaseService;
 

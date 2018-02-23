@@ -75,14 +75,14 @@ public class AccountServiceImpl implements AccountService
     }
 
     @Override
-    public Account createAccount(String username, String firstName, String lastName)
+    public Account createAccount(String username, String email, String firstName, String lastName)
     {
         if(accountRepository.existsByUsername(username))
         {
             log.info("User " + username + " already exists");
             return null;
         }
-        Account user = new Account(username, firstName, lastName);
+        Account user = new Account(username, email, firstName, lastName);
         this.accountRepository.save(user);
         return user;
     }
@@ -117,15 +117,15 @@ public class AccountServiceImpl implements AccountService
         Account userLoaded = accountRepository.findByUsername(init.getUserName());
 
         if (userLoaded == null) {
-            Account account = new Account(init.getUserName(), init.getEmail());
+            Account account = createAccount(init.getUserName(), init.getEmail(), init.getFirstName(), init.getLastName());
             account.setAuthorities(getUserRoles());
             account.setPassword(UUID.randomUUID().toString());
             System.out.println(account.toString());
             accountRepository.save(account);
-            log.info("registerUser -> user created");
+            log.info("registerUser -> user \"" + init.getFirstName() + " " + init.getLastName() + "\" created");
             return account;
         } else {
-            log.info("registerUser -> user exists");
+            log.info("registerUser -> user \"" + init.getUserName() + "\" exists");
             return userLoaded;
         }
     }
