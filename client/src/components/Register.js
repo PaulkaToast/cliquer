@@ -1,11 +1,12 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import { Container, Row, Col, Button } from 'reactstrap'
+import { connect } from 'react-redux'
 
 import '../css/Register.css'
 import Logo from '../img/cliquerLogo.png'
-import { auth } from '../firebase'
-
+import { auth, firebase } from '../firebase'
+import { registerUser, setToken } from '../redux/actions'
 
 class Register extends Component {
 
@@ -29,10 +30,13 @@ class Register extends Component {
       auth.createUserWithEmailAndPassword(email, passwordOne)
         .then(authUser => {
           authUser.updateProfile({
-            displayName: `${firstName} ${lastName}`,
-          }).catch((error) => {
-            console.log(error)
-          })
+              displayName: `${firstName} ${lastName}`,
+            }).then(() => {
+                this.props.register(`https://10.0.0.222:17922/register?first=${firstName}&last=${lastName}`, { 'X-Authorization-Firebase': this.props.token})
+            })
+            .catch((error) => {
+              console.log(error)
+            })
         })
         .catch(error => {
           this.setState({ error })
@@ -86,7 +90,7 @@ class Register extends Component {
           <div className="fb-container">
             <button type="button" className="btn btn-lg btn-block btn-social btn-facebook" 
               onClick={this.logInWithFacebook}>
-              <i className="fa fa-facebook fa-fw"></i> Register with Facebook
+              <i className="fab fa-facebook-f"></i> Register with Facebook
             </button>
           </div>
 
@@ -105,4 +109,17 @@ class Register extends Component {
   }
 }
 
-export default Register
+const mapStateToProps = (state) => {
+	return {
+    token: state.auth.token,
+	}
+}
+
+const mapDispatchToProps = (dispatch) => {
+	return {
+    register: (url, headers) => dispatch(registerUser(url, headers)),
+    setToken: (token) => dispatch(setToken(token))
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Register)

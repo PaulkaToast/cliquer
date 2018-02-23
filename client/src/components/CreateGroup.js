@@ -25,7 +25,7 @@ class CreateGroup extends Component {
   render() {
     return (
       <div className="CreateGroup">
-        <h3>Create A Group</h3>
+        <h2>Create A Group</h2>
         <Form className="create-group-form" id="form" onSubmit={this.handleSubmit}>
           <FormGroup className="required">
             <Label for="name">Group Name</Label>
@@ -44,7 +44,9 @@ class CreateGroup extends Component {
           <Label for="skills">Preferred Skills</Label>
           <SkillsForm id="skills" autoFocus={false}/>
         </div>
-        <Button type="submit" onSubmit={this.handleSubmit} form="form">Submit</Button>
+       
+        <Button className="create-group-submit-button" color="success" type="submit" onSubmit={this.handleSubmit} form="form" block>Submit</Button>
+    
       </div>
     )
   }

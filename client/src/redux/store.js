@@ -7,10 +7,10 @@ import rootReducer from './reducers/index'
 // Create a history of your choosing (we're using a browser history in this case)
 export const history = createHistory()
 
-const middleware = [routerMiddleware(history), thunk]
+const router = routerMiddleware(history)
 const enhancers = compose(
-    window.devToolsExtension ? window.devToolsExtension() : f => f,
-    applyMiddleware(...middleware)
+    applyMiddleware(thunk, router),
+    window.devToolsExtension ? window.devToolsExtension() : f => f
 )
 
 const store = createStore(rootReducer, {}, enhancers)

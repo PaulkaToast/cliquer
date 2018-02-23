@@ -1,7 +1,10 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Switch, Route } from 'react-router'
-import { Button, ButtonGroup } from 'reactstrap'
+import { Button, ButtonGroup, Col, Row, Container, Navbar,
+        NavbarBrand, Nav, NavItem, NavLink, Popover,
+        PopoverHeader, PopoverBody, Badge, ListGroup,
+        ListGroupItem  } from 'reactstrap'
 
 import '../../css/Groups.css'
 import { history } from '../../redux/store'
@@ -13,10 +16,26 @@ import GroupSettings from './GroupSettings'
 class Groups extends Component {
   constructor(props) {
     super(props)
+    this.toggleM = this.toggleM.bind(this);
+    this.toggleS= this.toggleS.bind(this);
     this.state = {
       members: 'active',
       settings: '',
+      membersPopOver: false,
+      settingsPopOver: false,
     }
+  }
+
+  toggleM() {
+    this.setState({
+      membersPopOver: !this.state.membersPopOver
+    });
+  }
+
+  toggleS() {
+    this.setState({
+      settingsPopOver: !this.state.settingsPopOver
+    });
   }
 
   isOwner = (group) => {
@@ -32,47 +51,95 @@ class Groups extends Component {
   renderGroupsList = () => {
     const { groups } = this.props
     return (
-      <div className="groups-list">
-        <div className="header">
-          <h3>Groups</h3>
-        </div>
-        <ul id="groups">
-            {Object.keys(groups).map((gid, i) => {
-              return <Group
-                group={groups[gid]}
-                key={i}
-              />
-            })}
-        </ul>
+      <div>
+          {Object.keys(groups).map((gid, i) => {
+            return <Group
+              group={groups[gid]}
+              key={i}
+            />
+          })}
       </div>
     )
   }
 
   toggle = (tab) => {
     if(tab === 'members' && this.state.members !== 'active' ) {
-      this.setState({ members: 'active', settings: '' }, () => history.push('/groups/temp'))
+      this.setState({ members: 'active', settings: '' }, () => history.push('/groups/test'))
     }
     if(tab === 'settings' && this.state.settings !== 'active' ) {
-      this.setState({ members: '', settings: 'active' }, () => history.push('/groups/temp/settings'))
+      this.setState({ members: '', settings: 'active' }, () => history.push('/groups/test/settings'))
     }
   }
 
   render() {
     return (
-      <div className="Groups">
-        {this.renderGroupsList()}
-        <Chat />
-        <div className="right-panel">
-          <ButtonGroup>
-            <Button className={`${this.state.members} nav-button`} onClick={() => this.toggle('members')}><h3>Members</h3></Button>{' '}
-            <Button className={`${this.state.settings} nav-button`} onClick={() => this.toggle('settings')}><h3>Settings</h3></Button>
-          </ButtonGroup>
-          <Switch>
+      
+      <Container fluid className="Groups h-100">
+   
+      <Navbar className="group-nav" color="primary" dark expand="md">
+        <NavbarBrand> Groups </NavbarBrand>
+        <Nav className="ml-auto" navbar>
+          <NavItem>
+            <NavLink href="#" id="PopoverM" onClick={this.toggleM}>
+              <i className="fas fa-users"></i>
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink href="#" id="PopoverS" onClick={this.toggleS}>
+              <i className="fas fa-cog"></i>
+            </NavLink>
+          </NavItem>
+          {/*<Switch>
             <Route exact path="/groups/:gid" render={(navProps) => <GroupMembers {...this.props} {...navProps} isOwner={this.isOwner}/>}/>
             <Route path="/groups/:gid/settings" render={(navProps) => <GroupSettings {...this.props} {...navProps} isOwner={this.isOwner} allowUserRating={this.allowUserRating}/>}/>
-          </Switch>
-        </div>
-      </div>
+          </Switch>*/}
+        </Nav>
+      </Navbar>        
+
+      <Row className="h-100">
+      <Col className="group-list-panel h-100" xs="3">
+        {this.renderGroupsList()}
+      </Col>
+      <Col xs="9">
+        <Chat />
+      </Col>
+      </Row>
+
+      <Popover placement="left" isOpen={this.state.membersPopOver} target="PopoverM" toggle={this.toggleM}>
+          <PopoverHeader>Group Members</PopoverHeader>
+          <PopoverBody>
+          <ListGroup>
+              <ListGroupItem className="d-flex justify-content-between align-items-center" action> 
+                Kevin &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <Badge color="success" pill>active</Badge>
+              </ListGroupItem>
+
+              <ListGroupItem className="d-flex justify-content-between align-items-center" action> 
+                Paula
+                <Badge color="warning" pill>away</Badge>
+              </ListGroupItem>
+
+              <ListGroupItem className="d-flex justify-content-between align-items-center" action> 
+                Shawn
+                <Badge color="danger" pill>offline</Badge>
+              </ListGroupItem>
+
+              <ListGroupItem className="d-flex justify-content-between align-items-center" action> 
+                Jordan
+                <Badge color="success" pill>active</Badge>
+              </ListGroupItem>
+            </ListGroup>
+          </PopoverBody>
+      </Popover>
+
+      <Popover placement="left" isOpen={this.state.settingsPopOver} target="PopoverS" toggle={this.toggleS}>
+          <PopoverHeader>Settings</PopoverHeader>
+          <PopoverBody>
+            Insert Various Settings Here
+          </PopoverBody>
+      </Popover>
+
+      </Container>
     )
   }
 }
