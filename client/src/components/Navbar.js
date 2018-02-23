@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import { Button, Navbar, NavbarBrand, Nav, NavItem, NavLink,
          InputGroup, InputGroupAddon, InputGroupButtonDropdown,
-         Input, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap'
+         Input, DropdownToggle, DropdownMenu, DropdownItem, Collapse, 
+         NavbarToggler, Col } from 'reactstrap'
 
 import '../css/Navbar.css'
 import Logo from '../img/cliquerLogo-sm2.png'
@@ -16,8 +17,10 @@ class NavigationBar extends Component {
       splitButtonOpen: false,
       current: 'First Name',
       url: 'firstname',
-      value: ''
-    }
+      value: '',
+      isOpen: false
+    };
+    this.toggle = this.toggle.bind(this);
   }
 
   toggleSplit = () => {
@@ -43,11 +46,17 @@ class NavigationBar extends Component {
     history.push(`/search/${this.state.url}/${this.state.value}`)
   }
 
+  toggle() {
+    this.setState({ isOpen: !this.state.isOpen });
+  }
+
   render() {
     return (
       <div className="Navbar">
         <Navbar color="primary" dark expand="md">
+        <NavbarToggler right onClick={this.toggle} />
           <NavbarBrand className="cliquer-brand"><img src={Logo} alt="" /></NavbarBrand>
+          <Collapse isOpen={this.state.isOpen} navbar>
           <Nav className="mr-auto" navbar>
              <NavItem>
               <NavLink href="/groups">Groups</NavLink>
@@ -65,7 +74,7 @@ class NavigationBar extends Component {
               <NavLink href="/settings">Settings</NavLink>
             </NavItem> 
             </Nav>
-            <Nav className="mr-5 search" navbar>
+            <Col sm={5}>
               <InputGroup>
                 <InputGroupButtonDropdown addonType="prepend" isOpen={this.state.splitButtonOpen} toggle={this.toggleSplit}>
                   <Button>{this.state.current}</Button>
@@ -83,12 +92,13 @@ class NavigationBar extends Component {
                 <Input placeholder="Search for friends" value={this.state.value} onKeyPress={this.checkEnterPress} onChange={this.onChange} />
                 <InputGroupAddon addonType="append"><Button color="secondary" onClick={this.search}>Search</Button></InputGroupAddon>
               </InputGroup>
-            </Nav>
+            </Col>
             <Nav className="ml-auto" navbar>
             <NavItem>
               <Button color="secondary" className="btn-sm" onClick={auth.logOut}>Log Out</Button>
             </NavItem>
             </Nav>
+            </Collapse>
         </Navbar>
       </div>
     )
