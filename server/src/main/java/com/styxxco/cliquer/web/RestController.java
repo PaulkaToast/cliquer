@@ -1,5 +1,6 @@
 package com.styxxco.cliquer.web;
 
+import com.google.api.Http;
 import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Group;
 import com.styxxco.cliquer.domain.Message;
@@ -10,12 +11,17 @@ import org.bson.types.ObjectId;
 import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.FirebaseService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import java.util.ArrayList;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.View;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Log4j
 @Controller
@@ -167,7 +173,9 @@ public class RestController {
         if (groups == null) {
             return HttpStatus.BAD_REQUEST;
         }
-        return groups;
+        Map<String, Group> map = groups.stream().collect(Collectors.toMap(Group::getGid, group -> group));
+
+        return map;
     }
 
     @RequestMapping(value = "/api/getSkillList", method = RequestMethod.GET)
@@ -224,21 +232,37 @@ public class RestController {
 
     @RequestMapping(value = "/api/search", method = RequestMethod.GET)
     public @ResponseBody Object search(@RequestParam(value = "type") String type,
-                                       @RequestParam(value = "query") String query) {
-        String types[] = {"firstName", "lastName", "username", "reputation", "skill", "groupName"};
+                                       @RequestParam(value = "query", required = false, defaultValue = "null") String query,
+                                       @RequestParam(value = "level", required = false, defaultValue = "0") int level) {
+        Object obj = null;
         switch(type) {
             case "firstName":
+                obj = accountService.searchByFirstName(query);
                 break;
             case "lastName":
+                obj = accountService.searchByLastName(query);
+                break;
+            case "fullName":
+                obj = accountService.searchByFullName(query);
                 break;
             case "username":
+                obj = accountService.searchByUsername(query);
                 break;
-            case "repuation":
+            case "reputation":
+                obj = accountService.searchByReputation(level);
+                break;
+            case "skill":
+                obj = accountService.searchBySkill(query, level);
+                break;
+            case "groupName":
+                obj = accountService.searchByGroupName(query);
                 break;
             default:
-                break;
-
+                obj = null;
         }
-        return null;
+        if (obj == null) {
+            obj = HttpStatus.BAD_REQUEST;
+        }
+        return obj;
     }
 }

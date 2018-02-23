@@ -29,8 +29,11 @@ public interface AccountService extends UserDetailsService {
     List<Account> searchByFirstName(String firstName);
     List<Account> searchByLastName(String lastName);
     List<Account> searchByFullName(String firstName, String lastName);
+    List<Account> searchByFullName(String fullName);
     List<Account> searchByReputation(int minimumRep);
     List<Account> searchBySkill(String skillName, int minimumLevel);
+    Account searchByUsername(String username);
+    List<Group> searchByGroupName(String groupName);
 
     /* Skill centered services */
     Skill addSkillToDatabase(String skillName);

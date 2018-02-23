@@ -315,6 +315,17 @@ public class AccountServiceImpl implements AccountService {
         return masked;
     }
 
+    @Override
+    public List<Account> searchByFullName(String fullName) {
+        String arr[] = fullName.split(" ");
+        if (arr != null) {
+            if (arr.length == 2) {
+                return searchByFullName(arr[0], arr[1]);
+            }
+        }
+        return null;
+    }
+
 
     @Override
     public List<Account> searchByReputation(int minimumRep)
@@ -359,6 +370,16 @@ public class AccountServiceImpl implements AccountService {
             }
         }
         return qualified;
+    }
+
+    @Override
+    public Account searchByUsername(String username) {
+        return accountRepository.findByUsername(username);
+    }
+
+    @Override
+    public List<Group> searchByGroupName(String name) {
+        return groupRepository.findByGroupName(name);
     }
 
     @Override
