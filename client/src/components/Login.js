@@ -8,7 +8,7 @@ import Logo from '../img/cliquerLogo.png'
 import { auth, facebookProvider } from '../firebase'
 import { registerUser } from '../redux/actions'
 
-class Login extends Component {
+export class Login extends Component {
 
   constructor(props) {
     super(props)
