@@ -6,7 +6,7 @@
 
 .CreateGroup .form-group.required label:after {
   content:"*";
-  color:red;
+  color:#CF4647;
 }
 
 .CreateGroup .create-group-form {
@@ -16,27 +16,20 @@
 
 .CreateGroup .skills-form {
   width: 75%;
-}
-
-.CreateGroup button {
-  margin-top: 1rem;
-  width: 15%;
-  background-color: #2E4057;
-}
-
-.CreateGroup button:hover {
-  margin-top: calc(1rem + 1px) !important;
-  background-color: #487272;
-  color: #fff;
+  padding-bottom: 30px;
 }
 
 .CreateGroup h3 {
   margin-top: 1rem;
   margin-bottom: 0;
   padding: 0;
-  color: #2E4057;
+  color: #A3A3A3;
 }
 
 .CreateGroup label {
-  color: #2E4057;
+  color :#A3A3A3;
+}
+
+.create-group-submit-button {
+  max-width: 200px !important;
 }

@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import { Container, Row, Col, Button } from 'reactstrap'
+import { Container, Row, Col, Button, Modal, ModalHeader, ModalBody,
+          ModalFooter, Input} from 'reactstrap'
 import { connect } from 'react-redux'
 
 import '../css/Settings.css'
@@ -12,7 +13,13 @@ class Settings extends Component {
 
     this.state = {
       error: '',
+      modal:false,
     }
+    this.toggle = this.toggle.bind(this);
+  }
+
+  toggle() {
+    this.setState({ modal: !this.state.modal });
   }
 
   changePassword = (ev) => {
@@ -44,6 +51,8 @@ class Settings extends Component {
   render() {
     return (
       <Container>
+        <h2 className="account-settings-label">Account Settings</h2>
+        <hr/>
       <Row>
           <Col className="change-password-container" md={{ size: 4, offset: 4 }}>
                 Change Password
@@ -77,6 +86,21 @@ class Settings extends Component {
           { this.state.error && <p>{this.state.error.message}</p> }
         </form>
       </div>
+      <hr />
+      <div className="delete_account_section" md={{ size: 4, offset: 4}}>
+        <Button color="danger" size="lg" onClick={this.toggle} block>Delete Account</Button>
+      </div>
+      <Modal isOpen={this.state.modal} toggle={this.toggle} className="add-skills-modal">
+          <ModalHeader toggle={this.toggle}>Delete your Account?</ModalHeader>
+          <ModalBody>
+            <p className="modal-warning">*** WARNING THIS IS PERMANENT ***</p>
+            <Input type="password" placeholder="Enter you Password to Delete" />
+          </ModalBody>
+          <ModalFooter>
+            <Button color="danger" >Confirm</Button>{' '}
+            <Button color="secondary" onClick={this.toggle}>Cancel</Button>
+          </ModalFooter>
+        </Modal>
       </Container>
     )
   }

@@ -32,7 +32,7 @@ class SkillsPanel extends Component {
   render() {
     return (
       <div className="SkillsPanel">
-        <Button color="danger" onClick={this.toggle}>Add skills</Button>
+        <Button color="primary" onClick={this.toggle}>Add skills</Button>
         <Modal isOpen={this.state.modal} toggle={this.toggle} className="add-skills-modal">
           <ModalHeader toggle={this.toggle}>Add Skills</ModalHeader>
           <ModalBody>

@@ -44,7 +44,9 @@ class CreateGroup extends Component {
           <Label for="skills">Preferred Skills</Label>
           <SkillsForm id="skills" autoFocus={false}/>
         </div>
-        <Button type="submit" onSubmit={this.handleSubmit} form="form">Submit</Button>
+       
+        <Button className="create-group-submit-button" color="success" type="submit" onSubmit={this.handleSubmit} form="form" block>Submit</Button>
+    
       </div>
     )
   }

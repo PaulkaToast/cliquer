@@ -1,8 +1,16 @@
+.account-settings-label{
+    color: #A3A3A3;
+    text-align: center;
+    padding-top: 50px;
+    padding-bottom: 30px;
+}
+
 .form-password {
     max-width: 330px;
     padding: 0px;
     margin: 0 auto;
     margin-top: 1.5em;
+    padding-bottom: 50px;
 }
 
 .form-password-heading {
@@ -11,7 +19,7 @@
 
 .change-password-container {
     text-align: center;
-    font-size: 32px;
+    font-size: 24px;
     margin-top: 0.75em;
     color: #A3A3A3;
 }
@@ -29,4 +37,14 @@
 #confirmNewPassword {
     margin-top: 0.6em;
     margin-bottom: 0.6em;
+}
+
+.delete_account_section {
+    padding-top: 50px;
+    max-width: 330px;
+    margin: 0 auto;
+}
+
+.modal-warning {
+    -webkit-text-fill-color: #CF4647;
 }

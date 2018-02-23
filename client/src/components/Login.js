@@ -1,10 +1,12 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
 import { Container, Row, Col, Button } from 'reactstrap'
+import { connect } from 'react-redux'
 
 import '../css/Login.css'
 import Logo from '../img/cliquerLogo.png'
 import { auth, facebookProvider } from '../firebase'
+import { registerUser } from '../redux/actions'
 
 class Login extends Component {
 
@@ -30,6 +32,9 @@ class Login extends Component {
 
   logInWithFacebook = () => {
     auth.signInWithFacebook(facebookProvider)
+      .then(() => {
+          this.props.register('https://10.0.0.222:17922/register', { 'X-Authorization-Firebase': this.props.token})
+      })
       .catch(error => {
         this.setState({ error })
       })
@@ -85,4 +90,16 @@ class Login extends Component {
   }
 }
 
-export default Login
+const mapStateToProps = (state) => {
+	return {
+    token: state.auth.token,
+	}
+}
+
+const mapDispatchToProps = (dispatch) => {
+	return {
+    register: (url, headers) => dispatch(registerUser(url, headers)),
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login)

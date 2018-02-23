@@ -4,8 +4,7 @@ import { connect } from 'react-redux'
 
 import '../css/App.css'
 import { firebase } from '../firebase'
-import { logIn, logOut } from '../redux/actions'
-
+import { logIn, logOut, setToken } from '../redux/actions'
 import Login from './Login'
 import Register from './Register'
 import Main from './Main'
@@ -25,6 +24,13 @@ class App extends Component {
     firebase.onAuthStateChanged(authUser => {
       if(authUser) {
         this.props.logIn(authUser)
+        authUser.getIdToken(true)
+          .then((token) => {
+            this.props.setToken(token)
+          })
+          .catch((error) => {
+            console.log(error)
+          })
       } else {
         this.props.logOut(authUser)
       }
@@ -92,7 +98,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
 	return {
     logIn: (user) => dispatch(logIn(user)),
-		logOut: () => dispatch(logOut())
+    logOut: () => dispatch(logOut()),
+    setToken: (token) => dispatch(setToken(token)),
 	}
 }
 

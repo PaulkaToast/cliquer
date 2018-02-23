@@ -5,7 +5,7 @@ import AutosuggestHighlightMatch from 'autosuggest-highlight/match'
 import AutosuggestHighlightParse from 'autosuggest-highlight/parse'
 
 import '../../css/SkillsForm.css'
-import { addNewSkill, deleteNewSkill } from '../../redux/actions'
+import { addNewSkill, deleteNewSkill, fetchData } from '../../redux/actions'
 
 class SkillsForm extends Component {
 
@@ -21,6 +21,9 @@ class SkillsForm extends Component {
   }
 
   skills = ['Java', 'JavaScript', 'Basketball', 'Swimming', 'React']
+  componentDidMount = () => {
+    this.props.fetchData('https://10.0.0.222:17922/api/getSkillList', { 'X-Authorization-Firebase': this.props.token})
+  }
 
   getSuggestions = (value) => {
     const escapedValue = value.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -155,7 +158,7 @@ class SkillsForm extends Component {
       value,
       onChange: this.onChange
     }
-
+    console.log(this.props.skills)
     return (
       <form className="skill-form" onSubmit={this.handleSubmit}>
         <Autosuggest
@@ -183,13 +186,18 @@ class SkillsForm extends Component {
 const mapStateToProps = (state) => {
 	return {
     newSkills: state.user.newSkills ? state.user.newSkills : [],
+    token: state.auth.token,
+    skills: state.data,
+    isLoading: state.fetchIsLoading,
+    hasError: state.fetchHasError,
 	}
 }
 
 const mapDispatchToProps = (dispatch) => {
 	return {
     addSkill: (skill) => dispatch(addNewSkill(skill)),
-    deleteSkill: (skill) => dispatch(deleteNewSkill(skill))
+    deleteSkill: (skill) => dispatch(deleteNewSkill(skill)),
+    fetchData: (url, header) => dispatch(fetchData(url))
 	}
 }
 
