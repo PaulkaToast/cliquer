@@ -24,7 +24,7 @@ class Settings extends Component {
   }
 
   deleteAccount = (ev) => {
-    //this.props.deleteProfile(`https://cliquer.com/api/deleteProfile?username=${this.props.user.uid}`, { 'X-Authorization-Firebase': this.props.token })
+    //this.props.deleteProfile(`https://localhost:17922/api/deleteProfile?username=${this.props.user.uid}`, { 'X-Authorization-Firebase': this.props.token })
     ev.preventDefault()
 
     const password = ev.target.deletePassword.value
@@ -32,7 +32,7 @@ class Settings extends Component {
     const cred = credential(user.email, password)
 
     user.reauthenticateWithCredential(cred).then(func => {
-      this.props.deleteProfile(`https://cliquer.com/api/deleteProfile?username=${this.props.user.uid}`, { 'X-Authorization-Firebase': this.props.token })
+      this.props.deleteProfile(`https://localhost:17922/api/deleteProfile?username=${this.props.user.uid}`, { 'X-Authorization-Firebase': this.props.token })
       this.props.logOut()
     }).catch(error => {
         this.setState({ error })

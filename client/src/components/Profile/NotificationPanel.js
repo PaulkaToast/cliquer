@@ -13,7 +13,7 @@ class NotificationPanel extends Component {
 
   componentWillReceiveProps = (nextProps) => {
     if(nextProps.user && nextProps.user.uid && nextProps.token) {
-      this.props.getMessages(`https://cliquer.com/api/getMessages?username=${this.props.user.uid}`, { 'X-Authorization-Firebase': this.props.token})
+      this.props.getMessages(`https://localhost:17922/api/getMessages?username=${this.props.user.uid}`, { 'X-Authorization-Firebase': this.props.token})
     }
   }
 
