@@ -1,3 +1,5 @@
+//TODO: make even more generic (for all actions)
+
 function genericDispatch(hasError, isLoading, success, method) {
     function specificDispatch(url, headers) {
         return (dispatch) => {

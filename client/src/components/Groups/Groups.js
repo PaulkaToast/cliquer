@@ -12,6 +12,7 @@ import Group from './Group'
 import Chat from './Chat'
 import GroupMembers from './GroupMembers'
 import GroupSettings from './GroupSettings'
+import { getGroups } from '../../redux/actions'
 
 class Groups extends Component {
   constructor(props) {
@@ -23,6 +24,12 @@ class Groups extends Component {
       settings: '',
       membersPopOver: false,
       settingsPopOver: false,
+    }
+  }
+
+  componentWillReceiveProps = (nextProps) => {
+    if(nextProps.user && nextProps.token && nextProps.user.uid) {
+      this.props.getGroups(`https://10.0.0.222:17922/api/getUserGroups?username=${nextProps.user.uid}`, { 'X-Authorization-Firebase': nextProps.token, 'Origin': 'https://10.0.0.222:17922'})
     }
   }
 
@@ -44,21 +51,23 @@ class Groups extends Component {
 
   allowUserRating = (group) => {
     if(this.isOwner(group)) {
-      //REDUX action to change groups.rating to true
+      //TODO: REDUX action to change groups.rating to true, sprint 2
     }
   }
 
   renderGroupsList = () => {
     const { groups } = this.props
+    console.log(groups)
     return (
-      <div>
-          {Object.keys(groups).map((gid, i) => {
+      <ListGroup>
+          {groups 
+          && Object.keys(groups).map((gid, i) => {
             return <Group
-              group={groups[gid]}
-              key={i}
-            />
+                group={groups[gid]}
+                key={i}
+              />
           })}
-      </div>
+      </ListGroup>
     )
   }
 
@@ -72,6 +81,7 @@ class Groups extends Component {
   }
 
   render() {
+    console.log(this.props.groups)
     return (
       
       <Container fluid className="Groups h-100">
@@ -135,7 +145,9 @@ class Groups extends Component {
       <Popover placement="left" isOpen={this.state.settingsPopOver} target="PopoverS" toggle={this.toggleS}>
           <PopoverHeader>Settings</PopoverHeader>
           <PopoverBody>
-            Insert Various Settings Here
+            {this.isOwner({}) && <Button type="button" size="lg" onClick={() => this.allowUserRating(/*group*/)}>Allow Rating</Button>}
+            <Button type="button" size="lg" onClick={this.leaveGroup}>Leave Group</Button>
+            {this.isOwner({/*placeholder*/}) && <Button type="button" size="lg" onClick={this.disbandGroup}>Disband Group</Button>}
           </PopoverBody>
       </Popover>
 
@@ -147,8 +159,16 @@ class Groups extends Component {
 const mapStateToProps = (state) => {
 	return {
     user: state.user.data,
-    /*groups: state.user.groups,*/
+   /* groups: state.groups ? state.groups.data : [],*/
+    token: state.auth.token
 	}
 }
 
-export default connect(mapStateToProps)(Groups)
+const mapDispatchToProps = (dispatch) => {
+	return {
+    getGroups: (url, header) => dispatch(getGroups(url, header)),
+	}
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(Groups)

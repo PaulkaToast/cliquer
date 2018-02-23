@@ -185,7 +185,7 @@ const mapStateToProps = (state) => {
 	return {
     newSkills: state.user.newSkills ? state.user.newSkills : [],
     token: state.auth.token,
-    skills: state.data,
+    skills: state.data ? state.data : [],
     isLoading: state.fetchIsLoading,
     hasError: state.fetchHasError,
 	}

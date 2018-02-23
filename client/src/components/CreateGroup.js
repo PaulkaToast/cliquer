@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import '../css/CreateGroup.css'
 import SkillsForm from './Profile/SkillsForm'
-import { addSkills, clearNewSkills } from '../redux/actions'
+import { addSkills, clearNewSkills, createGroup } from '../redux/actions'
 
 class CreateGroup extends Component {
 
@@ -18,8 +18,7 @@ class CreateGroup extends Component {
     this.props.clearSkills()
     ev.target.reset()
 
-    //create group API call here, redux
-    //Get group ID and redirect to group page
+    this.props.createGroup(`https://10.0.0.222:17922/api/createGroup?username=${this.props.user.uid}&bio=${purpose}&groupName=${groupName}`, { 'X-Authorization-Firebase': this.props.token})
   }
   
   render() {
@@ -55,13 +54,16 @@ class CreateGroup extends Component {
 const mapStateToProps = (state) => {
 	return {
     newSkills: state.user.newSkills,
+    user: state.user.data,
+    token: state.auth.token,
 	}
 }
 
 const mapDispatchToProps = (dispatch) => {
 	return {
     clearSkills: () => dispatch(clearNewSkills()),
-    addSkills: (skills) => dispatch(addSkills(skills))
+    addSkills: (skills) => dispatch(addSkills(skills)),
+    createGroup: (url, header) => dispatch(createGroup(url, header))
 	}
 }
 
