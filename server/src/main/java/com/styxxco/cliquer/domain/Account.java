@@ -105,6 +105,14 @@ public class Account implements UserDetails {
 		this.groupIDs.remove(groupID);
 	}
 
+	public void addFriend(ObjectId friendID) {
+    	this.friendIDs.add(friendID);
+	}
+
+	public void removeFriend(ObjectId friendID) {
+    	this.friendIDs.remove(friendID);
+	}
+
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return authorities;
 	}

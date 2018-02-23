@@ -6,6 +6,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface SkillRepository extends MongoRepository<Skill, String>
 {

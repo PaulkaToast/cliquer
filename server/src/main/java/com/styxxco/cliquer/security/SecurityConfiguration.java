@@ -61,13 +61,9 @@ public class SecurityConfiguration {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-                    .cors()
-                    .and()
+//                    .cors()
+//                    .and()
                     .addFilterBefore(tokenAuthorizationFilter(), BasicAuthenticationFilter.class)
-                    .headers()
-                        .frameOptions().sameOrigin()
-                        .httpStrictTransportSecurity().disable()
-                    .and()
                     .authorizeRequests()
                         .antMatchers("/login").permitAll()
                         .antMatchers("/register").permitAll()

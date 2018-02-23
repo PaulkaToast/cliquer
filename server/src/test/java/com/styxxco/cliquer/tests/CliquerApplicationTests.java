@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -171,7 +172,7 @@ public class CliquerApplicationTests {
 		service.addSkill("montgo38", "Programming", "7");
 
 
-		ArrayList<Account> search = service.searchByFirstName("Jordan");
+		List<Account> search = service.searchByFirstName("Jordan");
 		assertEquals(2, search.size());
 		assertNull(search.get(0).getUsername());
 		assertEquals("Buckmaster", search.get(0).getLastName());
@@ -300,7 +301,7 @@ public class CliquerApplicationTests {
 		account = accountService.getUserProfile(shawn.getUsername());
 		assertEquals(0, account.getGroupIDs().size());
 
-		account = accountService.leaveGroup(kevin.getUsername(), cliquer.getGroupID());
+		account = accountService.leaveGroup(kevin.getUsername(), cliquer.getGroupID().toString());
 		assertEquals(0, account.getGroupIDs().size());
 		retrieve = groupService.getUserGroup(cliquer.getGroupID(), jordan.getAccountID());
 		account = accountService.getMemberProfile(retrieve.getGroupMemberIDs().get(0));
@@ -321,7 +322,7 @@ public class CliquerApplicationTests {
 		Message first = service.sendMessage("reed226", shawn.getAccountID(), "Be my friend?", 1);
 		Message second = service.sendMessage("reed226", shawn.getAccountID(), "Please be my friend?", 1);
 
-		ArrayList<Message> newMessages = service.getNewMessages("montgo38");
+		List<Message> newMessages = service.getNewMessages("montgo38");
 		assertEquals(2, newMessages.size());
 		assertEquals(1, newMessages.get(0).getType());
 

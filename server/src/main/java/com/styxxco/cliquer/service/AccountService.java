@@ -26,26 +26,31 @@ public interface AccountService extends UserDetailsService {
     String deleteAccount(String username);
 
     /* Account Searching */
-    ArrayList<Account> searchByFirstName(String firstName);
-    ArrayList<Account> searchByLastName(String lastName);
-    ArrayList<Account> searchByFullName(String firstName, String lastName);
-    ArrayList<Account> searchByReputation(int minimumRep);
-    ArrayList<Account> searchBySkill(String skillName, int minimumLevel);
+    List<Account> searchByFirstName(String firstName);
+    List<Account> searchByLastName(String lastName);
+    List<Account> searchByFullName(String firstName, String lastName);
+    List<Account> searchByReputation(int minimumRep);
+    List<Account> searchBySkill(String skillName, int minimumLevel);
 
     /* Skill centered services */
     Skill addSkillToDatabase(String skillName);
-    ArrayList<Skill> getAllValidSkills();
-    ArrayList<Skill> getAllUserSkills(String username);
+    List<Skill> getAllValidSkills();
+    List<Skill> getAllUserSkills(String username);
+    List<Group> getAllUserGroups(String username);
     Skill getSkill(String username, String skillName);
 
     /* Message centered services */
-    ArrayList<Message> getNewMessages(String username);
+    List<Message> getNewMessages(String username);
     Message sendMessage(String username, ObjectId receiverID, String content, int type);
 
     /* Group centered services */
-    Account joinGroup(String username, ObjectId groupID);
-    Account leaveGroup(String username, ObjectId groupID);
+    Group createGroup(String username, String groupName, String bio);
+    Group deleteGroup(String groupid);
+    Account joinGroup(String username, String groupid);
+    Account leaveGroup(String username, String groupid);
+    Account inviteToGroup(String username, String friendName, String groupid);
     Account addFriend(String username, String friendName);
+    Account removeFriend(String username, String friendName);
 
     List<Role> getAnonRoles();
     List<Role> getUserRoles();
