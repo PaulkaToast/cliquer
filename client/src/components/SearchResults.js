@@ -16,7 +16,6 @@ class SearchResults extends Component {
 
   renderUserPreview = (user, i) => {
     //may need to change button function to be a prop later (to allow reusing for group member searching)
-    console.log('here')
     return (
       <div className="user-result" key={i}>
         <div className="left-content">

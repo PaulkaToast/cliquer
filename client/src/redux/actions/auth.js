@@ -48,7 +48,6 @@ export function registerUser(url, headers) {
                 if (!response.ok) {
                     throw Error(response.statusText)
                 }
-                console.log(response)
                 dispatch(registerIsLoading(false))
 
                 return response

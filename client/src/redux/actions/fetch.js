@@ -31,10 +31,11 @@ export function errorAfterFiveSeconds() {
 
 export function fetchData(url, headers) {
     return (dispatch) => {
+        console.log(headers)
         dispatch(fetchIsLoading(true))
-        fetch(url, { headers, method: 'GET', mode: 'cors' })
+        fetch(url, { headers, method: 'GET', mode: 'cors'})
             .then((response) => {
-                console.log('hello')
+                console.log(response)
                 if (!response.ok) {
                     throw Error(response.statusText);
                 }
