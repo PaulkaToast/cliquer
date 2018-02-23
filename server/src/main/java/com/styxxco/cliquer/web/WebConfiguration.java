@@ -18,9 +18,4 @@ public class WebConfiguration extends WebMvcConfigurerAdapter {
                 .addResolver(new PathResourceResolver());
     }
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**").allowedMethods("GET", "POST", "PUT", "DELETE").allowedOrigins("*").allowedHeaders("*");
-    }
-
 }

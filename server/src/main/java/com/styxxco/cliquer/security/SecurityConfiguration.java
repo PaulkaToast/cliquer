@@ -2,6 +2,7 @@ package com.styxxco.cliquer.security;
 
 import com.styxxco.cliquer.service.FirebaseService;
 import com.styxxco.cliquer.service.impl.AccountServiceImpl;
+import com.styxxco.cliquer.web.CorsFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -15,8 +16,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+@Configuration
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class SecurityConfiguration {
 
@@ -61,9 +64,8 @@ public class SecurityConfiguration {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
-//                    .cors()
-//                    .and()
                     .addFilterBefore(tokenAuthorizationFilter(), BasicAuthenticationFilter.class)
+                    .addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class)
                     .authorizeRequests()
                         .antMatchers("/login").permitAll()
                         .antMatchers("/register").permitAll()

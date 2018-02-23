@@ -161,7 +161,7 @@ public class RestController {
         return user;
     }
 
-    @RequestMapping(value="/api/getUserGroups", method=RequestMethod.POST)
+    @RequestMapping(value="/api/getUserGroups")
     public @ResponseBody Object getUserGroups(@RequestParam(value="username") String username) {
         List<Group> groups = accountService.getAllUserGroups(username);
         if (groups == null) {
@@ -225,7 +225,20 @@ public class RestController {
     @RequestMapping(value = "/api/search", method = RequestMethod.GET)
     public @ResponseBody Object search(@RequestParam(value = "type") String type,
                                        @RequestParam(value = "query") String query) {
-        String types[] = {"firstName", "lastName", "username", "reputation", "skill", ""};
+        String types[] = {"firstName", "lastName", "username", "reputation", "skill", "groupName"};
+        switch(type) {
+            case "firstName":
+                break;
+            case "lastName":
+                break;
+            case "username":
+                break;
+            case "repuation":
+                break;
+            default:
+                break;
+
+        }
         return null;
     }
 }
