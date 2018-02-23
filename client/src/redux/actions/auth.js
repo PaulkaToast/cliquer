@@ -48,7 +48,6 @@ export function registerUser(url, headers) {
                 if (!response.ok) {
                     throw Error(response.statusText)
                 }
-                console.log(response)
                 dispatch(registerIsLoading(false))
 
                 return response
@@ -57,6 +56,8 @@ export function registerUser(url, headers) {
             .then((data) => {
                 dispatch(registerSuccess(data))
             })
-            .catch(() => dispatch(registerHasError(true)))
+            .catch((error) => {
+                dispatch(registerHasError(true))
+            })
     }
 }

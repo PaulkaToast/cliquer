@@ -15,6 +15,7 @@
 .new-skills .delete {
     cursor: pointer;
     color: #A3A3A3;
+    transition-duration: 0.3s;
 }
 
 .new-skills .delete:hover {

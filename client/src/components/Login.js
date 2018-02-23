@@ -8,7 +8,7 @@ import Logo from '../img/cliquerLogo.png'
 import { auth, facebookProvider } from '../firebase'
 import { registerUser } from '../redux/actions'
 
-class Login extends Component {
+export class Login extends Component {
 
   constructor(props) {
     super(props)
@@ -32,8 +32,9 @@ class Login extends Component {
 
   logInWithFacebook = () => {
     auth.signInWithFacebook(facebookProvider)
-      .then(() => {
-          this.props.register('https://10.0.0.222:17922/register', { 'X-Authorization-Firebase': this.props.token})
+      .then((response) => {
+          const name = response.user.displayName.split(' ')
+          this.props.register(`https://10.0.0.222:17922/register?first=${name[0]}&last=${name[1]}`, { 'X-Authorization-Firebase': this.props.token})
       })
       .catch(error => {
         this.setState({ error })
@@ -71,7 +72,7 @@ class Login extends Component {
           <div className="fb-container">
             <button type="button" className="btn btn-lg btn-block btn-social btn-facebook"
               onClick={this.logInWithFacebook}>
-              <i className="fa fa-facebook fa-fw"></i> Log in with Facebook
+              <i className="fab fa-facebook-f fa-fw"></i> Log in with Facebook
             </button>
           </div>
 

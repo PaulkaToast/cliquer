@@ -12,7 +12,7 @@ public interface FirebaseService {
 
     FirebaseTokenHolder parseToken(String idToken);
 
-    void registerUser(String firebaseToken);
+    Account registerUser(String firebaseToken, String firstName, String lastName);
     Account getUser(String uid);
     Collection<? extends GrantedAuthority> getAnonRoles();
     Collection<? extends GrantedAuthority> getModRoles();

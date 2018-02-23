@@ -29,13 +29,13 @@ public class Message
 	@Setter
 	private boolean read;
 
-	/* Types are:
-	 * 0 - Group Invite
-	 * 1 - Friend Invite
-	 * 2 - Moderator Flag
-	 * 3 - Group Notification
-	 * 4 - Profile Notification
-	 */
+	public static class Types {
+		public static final int GROUP_INVITE = 0;
+		public static final int FRIEND_INVITE = 1;
+		public static final int MOD_FLAG = 2;
+		public static final int GROUP_NOTIFICATION = 3;
+		public static final int PROFILE_NOTIFICATION = 4;
+	}
 
 	public Message(ObjectId senderID, String content, int type)
 	{

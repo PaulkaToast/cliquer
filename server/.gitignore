@@ -3,6 +3,7 @@ src/main/resources/static/*
 src/main/resources/templates/*
 src/main/resources/FirebaseConfigurationJSON.json
 src/main/resources/keystore.p12
+src/main/resources/application-secret.properties
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
@@ -14,7 +15,7 @@ src/main/resources/keystore.p12
 .springBeans
 
 ### IntelliJ IDEA ###
-.idea
+../.idea
 *.iws
 *.iml
 *.ipr

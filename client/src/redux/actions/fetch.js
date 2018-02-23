@@ -32,20 +32,17 @@ export function errorAfterFiveSeconds() {
 export function fetchData(url, headers) {
     return (dispatch) => {
         dispatch(fetchIsLoading(true))
-        console.log('called')
-        fetch(url, { headers, method: 'GET', mode: 'cors' })
+        fetch(url, { headers, method: 'GET', mode: 'cors'})
             .then((response) => {
                 if (!response.ok) {
                     throw Error(response.statusText);
                 }
-                console.log(response)
                 dispatch(fetchIsLoading(false));
 
                 return response;
             })
             .then((response) => response.json())
             .then((data) => {
-                console.log(data)
                 dispatch(fetchDataSuccess(data))
             })
             .catch(() => dispatch(fetchHasError(true)));

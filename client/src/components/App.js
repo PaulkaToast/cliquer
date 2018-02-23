@@ -60,7 +60,7 @@ class App extends Component {
 
   render() {
     return (
-      <div className="App">
+      <div className="App h-100">
         <Switch>
           <Route path="/login" render={(navProps) => 
             !this.loggedIn() || this.state.isLoading

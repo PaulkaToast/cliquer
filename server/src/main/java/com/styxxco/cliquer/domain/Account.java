@@ -31,8 +31,15 @@ public class Account implements UserDetails {
 
 	private boolean isModerator;
 	private boolean isPublic;
+	private boolean facebookLinked;
 	private double reputationReq;		/* Represents fraction of user rep */
 	private int proximityReq;
+
+	/* Inherited from UserDetails */
+	private boolean accountLocked;
+	private boolean accountExpired;
+	private boolean accountEnabled;
+	private boolean credentialsExpired;
 
 	private int reputation;
 
@@ -46,25 +53,10 @@ public class Account implements UserDetails {
     	this.accountID = new ObjectId();
 	}
 
-	public Account(String username, String email) {
+	public Account(@NonNull String username, String email, String firstName, String lastName)	{
 		this.accountID = new ObjectId();
 		this.username = username;
 		this.email = email;
-		this.isModerator = false;
-		this.isPublic = false;
-		this.reputationReq = 0;
-		this.proximityReq = 0;
-		this.reputation = 0;
-        this.skillIDs = new ArrayList<>();
-		this.groupIDs = new ArrayList<>();
-		this.friendIDs = new ArrayList<>();
-		this.messageIDs = new ArrayList<>();
-	}
-
-	public Account(@NonNull String username, String firstName, String lastName)
-	{
-		this.accountID = new ObjectId();
-		this.username = username;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.isModerator = false;
@@ -76,6 +68,11 @@ public class Account implements UserDetails {
 		this.groupIDs = new ArrayList<>();
 		this.friendIDs = new ArrayList<>();
 		this.messageIDs = new ArrayList<>();
+		this.accountLocked = false;
+		this.accountExpired = false;
+		this.accountEnabled = true;
+		this.credentialsExpired = false;
+		this.facebookLinked = false;
 	}
 
 	public void addSkill(ObjectId skillID)
@@ -108,6 +105,14 @@ public class Account implements UserDetails {
 		this.groupIDs.remove(groupID);
 	}
 
+	public void addFriend(ObjectId friendID) {
+    	this.friendIDs.add(friendID);
+	}
+
+	public void removeFriend(ObjectId friendID) {
+    	this.friendIDs.remove(friendID);
+	}
+
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return authorities;
 	}
@@ -116,20 +121,24 @@ public class Account implements UserDetails {
 		this.authorities = authorities;
 	}
 
+	@Override
 	public boolean isAccountNonExpired() {
-		return false;
+		return !accountExpired;
 	}
 
+	@Override
 	public boolean isAccountNonLocked() {
-		return false;
+		return !accountLocked;
 	}
 
+	@Override
 	public boolean isCredentialsNonExpired() {
-		return false;
+		return !credentialsExpired;
 	}
 
+	@Override
 	public boolean isEnabled() {
-		return false;
+		return accountEnabled;
 	}
 
 	/*public Message makeFriendInvite(String content)

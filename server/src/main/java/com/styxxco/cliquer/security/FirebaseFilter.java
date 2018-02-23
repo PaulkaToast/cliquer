@@ -18,7 +18,7 @@ import java.util.Collection;
 @Log4j
 public class FirebaseFilter extends OncePerRequestFilter {
 
-    private static String HEADER_NAME = "X-Authorization-Firebase";
+    public static final String HEADER_NAME = "X-Authorization-Firebase";
 
     private FirebaseService firebaseService;
 
@@ -43,7 +43,6 @@ public class FirebaseFilter extends OncePerRequestFilter {
 
                 Authentication auth = new FirebaseAuthenticationToken(uid, holder, roles);
                 SecurityContextHolder.getContext().setAuthentication(auth);
-                System.out.println(SecurityContextHolder.getContext());
 
                 filterChain.doFilter(request, response);
             } catch (FirebaseParser.FirebaseTokenInvalidException e) {

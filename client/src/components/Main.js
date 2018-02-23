@@ -14,7 +14,7 @@ class Main extends Component {
 
   render() {
     return (
-      <div className="Main">
+      <div className="Main h-100">
         <Navbar {...this.props} />
         <Switch>
             <Route path="/create" render={(navProps) => <CreateGroup {...navProps} />}/>

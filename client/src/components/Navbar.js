@@ -54,7 +54,7 @@ class NavigationBar extends Component {
     return (
       <div className="Navbar">
         <Navbar color="primary" dark expand="md">
-        <NavbarToggler right onClick={this.toggle} />
+        <NavbarToggler onClick={this.toggle} />
           <NavbarBrand className="cliquer-brand"><img src={Logo} alt="" /></NavbarBrand>
           <Collapse isOpen={this.state.isOpen} navbar>
           <Nav className="mr-auto" navbar>

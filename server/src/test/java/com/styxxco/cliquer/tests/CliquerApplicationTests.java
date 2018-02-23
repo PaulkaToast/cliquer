@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -37,8 +38,8 @@ public class CliquerApplicationTests {
 	public void testDatabase() {
 		accountRepository.deleteAll();
 
-		Account jordan = new Account("reed226", "Jordan", "Reed");
-		Account shawn = new Account("montgo38", "Shawn", "Montgomery");
+		Account jordan = new Account("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+		Account shawn = new Account("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 		ObjectId id = shawn.getAccountID();
 
 		accountRepository.save(jordan);
@@ -57,10 +58,10 @@ public class CliquerApplicationTests {
 		accountRepository.deleteAll();
 		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
-		Account jordan = service.createAccount("reed226", "Jordan", "Reed");
+		Account jordan = service.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
 		assertNotNull(jordan);
 
-		Account shawn = service.createAccount("montgo38", "Shawn", "Montgomery");
+		Account shawn = service.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 		assertNotNull(shawn);
 
 		Account retrieve = service.getUserProfile(shawn.getUsername());
@@ -96,8 +97,8 @@ public class CliquerApplicationTests {
 		skillRepository.deleteAll();
 		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
-		Account jordan = service.createAccount("reed226", "Jordan", "Reed");
-		Account shawn = service.createAccount("montgo38", "Shawn", "Montgomery");
+		Account jordan = service.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+		Account shawn = service.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 
 		Account modify = service.updateUserProfile("reed226", "firstName", "William");
 		assertEquals("William", modify.getFirstName());
@@ -111,15 +112,15 @@ public class CliquerApplicationTests {
 
 		Skill skill = new Skill("Programming", 0);
 		skillRepository.save(skill);
-		modify = service.addSkill("reed226", "Lifting", 1);
+		modify = service.addSkill("reed226", "Lifting", "1");
 		assertNull(modify);
 		retrieve = service.getUserProfile("reed226");
 		assertEquals(0, retrieve.getSkillIDs().size());
 
 		skill = new Skill("Board Gaming", 0);
 		skillRepository.save(skill);
-		service.addSkill("montgo38", "Programming", 8);
-		service.addSkill("montgo38", "Board Gaming", 6);
+		service.addSkill("montgo38", "Programming", "8");
+		service.addSkill("montgo38", "Board Gaming", "6");
 		skill = service.getSkill("montgo38", "Programming");
 		assertEquals("Programming", skill.getSkillName());
 		skill = service.getSkill("montgo38", "Board Gaming");
@@ -141,10 +142,10 @@ public class CliquerApplicationTests {
 		skillRepository.deleteAll();
 		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
-		Account reed = service.createAccount("reed226", "Jordan", "Reed");
-		Account buckmaster = service.createAccount("buckmast", "Jordan", "Buckmaster");
-		Account rhys = service.createAccount("rbuckmas", "Rhys", "Buckmaster");
-		Account shawn = service.createAccount("montgo38", "Shawn", "Montgomery");
+		Account reed = service.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+		Account buckmaster = service.createAccount("buckmast", "buckmast@purdue.edu","Jordan", "Buckmaster");
+		Account rhys = service.createAccount("rbuckmas", "rbuckmas@purdue.edu",  "Rhys", "Buckmaster");
+		Account shawn = service.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 
 		reed.setReputation(7);
 		buckmaster.setReputation(69);
@@ -163,15 +164,15 @@ public class CliquerApplicationTests {
 
 		Skill skill = new Skill("Programming", 0);
 		skillRepository.save(skill);
-		service.addSkill("reed226", "Programming", 7);
-		Account test = service.addSkill("buckmast", "Programming", -2);
+		service.addSkill("reed226", "Programming", "7");
+		Account test = service.addSkill("buckmast", "Programming", "-2");
 		assertNull(test);
-		service.addSkill("buckmast", "Programming", 8);
-		service.addSkill("rbuckmas", "Programming", 4);
-		service.addSkill("montgo38", "Programming", 7);
+		service.addSkill("buckmast", "Programming", "8");
+		service.addSkill("rbuckmas", "Programming", "4");
+		service.addSkill("montgo38", "Programming", "7");
 
 
-		ArrayList<Account> search = service.searchByFirstName("Jordan");
+		List<Account> search = service.searchByFirstName("Jordan");
 		assertEquals(2, search.size());
 		assertNull(search.get(0).getUsername());
 		assertEquals("Buckmaster", search.get(0).getLastName());
@@ -216,9 +217,9 @@ public class CliquerApplicationTests {
 		AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 		GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
-		Account jordan = accountService.createAccount("reed226", "Jordan", "Reed");
-		Account shawn = accountService.createAccount("montgo38", "Shawn", "Montgomery");
-		Account kevin = accountService.createAccount("knagar", "Kevin", "Nagar");
+		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+		Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
 
 		Group cliquer = groupService.createGroup(
 				"Cliquer",
@@ -254,9 +255,9 @@ public class CliquerApplicationTests {
 		AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 		GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
-		Account jordan = accountService.createAccount("reed226", "Jordan", "Reed");
-		Account shawn = accountService.createAccount("montgo38", "Shawn", "Montgomery");
-		Account kevin = accountService.createAccount("knagar", "Kevin", "Nagar");
+		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+		Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
 
 		Group cliquer = groupService.createGroup(
 				"Cliquer",
@@ -300,7 +301,7 @@ public class CliquerApplicationTests {
 		account = accountService.getUserProfile(shawn.getUsername());
 		assertEquals(0, account.getGroupIDs().size());
 
-		account = accountService.leaveGroup(kevin.getUsername(), cliquer.getGroupID());
+		account = accountService.leaveGroup(kevin.getUsername(), cliquer.getGroupID().toString());
 		assertEquals(0, account.getGroupIDs().size());
 		retrieve = groupService.getUserGroup(cliquer.getGroupID(), jordan.getAccountID());
 		account = accountService.getMemberProfile(retrieve.getGroupMemberIDs().get(0));
@@ -315,13 +316,13 @@ public class CliquerApplicationTests {
 		skillRepository.deleteAll();
 		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
-		Account jordan = service.createAccount("reed226", "Jordan", "Reed");
-		Account shawn = service.createAccount("montgo38", "Shawn", "Montgomery");
+		Account jordan = service.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+		Account shawn = service.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 
 		Message first = service.sendMessage("reed226", shawn.getAccountID(), "Be my friend?", 1);
 		Message second = service.sendMessage("reed226", shawn.getAccountID(), "Please be my friend?", 1);
 
-		ArrayList<Message> newMessages = service.getNewMessages("montgo38");
+		List<Message> newMessages = service.getNewMessages("montgo38");
 		assertEquals(2, newMessages.size());
 		assertEquals(1, newMessages.get(0).getType());
 
@@ -341,9 +342,9 @@ public class CliquerApplicationTests {
 		AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 		GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
-		Account jordan = accountService.createAccount("reed226", "Jordan", "Reed");
-		Account shawn = accountService.createAccount("montgo38", "Shawn", "Montgomery");
-		Account kevin = accountService.createAccount("knagar", "Kevin", "Nagar");
+		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+		Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
 
 		Group cliquer = groupService.createGroup(
 				"Cliquer",

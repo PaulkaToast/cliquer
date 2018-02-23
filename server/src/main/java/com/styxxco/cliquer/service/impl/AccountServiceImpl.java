@@ -4,6 +4,8 @@ import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Group;
 import com.styxxco.cliquer.domain.Skill;
 import com.styxxco.cliquer.domain.Message;
+import com.styxxco.cliquer.domain.Message.Types;
+import com.styxxco.cliquer.security.FirebaseTokenHolder;
 import com.styxxco.cliquer.service.GroupService;
 import lombok.extern.log4j.Log4j;
 import org.bson.types.ObjectId;
@@ -12,8 +14,6 @@ import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.security.SecurityConfiguration;
 import com.styxxco.cliquer.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -26,8 +26,7 @@ import java.util.*;
 
 @Log4j
 @Service(value = AccountServiceImpl.NAME)
-public class AccountServiceImpl implements AccountService
-{
+public class AccountServiceImpl implements AccountService {
     public final static String NAME = "AccountService";
 
     @Autowired
@@ -75,14 +74,14 @@ public class AccountServiceImpl implements AccountService
     }
 
     @Override
-    public Account createAccount(String username, String firstName, String lastName)
+    public Account createAccount(String username, String email, String firstName, String lastName)
     {
         if(accountRepository.existsByUsername(username))
         {
             log.info("User " + username + " already exists");
             return null;
         }
-        Account user = new Account(username, firstName, lastName);
+        Account user = new Account(username, email, firstName, lastName);
         this.accountRepository.save(user);
         return user;
     }
@@ -112,20 +111,20 @@ public class AccountServiceImpl implements AccountService
 
     @Override
     @Transactional
-    public Account registerUser(RegisterUser init) {
+    public Account registerUser(FirebaseTokenHolder tokenHolder, String firstName, String lastName) {
 
-        Account userLoaded = accountRepository.findByUsername(init.getUserName());
+        Account userLoaded = accountRepository.findByUsername(tokenHolder.getUid());
 
         if (userLoaded == null) {
-            Account account = new Account(init.getUserName(), init.getEmail());
+            Account account = createAccount(tokenHolder.getUid(), tokenHolder.getEmail(), firstName, lastName);
             account.setAuthorities(getUserRoles());
             account.setPassword(UUID.randomUUID().toString());
             System.out.println(account.toString());
             accountRepository.save(account);
-            log.info("registerUser -> user created");
+            log.info("registerUser -> user \"" + tokenHolder.getName() + "\" created");
             return account;
         } else {
-            log.info("registerUser -> user exists");
+            log.info("registerUser -> user \"" + tokenHolder.getUid() + "\" exists");
             return userLoaded;
         }
     }
@@ -274,10 +273,10 @@ public class AccountServiceImpl implements AccountService
     }
 
     @Override
-    public ArrayList<Account> searchByFirstName(String firstName)
+    public List<Account> searchByFirstName(String firstName)
     {
-        ArrayList<Account> accounts = accountRepository.findByFirstName(firstName);
-        ArrayList<Account> masked = new ArrayList<>();
+        List<Account> accounts = accountRepository.findByFirstName(firstName);
+        List<Account> masked = new ArrayList<>();
         for(Account account : accounts)
         {
             masked.add(this.maskPublicProfile(account));
@@ -288,10 +287,10 @@ public class AccountServiceImpl implements AccountService
     }
 
     @Override
-    public ArrayList<Account> searchByLastName(String lastName)
+    public List<Account> searchByLastName(String lastName)
     {
-        ArrayList<Account> accounts = accountRepository.findByLastName(lastName);
-        ArrayList<Account> masked = new ArrayList<>();
+        List<Account> accounts = accountRepository.findByLastName(lastName);
+        List<Account> masked = new ArrayList<>();
         for(Account account : accounts)
         {
             masked.add(this.maskPublicProfile(account));
@@ -302,10 +301,10 @@ public class AccountServiceImpl implements AccountService
     }
 
     @Override
-    public ArrayList<Account> searchByFullName(String firstName, String lastName)
+    public List<Account> searchByFullName(String firstName, String lastName)
     {
-        ArrayList<Account> accounts = accountRepository.findByFirstName(firstName);
-        ArrayList<Account> masked = new ArrayList<>();
+        List<Account> accounts = accountRepository.findByFirstName(firstName);
+        List<Account> masked = new ArrayList<>();
         for(Account account : accounts)
         {
             if(account.getLastName().equals(lastName))
@@ -318,10 +317,10 @@ public class AccountServiceImpl implements AccountService
 
 
     @Override
-    public ArrayList<Account> searchByReputation(int minimumRep)
+    public List<Account> searchByReputation(int minimumRep)
     {
         List<Account> accounts = accountRepository.findAll();
-        ArrayList<Account> qualified = new ArrayList<>();
+        List<Account> qualified = new ArrayList<>();
         for(Account account : accounts)
         {
             if(account.getReputation() >= minimumRep)
@@ -340,14 +339,14 @@ public class AccountServiceImpl implements AccountService
     }
 
     @Override
-    public ArrayList<Account> searchBySkill(String skillName, int minimumLevel)
+    public List<Account> searchBySkill(String skillName, int minimumLevel)
     {
         List<Account> accounts = accountRepository.findAll();
         Comparator<Account> byFirstName = Comparator.comparing(Account::getFirstName);
         Collections.sort(accounts, byFirstName);
         Comparator<Account> byLastName = Comparator.comparing(Account::getLastName);
         Collections.sort(accounts, byLastName);
-        ArrayList<Account> qualified = new ArrayList<>();
+        List<Account> qualified = new ArrayList<>();
         for(int i = 10; i >= minimumLevel; i--)
         {
             for (Account account : accounts)
@@ -376,15 +375,15 @@ public class AccountServiceImpl implements AccountService
     }
 
     @Override
-    public ArrayList<Skill> getAllValidSkills()
+    public List<Skill> getAllValidSkills()
     {
-        ArrayList<Skill> skills = skillRepository.findBySkillLevel(0);
+        List<Skill> skills = skillRepository.findBySkillLevel(0);
         Collections.sort(skills);
         return skills;
     }
 
     @Override
-    public ArrayList<Skill> getAllUserSkills(String username)
+    public List<Skill> getAllUserSkills(String username)
     {
         if(!accountRepository.existsByUsername(username))
         {
@@ -392,13 +391,29 @@ public class AccountServiceImpl implements AccountService
             return null;
         }
         Account user = accountRepository.findByUsername(username);
-        ArrayList<Skill> skills = new ArrayList<>();
+        List<Skill> skills = new ArrayList<>();
         for(ObjectId skillID : user.getSkillIDs())
         {
             Skill skill = skillRepository.findBySkillID(skillID);
             skills.add(skill);
         }
         return skills;
+    }
+
+    @Override
+    public List<Group> getAllUserGroups(String username) {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        List<Group> groups = new ArrayList<>();
+        for (ObjectId groupID: user.getGroupIDs()) {
+            Group group = groupRepository.findByGroupID(groupID);
+            groups.add(group);
+        }
+        return groups;
     }
 
     @Override
@@ -409,7 +424,7 @@ public class AccountServiceImpl implements AccountService
             log.info("User " + username + " not found");
             return null;
         }
-        ArrayList<Skill> skills = this.getAllUserSkills(username);
+        List<Skill> skills = this.getAllUserSkills(username);
         for(Skill skill : skills)
         {
             if(skill.getSkillName().equals(skillName))
@@ -421,7 +436,7 @@ public class AccountServiceImpl implements AccountService
     }
 
     @Override
-    public Account addSkill(String username, String skillName, int skillLevel)
+    public Account addSkill(String username, String skillName, String skillString)
     {
         if(!skillRepository.existsBySkillName(skillName))
         {
@@ -438,6 +453,12 @@ public class AccountServiceImpl implements AccountService
         {
             log.info("User " + username + " already has skill " + skillName);
             return null;
+        }
+        int skillLevel = 0;
+        try {
+            skillLevel = Integer.parseInt(skillString);
+        } catch (NumberFormatException e) {
+            log.info("Could not parse " + skillString + " as an integer");
         }
         if(skillLevel < 0 || skillLevel > 10)
         {
@@ -474,15 +495,14 @@ public class AccountServiceImpl implements AccountService
     }
 
     @Override
-    public ArrayList<Message> getNewMessages(String username)
-    {
+    public List<Message> getNewMessages(String username) {
         if(!accountRepository.existsByUsername(username))
         {
             log.info("User " + username + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
-        ArrayList<Message> messages = new ArrayList<>();
+        List<Message> messages = new ArrayList<>();
         for(ObjectId id : user.getMessageIDs())
         {
             Message message = messageRepository.findByMessageID(id);
@@ -518,16 +538,85 @@ public class AccountServiceImpl implements AccountService
         return message;
     }
 
-    /* TODO: Sprint 2 */
     @Override
-    public Account joinGroup(String username, ObjectId groupID)
-    {
-        return null;
+    public Account addFriend(String username, String friendName) {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        if(!accountRepository.existsByUsername(friendName))
+        {
+            log.info("User " + friendName + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        Account friend = accountRepository.findByUsername(friendName);
+        user.addFriend(friend.getAccountID());
+        friend.addFriend(user.getAccountID());
+        accountRepository.save(user);
+        accountRepository.save(friend);
+        return friend;
     }
 
     @Override
-    public Account leaveGroup(String username, ObjectId groupID)
+    public Account removeFriend(String username, String friendName) {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        if(!accountRepository.existsByUsername(friendName))
+        {
+            log.info("User " + friendName + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        Account friend = accountRepository.findByUsername(friendName);
+        user.removeFriend(friend.getAccountID());
+        friend.removeFriend(user.getAccountID());
+        accountRepository.save(user);
+        accountRepository.save(friend);
+        return friend;
+    }
+
+    @Override
+    public Group createGroup(String username, String groupName, String bio) {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        return groupService.createGroup(groupName, bio, user.getAccountID());
+    }
+
+    /* TODO: Ensure user fits requirements @Shawn @SprintTwo */
+    @Override
+    public Account joinGroup(String username, String groupid) {
+        ObjectId groupID = new ObjectId(groupid);
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            log.info("Group " + groupID + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        Group group = groupRepository.findByGroupID(groupID);
+
+        groupService.addGroupMember(group.getGroupID(), group.getGroupLeaderID(), user.getAccountID());
+
+        return user;
+    }
+
+    @Override
+    public Account leaveGroup(String username, String groupid)
     {
+        ObjectId groupID = new ObjectId(groupid);
         if(!accountRepository.existsByUsername(username))
         {
             log.info("User " + username + " not found");
@@ -566,6 +655,43 @@ public class AccountServiceImpl implements AccountService
         accountRepository.save(user);
         return user;
 
+    }
+
+    @Override
+    public Account inviteToGroup(String username, String friendName, String groupid) {
+        ObjectId groupID = new ObjectId(groupid);
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        if(!accountRepository.existsByUsername(friendName))
+        {
+            log.info("User " + friendName + " not found");
+            return null;
+        }
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            log.info("Group " + groupID + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        Account friend = accountRepository.findByUsername(friendName);
+        sendMessage(user.getUsername(), friend.getAccountID(), groupID.toString(), Types.GROUP_INVITE);
+        return friend;
+    }
+
+    @Override
+    public Group deleteGroup(String groupid) {
+        ObjectId groupID = new ObjectId(groupid);
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            log.info("Group " + groupID + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupID);
+        groupService.deleteGroup(group.getGroupID(), group.getGroupLeaderID());
+        return group;
     }
 
     public double getReputationRanking(String username)
