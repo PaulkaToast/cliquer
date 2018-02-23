@@ -245,6 +245,44 @@ public class CliquerApplicationTests {
 		assertNull(retrieve.getGroupMemberIDs());
 	}
 
+	@Test
+    public void testRetrieveAllGroups()
+    {
+        accountRepository.deleteAll();
+        skillRepository.deleteAll();
+        groupRepository.deleteAll();
+        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+        GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+
+        Group cliquer = groupService.createGroup(
+                "Cliquer",
+                "To create a web app that facilitates the teaming of people who may have never met before",
+                jordan.getAccountID());
+        Group hoops = groupService.createGroup(
+                "Hoops",
+                "To play basketball",
+                jordan.getAccountID());
+        Group games = groupService.createGroup(
+                "Games",
+                "To play games",
+                jordan.getAccountID());
+
+        List<Group> groupsOne = accountService.getAllUserGroups(jordan.getUsername());
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        List<Group> groupsTwo = accountService.getAllUserGroups(jordan.getUsername());
+        for(int i = 0; i < groupsOne.size(); i++)
+        {
+            assertEquals(groupsOne.get(i).getGroupID(), groupsTwo.get(i).getGroupID());
+        }
+
+    }
+
 	/* Test group modification services */
 	@Test
 	public void testGroupModification()

@@ -23,10 +23,21 @@ class Settings extends Component {
     this.setState({ modal: !this.state.modal });
   }
 
-  deleteAccount = () => {
-    this.props.deleteProfile(`https://cliquer.com/api/deleteProfile?username=${nextProps.user.uid}`, { 'X-Authorization-Firebase': nextProps.token })
-    //TODO: reauthenticate and delete user from firebase
-    this.props.logOut()
+  deleteAccount = (ev) => {
+    //this.props.deleteProfile(`https://cliquer.com/api/deleteProfile?username=${this.props.user.uid}`, { 'X-Authorization-Firebase': this.props.token })
+    ev.preventDefault()
+
+    const password = ev.target.deletePassword.value
+    const user = firebase.currentUser
+    const cred = credential(user.email, password)
+
+    user.reauthenticateWithCredential(cred).then(function() {
+      this.props.deleteProfile(`https://cliquer.com/api/deleteProfile?username=${this.props.user.uid}`, { 'X-Authorization-Firebase': this.props.token })
+      this.props.logOut()
+    }).catch(error => {
+        this.setState({ error })
+      })
+
   }
 
   changePassword = (ev) => {
@@ -97,16 +108,24 @@ class Settings extends Component {
       <div className="delete_account_section" md={{ size: 4, offset: 4}}>
         <Button color="danger" size="lg" onClick={this.toggle} block>Delete Account</Button>
       </div>
-      <Modal isOpen={this.state.modal} toggle={this.toggle} className="add-skills-modal">
+      <Modal isOpen={this.state.modal} toggle={this.toggle} className="delete-account-modal">
           <ModalHeader toggle={this.toggle}>Delete your Account?</ModalHeader>
           <ModalBody>
-            <p className="modal-warning">*** WARNING THIS IS PERMANENT ***</p>
-            <Input type="password" placeholder="Enter you Password to Delete" />
+          <div className="Settings form-delete" md={{ size: 4, offset: 4}}>
+            <form onSubmit={this.deleteAccount}>
+              <label htmlFor="inputPassword" className="sr-only">Password</label>
+              <input id="inputPassword" className="form-control"
+                required
+                name="deletePassword"
+                type="password"
+                placeholder="Enter Password"
+              />
+              <Button type="submit" color="danger">Delete</Button>
+              <Button color="secondary" onClick={this.toggle}>Cancel</Button>
+              { this.state.error && <p>{this.state.error.message}</p> }
+            </form>
+          </div>
           </ModalBody>
-          <ModalFooter>
-            <Button color="danger" onClick={this.deleteAccount}>Confirm</Button>{' '}
-            <Button color="secondary" onClick={this.toggle}>Cancel</Button>
-          </ModalFooter>
         </Modal>
       </Container>
     )
