@@ -4,6 +4,7 @@ import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Group;
 import com.styxxco.cliquer.domain.Skill;
 import com.styxxco.cliquer.domain.Message;
+import com.styxxco.cliquer.domain.Message.Types;
 import com.styxxco.cliquer.security.FirebaseTokenHolder;
 import com.styxxco.cliquer.service.GroupService;
 import lombok.extern.log4j.Log4j;
@@ -13,8 +14,6 @@ import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.security.SecurityConfiguration;
 import com.styxxco.cliquer.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -660,8 +659,26 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account inviteToGroup(String username, String friendName, String groupid) {
-        /* TODO: INVITE OTHER USERS TO GROUP */
-        return null;
+        ObjectId groupID = new ObjectId(groupid);
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        if(!accountRepository.existsByUsername(friendName))
+        {
+            log.info("User " + friendName + " not found");
+            return null;
+        }
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            log.info("Group " + groupID + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        Account friend = accountRepository.findByUsername(friendName);
+        sendMessage(user.getUsername(), friend.getAccountID(), groupID.toString(), Types.GROUP_INVITE);
+        return friend;
     }
 
     @Override

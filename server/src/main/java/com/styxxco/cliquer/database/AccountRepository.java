@@ -6,6 +6,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface AccountRepository extends MongoRepository<Account, String>
 {
@@ -13,6 +14,8 @@ public interface AccountRepository extends MongoRepository<Account, String>
 	Account findByUsername(String username);
 	boolean existsByAccountID(ObjectId accountID);
 	Account findByAccountID(ObjectId accountID);
-	ArrayList<Account> findByFirstName(String firstName);
-	ArrayList<Account> findByLastName(String firstName);
+	List<Account> findByFirstName(String firstName);
+	List<Account> findByLastName(String firstName);
+	List<Account> findByReputation(int reputation);
+	List<Account> findBySkillIDs(ObjectId skillID);
 }

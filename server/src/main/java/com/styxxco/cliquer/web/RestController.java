@@ -173,8 +173,7 @@ public class RestController {
     @RequestMapping(value = "/api/getSkillList", method = RequestMethod.GET)
     public @ResponseBody Object getSkillList() {
         List<Skill> skills = accountService.getAllValidSkills();
-        if(skills == null)
-        {
+        if(skills == null) {
             return HttpStatus.BAD_REQUEST;
         }
         return skills;
@@ -183,8 +182,7 @@ public class RestController {
     @RequestMapping(value = "/api/getSkills", method = RequestMethod.GET)
     public @ResponseBody Object getSkills(@RequestParam(value="username") String username) {
         List<Skill> skills = accountService.getAllUserSkills(username);
-        if(skills == null)
-        {
+        if(skills == null) {
             return HttpStatus.BAD_REQUEST;
         }
         return skills;
@@ -222,5 +220,12 @@ public class RestController {
             return HttpStatus.BAD_REQUEST;
         }
         return messages;
+    }
+
+    @RequestMapping(value = "/api/search", method = RequestMethod.GET)
+    public @ResponseBody Object search(@RequestParam(value = "type") String type,
+                                       @RequestParam(value = "query") String query) {
+        String types[] = {"firstName", "lastName", "username", "reputation", "skill", ""};
+        return null;
     }
 }

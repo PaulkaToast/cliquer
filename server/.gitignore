@@ -15,7 +15,7 @@ src/main/resources/application-secret.properties
 .springBeans
 
 ### IntelliJ IDEA ###
-.idea
+../.idea
 *.iws
 *.iml
 *.ipr

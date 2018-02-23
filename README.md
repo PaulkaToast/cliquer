@@ -16,8 +16,9 @@ Come clique away
 2. Copy the configuration json to the file `FirebaseConfigurationJSON-example.json` and rename to `FirebaseConfigurationJSON.json`
 ### Spring
 1. Add a SSL certificate to the resources folder or remove any `server.ssl` from `application.properties`
-2. Run `mvn clean package install` in the server folder of the project on your machine.
-3. Start with `mvn spring-boot:run`
+2. Add an `application-secret.properties` file or change the values in `application.properties` for secrets
+3. Run `mvn clean package install` in the server folder of the project on your machine.
+4. Start with `mvn spring-boot:run`
 
 ## Client Setup
 1. Run `npm install` or `yarn install` in the client folder of the project on your machine.
