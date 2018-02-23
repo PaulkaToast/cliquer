@@ -20,52 +20,52 @@ function genericDispatch(hasError, isLoading, success, method) {
     return specificDispatch;
 }
 
-export function getProfileHasError(hasError) {
+export function addFriendHasError(hasError) {
     return {
-        type: 'GET_PROFILE_HAS_ERROR',
+        type: 'ADD_FRIEND_HAS_ERROR',
         hasError
     }
 }
 
-export function getProfileIsLoading(isLoading) {
+export function addFriendIsLoading(isLoading) {
     return {
-        type: 'GET_PROFILE_IS_LOADING',
+        type: 'ADD_FRIEND_IS_LOADING',
         isLoading
     }
 }
 
-export function getProfileDataSuccess(data) {
+export function addFriendDataSuccess(data) {
     return {
-        type: 'GET_PROFILE_DATA_SUCCESS',
+        type: 'ADD_FRIEND_DATA_SUCCESS',
         data
     }
 }
 
-export const getProfile = genericDispatch(
-    getProfileHasError, getProfileIsLoading, getProfileDataSuccess, 'GET'
+export const addFriend = genericDispatch(
+    addFriendHasError, addFriendIsLoading, addFriendDataSuccess, 'POST'
 )
 
-export function deleteProfileHasError(hasError) {
+export function removeFriendHasError(hasError) {
     return {
-        type: 'DELETE_PROFILE_HAS_ERROR',
+        type: 'REMOVE_FRIEND_HAS_ERROR',
         hasError
     }  
 }
 
-export function deleteProfileIsLoading(isLoading) {
+export function removeFriendIsLoading(isLoading) {
     return {
-        type: 'DELETE_PROFILE_IS_LOADING',
+        type: 'REMOVE_FRIEND_IS_LOADING',
         isLoading
     }
 }
 
-export function deleteProfileDataSuccess(data) {
+export function removeFriendDataSuccess(data) {
     return {
-        type: 'DELETE_PROFILE_DATA_SUCCESS',
+        type: 'REMOVE_FRIEND_DATA_SUCCESS',
         data
     }
 }
 
-export const deleteProfile = genericDispatch(
-    deleteProfileHasError, deleteProfileIsLoading, deleteProfileDataSuccess, 'POST'
+export const removeFriend = genericDispatch(
+    removeFriendHasError, removeFriendIsLoading, removeFriendDataSuccess, 'POST'
 )
