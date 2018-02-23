@@ -32,7 +32,7 @@ class Register extends Component {
           authUser.updateProfile({
               displayName: `${firstName} ${lastName}`,
             }).then(() => {
-                this.props.register(`https://10.0.0.222:17922/register?first=${firstName}&last=${lastName}`, { 'X-Authorization-Firebase': this.props.token})
+                this.props.register(`https://cliquer.com/register?first=${firstName}&last=${lastName}`, { 'X-Authorization-Firebase': this.props.token})
             })
             .catch((error) => {
               console.log(error)

@@ -18,7 +18,7 @@ class SkillsPanel extends Component {
   addSkills = () => {
     this.props.addSkills(this.props.newSkills)
     this.props.newSkills.forEach(skill => {
-      this.props.postSkill(`https://10.0.0.222:17922/api/addSkill?username=${this.props.uid}&name=${skill}&level=0`, { 'X-Authorization-Firebase': this.props.token})
+      this.props.postSkill(`https://cliquer.com/api/addSkill?username=${this.props.uid}&name=${skill}&level=0`, { 'X-Authorization-Firebase': this.props.token})
     })
     this.toggle()
   }

@@ -29,7 +29,7 @@ class Groups extends Component {
 
   componentWillReceiveProps = (nextProps) => {
     if(nextProps.user && nextProps.token && nextProps.user.uid && !nextProps.groups) {
-      this.props.getGroups(`https://10.0.0.222:17922/api/getUserGroups?username=${nextProps.user.uid}`, { 'X-Authorization-Firebase': nextProps.token, 'Origin': 'https://10.0.0.222:17922'})
+      this.props.getGroups(`https://cliquer.com/api/getUserGroups?username=${nextProps.user.uid}`, { 'X-Authorization-Firebase': nextProps.token, 'Origin': 'https://cliquer.com'})
     }
   }
 
@@ -71,7 +71,7 @@ class Groups extends Component {
   }
 
   leaveGroup = () => {
-    this.props.leaveGroup(`https://10.0.0.222:17922/api/leaveGroup?username=${this.props.user.uid}&groupId=${this.props.currentGroup.gid}`, { 'X-Authorization-Firebase': this.props.token})
+    this.props.leaveGroup(`https://cliquer.com/api/leaveGroup?username=${this.props.user.uid}&groupId=${this.props.currentGroup.gid}`, { 'X-Authorization-Firebase': this.props.token})
   }
 
   render() {
