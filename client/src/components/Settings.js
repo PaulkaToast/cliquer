@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 
 import '../css/Settings.css'
 import { auth, firebase, credential } from '../firebase'
+import { deleteProfile, logOut } from '../redux/actions'
 
 class Settings extends Component {
 
@@ -20,6 +21,12 @@ class Settings extends Component {
 
   toggle() {
     this.setState({ modal: !this.state.modal });
+  }
+
+  deleteAccount = () => {
+    this.props.deleteProfile(`https://cliquer.com/api/deleteProfile?username=${nextProps.user.uid}`, { 'X-Authorization-Firebase': nextProps.token })
+    //TODO: reauthenticate and delete user from firebase
+    this.props.logOut()
   }
 
   changePassword = (ev) => {
@@ -97,7 +104,7 @@ class Settings extends Component {
             <Input type="password" placeholder="Enter you Password to Delete" />
           </ModalBody>
           <ModalFooter>
-            <Button color="danger" >Confirm</Button>{' '}
+            <Button color="danger" onClick={this.deleteAccount}>Confirm</Button>{' '}
             <Button color="secondary" onClick={this.toggle}>Cancel</Button>
           </ModalFooter>
         </Modal>
@@ -109,7 +116,15 @@ class Settings extends Component {
 const mapStateToProps = (state) => {
 	return {
     user: state.user.data,
+    token: state.auth.token,
 	}
 }
 
-export default connect(mapStateToProps)(Settings)
+const mapDispatchToProps = (dispatch) => {
+	return {
+    deleteProfile: (url, header) => dispatch(deleteProfile(url, header)),
+    logOut: () => dispatch(logOut())
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Settings)

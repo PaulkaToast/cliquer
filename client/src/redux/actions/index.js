@@ -14,5 +14,5 @@ export { getGroupsHasError, getGroupsIsLoading, getGroupsDataSuccess, getGroups,
          createGroupHasError, createGroupIsLoading, createGroupDataSuccess, createGroup  } from './groups'
 export { addFriendHasError, addFriendIsLoading, addFriendDataSuccess, addFriend,
          removeFriendHasError, removeFriendIsLoading, removeFriendDataSuccess, removeFriend } from './friends'
-
+export { getMessagesHasError, getMessagesIsLoading, getMessagesDataSuccess, getMessages } from './messages'
 //TODO: Change getSkillList to one reducer function
