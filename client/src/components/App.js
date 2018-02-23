@@ -24,6 +24,7 @@ class App extends Component {
     firebase.onAuthStateChanged(authUser => {
       if(authUser) {
         this.props.logIn(authUser)
+        console.log('here')
         authUser.getIdToken(true)
           .then((token) => {
             this.props.setToken(token)

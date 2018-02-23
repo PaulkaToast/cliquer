@@ -30,19 +30,13 @@ class Register extends Component {
       auth.createUserWithEmailAndPassword(email, passwordOne)
         .then(authUser => {
           authUser.updateProfile({
-            displayName: `${firstName} ${lastName}`,
-          }).then(() => {
-            firebase.currentUser.getIdToken(true)
-            .then((token) => {
-              this.props.setToken(token)
-              this.props.register('https://10.0.0.222:17922/register', { 'X-Authorization-Firebase': this.props.token})
+              displayName: `${firstName} ${lastName}`,
+            }).then(() => {
+                this.props.register(`https://10.0.0.222:17922/register?first=${firstName}&last=${lastName}`, { 'X-Authorization-Firebase': this.props.token})
             })
             .catch((error) => {
               console.log(error)
             })
-          }).catch((error) => {
-            console.log(error)
-          })
         })
         .catch(error => {
           this.setState({ error })
@@ -124,7 +118,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
 	return {
     register: (url, headers) => dispatch(registerUser(url, headers)),
-    setToken: (token) => dispatch(registerUser)
+    setToken: (token) => dispatch(setToken(token))
 	}
 }
 

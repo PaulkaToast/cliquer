@@ -57,6 +57,9 @@ export function registerUser(url, headers) {
             .then((data) => {
                 dispatch(registerSuccess(data))
             })
-            .catch(() => dispatch(registerHasError(true)))
+            .catch((error) => {
+                console.log(error)
+                dispatch(registerHasError(true))
+            })
     }
 }

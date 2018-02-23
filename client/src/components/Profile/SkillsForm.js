@@ -22,6 +22,7 @@ class SkillsForm extends Component {
 
   skills = ['Java', 'JavaScript', 'Basketball', 'Swimming', 'React']
   componentDidMount = () => {
+    console.log(this.props.token)
     this.props.fetchData('https://10.0.0.222:17922/api/getSkillList', { 'X-Authorization-Firebase': this.props.token})
   }
 
@@ -158,7 +159,6 @@ class SkillsForm extends Component {
       value,
       onChange: this.onChange
     }
-    console.log(this.props.skills)
     return (
       <form className="skill-form" onSubmit={this.handleSubmit}>
         <Autosuggest

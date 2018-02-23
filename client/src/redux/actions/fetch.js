@@ -32,9 +32,9 @@ export function errorAfterFiveSeconds() {
 export function fetchData(url, headers) {
     return (dispatch) => {
         dispatch(fetchIsLoading(true))
-        console.log('called')
         fetch(url, { headers, method: 'GET', mode: 'cors' })
             .then((response) => {
+                console.log('hello')
                 if (!response.ok) {
                     throw Error(response.statusText);
                 }

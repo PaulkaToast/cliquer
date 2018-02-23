@@ -32,8 +32,9 @@ export class Login extends Component {
 
   logInWithFacebook = () => {
     auth.signInWithFacebook(facebookProvider)
-      .then(() => {
-          this.props.register('https://10.0.0.222:17922/register', { 'X-Authorization-Firebase': this.props.token})
+      .then((response) => {
+          const name = response.user.displayName.split(' ')
+          this.props.register(`https://10.0.0.222:17922/register?first=${name[0]}&last=${name[1]}`, { 'X-Authorization-Firebase': this.props.token})
       })
       .catch(error => {
         this.setState({ error })
