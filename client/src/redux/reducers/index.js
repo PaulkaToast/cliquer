@@ -3,9 +3,11 @@ import { routerReducer } from 'react-router-redux'
 
 import auth from './auth'
 import user from './user'
-import { fetchHasError, fetchIsLoading, data} from './fetch'
+import { fetchHasError, fetchIsLoading, data as skillList} from './fetch'
 import skills from './skills'
+import profile from './profile'
 
-const rootReducer = combineReducers({ auth, user, data, fetchHasError, skills, fetchIsLoading, router: routerReducer })
+const rootReducer = combineReducers({ auth, user, skillList, fetchHasError, 
+                                      fetchIsLoading, skills, profile, router: routerReducer })
 
 export default rootReducer
