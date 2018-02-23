@@ -4,6 +4,15 @@ export { fetchHasError, fetchIsLoading, fetchDataSuccess, fetchData } from './fe
 export { postSkillHasError, postSkillIsLoading, postSkillDataSuccess, postSkill,
          getSkillsHasError, getSkillsIsLoading, getSkillsDataSuccess, getSkills,
          removeSkillHasError, removeSkillIsLoading, removeSkillDataSuccess, removeSkill } from './skills'
-export { getProfileHasError, getProfileIsLoading, getProfileDataSuccess, getProfile } from './profile'
+export { getProfileHasError, getProfileIsLoading, getProfileDataSuccess, getProfile,
+         deleteProfileHasError, deleteProfileIsLoading, deleteProfileDataSuccess, deleteProfile } from './profile'
+export { getGroupsHasError, getGroupsIsLoading, getGroupsDataSuccess, getGroups,
+         groupInviteHasError, groupInviteIsLoading, groupInviteDataSuccess, groupInvite,
+         joinGroupHasError, joinGroupIsLoading, joinGroupDataSuccess, joinGroup,
+         deleteGroupHasError, deleteGroupIsLoading, deleteGroupDataSuccess, deleteGroup,
+         leaveGroupHasError, leaveGroupIsLoading, leaveGroupDataSuccess, leaveGroup,
+         createGroupHasError, createGroupIsLoading, createGroupDataSuccess, createGroup  } from './groups'
+export { addFriendHasError, addFriendIsLoading, addFriendDataSuccess, addFriend,
+         removeFriendHasError, removeFriendIsLoading, removeFriendDataSuccess, removeFriend } from './friends'
 
 //TODO: Change getSkillList to one reducer function
