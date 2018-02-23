@@ -1,4 +1,4 @@
-.Chat {
+/*.Chat {
     width: 60%;
     background-color: #81B298;
 }
@@ -24,4 +24,9 @@
 
 .Chat .body h3 { 
     margin: auto;
+}
+*/
+.Chat{
+    padding-right: 0px;
+    padding-left: 0px;
 }

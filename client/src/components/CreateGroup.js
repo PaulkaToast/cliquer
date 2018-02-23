@@ -25,7 +25,7 @@ class CreateGroup extends Component {
   render() {
     return (
       <div className="CreateGroup">
-        <h3>Create A Group</h3>
+        <h2>Create A Group</h2>
         <Form className="create-group-form" id="form" onSubmit={this.handleSubmit}>
           <FormGroup className="required">
             <Label for="name">Group Name</Label>

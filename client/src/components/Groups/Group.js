@@ -18,14 +18,29 @@ class Group extends Component {
             </div>
         </li>
       </NavLink>*/
-      <div>
         <ListGroup>
+    
           <ListGroupItem className="d-flex justify-content-between align-items-center" href={`/groups/${this.props.group.id}`} action> 
             {this.props.group.name}
             <Badge color="primary" pill>14</Badge>
           </ListGroupItem>
+
+          <ListGroupItem className="d-flex justify-content-between align-items-center" href={`/groups/${this.props.group.id}`} action> 
+            This
+            <Badge color="primary" pill>1</Badge>
+          </ListGroupItem>
+
+          <ListGroupItem className="active d-flex justify-content-between align-items-center" href={`/groups/${this.props.group.id}`} action> 
+            Is An
+            <Badge color="danger" pill>2</Badge>
+          </ListGroupItem>
+
+          <ListGroupItem className="d-flex justify-content-between align-items-center" href={`/groups/${this.props.group.id}`} action> 
+            Example
+            <Badge color="primary" pill>3</Badge>
+          </ListGroupItem>
+
         </ListGroup>
-      </div>
     )
   }
 }

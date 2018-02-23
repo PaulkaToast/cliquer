@@ -71,7 +71,7 @@ class Login extends Component {
           <div className="fb-container">
             <button type="button" className="btn btn-lg btn-block btn-social btn-facebook"
               onClick={this.logInWithFacebook}>
-              <i className="fa fa-facebook fa-fw"></i> Log in with Facebook
+              <i className="fab fa-facebook-f fa-fw"></i> Log in with Facebook
             </button>
           </div>
 
