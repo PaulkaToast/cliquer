@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Switch, Route } from 'react-router'
-import { NavLink } from 'react-router-dom'
 import { Button, ButtonGroup } from 'reactstrap'
 
 import '../../css/Groups.css'
@@ -17,6 +16,16 @@ class Groups extends Component {
     this.state = {
       members: 'active',
       settings: '',
+    }
+  }
+
+  isOwner = (group) => {
+    return group.owner && this.props.user.uid === group.owner.uid
+  }
+
+  allowUserRating = (group) => {
+    if(this.isOwner(group)) {
+      //REDUX action to change groups.rating to true
     }
   }
 
@@ -55,12 +64,12 @@ class Groups extends Component {
         <Chat />
         <div className="right-panel">
           <ButtonGroup>
-            <Button className={this.state.members} onClick={() => this.toggle('members')}><h3>Members</h3></Button>{' '}
-            <Button className={this.state.settings} onClick={() => this.toggle('settings')}><h3>Settings</h3></Button>
+            <Button className={`${this.state.members} nav-button`} onClick={() => this.toggle('members')}><h3>Members</h3></Button>{' '}
+            <Button className={`${this.state.settings} nav-button`} onClick={() => this.toggle('settings')}><h3>Settings</h3></Button>
           </ButtonGroup>
           <Switch>
-            <Route exact path="/groups/:gid" render={(navProps) => <GroupMembers {...this.props} {...navProps}/>}/>
-            <Route path="/groups/:gid/settings" render={(navProps) => <GroupSettings {...this.props} {...navProps}/>}/>
+            <Route exact path="/groups/:gid" render={(navProps) => <GroupMembers {...this.props} {...navProps} isOwner={this.isOwner}/>}/>
+            <Route path="/groups/:gid/settings" render={(navProps) => <GroupSettings {...this.props} {...navProps} isOwner={this.isOwner} allowUserRating={this.allowUserRating}/>}/>
           </Switch>
         </div>
       </div>
@@ -75,4 +84,4 @@ const mapStateToProps = (state) => {
 	}
 }
 
-export default connect(mapStateToProps )(Groups)
+export default connect(mapStateToProps)(Groups)

@@ -146,10 +146,15 @@ public class CliquerApplicationTests {
 		Account rhys = service.createAccount("rbuckmas", "rbuckmas@purdue.edu",  "Rhys", "Buckmaster");
 		Account shawn = service.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 
-		reed.setReputation(5);
+		reed.setReputation(7);
 		buckmaster.setReputation(69);
 		rhys.setReputation(5);
 		shawn.setReputation(6);
+
+		reed.setPublic(true);
+		buckmaster.setPublic(true);
+		rhys.setPublic(true);
+		shawn.setPublic(true);
 
 		accountRepository.save(reed);
 		accountRepository.save(buckmaster);
@@ -169,31 +174,36 @@ public class CliquerApplicationTests {
 		ArrayList<Account> search = service.searchByFirstName("Jordan");
 		assertEquals(2, search.size());
 		assertNull(search.get(0).getUsername());
-		assertEquals("Jordan", search.get(0).getFirstName());
+		assertEquals("Buckmaster", search.get(0).getLastName());
 
 		search = service.searchByLastName("Buckmaster");
 		assertEquals(2, search.size());
-		assertEquals("Buckmaster", search.get(0).getLastName());
+		assertEquals("Rhys", search.get(1).getFirstName());
 
-		search = service.searchByReputation(7);
+		search = service.searchByFullName("Jordan", "Buckmaster");
 		assertEquals(1, search.size());
 		assertEquals("Jordan", search.get(0).getFirstName());
 		assertEquals("Buckmaster", search.get(0).getLastName());
 
+		search = service.searchByReputation(6);
+		assertEquals(3, search.size());
+		assertEquals("Shawn", search.get(2).getFirstName());
+		assertEquals("Buckmaster", search.get(0).getLastName());
+
 		search = service.searchBySkill("Programming", 7);
 		assertEquals(3, search.size());
-		assertNotEquals("Rhys", search.get(0).getFirstName());
-		assertNotEquals("Rhys", search.get(1).getFirstName());
-		assertNotEquals("Rhys", search.get(2).getFirstName());
+		assertEquals("Buckmaster", search.get(0).getLastName());
+		assertEquals("Montgomery", search.get(1).getLastName());
+		assertEquals("Reed", search.get(2).getLastName());
 
 
 		search = service.searchBySkill("Programming", 9);
 		assertEquals(true, search.isEmpty());
 
-		assertEquals(new Double(50.0), new Double(service.getReputationRanking("reed226")));
+		assertEquals(new Double(75.0), new Double(service.getReputationRanking("reed226")));
 		assertEquals(new Double(100.0), new Double(service.getReputationRanking("buckmast")));
-		assertEquals(new Double(50.0), new Double(service.getReputationRanking("rbuckmas")));
-		assertEquals(new Double(75.0), new Double(service.getReputationRanking("montgo38")));
+		assertEquals(new Double(25.0), new Double(service.getReputationRanking("rbuckmas")));
+		assertEquals(new Double(50.0), new Double(service.getReputationRanking("montgo38")));
 	}
 
 	/* Test group retrieval services */
@@ -308,14 +318,14 @@ public class CliquerApplicationTests {
 		Account jordan = service.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
 		Account shawn = service.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 
-		Message first = service.sendMessage("reed226", shawn.getAccountID(), "Be my friend?", "Friend Invite");
-		Message second = service.sendMessage("reed226", shawn.getAccountID(), "Please be my friend?", "Friend Invite");
+		Message first = service.sendMessage("reed226", shawn.getAccountID(), "Be my friend?", 1);
+		Message second = service.sendMessage("reed226", shawn.getAccountID(), "Please be my friend?", 1);
 
 		ArrayList<Message> newMessages = service.getNewMessages("montgo38");
 		assertEquals(2, newMessages.size());
-		assertEquals("Friend Invite", newMessages.get(0).getType());
+		assertEquals(1, newMessages.get(0).getType());
 
-		Message third = service.sendMessage("reed226", shawn.getAccountID(), "Pretty please be my friend?", "Friend Invite");
+		Message third = service.sendMessage("reed226", shawn.getAccountID(), "Pretty please be my friend?", 1);
 
 		newMessages = service.getNewMessages("montgo38");
 		assertEquals(1, newMessages.size());

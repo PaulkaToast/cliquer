@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import { connect } from 'react-redux'
 import Autosuggest from 'react-autosuggest'
 import AutosuggestHighlightMatch from 'autosuggest-highlight/match'
 import AutosuggestHighlightParse from 'autosuggest-highlight/parse'
 
 import '../../css/SkillsForm.css'
-import { addSkills } from '../../redux/actions'
+import { addNewSkill, deleteNewSkill } from '../../redux/actions'
 
 class SkillsForm extends Component {
 
@@ -14,7 +13,6 @@ class SkillsForm extends Component {
     super(props)
     this.state = {
       modal: false,
-      newSkills: [],
       suggestions: [],
       value: '',
       animation: '',
@@ -57,14 +55,6 @@ class SkillsForm extends Component {
     this.setState({ suggestions: [] })
   }
 
-  toggle = () => {
-    if(this.state.modal) {
-      this.setState({ newSkills: [], modal: false, value: '', suggestions: [] })
-    } else {
-      this.setState({ modal: true })
-    }
-  }
-
   shakeInput = () => {
     let element = document.getElementById("skillInput")
     element.classList.toggle("animated")
@@ -78,11 +68,6 @@ class SkillsForm extends Component {
     }, 750)
   }
 
-  addSkills = () => {
-    this.props.addSkills(this.state.newSkills)
-    this.toggle()
-  }
-
   contains = (skill) => {
     for(const i in this.skills) {
       if(this.skills[i].toLowerCase() === skill.trim().toLowerCase()) return this.skills[i]
@@ -93,7 +78,6 @@ class SkillsForm extends Component {
   handleSubmit = (ev) => {
     ev.preventDefault()
     let skill = ev.target.skill.value
-    const newSkills = [...this.state.newSkills]
 
     if(document.querySelector('.new-skills').clientHeight < 350) {
       this.setState({ listClass: 'sliding'}, () => {
@@ -103,9 +87,8 @@ class SkillsForm extends Component {
       })
     }
 
-    if((skill = this.contains(skill)) && !newSkills.includes(skill)) {
-      newSkills.push(skill)
-      this.setState({ newSkills })
+    if((skill = this.contains(skill)) && !this.props.newSkills.includes(skill)) {
+      this.props.addSkill(skill)
     } else {
       this.shakeInput()
     }
@@ -113,9 +96,7 @@ class SkillsForm extends Component {
   }
   
   deleteNewSkill = (skill) => {
-    const newSkills = [...this.state.newSkills]
-    newSkills.splice(newSkills.indexOf(skill), 1)
-    this.setState({ newSkills })
+    this.props.deleteSkill(skill)
   }
 
   renderSuggestion = (suggestion, { query }) => {
@@ -141,7 +122,7 @@ class SkillsForm extends Component {
   renderNewSkillList = () => {
     return (
       <ul className={`${this.state.listClass} new-skills`}>
-        {this.state.newSkills.map((skill, i) => {
+        {this.props.newSkills.map((skill, i) => {
           return (
             <div key={i} className="animated slideInUp new-skill">
               <i className="fa fa-times delete" onClick={() => this.deleteNewSkill(skill)}></i> 
@@ -159,7 +140,7 @@ class SkillsForm extends Component {
         className={`${this.state.animation} new-skill-input form-control`}
         id="skillInput"
         required
-        autoFocus
+        autoFocus={this.props.autoFocus}
         name="skill"
         type="text"
         {...inputProps}
@@ -192,28 +173,25 @@ class SkillsForm extends Component {
   render() {
     return (
       <div className="SkillsForm">
-        <Button color="danger" onClick={this.toggle}>Add skills</Button>
-        <Modal isOpen={this.state.modal} toggle={this.toggle} className="add-skills-modal">
-          <ModalHeader toggle={this.toggle}>Add Skills</ModalHeader>
-          <ModalBody>
-            {this.renderNewSkillList()}
-            {this.renderSkillsForm()}
-          </ModalBody>
-          <ModalFooter>
-            <Button color="primary" onClick={this.addSkills}>Add Skills</Button>{' '}
-            <Button color="secondary" onClick={this.toggle}>Cancel</Button>
-          </ModalFooter>
-        </Modal>
+        {this.renderNewSkillList()}
+        {this.renderSkillsForm()}
       </div>
     )
   }
 }
 
-const mapDispatchToProps = (dispatch) => {
+const mapStateToProps = (state) => {
 	return {
-    addSkills: (skills) => dispatch(addSkills(skills))
+    newSkills: state.user.newSkills ? state.user.newSkills : [],
 	}
 }
 
-export default connect(null, mapDispatchToProps)(SkillsForm)
+const mapDispatchToProps = (dispatch) => {
+	return {
+    addSkill: (skill) => dispatch(addNewSkill(skill)),
+    deleteSkill: (skill) => dispatch(deleteNewSkill(skill))
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SkillsForm)
 

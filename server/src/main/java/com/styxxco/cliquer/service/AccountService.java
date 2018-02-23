@@ -27,6 +27,7 @@ public interface AccountService extends UserDetailsService {
     /* Account Searching */
     ArrayList<Account> searchByFirstName(String firstName);
     ArrayList<Account> searchByLastName(String lastName);
+    ArrayList<Account> searchByFullName(String firstName, String lastName);
     ArrayList<Account> searchByReputation(int minimumRep);
     ArrayList<Account> searchBySkill(String skillName, int minimumLevel);
 
@@ -38,7 +39,7 @@ public interface AccountService extends UserDetailsService {
 
     /* Message centered services */
     ArrayList<Message> getNewMessages(String username);
-    Message sendMessage(String username, ObjectId receiverID, String content, String type);
+    Message sendMessage(String username, ObjectId receiverID, String content, int type);
 
     /* Group centered services */
     Account joinGroup(String username, ObjectId groupID);

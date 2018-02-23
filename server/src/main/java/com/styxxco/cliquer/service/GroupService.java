@@ -30,5 +30,5 @@ public interface GroupService {
     Group removeSkillReq(ObjectId groupID, ObjectId groupLeaderID, String skillName);
 
     /* Message centered services */
-    Message sendMessage(ObjectId groupID, ObjectId senderID, ObjectId receiverId, String content, String type);
+    Message sendMessage(ObjectId groupID, ObjectId senderID, ObjectId receiverId, String content, int type);
 }

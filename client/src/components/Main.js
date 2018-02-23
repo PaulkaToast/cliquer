@@ -8,6 +8,7 @@ import Groups from './Groups/Groups'
 import PublicGroups from './PublicGroups'
 import Profile from './Profile/Profile'
 import Settings from './Settings'
+import SearchResults from './SearchResults'
 
 class Main extends Component {
 
@@ -17,10 +18,11 @@ class Main extends Component {
         <Navbar {...this.props} />
         <Switch>
             <Route path="/create" render={(navProps) => <CreateGroup {...navProps} />}/>
-            <Route path="/groups" render={(navProps) => <Groups {...navProps} groups={{test: {name: 'cliquer', members: [], id: 'test'}}} />}/>
+            <Route path="/groups" render={(navProps) => <Groups {...navProps} groups={{test: {name: 'cliquer', members: [{name: 'Jordan', role: 'Frontend'}], id: 'test'}}} />}/>
             <Route path="/public" render={(navProps) => <PublicGroups {...navProps} />}/>
             <Route path="/profile" render={(navProps) => <Profile {...navProps} />}/>
             <Route path="/settings" render={(navProps) => <Settings {...navProps} />}/>
+            <Route path="/search/:category/:query" render={(navProps) => <SearchResults {...navProps} {...this.props} results={[{name: 'Jordan', reputation: '42'}, {name: 'Shawn', reputation: '42'}, {name: 'Max', reputation: '42'}]} />}/>
             <Route path='/' render={(navProps) => <Redirect to="/groups" />}/>
         </Switch>
       </div>

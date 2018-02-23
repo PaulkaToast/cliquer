@@ -282,6 +282,8 @@ public class AccountServiceImpl implements AccountService
         {
             masked.add(this.maskPublicProfile(account));
         }
+        Comparator<Account> byLastName = Comparator.comparing(Account::getLastName);
+        Collections.sort(masked, byLastName);
         return masked;
     }
 
@@ -294,8 +296,26 @@ public class AccountServiceImpl implements AccountService
         {
             masked.add(this.maskPublicProfile(account));
         }
+        Comparator<Account> byFirstName = Comparator.comparing(Account::getFirstName);
+        Collections.sort(masked, byFirstName);
         return masked;
     }
+
+    @Override
+    public ArrayList<Account> searchByFullName(String firstName, String lastName)
+    {
+        ArrayList<Account> accounts = accountRepository.findByFirstName(firstName);
+        ArrayList<Account> masked = new ArrayList<>();
+        for(Account account : accounts)
+        {
+            if(account.getLastName().equals(lastName))
+            {
+                masked.add(this.maskPublicProfile(account));
+            }
+        }
+        return masked;
+    }
+
 
     @Override
     public ArrayList<Account> searchByReputation(int minimumRep)
@@ -309,21 +329,34 @@ public class AccountServiceImpl implements AccountService
                 qualified.add(this.maskPublicProfile(account));
             }
         }
+        Comparator<Account> byFirstName = Comparator.comparing(Account::getFirstName);
+        Collections.sort(qualified, byFirstName);
+        Comparator<Account> byLastName = Comparator.comparing(Account::getLastName);
+        Collections.sort(qualified, byLastName);
+        Comparator<Account> byReputation = Comparator.comparingInt(Account::getReputation);
+        byReputation = byReputation.reversed();
+        Collections.sort(qualified, byReputation);
         return qualified;
     }
 
-    /* TODO Decide if private accounts should come up, since skills are private information */
     @Override
     public ArrayList<Account> searchBySkill(String skillName, int minimumLevel)
     {
         List<Account> accounts = accountRepository.findAll();
+        Comparator<Account> byFirstName = Comparator.comparing(Account::getFirstName);
+        Collections.sort(accounts, byFirstName);
+        Comparator<Account> byLastName = Comparator.comparing(Account::getLastName);
+        Collections.sort(accounts, byLastName);
         ArrayList<Account> qualified = new ArrayList<>();
-        for(Account account : accounts)
+        for(int i = 10; i >= minimumLevel; i--)
         {
-            Skill skill = this.getSkill(account.getUsername(), skillName);
-            if(skill != null && skill.getSkillLevel() >= minimumLevel)
+            for (Account account : accounts)
             {
-                qualified.add(this.maskPublicProfile(account));
+                Skill skill = this.getSkill(account.getUsername(), skillName);
+                if (account.isPublic() && skill != null && skill.getSkillLevel() == i)
+                {
+                    qualified.add(this.maskPublicProfile(account));
+                }
             }
         }
         return qualified;
@@ -464,7 +497,7 @@ public class AccountServiceImpl implements AccountService
     }
 
     @Override
-    public Message sendMessage(String username, ObjectId receiverID, String content, String type)
+    public Message sendMessage(String username, ObjectId receiverID, String content, int type)
     {
         if(!accountRepository.existsByUsername(username))
         {

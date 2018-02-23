@@ -15,7 +15,7 @@
 .Groups .groups-list h3 {
     color: #F7F7F7;
     text-transform: uppercase;
-    font-size: 2rem;
+    font-size: 1rem;
     font-weight: 300;
     letter-spacing: 3px;
     margin: 15px 2rem;
@@ -94,12 +94,13 @@
 
 .Groups .right-panel {
     width: 25%;
+    background-color: #F7F7F7;
 }
 
 .Groups .right-panel h3 {
     color: #F7F7F7;
     text-transform: uppercase;
-    font-size: 2rem;
+    font-size: 1rem;
     font-weight: 300;
     letter-spacing: 2px;
     margin: 15px 0.5rem;
@@ -113,7 +114,7 @@
     width: 100%;
 }
 
-.Groups .btn {
+.Groups .nav-button {
     width: 50%;
     user-select: none;
     outline: 0 !important;
@@ -125,11 +126,11 @@
     padding: 0;
 }
 
-.Groups .btn.active {
+.Groups .nav-button.active {
     background-color: #81B298 !important;
 }
 
-.Groups .btn:hover {
+.Groups .nav-button:hover {
     margin-top: 0;
     background-color: #81B298 !important;
 }

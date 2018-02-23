@@ -28,7 +28,6 @@ public class Account implements UserDetails {
 	private String lastName;
 	private String password;
 	/* private Location location;*/
-	private byte[] profilePic;
 
 	private boolean isModerator;
 	private boolean isPublic;
@@ -47,8 +46,7 @@ public class Account implements UserDetails {
     	this.accountID = new ObjectId();
 	}
 
-	public Account(@NonNull String username, String email, String firstName, String lastName)
-	{
+	public Account(@NonNull String username, String email, String firstName, String lastName)	{
 		this.accountID = new ObjectId();
 		this.username = username;
 		this.email = email;
