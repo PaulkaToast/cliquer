@@ -11,7 +11,8 @@ export { getGroupsHasError, getGroupsIsLoading, getGroupsDataSuccess, getGroups,
          joinGroupHasError, joinGroupIsLoading, joinGroupDataSuccess, joinGroup,
          deleteGroupHasError, deleteGroupIsLoading, deleteGroupDataSuccess, deleteGroup,
          leaveGroupHasError, leaveGroupIsLoading, leaveGroupDataSuccess, leaveGroup,
-         createGroupHasError, createGroupIsLoading, createGroupDataSuccess, createGroup  } from './groups'
+         createGroupHasError, createGroupIsLoading, createGroupDataSuccess, createGroup,
+         setCurrentGroup } from './groups'
 export { addFriendHasError, addFriendIsLoading, addFriendDataSuccess, addFriend,
          removeFriendHasError, removeFriendIsLoading, removeFriendDataSuccess, removeFriend } from './friends'
 export { getMessagesHasError, getMessagesIsLoading, getMessagesDataSuccess, getMessages } from './messages'

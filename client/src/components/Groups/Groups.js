@@ -12,7 +12,7 @@ import Group from './Group'
 import Chat from './Chat'
 import GroupMembers from './GroupMembers'
 import GroupSettings from './GroupSettings'
-import { getGroups } from '../../redux/actions'
+import { getGroups, setCurrentGroup, leaveGroup } from '../../redux/actions'
 
 class Groups extends Component {
   constructor(props) {
@@ -28,7 +28,7 @@ class Groups extends Component {
   }
 
   componentWillReceiveProps = (nextProps) => {
-    if(nextProps.user && nextProps.token && nextProps.user.uid) {
+    if(nextProps.user && nextProps.token && nextProps.user.uid && !nextProps.groups) {
       this.props.getGroups(`https://10.0.0.222:17922/api/getUserGroups?username=${nextProps.user.uid}`, { 'X-Authorization-Firebase': nextProps.token, 'Origin': 'https://10.0.0.222:17922'})
     }
   }
@@ -57,7 +57,6 @@ class Groups extends Component {
 
   renderGroupsList = () => {
     const { groups } = this.props
-    console.log(groups)
     return (
       <ListGroup>
           {groups 
@@ -71,22 +70,19 @@ class Groups extends Component {
     )
   }
 
-  toggle = (tab) => {
-    if(tab === 'members' && this.state.members !== 'active' ) {
-      this.setState({ members: 'active', settings: '' }, () => history.push('/groups/test'))
-    }
-    if(tab === 'settings' && this.state.settings !== 'active' ) {
-      this.setState({ members: '', settings: 'active' }, () => history.push('/groups/test/settings'))
-    }
+  leaveGroup = () => {
+    this.props.leaveGroup(`https://10.0.0.222:17922/api/leaveGroup?username=${this.props.user.uid}&groupId=${this.props.currentGroup.gid}`, { 'X-Authorization-Firebase': this.props.token})
   }
 
   render() {
-    console.log(this.props.groups)
     return (
       
       <Container fluid className="Groups h-100">
-   
       <Navbar className="group-nav" color="primary" dark expand="md">
+      <Route path="/groups/:gid" render={(navProps) => {
+        if(this.props.groups) this.props.setGroup(this.props.groups[navProps.match.params.gid])
+        return <div></div>
+      }}/>
         <NavbarBrand> Groups </NavbarBrand>
         <Nav className="ml-auto" navbar>
           <NavItem>
@@ -101,7 +97,7 @@ class Groups extends Component {
           </NavItem>
           {/*<Switch>
             <Route exact path="/groups/:gid" render={(navProps) => <GroupMembers {...this.props} {...navProps} isOwner={this.isOwner}/>}/>
-            <Route path="/groups/:gid/settings" render={(navProps) => <GroupSettings {...this.props} {...navProps} isOwner={this.isOwner} allowUserRating={this.allowUserRating}/>}/>
+            
           </Switch>*/}
         </Nav>
       </Navbar>        
@@ -159,14 +155,17 @@ class Groups extends Component {
 const mapStateToProps = (state) => {
 	return {
     user: state.user.data,
-   /* groups: state.groups ? state.groups.data : [],*/
-    token: state.auth.token
+    groups: state.groups ? state.groups.getGroupsData : [],
+    token: state.auth.token,
+    currentGroup: state.groups.currentGroup
 	}
 }
 
 const mapDispatchToProps = (dispatch) => {
 	return {
     getGroups: (url, header) => dispatch(getGroups(url, header)),
+    setGroup: (group) => dispatch(setCurrentGroup(group)),
+    leaveGroup: (url, header) => dispatch(leaveGroup(url, header)),
 	}
 }
 

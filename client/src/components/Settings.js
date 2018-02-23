@@ -23,6 +23,7 @@ class Settings extends Component {
     this.setState({ modal: !this.state.modal });
   }
 
+<<<<<<< HEAD
   deleteAccount = (ev) => {
     //this.props.deleteProfile(`https://cliquer.com/api/deleteProfile?username=${this.props.user.uid}`, { 'X-Authorization-Firebase': this.props.token })
     ev.preventDefault()
@@ -38,6 +39,12 @@ class Settings extends Component {
         this.setState({ error })
       })
 
+=======
+  deleteAccount = () => {
+    this.props.deleteProfile(`https://10.0.0.222:17922/api/deleteProfile?username=${this.props.user.uid}`, { 'X-Authorization-Firebase': this.props.token })
+    //TODO: reauthenticate and delete user from firebase
+    this.props.logOut()
+>>>>>>> Work on various API calls
   }
 
   changePassword = (ev) => {

@@ -3,11 +3,18 @@ import { connect } from 'react-redux'
 
 import '../../css/NotificationPanel.css'
 import Notification from './Notification'
+import { getMessages } from '../../redux/actions'
 
 class NotificationPanel extends Component {
 
   deleteNotification = (i) => {
     //redux call for delete notification
+  }
+
+  componentWillReceiveProps = (nextProps) => {
+    if(nextProps.user && nextProps.user.uid && nextProps.token) {
+      this.props.getMessages(`https://10.0.0.222:17922/api/getMessages?username=${this.props.user.uid}`, { 'X-Authorization-Firebase': this.props.token})
+    }
   }
 
   render() {
@@ -31,13 +38,18 @@ class NotificationPanel extends Component {
   }
 }
 
-
-
 const mapStateToProps = (state) => {
 	return {
     user: state.user.data,
-    /*notifications: state.user.notifications,*/
+    messages: state.messages ? state.messages.data : [],
+    token: state.auth.token
 	}
 }
 
-export default connect(mapStateToProps)(NotificationPanel)
+const mapDispatchToProps = (dispatch) => {
+	return {
+    getMessages: (url, header) => dispatch(getMessages(url, header)),
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(NotificationPanel)

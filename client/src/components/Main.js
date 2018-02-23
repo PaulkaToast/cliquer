@@ -18,7 +18,7 @@ class Main extends Component {
         <Navbar {...this.props} />
         <Switch>
             <Route path="/create" render={(navProps) => <CreateGroup {...navProps} />}/>
-            <Route path="/groups" render={(navProps) => <Groups {...navProps} groups={{test: {name: 'cliquer', members: [{name: 'Jordan', role: 'Frontend'}], id: 'test'}}} />}/>
+            <Route path="/groups" render={(navProps) => <Groups {...navProps} />}/>
             <Route path="/public" render={(navProps) => <PublicGroups {...navProps} />}/>
             <Route path="/profile" render={(navProps) => <Profile {...navProps} />}/>
             <Route path="/settings" render={(navProps) => <Settings {...navProps} />}/>

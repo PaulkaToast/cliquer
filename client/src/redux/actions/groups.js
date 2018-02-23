@@ -170,6 +170,13 @@ export const createGroup = genericDispatch(
     createGroupHasError, createGroupIsLoading, createGroupDataSuccess, 'POST'
 )
 
+export function setCurrentGroup(group) {
+    return {
+        type: 'SET_CURRENT_GROUP',
+        group
+    }
+}
+
 
 
 

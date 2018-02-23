@@ -20,10 +20,6 @@ class SkillsForm extends Component {
     }
   }
 
-  componentDidMount = () => {
-    this.props.fetchData('https://10.0.0.222:17922/api/getSkillList', { 'X-Authorization-Firebase': this.props.token})
-  }
-
   getSuggestions = (value) => {
     const escapedValue = value.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
     
@@ -185,7 +181,7 @@ const mapStateToProps = (state) => {
 	return {
     newSkills: state.user.newSkills ? state.user.newSkills : [],
     token: state.auth.token,
-    skills: state.data ? state.data : [],
+    skills: state.skillList ? state.skillList : [],
     isLoading: state.fetchIsLoading,
     hasError: state.fetchHasError,
 	}

@@ -72,6 +72,10 @@ function groups(state = {}, action) {
             return Object.assign({}, state, {
                 createGroupIsLoading: action.isLoading,
             })
+        case 'SET_CURRENT_GROUP': 
+            return Object.assign({}, state, {
+                currentGroup: action.group,
+            })
         default:
             return state
     }
