@@ -46,7 +46,7 @@ class Profile extends Component {
 
          <div className="header">
              <h1>My Profile</h1>
-                 <p>A website created by me.</p>  
+                 <p>A website created by me!</p>  
           </div>
 
      
