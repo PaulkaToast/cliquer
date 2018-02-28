@@ -397,6 +397,8 @@ public class SprintOneServicesTest {
 			skillRepository.delete(id.toString());
 		}
 		accountRepository.delete(jordan);
+		accountRepository.delete(shawn);
+		accountRepository.delete(kevin);
 		groupRepository.delete(cliquer);
 	}
 
