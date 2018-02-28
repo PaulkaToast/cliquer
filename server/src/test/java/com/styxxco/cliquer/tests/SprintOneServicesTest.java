@@ -280,7 +280,7 @@ public class SprintOneServicesTest {
 		cliquer.setPublic(false);
 		groupRepository.save(cliquer);
 		retrieve = groupService.getPublicGroup(cliquer.getGroupID());
-		assertNull(retrieve.getGroupMemberIDs());
+		assertNull(retrieve);
 		
 		accountRepository.delete(jordan);
 		accountRepository.delete(shawn);
@@ -397,8 +397,6 @@ public class SprintOneServicesTest {
 			skillRepository.delete(id.toString());
 		}
 		accountRepository.delete(jordan);
-		accountRepository.delete(shawn);
-		accountRepository.delete(kevin);
 		groupRepository.delete(cliquer);
 	}
 
