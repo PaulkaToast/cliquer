@@ -14,6 +14,9 @@ import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 @Log4j
 @Service(value = GroupServiceImpl.NAME)
@@ -110,11 +113,9 @@ public class GroupServiceImpl implements GroupService {
         Group group = groupRepository.findByGroupID(groupID);
         if(!group.isPublic())
         {
-            group.setGroupLeaderID(null);
-            group.setGroupMemberIDs(null);
-            group.setSkillReqs(null);
+            log.info("Group " + groupID + " is a private group");
+            return null;
         }
-        group.setProximityReq(-1);
         return group;
     }
 
@@ -260,7 +261,168 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public ArrayList<Skill> getAllSkillReqs(ObjectId groupID)
+    public List<Group> searchBySettings(String username, List<Group> groups)
+    {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        if(groups == null)
+        {
+            groups = groupRepository.findAll();
+        }
+        List<Group> qualified = new ArrayList<>();
+        for(Group group : groups)
+        {
+            if(group.isPublic())
+            {
+                qualified.add(group);
+            }
+        }
+        Comparator<Group> byGroupName = Comparator.comparing(Group::getGroupName);
+        qualified.sort(byGroupName);
+        return qualified;
+    }
+
+    @Override
+    public List<Group> searchBySkillReqs(String username, List<String> skillRequirements, List<Group> groups)
+    {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        if(groups == null)
+        {
+            groups = groupRepository.findAll();
+        }
+        List<Group> qualified = new ArrayList<>();
+        for(Group group : groups)
+        {
+            List<Skill> skills = this.getAllSkillReqs(group.getGroupID());
+            boolean exit = false;
+            for(String skillName : skillRequirements)
+            {
+                int i;
+                for(i = 0; i < skills.size(); i++)
+                {
+                    if(skills.get(i).getSkillName().equals(skillName))
+                    {
+                        break;
+                    }
+                }
+                if(i == skills.size())
+                {
+                    exit = true;
+                    break;
+                }
+            }
+            if(!exit)
+            {
+                qualified.add(group);
+            }
+        }
+        return qualified;
+    }
+
+    @Override
+    public List<Group> searchByGroupName(String username, String groupName, List<Group> groups)
+    {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        if(groups == null)
+        {
+            groups = groupRepository.findAll();
+        }
+        List<Group> qualified = new ArrayList<>();
+        for(Group group : groups)
+        {
+            if(group.getGroupName().equals(groupName))
+            {
+                qualified.add(group);
+            }
+        }
+        return qualified;
+    }
+
+    @Override
+    public List<Group> searchByLeaderFirstName(String username, String firstName, List<Group> groups)
+    {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        if(groups == null)
+        {
+            groups = groupRepository.findAll();
+        }
+        List<Group> qualified = new ArrayList<>();
+        for(Group group : groups)
+        {
+            Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
+            if(leader.getFirstName().equals(firstName))
+            {
+                qualified.add(group);
+            }
+        }
+        return qualified;
+    }
+
+    @Override
+    public List<Group> searchByLeaderLastName(String username, String lastName, List<Group> groups)
+    {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        if(groups == null)
+        {
+            groups = groupRepository.findAll();
+        }
+        List<Group> qualified = new ArrayList<>();
+        for(Group group : groups)
+        {
+            Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
+            if(leader.getFirstName().equals(lastName))
+            {
+                qualified.add(group);
+            }
+        }
+        return qualified;
+    }
+
+    @Override
+    public List<Group> searchByLeaderFullName(String username, String firstName, String lastName, List<Group> groups)
+    {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        if(groups == null)
+        {
+            groups = groupRepository.findAll();
+        }
+        List<Group> qualified = new ArrayList<>();
+        for(Group group : groups)
+        {
+            Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
+            if(leader.getFirstName().equals(firstName) && leader.getLastName().equals(lastName))
+            {
+                qualified.add(group);
+            }
+        }
+        return qualified;
+    }
+
+    @Override
+    public List<Skill> getAllSkillReqs(ObjectId groupID)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -268,12 +430,13 @@ public class GroupServiceImpl implements GroupService {
             return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
-        ArrayList<Skill> skills = new ArrayList<>();
+        List<Skill> skills = new ArrayList<>();
         for(ObjectId skillID : group.getSkillReqs())
         {
             Skill skill = skillRepository.findBySkillID(skillID);
             skills.add(skill);
         }
+        Collections.sort(skills);
         return skills;
     }
 
@@ -285,7 +448,7 @@ public class GroupServiceImpl implements GroupService {
             log.info("Group " + groupID + " not found");
             return null;
         }
-        ArrayList<Skill> skills = this.getAllSkillReqs(groupID);
+        List<Skill> skills = this.getAllSkillReqs(groupID);
         for(Skill skill : skills)
         {
             if(skill.getSkillName().equals(skillName))
