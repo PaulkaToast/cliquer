@@ -112,7 +112,7 @@ public class SprintOneServicesTest {
 
 		Skill programming = new Skill("Programming", 0);
 		skillRepository.save(programming);
-		modify = service.addSkill("reed226", "Lifting", "1");
+		modify = service.addSkill("reed226", "Lifter", "1");
 		assertNull(modify);
 		retrieve = service.getUserProfile("reed226");
 		assertEquals(0, retrieve.getSkillIDs().size());
@@ -356,9 +356,9 @@ public class SprintOneServicesTest {
 
 
 		Skill programming = accountService.addSkillToDatabase("Programming");
-		Skill lifting = accountService.addSkillToDatabase("Lifting");
+		Skill lifter = accountService.addSkillToDatabase("Lifter");
 		groupService.addSkillReq(cliquer.getGroupID(), jordan.getAccountID(), "Programming", 5);
-		Skill skill = groupService.getSkillReq(cliquer.getGroupID(), "Lifting");
+		Skill skill = groupService.getSkillReq(cliquer.getGroupID(), "Lifter");
 		assertNull(skill);
 		skill = groupService.getSkillReq(cliquer.getGroupID(), "Programming");
 		assertEquals("Programming", skill.getSkillName());
@@ -391,7 +391,7 @@ public class SprintOneServicesTest {
 		cliquer = groupRepository.findByGroupID(cliquer.getGroupID());
 		
 		skillRepository.delete(programming);
-		skillRepository.delete(lifting);
+		skillRepository.delete(lifter);
 		for(ObjectId id : cliquer.getSkillReqs())
 		{
 			skillRepository.delete(id.toString());
