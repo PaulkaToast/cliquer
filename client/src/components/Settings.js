@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Container, Row, Col, Button, Modal, ModalHeader, ModalBody,
-          ModalFooter, Input} from 'reactstrap'
+          ModalFooter, Input, Label, FormGroup} from 'reactstrap'
 import { connect } from 'react-redux'
 
 import '../css/Settings.css'
@@ -104,9 +104,14 @@ class Settings extends Component {
           { this.state.error && <p>{this.state.error.message}</p> }
         </form>
       </div>
-      <hr />
-      <div className="delete_account_section" md={{ size: 4, offset: 4}}>
-        <Button color="danger" size="lg" onClick={this.toggle} block>Delete Account</Button>
+      <hr />        
+      <Label className="search-settings-label" md={{ size: 4, offset: 4}}>
+        Search Settings
+      </Label>
+      <div className="search-settings-section" md={{ size: 4, offset: 4}}>
+        <FormGroup search-settings>
+          <Input type="checkbox" />{' Opt out of search results'}
+        </FormGroup>
       </div>
       <Modal isOpen={this.state.modal} toggle={this.toggle} className="delete-account-modal">
           <ModalHeader toggle={this.toggle}>Delete your Account?</ModalHeader>
@@ -127,6 +132,10 @@ class Settings extends Component {
           </div>
           </ModalBody>
         </Modal>
+        <hr />
+      <div className="delete_account_section" md={{ size: 4, offset: 4}}>
+        <Button color="danger" size="lg" onClick={this.toggle} block>Delete Account</Button>
+      </div>
       </Container>
     )
   }

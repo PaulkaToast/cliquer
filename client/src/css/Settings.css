@@ -1,7 +1,7 @@
 .account-settings-label{
     color: #A3A3A3;
     text-align: center;
-    padding-top: 50px;
+    margin-top: 0.75em;
     padding-bottom: 30px;
 }
 
@@ -10,7 +10,7 @@
     padding: 0px;
     margin: 0 auto;
     margin-top: 1.5em;
-    padding-bottom: 50px;
+    padding-bottom: 30px;
 }
 
 .form-password-heading {
@@ -40,11 +40,21 @@
 }
 
 .delete_account_section {
-    padding-top: 50px;
+    padding-top: 30px;
     max-width: 330px;
     margin: 0 auto;
+    padding-bottom: 30px;
 }
 
-.modal-warning {
-    -webkit-text-fill-color: #CF4647;
+.search-settings-section {
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 330px;
+    margin-top: 0.75em;
 }
+.search-settings-label {
+    text-align: center;
+    font-size: 24px;
+    color: #A3A3A3;
+}
+
