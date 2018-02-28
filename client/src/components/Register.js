@@ -8,7 +8,7 @@ import Logo from '../img/cliquerLogo.png'
 import { auth, firebase } from '../firebase'
 import { registerUser, setToken } from '../redux/actions'
 
-class Register extends Component {
+export class Register extends Component {
 
   constructor(props) {
     super(props)
