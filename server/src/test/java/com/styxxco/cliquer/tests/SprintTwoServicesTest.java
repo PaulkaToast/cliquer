@@ -114,6 +114,7 @@ public class SprintTwoServicesTest {
         assertEquals(first.size(), second.size());
         assertEquals(first.size(), third.size());
 
+        hula = groupRepository.findByGroupID(hula.getGroupID());
         hoops = groupRepository.findByGroupID(hoops.getGroupID());
 
         skillRepository.delete(lifter);
