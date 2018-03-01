@@ -111,8 +111,8 @@ public class SprintTwoServicesTest {
         List<Group> first = groupService.searchByLeaderFirstName("Shawn", null);
         List<Group> second = groupService.searchByLeaderLastName("Montgomery", null);
         List<Group> third = groupService.searchByLeaderFullName("Shawn", "Montgomery", null);
-        assertArrayEquals(first.toArray(), second.toArray());
-        assertArrayEquals(first.toArray(), third.toArray());
+        assertEquals(first.size(), second.size());
+        assertEquals(first.size(), third.size());
 
         hoops = groupRepository.findByGroupID(hoops.getGroupID());
 
