@@ -27,11 +27,11 @@ public interface GroupService {
     /* Group Searching */
     /* List<Group> groups is used to chain together filters */
     List<Group> searchBySettings(String username, List<Group> groups);
-    List<Group> searchBySkillReqs(String username, List<String> skillRequirements, List<Group> groups);
-    List<Group> searchByGroupName(String username, String groupName, List<Group> groups);
-    List<Group> searchByLeaderFirstName(String username, String firstName, List<Group> groups);
-    List<Group> searchByLeaderLastName(String username, String lastName, List<Group> groups);
-    List<Group> searchByLeaderFullName(String username, String firstName, String lastName, List<Group> groups);
+    List<Group> searchBySkillReqs(List<String> skillRequirements, List<Group> groups);
+    List<Group> searchByGroupName(String groupName, List<Group> groups);
+    List<Group> searchByLeaderFirstName(String firstName, List<Group> groups);
+    List<Group> searchByLeaderLastName(String lastName, List<Group> groups);
+    List<Group> searchByLeaderFullName(String firstName, String lastName, List<Group> groups);
 
     /* Skill centered services */
     List<Skill> getAllSkillReqs(ObjectId groupID);

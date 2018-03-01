@@ -272,13 +272,32 @@ public class GroupServiceImpl implements GroupService {
         {
             groups = groupRepository.findAll();
         }
+        Account user = accountRepository.findByUsername(username);
         List<Group> qualified = new ArrayList<>();
         for(Group group : groups)
         {
-            if(group.isPublic())
+            boolean exit = false;
+            for(ObjectId member : group.getGroupMemberIDs())
             {
-                qualified.add(group);
+                if(member.equals(user.getAccountID()))
+                {
+                    exit = true;
+                }
             }
+            if(exit)
+            {
+                continue;
+            }
+            if(!group.isPublic())
+            {
+                continue;
+            }
+            Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
+            if(group.getReputationReq()*leader.getReputation() < user.getReputationReq()*user.getReputation())
+            {
+                continue;
+            }
+            qualified.add(group);
         }
         Comparator<Group> byGroupName = Comparator.comparing(Group::getGroupName);
         qualified.sort(byGroupName);
@@ -286,13 +305,8 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public List<Group> searchBySkillReqs(String username, List<String> skillRequirements, List<Group> groups)
+    public List<Group> searchBySkillReqs(List<String> skillRequirements, List<Group> groups)
     {
-        if(!accountRepository.existsByUsername(username))
-        {
-            log.info("User " + username + " not found");
-            return null;
-        }
         if(groups == null)
         {
             groups = groupRepository.findAll();
@@ -327,13 +341,8 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public List<Group> searchByGroupName(String username, String groupName, List<Group> groups)
+    public List<Group> searchByGroupName(String groupName, List<Group> groups)
     {
-        if(!accountRepository.existsByUsername(username))
-        {
-            log.info("User " + username + " not found");
-            return null;
-        }
         if(groups == null)
         {
             groups = groupRepository.findAll();
@@ -350,13 +359,8 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public List<Group> searchByLeaderFirstName(String username, String firstName, List<Group> groups)
+    public List<Group> searchByLeaderFirstName(String firstName, List<Group> groups)
     {
-        if(!accountRepository.existsByUsername(username))
-        {
-            log.info("User " + username + " not found");
-            return null;
-        }
         if(groups == null)
         {
             groups = groupRepository.findAll();
@@ -374,13 +378,8 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public List<Group> searchByLeaderLastName(String username, String lastName, List<Group> groups)
+    public List<Group> searchByLeaderLastName(String lastName, List<Group> groups)
     {
-        if(!accountRepository.existsByUsername(username))
-        {
-            log.info("User " + username + " not found");
-            return null;
-        }
         if(groups == null)
         {
             groups = groupRepository.findAll();
@@ -398,13 +397,8 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public List<Group> searchByLeaderFullName(String username, String firstName, String lastName, List<Group> groups)
+    public List<Group> searchByLeaderFullName(String firstName, String lastName, List<Group> groups)
     {
-        if(!accountRepository.existsByUsername(username))
-        {
-            log.info("User " + username + " not found");
-            return null;
-        }
         if(groups == null)
         {
             groups = groupRepository.findAll();
