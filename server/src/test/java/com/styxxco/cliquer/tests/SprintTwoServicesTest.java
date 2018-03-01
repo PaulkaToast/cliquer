@@ -119,6 +119,10 @@ public class SprintTwoServicesTest {
         skillRepository.delete(lifter);
         accountRepository.delete(jordan);
         accountRepository.delete(shawn);
+        for(ObjectId id : hula.getSkillReqs())
+        {
+            skillRepository.delete(id.toString());
+        }
         for(ObjectId id : hoops.getSkillReqs())
         {
             skillRepository.delete(id.toString());
