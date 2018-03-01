@@ -161,8 +161,7 @@ public class AccountServiceImpl implements AccountService {
             log.info("User " + username + " not found");
             return null;
         }
-        Account user = accountRepository.findByUsername(username);
-        return user;
+        return accountRepository.findByUsername(username);
     }
 
     @Override
@@ -282,7 +281,7 @@ public class AccountServiceImpl implements AccountService {
             masked.add(this.maskPublicProfile(account));
         }
         Comparator<Account> byLastName = Comparator.comparing(Account::getLastName);
-        Collections.sort(masked, byLastName);
+        masked.sort(byLastName);
         return masked;
     }
 
@@ -296,7 +295,7 @@ public class AccountServiceImpl implements AccountService {
             masked.add(this.maskPublicProfile(account));
         }
         Comparator<Account> byFirstName = Comparator.comparing(Account::getFirstName);
-        Collections.sort(masked, byFirstName);
+        masked.sort(byFirstName);
         return masked;
     }
 
@@ -318,10 +317,8 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<Account> searchByFullName(String fullName) {
         String arr[] = fullName.split(" ");
-        if (arr != null) {
-            if (arr.length == 2) {
-                return searchByFullName(arr[0], arr[1]);
-            }
+        if (arr.length == 2) {
+            return searchByFullName(arr[0], arr[1]);
         }
         return null;
     }
@@ -340,12 +337,12 @@ public class AccountServiceImpl implements AccountService {
             }
         }
         Comparator<Account> byFirstName = Comparator.comparing(Account::getFirstName);
-        Collections.sort(qualified, byFirstName);
+        qualified.sort(byFirstName);
         Comparator<Account> byLastName = Comparator.comparing(Account::getLastName);
-        Collections.sort(qualified, byLastName);
+        qualified.sort(byLastName);
         Comparator<Account> byReputation = Comparator.comparingInt(Account::getReputation);
         byReputation = byReputation.reversed();
-        Collections.sort(qualified, byReputation);
+        qualified.sort(byReputation);
         return qualified;
     }
 
@@ -354,9 +351,9 @@ public class AccountServiceImpl implements AccountService {
     {
         List<Account> accounts = accountRepository.findAll();
         Comparator<Account> byFirstName = Comparator.comparing(Account::getFirstName);
-        Collections.sort(accounts, byFirstName);
+        accounts.sort(byFirstName);
         Comparator<Account> byLastName = Comparator.comparing(Account::getLastName);
-        Collections.sort(accounts, byLastName);
+        accounts.sort(byLastName);
         List<Account> qualified = new ArrayList<>();
         for(int i = 10; i >= minimumLevel; i--)
         {
@@ -731,8 +728,7 @@ public class AccountServiceImpl implements AccountService {
         }
         Collections.sort(reputations);
         int rank = reputations.lastIndexOf(user.getReputation()) + 1;
-        double percentile = (100.0*rank)/reputations.size();
-        return percentile;
+        return (100.0*rank)/reputations.size();
     }
 
 }
