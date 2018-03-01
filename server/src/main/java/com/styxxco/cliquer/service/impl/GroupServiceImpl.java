@@ -388,7 +388,7 @@ public class GroupServiceImpl implements GroupService {
         for(Group group : groups)
         {
             Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
-            if(leader.getFirstName().equals(lastName))
+            if(leader.getLastName().equals(lastName))
             {
                 qualified.add(group);
             }
