@@ -12,7 +12,9 @@ export { getGroupsHasError, getGroupsIsLoading, getGroupsDataSuccess, getGroups,
          deleteGroupHasError, deleteGroupIsLoading, deleteGroupDataSuccess, deleteGroup,
          leaveGroupHasError, leaveGroupIsLoading, leaveGroupDataSuccess, leaveGroup,
          createGroupHasError, createGroupIsLoading, createGroupDataSuccess, createGroup,
-         setCurrentGroup } from './groups'
+         getChatLogHasError, getChatLogIsLoading, getChatLogDataSuccess, getChatLog,
+         postChatMessageHasError, postChatMessageIsLoading, postChatMessageDataSuccess, postChatMessage,
+         updateChatLog, setCurrentGroup } from './groups'
 export { addFriendHasError, addFriendIsLoading, addFriendDataSuccess, addFriend,
          removeFriendHasError, removeFriendIsLoading, removeFriendDataSuccess, removeFriend } from './friends'
 export { getMessagesHasError, getMessagesIsLoading, getMessagesDataSuccess, getMessages } from './messages'

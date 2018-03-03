@@ -158,5 +158,60 @@ export function setCurrentGroup(group) {
 }
 
 
+export function updateChatLog(message) {
+    return {
+        type: 'UPDATE_CHAT_LOG',
+        message
+    }
+}
 
+export function getChatLogHasError(hasError) {
+    return {
+        type: 'GET_CHAT_LOG_ERROR',
+        hasError
+    }  
+}
+
+export function getChatLogIsLoading(isLoading) {
+    return {
+        type: 'GET_CHAT_LOG_IS_LOADING',
+        isLoading
+    }
+}
+
+export function getChatLogDataSuccess(data) {
+    return {
+        type: 'GET_CHAT_LOG_DATA_SUCCESS',
+        data
+    }
+}
+
+export const getChatLog = genericDispatch(
+    getChatLogHasError, getChatLogIsLoading, getChatLogDataSuccess, 'GET'
+)
+
+export function postChatMessageHasError(hasError) {
+    return {
+        type: 'POST_CHAT_MESSAGE_ERROR',
+        hasError
+    }  
+}
+
+export function postChatMessageIsLoading(isLoading) {
+    return {
+        type: 'POST_CHAT_MESSAGE_IS_LOADING',
+        isLoading
+    }
+}
+
+export function postChatMessageDataSuccess(data) {
+    return {
+        type: 'POST_CHAT_MESSAGE_DATA_SUCCESS',
+        data
+    }
+}
+
+export const postChatMessage = genericDispatch(
+    postChatMessageHasError, postChatMessageIsLoading, postChatMessageDataSuccess, 'POST'
+)
 
