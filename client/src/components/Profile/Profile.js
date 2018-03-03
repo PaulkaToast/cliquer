@@ -6,7 +6,7 @@ import SkillsPanel from './SkillsPanel'
 import FriendsPanel from './FriendsPanel'
 import UserInfo from './UserInfo'
 import NotificationPanel from './NotificationPanel'
-import { getSkills, removeSkill, getProfile, fetchData } from '../../redux/actions'
+import { getSkills, removeSkill, getProfile, getSkillsList } from '../../redux/actions'
 
 class Profile extends Component {
 
@@ -16,7 +16,7 @@ class Profile extends Component {
      
       const type = nextProps.ownerUID === nextProps.uid ? 'user' : 'public'
       const uid = nextProps.uid //TODO: remove this later and just use ownerid
-      this.props.fetchData('https://localhost:17922/api/getSkillList', { 'X-Authorization-Firebase': nextProps.token})
+      this.props.getSkillsList('https://localhost:17922/api/getSkillList', { 'X-Authorization-Firebase': nextProps.token})
       this.props.getProfile(`https://localhost:17922/api/getProfile?identifier=${uid}&type=${type}`, { 'X-Authorization-Firebase': nextProps.token})
     }
   }
@@ -100,7 +100,7 @@ const mapDispatchToProps = (dispatch) => {
     getSkills: (url, headers) => dispatch(getSkills(url, headers)),
     removeSkill: (url, headers) => dispatch(removeSkill(url, headers)),
     getProfile: (url, headers) => dispatch(getProfile(url, headers)),
-    fetchData: (url, headers) => dispatch(fetchData(url, headers)),
+    getSkillsList: (url, headers) => dispatch(getSkillsList(url, headers)),
 	}
 }
 
