@@ -27,7 +27,7 @@ class Chat extends Component {
     //TODO: verify message object structure, add URL to postmessage
     const message = { message: ev.target.message, owner: this.props.user.uid }
     this.props.updateLog(message)
-    this.props.postMessage(``, { 'X-Authorization-Firebase': nextProps.token})
+    this.props.postMessage(``, { 'X-Authorization-Firebase': this.props.token})
   }
 
   render() {
@@ -62,4 +62,4 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(Groups)
+export default connect(mapStateToProps, mapDispatchToProps)(Chat)
