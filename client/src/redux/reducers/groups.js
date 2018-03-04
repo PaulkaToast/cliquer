@@ -76,6 +76,40 @@ function groups(state = {}, action) {
             return Object.assign({}, state, {
                 currentGroup: action.group,
             })
+        case 'UPDATE_CHAT_LOG':
+            const messages = state.currentGroup && state.currentGroup.messages ? [...state.currentGroup.messages, action.message] : [action.message]
+            return Object.assign({}, state, {
+                currentGroup: Object.assign({}, state.currentGroup, {
+                    messages
+                })
+            })
+        case 'GET_CHAT_LOG_HAS_ERROR':
+            return Object.assign({}, state, {
+                getChatLogHasError: action.hasError,
+            })
+        case 'GET_CHAT_LOG_DATA_SUCCESS':
+            //TODO: make sure backend is returning messages in right format (array of objects, preferably)
+            return Object.assign({}, state, {
+                currentGroup: Object.assign({}, state.currentGroup, {
+                    messages: action.data
+                })
+            })
+        case 'GET_CHAT_LOG_IS_LOADING':
+            return Object.assign({}, state, {
+                getChatLogIsLoading: action.isLoading,
+            })
+        case 'POST_CHAT_MESSAGE_HAS_ERROR':
+            return Object.assign({}, state, {
+                postChatMessageHasError: action.hasError,
+            })
+        case 'POST_CHAT_MESSAGE_DATA_SUCCESS':
+            return Object.assign({}, state, {
+                postChatMessageData: action.data,
+            })
+        case 'POST_CHAT_MESSAGE_IS_LOADING':
+            return Object.assign({}, state, {
+                postChatMessageIsLoading: action.isLoading,
+            })
         default:
             return state
     }

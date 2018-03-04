@@ -1,3 +1,4 @@
+//TODO: rename to notifications
 function messages(state = {}, action) {
     switch(action.type) {
         case 'GET_MESSAGES_HAS_ERROR':

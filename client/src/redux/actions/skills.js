@@ -1,3 +1,5 @@
+import genericDispatch from './fetch'
+
 export function postSkillHasError(hasError) {
     return {
         type: 'POST_SKILL_HAS_ERROR',
@@ -19,24 +21,9 @@ export function postSkillDataSuccess(data) {
     }
 }
 
-export function postSkill(url, headers) {
-    return (dispatch) => {
-        dispatch(postSkillIsLoading(true))
-        fetch(url, { headers, method: 'POST', mode: 'cors'})
-            .then((response) => {
-                if (!response.ok) {
-                    throw Error(response.statusText);
-                }
-                dispatch(postSkillIsLoading(false));
-                return response;
-            })
-            .then((response) => response.json())
-            .then((data) => {
-                dispatch(postSkillDataSuccess(data))
-            })
-            .catch(() => dispatch(postSkillHasError(true)));
-    }
-}
+export const postSkill = genericDispatch(
+    postSkillHasError, postSkillIsLoading, postSkillDataSuccess, 'POST'
+)
 
 export function getSkillsHasError(hasError) {
     return {
@@ -59,24 +46,9 @@ export function getSkillsDataSuccess(data) {
     }
 }
 
-export function getSkills(url, headers) {
-    return (dispatch) => {
-        dispatch(getSkillsIsLoading(true))
-        fetch(url, { headers, method: 'GET', mode: 'cors'})
-            .then((response) => {
-                if (!response.ok) {
-                    throw Error(response.statusText);
-                }
-                dispatch(getSkillsIsLoading(false));
-                return response;
-            })
-            .then((response) => response.json())
-            .then((data) => {
-                dispatch(getSkillsDataSuccess(data))
-            })
-            .catch(() => dispatch(getSkillsHasError(true)));
-    }
-}
+export const getSkills = genericDispatch(
+    getSkillsHasError, getSkillsIsLoading, getSkillsDataSuccess, 'GET'
+)
 
 export function removeSkillHasError(hasError) {
     return {
@@ -99,21 +71,31 @@ export function removeSkillDataSuccess(data) {
     }
 }
 
-export function removeSkill(url, headers) {
-    return (dispatch) => {
-        dispatch(removeSkillIsLoading(true))
-        fetch(url, { headers, method: 'POST', mode: 'cors'})
-            .then((response) => {
-                if (!response.ok) {
-                    throw Error(response.statusText);
-                }
-                dispatch(removeSkillIsLoading(false));
-                return response;
-            })
-            .then((response) => response.json())
-            .then((data) => {
-                dispatch(removeSkillDataSuccess(data))
-            })
-            .catch(() => dispatch(removeSkillHasError(true)));
+export const removeSkill = genericDispatch(
+    removeSkillHasError, removeSkillIsLoading, removeSkillDataSuccess, 'POST'
+)
+
+export function getSkillsListHasError(hasError) {
+    return {
+        type: 'GET_SKILLS_LIST_HAS_ERROR',
+        hasError
     }
 }
+
+export function getSkillsListIsLoading(isLoading) {
+    return {
+        type: 'GET_SKILLS_LIST_IS_LOADING',
+        isLoading
+    }
+}
+
+export function getSkillsListDataSuccess(data) {
+    return {
+        type: 'GET_SKILLS_LIST_DATA_SUCCESS',
+        data
+    }
+}
+
+export const getSkillsList = genericDispatch(
+    getSkillsListHasError, getSkillsListIsLoading, getSkillsListDataSuccess, 'GET'
+)

@@ -36,6 +36,18 @@ function skills(state = {}, action) {
             return Object.assign({}, state, {
                 removeIsLoading: action.isLoading,
             })
+        case 'GET_SKILLS_LIST_HAS_ERROR':
+            return Object.assign({}, state, {
+                getListHasError: action.hasError,
+            })
+        case 'GET_SKILLS_LIST_DATA_SUCCESS':
+            return Object.assign({}, state, {
+                getListData: action.data,
+            })
+        case 'GET_SKILLS_LIST_IS_LOADING':
+            return Object.assign({}, state, {
+                getListIsLoading: action.isLoading,
+            })
         default:
             return state
     }

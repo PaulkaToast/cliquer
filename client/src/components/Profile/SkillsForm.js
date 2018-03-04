@@ -5,7 +5,7 @@ import AutosuggestHighlightMatch from 'autosuggest-highlight/match'
 import AutosuggestHighlightParse from 'autosuggest-highlight/parse'
 
 import '../../css/SkillsForm.css'
-import { addNewSkill, deleteNewSkill, fetchData } from '../../redux/actions'
+import { addNewSkill, deleteNewSkill } from '../../redux/actions'
 
 class SkillsForm extends Component {
 
@@ -181,9 +181,9 @@ const mapStateToProps = (state) => {
 	return {
     newSkills: state.user.newSkills ? state.user.newSkills : [],
     token: state.auth.token,
-    skills: state.skillList ? state.skillList : [],
-    isLoading: state.fetchIsLoading,
-    hasError: state.fetchHasError,
+    skills: state.skills.getListData ? state.skills.getListData : [],
+    isLoading: state.skills.getListIsLoading,
+    hasError: state.skills.getListHasError,
 	}
 }
 
@@ -191,7 +191,6 @@ const mapDispatchToProps = (dispatch) => {
 	return {
     addSkill: (skill) => dispatch(addNewSkill(skill)),
     deleteSkill: (skill) => dispatch(deleteNewSkill(skill)),
-    fetchData: (url, header) => dispatch(fetchData(url, header))
 	}
 }
 
