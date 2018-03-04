@@ -242,7 +242,7 @@ public class SprintOneServicesTest {
 		assertEquals("Jordan", search.get(0).getFirstName());
 		assertEquals("Buckmaster", search.get(0).getLastName());
 
-		search = service.searchByReputation(6);
+		search = service.searchByReputation(6, false);
 		assertEquals(3, search.size());
 		assertEquals("Shawn", search.get(2).getFirstName());
 		assertEquals("Buckmaster", search.get(0).getLastName());

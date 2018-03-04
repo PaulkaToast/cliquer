@@ -241,7 +241,8 @@ public class RestController {
     @RequestMapping(value = "/api/search", method = RequestMethod.GET)
     public @ResponseBody Object search(@RequestParam(value = "type") String type,
                                        @RequestParam(value = "query", required = false, defaultValue = "null") String query,
-                                       @RequestParam(value = "level", required = false, defaultValue = "0") int level) {
+                                       @RequestParam(value = "level", required = false, defaultValue = "0") int level,
+                                       @RequestParam(value = "suggestions", required = false, defaultValue = "true") boolean suggestions ){
         Object obj = null;
         switch(type) {
             case "firstName":
@@ -257,7 +258,7 @@ public class RestController {
                 obj = accountService.searchByUsername(query);
                 break;
             case "reputation":
-                obj = accountService.searchByReputation(level);
+                obj = accountService.searchByReputation(level, suggestions);
                 break;
             case "skill":
                 obj = accountService.searchBySkill(query, level);

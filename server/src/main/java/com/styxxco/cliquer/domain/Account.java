@@ -42,6 +42,8 @@ public class Account implements UserDetails {
 	private boolean credentialsExpired;
 
 	private int reputation;
+	public static final int MAX_REP = 100;
+	public static final int MAX_SKILL = 10;
 
     private List<Role> authorities;
     private List<ObjectId> skillIDs;

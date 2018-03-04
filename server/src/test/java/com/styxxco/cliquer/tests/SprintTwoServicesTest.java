@@ -224,4 +224,51 @@ public class SprintTwoServicesTest {
         accountRepository.delete(shawn);
         accountRepository.delete(kevin);
     }
+
+    @Test
+    public void testReputationSuggestions()
+    {
+        this.clearDatabase();
+        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "montgo38@purdue.edu", "Kevin", "Nagar");
+        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
+        Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@purdue.edu", "Rhys", "Buckmaster");
+
+        jordan.setReputation(55);
+        shawn.setReputation(59);
+        kevin.setReputation(49);
+        buckmaster.setReputation(69);
+        rhys.setReputation(45);
+
+        accountRepository.save(jordan);
+        accountRepository.save(shawn);
+        accountRepository.save(kevin);
+        accountRepository.save(buckmaster);
+
+        List<Account> results = accountService.searchByReputation(70, true);
+        assertEquals(true, results.isEmpty());
+
+        results = accountService.searchByReputation(69, true);
+        assertEquals(1, results.size());
+        assertEquals("Jordan Buckmaster", results.get(0).getFullName());
+
+        for(int i = 0; i < 10; i++)
+        {
+            results = accountService.searchByReputation(55, true);
+            assertEquals(6, results.size());
+            assertNull(results.get(1));
+            assertEquals(true, (results.get(0).getReputation() <= 55));
+            assertEquals("Jordan Buckmaster", results.get(2).getFullName());
+            assertEquals("Shawn Montgomery", results.get(3).getFullName());
+        }
+        
+        accountRepository.delete(jordan);
+        accountRepository.delete(shawn);
+        accountRepository.delete(kevin);
+        accountRepository.delete(buckmaster);
+        accountRepository.delete(rhys);
+    }
 }

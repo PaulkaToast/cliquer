@@ -327,7 +327,7 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public List<Account> searchByReputation(int minimumRep)
+    public List<Account> searchByReputation(int minimumRep, boolean includeSuggested)
     {
         List<Account> accounts = accountRepository.findAll();
         List<Account> qualified = new ArrayList<>();
@@ -345,7 +345,47 @@ public class AccountServiceImpl implements AccountService {
         Comparator<Account> byReputation = Comparator.comparingInt(Account::getReputation);
         byReputation = byReputation.reversed();
         qualified.sort(byReputation);
+        if(includeSuggested)
+        {
+            return this.moveSuggestedToTop(qualified, minimumRep);
+        }
         return qualified;
+    }
+
+    @Override
+    public List<Account> moveSuggestedToTop(List<Account> accounts, int reputation)
+    {
+        if(accounts.size() < 5)
+        {
+            return accounts;
+        }
+        int suggestions = Math.min(5, accounts.size()/5);
+        List<Account> suggested = new ArrayList<>();
+        for(Account account : accounts)
+        {
+            if(account.getReputation() >= reputation && account.getReputation() <= reputation + Account.MAX_REP/10)
+            {
+                suggested.add(account);
+            }
+        }
+        List<Account> results = new ArrayList<>();
+        for(int i = 0; i < suggestions && suggested.size() > 0; i++)
+        {
+            Account random = suggested.get((int)(Math.random()*suggested.size()));
+            suggested.remove(random);
+            accounts.remove(random);
+            results.add(random);
+        }
+        Comparator<Account> byFirstName = Comparator.comparing(Account::getFirstName);
+        results.sort(byFirstName);
+        Comparator<Account> byLastName = Comparator.comparing(Account::getLastName);
+        results.sort(byLastName);
+        Comparator<Account> byReputation = Comparator.comparingInt(Account::getReputation);
+        byReputation = byReputation.reversed();
+        results.sort(byReputation);
+        results.add(null);
+        results.addAll(accounts);
+        return results;
     }
 
     @Override
