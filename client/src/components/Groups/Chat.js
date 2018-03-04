@@ -39,8 +39,7 @@ class Chat extends Component {
           </Alert>
         </div>
         {/*TODO: link up websockets with backend*/}
-        <Websocket url="http://example.com"
-              onMessage={this.handleMessage}/>
+        <Websocket url="ws://example.com" onMessage={this.handleMessage}/>
       </div>
     )
   }

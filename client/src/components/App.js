@@ -55,7 +55,7 @@ class App extends Component {
   }
 
   sendFriendRequest = (user) => {
-    //API call for friend request, redux
+    //TODO: API call for friend request
   }
 
   render() {
@@ -78,6 +78,7 @@ class App extends Component {
                 {...this.props}
                 logOut={this.logOut}
                 sendFriendRequest={this.sendFriendRequest}
+                allowHTML={false}
               />
             : <Redirect to="/login" />
           }/>
