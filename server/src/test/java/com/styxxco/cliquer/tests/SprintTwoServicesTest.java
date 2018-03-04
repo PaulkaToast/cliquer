@@ -257,14 +257,14 @@ public class SprintTwoServicesTest {
 
         for(int i = 0; i < 10; i++)
         {
-            results = accountService.searchByReputation(55, true);
+            results = accountService.searchByReputation(45, true);
             assertEquals(6, results.size());
             assertNull(results.get(1));
             assertEquals(true, (results.get(0).getReputation() <= 55));
             assertEquals("Jordan Buckmaster", results.get(2).getFullName());
             assertEquals("Shawn Montgomery", results.get(3).getFullName());
         }
-        
+
         accountRepository.delete(jordan);
         accountRepository.delete(shawn);
         accountRepository.delete(kevin);
