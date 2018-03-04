@@ -247,6 +247,7 @@ public class SprintTwoServicesTest {
         accountRepository.save(shawn);
         accountRepository.save(kevin);
         accountRepository.save(buckmaster);
+        accountRepository.save(rhys);
 
         List<Account> results = accountService.searchByReputation(70, true);
         assertEquals(true, results.isEmpty());
