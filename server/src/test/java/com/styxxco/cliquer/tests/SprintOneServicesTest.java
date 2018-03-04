@@ -32,9 +32,48 @@ public class SprintOneServicesTest {
 	@Autowired
 	public GroupRepository groupRepository;
 
+	/* Function to clear items that should not already be in database */
+	public void clearDatabase()
+	{
+		if(accountRepository.existsByUsername("reed226"))
+		{
+			accountRepository.delete(accountRepository.findByUsername("reed226"));
+		}
+		if(accountRepository.existsByUsername("montgo38"))
+		{
+			accountRepository.delete(accountRepository.findByUsername("montgo38"));
+		}
+		if(accountRepository.existsByUsername("knagar"))
+		{
+			accountRepository.delete(accountRepository.findByUsername("knagar"));
+		}
+		if(accountRepository.existsByUsername("buckmast"))
+		{
+			accountRepository.delete(accountRepository.findByUsername("buckmast"));
+		}
+		if(accountRepository.existsByUsername("rbuckmas"))
+		{
+			accountRepository.delete(accountRepository.findByUsername("rbuckmas"));
+		}
+
+		if(skillRepository.existsBySkillName("Programming"))
+		{
+			skillRepository.delete(skillRepository.findBySkillName("Programming"));
+		}
+		if(skillRepository.existsBySkillName("Lifter"))
+		{
+			skillRepository.delete(skillRepository.findBySkillName("Lifter"));
+		}
+		if(skillRepository.existsBySkillName("Board Gaming"))
+		{
+			skillRepository.delete(skillRepository.findBySkillName("Board Gaming"));
+		}
+	}
+
 	/* Test basic storage of data in MongoDB */
 	@Test
 	public void testDatabase() {
+		this.clearDatabase();
 		Account jordan = new Account("reed226", "reed226@purdue.edu", "Jordan", "Reed");
 		Account shawn = new Account("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 		ObjectId id = shawn.getAccountID();
@@ -55,6 +94,7 @@ public class SprintOneServicesTest {
 	@Test
 	public void testAccountCreationAndRetrieval()
 	{
+		this.clearDatabase();
 		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
 		Account jordan = service.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
@@ -95,6 +135,7 @@ public class SprintOneServicesTest {
 	@Test
 	public void testAccountModification()
 	{
+		this.clearDatabase();
 		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
 		Account jordan = service.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
@@ -154,6 +195,7 @@ public class SprintOneServicesTest {
 	@Test
 	public void testAccountSearchingAndRanking()
 	{
+		this.clearDatabase();
 		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
 		Account reed = service.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
@@ -252,6 +294,7 @@ public class SprintOneServicesTest {
 	@Test
 	public void testGroupRetrieval()
 	{
+		this.clearDatabase();
 		AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 		GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
@@ -291,6 +334,7 @@ public class SprintOneServicesTest {
 	@Test
     public void testRetrieveAllGroups()
     {
+		this.clearDatabase();
         AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
         GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
@@ -332,6 +376,7 @@ public class SprintOneServicesTest {
 	@Test
 	public void testGroupModification()
 	{
+		this.clearDatabase();
 		AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 		GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
@@ -381,7 +426,7 @@ public class SprintOneServicesTest {
 		account = accountService.getUserProfile(shawn.getUsername());
 		assertEquals(0, account.getGroupIDs().size());
 
-		account = accountService.leaveGroup(kevin.getUsername(), cliquer.getGroupID().toString());
+		account = accountService.leaveGroup(kevin.getUsername(), cliquer.getGroupID());
 		assertEquals(0, account.getGroupIDs().size());
 		retrieve = groupService.getUserGroup(cliquer.getGroupID(), jordan.getAccountID());
 		account = accountService.getMemberProfile(retrieve.getGroupMemberIDs().get(0));
@@ -405,6 +450,7 @@ public class SprintOneServicesTest {
 	@Test
 	public void testAccountMessaging()
 	{
+		this.clearDatabase();
 		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
 		Account jordan = service.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
@@ -433,6 +479,7 @@ public class SprintOneServicesTest {
 	@Test
 	public void testAccountAndGroupDeletion()
 	{
+		this.clearDatabase();
 		AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 		GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
@@ -484,6 +531,7 @@ public class SprintOneServicesTest {
 	@Test
 	public void populateSkills()
 	{
+		this.clearDatabase();
 		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
 		service.addSkillToDatabase("Java");
@@ -515,7 +563,4 @@ public class SprintOneServicesTest {
 		service.addSkillToDatabase("Tennis");
 		service.addSkillToDatabase("Really Long Skill Name That Likely Needs To Be Shortened When It Is Shown On The Front End");
 	}
-
-
-
 }

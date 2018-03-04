@@ -75,6 +75,11 @@ public class Account implements UserDetails {
 		this.facebookLinked = false;
 	}
 
+	public String getFullName()
+	{
+		return this.firstName + " " + this.lastName;
+	}
+
 	public void addSkill(ObjectId skillID)
 	{
 		this.skillIDs.add(skillID);
@@ -88,6 +93,11 @@ public class Account implements UserDetails {
 	public void addMessage(ObjectId messageID)
 	{
 		this.messageIDs.add(messageID);
+	}
+
+	public boolean hasMessage(ObjectId messageID)
+	{
+		return this.messageIDs.contains(messageID);
 	}
 
 	public void removeMessage(ObjectId messageID)
@@ -107,6 +117,11 @@ public class Account implements UserDetails {
 
 	public void addFriend(ObjectId friendID) {
     	this.friendIDs.add(friendID);
+	}
+
+	public boolean hasFriend(ObjectId friendID)
+	{
+		return this.friendIDs.contains(friendID);
 	}
 
 	public void removeFriend(ObjectId friendID) {

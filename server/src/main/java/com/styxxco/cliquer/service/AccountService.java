@@ -47,12 +47,18 @@ public interface AccountService extends UserDetailsService {
 
     /* Group centered services */
     Group createGroup(String username, String groupName, String bio);
-    Group deleteGroup(String groupid);
-    Account joinGroup(String username, String groupid);
-    Account leaveGroup(String username, String groupid);
-    Account inviteToGroup(String username, String friendName, String groupid);
-    Account addFriend(String username, String friendName);
-    Account removeFriend(String username, String friendName);
+    String deleteGroup(String username, ObjectId groupID);
+    Account joinGroup(String username, ObjectId groupID);
+    Account leaveGroup(String username, ObjectId groupID);
+    Account inviteToGroup(String username, ObjectId accountID, ObjectId groupID);
+
+    /* Friend invite services */
+    Message sendFriendInvite(String username, ObjectId receiverID);
+    Account acceptFriendInvite(String username, ObjectId inviteID);
+    String rejectFriendInvite(String username, ObjectId inviteID);
+    Account addFriend(String username, ObjectId friendID);
+    Account removeFriend(String username, ObjectId friendID);
+
 
     List<Role> getAnonRoles();
     List<Role> getUserRoles();

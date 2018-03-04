@@ -130,7 +130,8 @@ public class RestController {
     @RequestMapping(value="/api/leaveGroup", method=RequestMethod.POST)
     public @ResponseBody Object leaveGroup(@RequestParam(value="username") String username,
                                             @RequestParam(value="groupId") String groupId) {
-        Account user = accountService.leaveGroup(username, groupId);
+        ObjectId groupID = new ObjectId(groupId);
+        Account user = accountService.leaveGroup(username, groupID);
         if (user == null) {
             return HttpStatus.BAD_REQUEST;
         }
@@ -138,18 +139,21 @@ public class RestController {
     }
 
     @RequestMapping(value="/api/deleteGroup", method=RequestMethod.POST)
-    public @ResponseBody Object deleteGroup(@RequestParam(value="groupId") String groupId) {
-        Group group = accountService.deleteGroup(groupId);
-        if (group == null) {
+    public @ResponseBody Object deleteGroup(@RequestParam(value="username") String username,
+                                            @RequestParam(value="groupId") String groupId) {
+        ObjectId groupID = new ObjectId(groupId);
+        String result = accountService.deleteGroup(username, groupID);
+        if (result == null) {
             return HttpStatus.BAD_REQUEST;
         }
-        return group;
+        return result;
     }
 
     @RequestMapping(value="/api/joinGroup", method=RequestMethod.POST)
     public @ResponseBody Object joinGroup(@RequestParam(value="username") String username,
                                            @RequestParam(value="groupId") String groupId) {
-        Account user = accountService.joinGroup(username, groupId);
+        ObjectId groupID = new ObjectId(groupId);
+        Account user = accountService.joinGroup(username, groupID);
         if (user == null) {
             return HttpStatus.BAD_REQUEST;
         }
@@ -160,7 +164,9 @@ public class RestController {
     public @ResponseBody Object inviteToGroup(@RequestParam(value="username") String username,
                                               @RequestParam(value="friend") String friend,
                                               @RequestParam(value="groupId") String groupId) {
-        Account user = accountService.inviteToGroup(username, friend, groupId);
+        ObjectId accountID = new ObjectId(friend);
+        ObjectId groupID = new ObjectId(groupId);
+        Account user = accountService.inviteToGroup(username, accountID, groupID);
         if (user == null) {
             return HttpStatus.BAD_REQUEST;
         }

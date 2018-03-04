@@ -4,6 +4,7 @@ import com.styxxco.cliquer.database.*;
 import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Group;
 import com.styxxco.cliquer.domain.Message;
+import com.styxxco.cliquer.domain.Message.Types;
 import com.styxxco.cliquer.domain.Skill;
 import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.GroupService;
@@ -33,9 +34,48 @@ public class SprintTwoServicesTest {
     @Autowired
     public GroupRepository groupRepository;
 
+    /* Function to clear items that should not already be in database */
+    public void clearDatabase()
+    {
+        if(accountRepository.existsByUsername("reed226"))
+        {
+            accountRepository.delete(accountRepository.findByUsername("reed226"));
+        }
+        if(accountRepository.existsByUsername("montgo38"))
+        {
+            accountRepository.delete(accountRepository.findByUsername("montgo38"));
+        }
+        if(accountRepository.existsByUsername("knagar"))
+        {
+            accountRepository.delete(accountRepository.findByUsername("knagar"));
+        }
+        if(accountRepository.existsByUsername("buckmast"))
+        {
+            accountRepository.delete(accountRepository.findByUsername("buckmast"));
+        }
+        if(accountRepository.existsByUsername("rbuckmas"))
+        {
+            accountRepository.delete(accountRepository.findByUsername("rbuckmas"));
+        }
+
+        if(skillRepository.existsBySkillName("Programming"))
+        {
+            skillRepository.delete(skillRepository.findBySkillName("Programming"));
+        }
+        if(skillRepository.existsBySkillName("Lifter"))
+        {
+            skillRepository.delete(skillRepository.findBySkillName("Lifter"));
+        }
+        if(skillRepository.existsBySkillName("Board Gaming"))
+        {
+            skillRepository.delete(skillRepository.findBySkillName("Board Gaming"));
+        }
+    }
+
     /* Test group searching filters and filter chaining */
     @Test
     public void testGroupSearching() {
+        this.clearDatabase();
         AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
         GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
@@ -133,5 +173,55 @@ public class SprintTwoServicesTest {
         groupRepository.delete(hoops);
         groupRepository.delete(games);
         groupRepository.delete(styxx);
+    }
+
+    @Test
+    public void testFriendInvites()
+    {
+        this.clearDatabase();
+        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "montgo38@purdue.edu", "Kevin", "Nagar");
+
+        Message invite = accountService.sendFriendInvite("reed226", shawn.getAccountID());
+        assertEquals(jordan.getAccountID(), invite.getSenderID());
+        shawn = accountRepository.findByUsername(shawn.getUsername());
+        assertEquals(invite.getMessageID(), shawn.getMessageIDs().get(0));
+        assertEquals(Types.FRIEND_INVITE, invite.getType());
+        ObjectId first = invite.getMessageID();
+
+        Account account = accountService.acceptFriendInvite("montgo38", invite.getMessageID());
+        assertEquals(jordan.getFirstName(), account.getFirstName());
+        shawn = accountRepository.findByUsername(shawn.getUsername());
+        assertEquals(jordan.getAccountID(), shawn.getFriendIDs().get(0));
+        jordan = accountRepository.findByUsername(jordan.getUsername());
+        assertEquals(shawn.getAccountID(), jordan.getFriendIDs().get(0));
+        assertEquals(0, shawn.getMessageIDs().size());
+
+        invite = accountService.sendFriendInvite("reed226", kevin.getAccountID());
+        assertEquals(jordan.getAccountID(), invite.getSenderID());
+        kevin = accountRepository.findByUsername(kevin.getUsername());
+        assertEquals(invite.getMessageID(), kevin.getMessageIDs().get(0));
+        assertEquals(Types.FRIEND_INVITE, invite.getType());
+        ObjectId second = invite.getMessageID();
+
+        String result = accountService.rejectFriendInvite("knagar", invite.getMessageID());
+        assertEquals("Success", result);
+        kevin = accountRepository.findByUsername(shawn.getUsername());
+        assertEquals(0, shawn.getFriendIDs().size());
+        jordan = accountRepository.findByUsername(jordan.getUsername());
+        assertEquals(1, jordan.getFriendIDs().size());
+        assertEquals(0, kevin.getMessageIDs().size());
+
+        invite = accountService.sendFriendInvite("reed226", shawn.getAccountID());
+        assertNull(invite);
+        assertEquals(false, messageRepository.existsByMessageID(first));
+        assertEquals(false, messageRepository.existsByMessageID(second));
+
+        accountRepository.delete(jordan);
+        accountRepository.delete(shawn);
+        accountRepository.delete(kevin);
     }
 }

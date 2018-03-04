@@ -24,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+import static com.styxxco.cliquer.domain.Message.Types.FRIEND_INVITE;
+
 @Log4j
 @Service(value = AccountServiceImpl.NAME)
 public class AccountServiceImpl implements AccountService {
@@ -534,6 +536,7 @@ public class AccountServiceImpl implements AccountService {
         return messages;
     }
 
+    // TODO: @Reed insert function to notify receiver in real time once web sockets done
     @Override
     public Message sendMessage(String username, ObjectId receiverID, String content, int type)
     {
@@ -557,48 +560,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account addFriend(String username, String friendName) {
-        if(!accountRepository.existsByUsername(username))
-        {
-            log.info("User " + username + " not found");
-            return null;
-        }
-        if(!accountRepository.existsByUsername(friendName))
-        {
-            log.info("User " + friendName + " not found");
-            return null;
-        }
-        Account user = accountRepository.findByUsername(username);
-        Account friend = accountRepository.findByUsername(friendName);
-        user.addFriend(friend.getAccountID());
-        friend.addFriend(user.getAccountID());
-        accountRepository.save(user);
-        accountRepository.save(friend);
-        return friend;
-    }
-
-    @Override
-    public Account removeFriend(String username, String friendName) {
-        if(!accountRepository.existsByUsername(username))
-        {
-            log.info("User " + username + " not found");
-            return null;
-        }
-        if(!accountRepository.existsByUsername(friendName))
-        {
-            log.info("User " + friendName + " not found");
-            return null;
-        }
-        Account user = accountRepository.findByUsername(username);
-        Account friend = accountRepository.findByUsername(friendName);
-        user.removeFriend(friend.getAccountID());
-        friend.removeFriend(user.getAccountID());
-        accountRepository.save(user);
-        accountRepository.save(friend);
-        return friend;
-    }
-
-    @Override
     public Group createGroup(String username, String groupName, String bio) {
         if(!accountRepository.existsByUsername(username))
         {
@@ -611,8 +572,7 @@ public class AccountServiceImpl implements AccountService {
 
     /* TODO: Ensure user fits requirements @Shawn @SprintTwo */
     @Override
-    public Account joinGroup(String username, String groupid) {
-        ObjectId groupID = new ObjectId(groupid);
+    public Account joinGroup(String username, ObjectId groupID) {
         if(!accountRepository.existsByUsername(username))
         {
             log.info("User " + username + " not found");
@@ -632,9 +592,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account leaveGroup(String username, String groupid)
+    public Account leaveGroup(String username, ObjectId groupID)
     {
-        ObjectId groupID = new ObjectId(groupid);
         if(!accountRepository.existsByUsername(username))
         {
             log.info("User " + username + " not found");
@@ -676,16 +635,15 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account inviteToGroup(String username, String friendName, String groupid) {
-        ObjectId groupID = new ObjectId(groupid);
+    public Account inviteToGroup(String username, ObjectId accountID, ObjectId groupID) {
         if(!accountRepository.existsByUsername(username))
         {
             log.info("User " + username + " not found");
             return null;
         }
-        if(!accountRepository.existsByUsername(friendName))
+        if(!accountRepository.existsByAccountID(accountID))
         {
-            log.info("User " + friendName + " not found");
+            log.info("User " + accountID + " not found");
             return null;
         }
         if(!groupRepository.existsByGroupID(groupID))
@@ -694,24 +652,23 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Account user = accountRepository.findByUsername(username);
-        Account friend = accountRepository.findByUsername(friendName);
-        sendMessage(user.getUsername(), friend.getAccountID(), groupID.toString(), Types.GROUP_INVITE);
-        return friend;
+        Account account = accountRepository.findByAccountID(accountID);
+        sendMessage(user.getUsername(), account.getAccountID(), groupID.toString(), Types.GROUP_INVITE);
+        return account;
     }
 
     @Override
-    public Group deleteGroup(String groupid) {
-        ObjectId groupID = new ObjectId(groupid);
-        if(!groupRepository.existsByGroupID(groupID))
+    public String deleteGroup(String username, ObjectId groupID) {
+        if(!accountRepository.existsByUsername(username))
         {
-            log.info("Group " + groupID + " not found");
+            log.info("User " + username + " not found");
             return null;
         }
-        Group group = groupRepository.findByGroupID(groupID);
-        groupService.deleteGroup(group.getGroupID(), group.getGroupLeaderID());
-        return group;
+        Account user = accountRepository.findByUsername(username);
+        return groupService.deleteGroup(groupID, user.getAccountID());
     }
 
+    @Override
     public double getReputationRanking(String username)
     {
         if(!accountRepository.existsByUsername(username))
@@ -731,5 +688,104 @@ public class AccountServiceImpl implements AccountService {
         return (100.0*rank)/reputations.size();
     }
 
+    @Override
+    public Message sendFriendInvite(String username, ObjectId receiverID)
+    {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        if(user.hasFriend(receiverID))
+        {
+            log.info("User " + username + " is already friends with " + receiverID);
+            return null;
+        }
+        return this.sendMessage(username, receiverID,
+                user.getFullName() + "wants to add you as a friend! Do you accept the friend invite?",
+                Types.FRIEND_INVITE);
+    }
+
+    @Override
+    public Account acceptFriendInvite(String username, ObjectId inviteID)
+    {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        if(!user.hasMessage(inviteID))
+        {
+            log.info("User " + username + " did not receive message " + inviteID);
+            return null;
+        }
+        Message invite = messageRepository.findByMessageID(inviteID);
+        user.removeMessage(inviteID);
+        messageRepository.delete(invite);
+        return this.addFriend(username, invite.getSenderID());
+    }
+
+    @Override
+    public String rejectFriendInvite(String username, ObjectId inviteID)
+    {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        if(!user.hasMessage(inviteID))
+        {
+            log.info("User " + username + " did not receive message " + inviteID);
+            return null;
+        }
+        user.removeMessage(inviteID);
+        messageRepository.delete(inviteID.toString());
+        return "Success";
+    }
+
+    @Override
+    public Account addFriend(String username, ObjectId friendID) {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        if(!accountRepository.existsByAccountID(friendID))
+        {
+            log.info("User " + friendID + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        Account friend = accountRepository.findByAccountID(friendID);
+        user.addFriend(friend.getAccountID());
+        friend.addFriend(user.getAccountID());
+        accountRepository.save(user);
+        accountRepository.save(friend);
+        return friend;
+    }
+
+    @Override
+    public Account removeFriend(String username, ObjectId friendID) {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        if(!accountRepository.existsByAccountID(friendID))
+        {
+            log.info("User " + friendID + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        Account friend = accountRepository.findByAccountID(friendID);
+        user.removeFriend(friend.getAccountID());
+        friend.removeFriend(user.getAccountID());
+        accountRepository.save(user);
+        accountRepository.save(friend);
+        return friend;
+    }
 }
 
