@@ -98,7 +98,8 @@ public class RestController {
     @RequestMapping(value = "/api/addFriend", method = RequestMethod.POST)
     public @ResponseBody Object addFriend(@RequestParam(value="username") String username,
                                           @RequestParam(value="friend") String friend) {
-        Account account = accountService.addFriend(username, friend);
+        ObjectId friendID = new ObjectId(friend);
+        Account account = accountService.addFriend(username, friendID);
         if (account == null) {
             return HttpStatus.BAD_REQUEST;
         }
@@ -108,7 +109,8 @@ public class RestController {
     @RequestMapping(value = "/api/removeFriend", method = RequestMethod.POST)
     public @ResponseBody Object removeFriend(@RequestParam(value="username") String username,
                                              @RequestParam(value="friend") String friend) {
-        Account account = accountService.removeFriend(username, friend);
+        ObjectId friendID = new ObjectId(friend);
+        Account account = accountService.removeFriend(username, friendID);
         if (account == null) {
             return HttpStatus.BAD_REQUEST;
         }
