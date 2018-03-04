@@ -35,6 +35,7 @@ public class Message
 		public static final int MOD_FLAG = 2;
 		public static final int GROUP_NOTIFICATION = 3;
 		public static final int PROFILE_NOTIFICATION = 4;
+		public static final int CHAT_MESSAGE = 5;
 	}
 
 	public Message(ObjectId senderID, String content, int type)
@@ -43,6 +44,16 @@ public class Message
 		this.senderID = senderID;
 		this.content = content;
 		this.type = type;
+		this.creationTime = LocalTime.now();
+		this.creationDate = LocalDate.now();
+		this.read = false;
+	}
+
+	public Message(ObjectId senderID, String content) {
+		this.messageID = new ObjectId();
+		this.senderID = senderID;
+		this.content = content;
+		this.type = Types.CHAT_MESSAGE;
 		this.creationTime = LocalTime.now();
 		this.creationDate = LocalDate.now();
 		this.read = false;

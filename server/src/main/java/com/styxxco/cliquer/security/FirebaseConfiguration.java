@@ -15,7 +15,7 @@ import java.io.InputStream;
 public class FirebaseConfiguration {
 
     @Bean
-    public DatabaseReference firebaseDatabse() {
+    public DatabaseReference firebaseDatabase() {
         DatabaseReference firebase = FirebaseDatabase.getInstance().getReference();
         return firebase;
     }

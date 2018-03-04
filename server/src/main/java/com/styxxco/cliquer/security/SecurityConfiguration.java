@@ -9,15 +9,21 @@ import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configurers.GlobalAuthenticationConfigurerAdapter;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
+import org.springframework.security.config.annotation.web.socket.AbstractSecurityWebSocketMessageBrokerConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 
 @Configuration
 @EnableGlobalMethodSecurity(securedEnabled = true)
@@ -34,8 +40,8 @@ public class SecurityConfiguration {
         static public final String ROLE_MOD = ROLE_ + MOD;
     }
 
-    @Order(Ordered.HIGHEST_PRECEDENCE)
     @Configuration
+    @Order(Ordered.HIGHEST_PRECEDENCE)
     protected static class AuthenticationSecurity extends GlobalAuthenticationConfigurerAdapter {
 
         @Autowired
@@ -70,6 +76,7 @@ public class SecurityConfiguration {
                         .antMatchers("/login").permitAll()
                         .antMatchers("/register").permitAll()
                         .antMatchers("/api/**").hasRole(Roles.USER)
+                        .antMatchers("/secured/**").authenticated()
                         .antMatchers("/**").denyAll()
                     .and()
                     .csrf().disable()
@@ -83,6 +90,39 @@ public class SecurityConfiguration {
             return new FirebaseFilter(firebaseService);
         }
 
+    }
+
+    @Configuration
+    @Order(Ordered.LOWEST_PRECEDENCE)
+    protected static class SocketSecurity extends AbstractSecurityWebSocketMessageBrokerConfigurer {
+        @Override
+        protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+            messages
+                    .simpDestMatchers("/secured/**").authenticated()
+                    .anyMessage().authenticated();
+        }
+
+        @Override
+        protected boolean sameOriginDisabled() {
+            return true;
+        }
+
+    }
+
+    @Configuration
+    @EnableWebSocketMessageBroker
+    protected static class SocketBrokerConfig extends AbstractWebSocketMessageBrokerConfigurer {
+
+        @Override
+        public void configureMessageBroker(MessageBrokerRegistry config) {
+            config.enableSimpleBroker("/group");
+            config.setApplicationDestinationPrefixes("/secured");
+        }
+
+        @Override
+        public void registerStompEndpoints(StompEndpointRegistry registry) {
+            registry.addEndpoint("/chat").withSockJS();
+        }
     }
 }
 
