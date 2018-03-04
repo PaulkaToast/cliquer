@@ -724,6 +724,7 @@ public class AccountServiceImpl implements AccountService {
         Message invite = messageRepository.findByMessageID(inviteID);
         user.removeMessage(inviteID);
         messageRepository.delete(invite);
+        accountRepository.save(user);
         return this.addFriend(username, invite.getSenderID());
     }
 
@@ -743,6 +744,7 @@ public class AccountServiceImpl implements AccountService {
         }
         user.removeMessage(inviteID);
         messageRepository.delete(inviteID.toString());
+        accountRepository.save(user);
         return "Success";
     }
 
