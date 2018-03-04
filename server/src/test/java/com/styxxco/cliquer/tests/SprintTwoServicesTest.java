@@ -210,7 +210,7 @@ public class SprintTwoServicesTest {
         String result = accountService.rejectFriendInvite("knagar", invite.getMessageID());
         assertEquals("Success", result);
         kevin = accountRepository.findByUsername(shawn.getUsername());
-        assertEquals(0, shawn.getFriendIDs().size());
+        assertEquals(0, kevin.getFriendIDs().size());
         jordan = accountRepository.findByUsername(jordan.getUsername());
         assertEquals(1, jordan.getFriendIDs().size());
         assertEquals(0, kevin.getMessageIDs().size());
