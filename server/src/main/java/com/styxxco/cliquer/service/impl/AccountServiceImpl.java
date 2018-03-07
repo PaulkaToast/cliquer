@@ -339,7 +339,9 @@ public class AccountServiceImpl implements AccountService {
         List<Account> qualified = new ArrayList<>();
         for(Account account : accounts)
         {
-            if(account.getReputation() >= minimumRep && !account.isOptedOut())
+            if(account.getReputation() >= minimumRep &&
+                    account.getReputation()*account.getReputationReq() <= minimumRep &&
+                    !account.isOptedOut())
             {
                 qualified.add(this.maskPublicProfile(account));
             }

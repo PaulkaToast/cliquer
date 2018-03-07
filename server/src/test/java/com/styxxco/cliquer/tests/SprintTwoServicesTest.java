@@ -310,4 +310,41 @@ public class SprintTwoServicesTest {
         accountRepository.delete(buckmaster);
         accountRepository.delete(rhys);
     }
+
+    @Test
+    public void testReputationRange()
+    {
+        this.clearDatabase();
+        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
+
+        jordan.setReputation(40);
+        shawn.setReputation(80);
+        shawn.setReputationReq(0.75);
+        buckmaster.setReputation(60);
+        buckmaster.setReputationReq(1.0);
+
+        accountRepository.save(jordan);
+        accountRepository.save(shawn);
+        accountRepository.save(buckmaster);
+
+        List<Account> results = accountService.searchByReputation(60, false);
+        assertEquals(2, results.size());
+        assertEquals("Montgomery", results.get(0).getLastName());
+        assertEquals("Buckmaster", results.get(1).getLastName());
+
+        results = accountService.searchByReputation(0, false);
+        assertEquals(1, results.size());
+        assertEquals("Reed", results.get(0).getLastName());
+
+        results = accountService.searchByReputation(59, false);
+        assertEquals(0, results.size());
+
+        accountRepository.delete(jordan);
+        accountRepository.delete(shawn);
+        accountRepository.delete(buckmaster);
+    }
 }
