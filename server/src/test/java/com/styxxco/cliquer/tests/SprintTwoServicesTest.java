@@ -272,4 +272,42 @@ public class SprintTwoServicesTest {
         accountRepository.delete(buckmaster);
         accountRepository.delete(rhys);
     }
+
+    @Test
+    public void testOptingOutOfSearch()
+    {
+        this.clearDatabase();
+        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
+        Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@purdue.edu", "Rhys", "Buckmaster");
+
+        jordan.setReputation(55);
+        jordan.setOptedOut(true);
+        buckmaster.setReputation(45);
+        rhys.setReputation(59);
+
+        accountRepository.save(jordan);
+        accountRepository.save(buckmaster);
+        accountRepository.save(rhys);
+
+        List<Account> results = accountService.searchByFirstName("Jordan");
+        assertEquals(1, results.size());
+        assertEquals("Buckmaster", results.get(0).getLastName());
+
+        results = accountService.searchByFullName("Jordan Reed");
+        assertEquals(0, results.size());
+
+        results = accountService.searchByLastName("Reed");
+        assertEquals(0, results.size());
+
+        results = accountService.searchByReputation(50, false);
+        assertEquals(1, results.size());
+        assertEquals("Rhys Buckmaster", results.get(0).getFullName());
+
+        accountRepository.delete(jordan);
+        accountRepository.delete(buckmaster);
+        accountRepository.delete(rhys);
+    }
 }

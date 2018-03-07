@@ -280,7 +280,10 @@ public class AccountServiceImpl implements AccountService {
         List<Account> masked = new ArrayList<>();
         for(Account account : accounts)
         {
-            masked.add(this.maskPublicProfile(account));
+            if(!account.isOptedOut())
+            {
+                masked.add(this.maskPublicProfile(account));
+            }
         }
         Comparator<Account> byLastName = Comparator.comparing(Account::getLastName);
         masked.sort(byLastName);
@@ -294,7 +297,10 @@ public class AccountServiceImpl implements AccountService {
         List<Account> masked = new ArrayList<>();
         for(Account account : accounts)
         {
-            masked.add(this.maskPublicProfile(account));
+            if(!account.isOptedOut())
+            {
+                masked.add(this.maskPublicProfile(account));
+            }
         }
         Comparator<Account> byFirstName = Comparator.comparing(Account::getFirstName);
         masked.sort(byFirstName);
@@ -308,7 +314,7 @@ public class AccountServiceImpl implements AccountService {
         List<Account> masked = new ArrayList<>();
         for(Account account : accounts)
         {
-            if(account.getLastName().equals(lastName))
+            if(account.getLastName().equals(lastName) && !account.isOptedOut())
             {
                 masked.add(this.maskPublicProfile(account));
             }
@@ -333,7 +339,7 @@ public class AccountServiceImpl implements AccountService {
         List<Account> qualified = new ArrayList<>();
         for(Account account : accounts)
         {
-            if(account.getReputation() >= minimumRep)
+            if(account.getReputation() >= minimumRep && !account.isOptedOut())
             {
                 qualified.add(this.maskPublicProfile(account));
             }

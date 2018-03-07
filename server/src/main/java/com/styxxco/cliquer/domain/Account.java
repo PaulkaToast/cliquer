@@ -31,7 +31,8 @@ public class Account implements UserDetails {
 
 	private boolean isModerator;
 	private boolean isPublic;
-	private boolean facebookLinked;
+	private boolean isNewUser;
+	private boolean isOptedOut;
 	private double reputationReq;		/* Represents fraction of user rep */
 	private int proximityReq;
 
@@ -63,6 +64,8 @@ public class Account implements UserDetails {
 		this.lastName = lastName;
 		this.isModerator = false;
 		this.isPublic = false;
+		this.isOptedOut = false;
+		this.isNewUser = true;
 		this.reputationReq = 0;
 		this.proximityReq = 0;
 		this.reputation = 0;
@@ -74,7 +77,6 @@ public class Account implements UserDetails {
 		this.accountExpired = false;
 		this.accountEnabled = true;
 		this.credentialsExpired = false;
-		this.facebookLinked = false;
 	}
 
 	public String getFullName()
