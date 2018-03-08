@@ -336,15 +336,23 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public List<Account> searchByReputation(int minimumRep, boolean includeSuggested)
+    public List<Account> searchByReputation(int minimumRep, boolean includeSuggested, boolean includeWeights)
     {
         List<Account> accounts = accountRepository.findAll();
         List<Account> qualified = new ArrayList<>();
         for(Account account : accounts)
         {
-            if(account.getAdjustedReputation() >= minimumRep &&
-                    account.getReputation()*account.getReputationReq() <= minimumRep &&
-                    !account.isOptedOut())
+            int accountReputation;
+            if(includeWeights)
+            {
+                accountReputation = account.getAdjustedReputation();
+            }
+            else
+            {
+                accountReputation = account.getReputation();
+            }
+            if(accountReputation >= minimumRep && !account.isOptedOut() &&
+                    account.getReputation()*account.getReputationReq() <= minimumRep)
             {
                 qualified.add(this.maskPublicProfile(account));
             }
@@ -358,13 +366,13 @@ public class AccountServiceImpl implements AccountService {
         qualified.sort(byReputation);
         if(includeSuggested)
         {
-            return this.moveSuggestedToTop(qualified, minimumRep);
+            return this.moveSuggestedToTop(qualified, minimumRep, includeWeights);
         }
         return qualified;
     }
 
     @Override
-    public List<Account> moveSuggestedToTop(List<Account> accounts, int reputation)
+    public List<Account> moveSuggestedToTop(List<Account> accounts, int reputation, boolean includeWeights)
     {
         if(accounts.size() < 5)
         {
@@ -374,7 +382,16 @@ public class AccountServiceImpl implements AccountService {
         List<Account> suggested = new ArrayList<>();
         for(Account account : accounts)
         {
-            if(account.getAdjustedReputation() >= reputation && account.getAdjustedReputation() <= reputation + Account.MAX_REP/10)
+            int accountReputation;
+            if(includeWeights)
+            {
+                accountReputation = account.getAdjustedReputation();
+            }
+            else
+            {
+                accountReputation = account.getReputation();
+            }
+            if(accountReputation >= reputation && accountReputation <= reputation + Account.MAX_REP/10)
             {
                 suggested.add(account);
             }
