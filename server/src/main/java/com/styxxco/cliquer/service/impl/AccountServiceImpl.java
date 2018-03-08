@@ -163,7 +163,10 @@ public class AccountServiceImpl implements AccountService {
             log.info("User " + username + " not found");
             return null;
         }
-        return accountRepository.findByUsername(username);
+        Account user = accountRepository.findByUsername(username);
+        user.setTimer();
+        accountRepository.save(user);
+        return user;
     }
 
     @Override
@@ -836,6 +839,24 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(user);
         accountRepository.save(friend);
         return friend;
+    }
+
+    @Override
+    public String checkNewUserFlag(String username)
+    {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        user.incrementTimer();
+        accountRepository.save(user);
+        if(user.isNewUser())
+        {
+            return "New User";
+        }
+        return "Experienced User";
     }
 }
 

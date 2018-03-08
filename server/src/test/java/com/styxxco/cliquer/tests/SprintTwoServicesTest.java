@@ -347,4 +347,41 @@ public class SprintTwoServicesTest {
         accountRepository.delete(shawn);
         accountRepository.delete(buckmaster);
     }
+
+    @Test
+    public void testNewUserFlag()
+    {
+        this.clearDatabase();
+        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
+
+        jordan.setReputation(40);
+        jordan.setLoggedInTime(Account.NEW_USER_HOURS*60 - 5);
+        shawn.setReputation(80);
+        shawn.setReputationReq(0.75);
+        shawn.setNewUser(false);
+        buckmaster.setReputation(60);
+        buckmaster.setReputationReq(1.0);
+        buckmaster.setLoggedInTime(Account.NEW_USER_HOURS*60 + 1);
+
+        accountRepository.save(jordan);
+        accountRepository.save(shawn);
+        accountRepository.save(buckmaster);
+
+        String result = accountService.checkNewUserFlag("reed226");
+        assertEquals("New User", result);
+
+        result = accountService.checkNewUserFlag("montgo38");
+        assertEquals("Experienced User", result);
+
+        result = accountService.checkNewUserFlag("buckmast");
+        assertEquals("Experienced User", result);
+
+        accountRepository.delete(jordan);
+        accountRepository.delete(shawn);
+        accountRepository.delete(buckmaster);
+    }
 }

@@ -65,6 +65,7 @@ public interface AccountService extends UserDetailsService {
     List<Role> getModRoles();
 
     /* Miscellaneous logic */
+    String checkNewUserFlag(String username);
     List<Account> moveSuggestedToTop(List<Account> accounts, int reputation);
     double getReputationRanking(String username);
 }
