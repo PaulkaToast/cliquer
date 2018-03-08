@@ -364,7 +364,7 @@ public class SprintTwoServicesTest {
         shawn.setReputation(80);
         shawn.setNewUser(false);
         kevin.setReputation(40);
-        kevin.setLoggedInTime(Account.NEW_USER_HOURS*15);
+        kevin.setLoggedInTime(Account.NEW_USER_HOURS*45);
         buckmaster.setReputation(60);
         buckmaster.setLoggedInTime(Account.NEW_USER_HOURS*60 + 1);
 
