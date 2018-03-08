@@ -385,6 +385,11 @@ public class SprintTwoServicesTest {
         result = accountService.checkNewUserFlag("buckmast");
         assertEquals("Experienced User", result);
 
+        jordan = accountRepository.findByUsername(jordan.getUsername());
+        shawn = accountRepository.findByUsername(shawn.getUsername());
+        kevin = accountRepository.findByUsername(kevin.getUsername());
+        buckmaster = accountRepository.findByUsername(buckmaster.getUsername());
+
         assertEquals(65, jordan.getAdjustedReputation());
         assertEquals(80, shawn.getAdjustedReputation());
         assertEquals(52, kevin.getAdjustedReputation());
