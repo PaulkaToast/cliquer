@@ -342,7 +342,7 @@ public class AccountServiceImpl implements AccountService {
         List<Account> qualified = new ArrayList<>();
         for(Account account : accounts)
         {
-            if(account.getReputation() >= minimumRep &&
+            if(account.getAdjustedReputation() >= minimumRep &&
                     account.getReputation()*account.getReputationReq() <= minimumRep &&
                     !account.isOptedOut())
             {
@@ -374,7 +374,7 @@ public class AccountServiceImpl implements AccountService {
         List<Account> suggested = new ArrayList<>();
         for(Account account : accounts)
         {
-            if(account.getReputation() >= reputation && account.getReputation() <= reputation + Account.MAX_REP/10)
+            if(account.getAdjustedReputation() >= reputation && account.getAdjustedReputation() <= reputation + Account.MAX_REP/10)
             {
                 suggested.add(account);
             }

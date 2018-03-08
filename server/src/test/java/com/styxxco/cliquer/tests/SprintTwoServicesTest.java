@@ -356,19 +356,21 @@ public class SprintTwoServicesTest {
 
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
         Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
 
         jordan.setReputation(40);
-        jordan.setLoggedInTime(Account.NEW_USER_HOURS*60 - 5);
+        jordan.setLoggedInTime(Account.NEW_USER_HOURS*30);
         shawn.setReputation(80);
-        shawn.setReputationReq(0.75);
         shawn.setNewUser(false);
+        kevin.setReputation(40);
+        kevin.setLoggedInTime(Account.NEW_USER_HOURS*15);
         buckmaster.setReputation(60);
-        buckmaster.setReputationReq(1.0);
         buckmaster.setLoggedInTime(Account.NEW_USER_HOURS*60 + 1);
 
         accountRepository.save(jordan);
         accountRepository.save(shawn);
+        accountRepository.save(kevin);
         accountRepository.save(buckmaster);
 
         String result = accountService.checkNewUserFlag("reed226");
@@ -377,11 +379,28 @@ public class SprintTwoServicesTest {
         result = accountService.checkNewUserFlag("montgo38");
         assertEquals("Experienced User", result);
 
+        result = accountService.checkNewUserFlag("knagar");
+        assertEquals("New User", result);
+
         result = accountService.checkNewUserFlag("buckmast");
         assertEquals("Experienced User", result);
 
+        assertEquals(75, jordan.getAdjustedReputation());
+        assertEquals(80, shawn.getAdjustedReputation());
+        assertEquals(52, kevin.getAdjustedReputation());
+        assertEquals(60, buckmaster.getAdjustedReputation());
+
+        List<Account> accounts = accountService.searchByReputation(60, false);
+        assertEquals(3, accounts.size());
+        assertEquals("Reed", accounts.get(2).getLastName());
+
+        accounts = accountService.searchByReputation(52, false);
+        assertEquals(4, accounts.size());
+        assertEquals("Nagar", accounts.get(3).getLastName());
+
         accountRepository.delete(jordan);
         accountRepository.delete(shawn);
+        accountRepository.delete(kevin);
         accountRepository.delete(buckmaster);
     }
 }

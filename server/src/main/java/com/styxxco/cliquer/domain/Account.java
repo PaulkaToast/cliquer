@@ -49,6 +49,7 @@ public class Account implements UserDetails {
 	public static final int MAX_REP = 100;
 	public static final int MAX_SKILL = 10;
 	public static final int NEW_USER_HOURS = 24;
+	public static final int NEW_USER_REP = 50;		/* Reputation constant added to new user reputation */
 
 	private int reputation;
     private List<Role> authorities;
@@ -104,6 +105,15 @@ public class Account implements UserDetails {
 		{
 			this.isNewUser = false;
 		}
+	}
+
+	public int getAdjustedReputation()
+	{
+		if(this.isNewUser)
+		{
+			return (int)(this.reputation + NEW_USER_REP*(1 - (((double)this.loggedInTime)/(NEW_USER_HOURS*60))));
+		}
+		return this.reputation;
 	}
 
 	public void addSkill(ObjectId skillID)
