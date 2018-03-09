@@ -10,6 +10,7 @@ import com.styxxco.cliquer.service.GroupService;
 import com.styxxco.cliquer.service.impl.GroupServiceImpl;
 import org.bson.types.ObjectId;
 import com.styxxco.cliquer.service.impl.AccountServiceImpl;
+import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
@@ -477,7 +478,7 @@ public class SprintOneServicesTest {
 	}
 
 	@Test
-	public void testAccountAndGroupDeletion()
+	public void testAccountDeletion()
 	{
 		this.clearDatabase();
 		AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);

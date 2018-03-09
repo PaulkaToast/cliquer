@@ -455,4 +455,46 @@ public class SprintTwoServicesTest {
         accountRepository.delete(shawn);
         accountRepository.delete(kevin);
     }
+
+    /* Back end Unit Test for User Story 23 */
+    @Test
+    public void testGroupClosing()
+    {
+        this.clearDatabase();
+        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+        GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+
+        Group cliquer = groupService.createGroup(
+                "Cliquer",
+                "To create a web app that facilitates the teaming of people who may have never met before",
+                jordan.getAccountID());
+        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID());
+        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID());
+
+        Group hoops = groupService.createGroup(
+                "Hoops",
+                "Play ball",
+                kevin.getAccountID());
+        groupService.addGroupMember(hoops.getGroupID(), kevin.getAccountID(), jordan.getAccountID());
+
+        String result = groupService.deleteGroup(cliquer.getGroupID(), jordan.getAccountID());
+        assertNotNull(result);
+        Group retrieve = groupService.getUserGroup(cliquer.getGroupID(), jordan.getAccountID());
+        assertNull(retrieve);
+
+        Account account = accountRepository.findByUsername(shawn.getUsername());
+        assertEquals(0, account.getGroupIDs().size());
+        account = accountRepository.findByUsername(kevin.getUsername());
+        assertEquals(1, account.getGroupIDs().size());
+
+        groupRepository.delete(cliquer);
+        groupRepository.delete(hoops);
+        accountRepository.delete(jordan);
+        accountRepository.delete(shawn);
+        accountRepository.delete(kevin);
+    }
 }
