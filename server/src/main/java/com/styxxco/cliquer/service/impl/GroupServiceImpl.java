@@ -13,6 +13,7 @@ import lombok.extern.log4j.Log4j;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -261,7 +262,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public List<Group> searchBySettings(String username, List<Group> groups)
+    public List<Group> searchBySettings(String username, @Nullable List<Group> groups)
     {
         if(!accountRepository.existsByUsername(username))
         {
