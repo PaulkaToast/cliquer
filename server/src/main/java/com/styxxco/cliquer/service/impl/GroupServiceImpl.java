@@ -262,7 +262,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public List<Group> searchBySettings(String username, @Nullable List<Group> groups)
+    public List<Group> searchBySettings(String username, List<Group> groups)
     {
         if(!accountRepository.existsByUsername(username))
         {
@@ -294,7 +294,7 @@ public class GroupServiceImpl implements GroupService {
                 continue;
             }
             Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
-            if(group.getReputationReq()*leader.getReputation() < user.getReputationReq()*user.getReputation())
+            if(leader == null || group.getReputationReq()*leader.getReputation() < user.getReputationReq()*user.getReputation())
             {
                 continue;
             }
