@@ -249,16 +249,16 @@ public class SprintTwoServicesTest {
         accountRepository.save(buckmaster);
         accountRepository.save(rhys);
 
-        List<Account> results = accountService.searchByReputation(70, true);
+        List<Account> results = accountService.searchByReputation(70, true, false);
         assertEquals(true, results.isEmpty());
 
-        results = accountService.searchByReputation(69, true);
+        results = accountService.searchByReputation(69, true, false);
         assertEquals(1, results.size());
         assertEquals("Jordan Buckmaster", results.get(0).getFullName());
 
         for(int i = 0; i < 10; i++)
         {
-            results = accountService.searchByReputation(45, true);
+            results = accountService.searchByReputation(45, true, false);
             assertEquals(6, results.size());
             assertNull(results.get(1));
             assertEquals(true, (results.get(0).getReputation() <= 55));
@@ -302,7 +302,7 @@ public class SprintTwoServicesTest {
         results = accountService.searchByLastName("Reed");
         assertEquals(0, results.size());
 
-        results = accountService.searchByReputation(50, false);
+        results = accountService.searchByReputation(50, false, false);
         assertEquals(1, results.size());
         assertEquals("Rhys Buckmaster", results.get(0).getFullName());
 
@@ -331,16 +331,16 @@ public class SprintTwoServicesTest {
         accountRepository.save(shawn);
         accountRepository.save(buckmaster);
 
-        List<Account> results = accountService.searchByReputation(60, false);
+        List<Account> results = accountService.searchByReputation(60, false, false);
         assertEquals(2, results.size());
         assertEquals("Montgomery", results.get(0).getLastName());
         assertEquals("Buckmaster", results.get(1).getLastName());
 
-        results = accountService.searchByReputation(0, false);
+        results = accountService.searchByReputation(0, false, false);
         assertEquals(1, results.size());
         assertEquals("Reed", results.get(0).getLastName());
 
-        results = accountService.searchByReputation(59, false);
+        results = accountService.searchByReputation(59, false, false);
         assertEquals(0, results.size());
 
         accountRepository.delete(jordan);
@@ -356,19 +356,21 @@ public class SprintTwoServicesTest {
 
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
         Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
 
         jordan.setReputation(40);
-        jordan.setLoggedInTime(Account.NEW_USER_HOURS*60 - 5);
+        jordan.setLoggedInTime(Account.NEW_USER_HOURS*30);
         shawn.setReputation(80);
-        shawn.setReputationReq(0.75);
         shawn.setNewUser(false);
+        kevin.setReputation(40);
+        kevin.setLoggedInTime(Account.NEW_USER_HOURS*45);
         buckmaster.setReputation(60);
-        buckmaster.setReputationReq(1.0);
         buckmaster.setLoggedInTime(Account.NEW_USER_HOURS*60 + 1);
 
         accountRepository.save(jordan);
         accountRepository.save(shawn);
+        accountRepository.save(kevin);
         accountRepository.save(buckmaster);
 
         String result = accountService.checkNewUserFlag("reed226");
@@ -377,11 +379,33 @@ public class SprintTwoServicesTest {
         result = accountService.checkNewUserFlag("montgo38");
         assertEquals("Experienced User", result);
 
+        result = accountService.checkNewUserFlag("knagar");
+        assertEquals("New User", result);
+
         result = accountService.checkNewUserFlag("buckmast");
         assertEquals("Experienced User", result);
 
+        jordan = accountRepository.findByUsername(jordan.getUsername());
+        shawn = accountRepository.findByUsername(shawn.getUsername());
+        kevin = accountRepository.findByUsername(kevin.getUsername());
+        buckmaster = accountRepository.findByUsername(buckmaster.getUsername());
+
+        assertEquals(65, jordan.getAdjustedReputation());
+        assertEquals(80, shawn.getAdjustedReputation());
+        assertEquals(52, kevin.getAdjustedReputation());
+        assertEquals(60, buckmaster.getAdjustedReputation());
+
+        List<Account> accounts = accountService.searchByReputation(60, false, true);
+        assertEquals(3, accounts.size());
+        assertEquals("Reed", accounts.get(2).getLastName());
+
+        accounts = accountService.searchByReputation(52, false, true);
+        assertEquals(4, accounts.size());
+        assertEquals("Nagar", accounts.get(2).getLastName());
+
         accountRepository.delete(jordan);
         accountRepository.delete(shawn);
+        accountRepository.delete(kevin);
         accountRepository.delete(buckmaster);
     }
 }
