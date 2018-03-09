@@ -129,8 +129,8 @@ class Profile extends Component {
         <div className="pk-row-padding">
           <div className="pk-col m12">
             <div className="pk-card-2 pk-round pk-white">
-              <div className="pk-container pk-padding">
-                <h6 className="pk-opacity">Social Media template by pk.css</h6>
+              <div className="pk-container pk-padding">Social 
+                <h6 className="pk-opacity">comd sail away p.css</h6>
                 <p contentEditable="true" className="pk-border pk-padding">Status: Feeling Blue</p>
                 <button type="button" className="pk-btn pk-theme"><i className="fa fa-pencil" /> &nbsp;Post</button> 
               </div>
