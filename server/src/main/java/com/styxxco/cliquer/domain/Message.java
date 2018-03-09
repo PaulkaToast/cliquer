@@ -48,16 +48,5 @@ public class Message
 		this.creationDate = LocalDate.now();
 		this.read = false;
 	}
-	/*
-	public Message(ObjectId senderID, String content) {
-		this.messageID = new ObjectId();
-		this.senderID = senderID;
-		this.content = content;
-		this.type = Types.CHAT_MESSAGE;
-		this.creationTime = LocalTime.now();
-		this.creationDate = LocalDate.now();
-		this.read = false;
-	}
-	*/
 }
 
