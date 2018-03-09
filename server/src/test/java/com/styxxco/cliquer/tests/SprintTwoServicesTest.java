@@ -446,7 +446,7 @@ public class SprintTwoServicesTest {
         List<Group> groups = groupService.searchBySettings("knagar", null);
         assertEquals(2, groups.size());
         assertEquals("Games", groups.get(0).getGroupName());
-        assertEquals("Hoops", groups.get(0).getGroupName());
+        assertEquals("Hoops", groups.get(1).getGroupName());
 
         groupRepository.delete(cliquer);
         groupRepository.delete(hoops);
