@@ -401,7 +401,7 @@ public class SprintTwoServicesTest {
 
         accounts = accountService.searchByReputation(52, false, true);
         assertEquals(4, accounts.size());
-        assertEquals("Nagar", accounts.get(3).getLastName());
+        assertEquals("Nagar", accounts.get(2).getLastName());
 
         accountRepository.delete(jordan);
         accountRepository.delete(shawn);
