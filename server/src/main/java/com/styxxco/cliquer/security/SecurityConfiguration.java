@@ -76,7 +76,6 @@ public class SecurityConfiguration {
                         .antMatchers("/login").permitAll()
                         .antMatchers("/register").permitAll()
                         .antMatchers("/api/**").hasRole(Roles.USER)
-                        .antMatchers("/secured/**").authenticated()
                         .antMatchers("/**").denyAll()
                     .and()
                     .csrf().disable()
@@ -98,8 +97,8 @@ public class SecurityConfiguration {
         @Override
         protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
             messages
-                    .simpDestMatchers("/secured/**").authenticated()
-                    .anyMessage().authenticated();
+                    .simpDestMatchers("/**").permitAll()
+                    .anyMessage().permitAll();
         }
 
         @Override

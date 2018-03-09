@@ -6,6 +6,7 @@ import org.bson.types.ObjectId;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
+import java.util.Map;
 
 public interface AccountService extends UserDetailsService {
     /* Account Creation */
@@ -25,6 +26,7 @@ public interface AccountService extends UserDetailsService {
     String deleteAccount(String username);
 
     /* Account Searching */
+    Map<String, ? extends Searchable> searchWithFilter(String type, String query, int level, boolean suggestions);
     List<Account> searchByFirstName(String firstName);
     List<Account> searchByLastName(String lastName);
     List<Account> searchByFullName(String firstName, String lastName);
