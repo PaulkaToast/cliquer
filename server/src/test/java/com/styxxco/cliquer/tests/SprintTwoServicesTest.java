@@ -72,9 +72,9 @@ public class SprintTwoServicesTest {
         }
     }
 
-    /* Test group searching filters and filter chaining */
+    /* Back end Unit Test for User Story 10 */
     @Test
-    public void testGroupSearching() {
+    public void testGroupSearchFilters() {
         this.clearDatabase();
         AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
         GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
@@ -175,6 +175,7 @@ public class SprintTwoServicesTest {
         groupRepository.delete(styxx);
     }
 
+    /* Back end Unit Test for User Story 13 */
     @Test
     public void testFriendInvites()
     {
@@ -225,6 +226,7 @@ public class SprintTwoServicesTest {
         accountRepository.delete(kevin);
     }
 
+    /* Back end Unit Test for User Story 15 */
     @Test
     public void testReputationSuggestions()
     {
@@ -273,6 +275,7 @@ public class SprintTwoServicesTest {
         accountRepository.delete(rhys);
     }
 
+    /* Back end Unit Test for User Story 16 */
     @Test
     public void testOptingOutOfSearch()
     {
@@ -311,6 +314,7 @@ public class SprintTwoServicesTest {
         accountRepository.delete(rhys);
     }
 
+    /* Back end Unit Test for User Story 17 */
     @Test
     public void testReputationRange()
     {
@@ -348,6 +352,7 @@ public class SprintTwoServicesTest {
         accountRepository.delete(buckmaster);
     }
 
+    /* Back end Unit Test for User Story 20 */
     @Test
     public void testNewUserFlag()
     {
@@ -407,5 +412,47 @@ public class SprintTwoServicesTest {
         accountRepository.delete(shawn);
         accountRepository.delete(kevin);
         accountRepository.delete(buckmaster);
+    }
+
+    /* Back end Unit Test for User Story 23 */
+    @Test
+    public void testPublicPrivateGroupSearch()
+    {
+        this.clearDatabase();
+        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+        GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+
+        Group cliquer = groupService.createGroup(
+                "Cliquer",
+                "To create a web app that facilitates the teaming of people who may have never met before",
+                jordan.getAccountID());
+        Group hoops = groupService.createGroup(
+                "Hoops",
+                "To play basketball",
+                shawn.getAccountID());
+        Group games = groupService.createGroup(
+                "Games",
+                "To play video games",
+                shawn.getAccountID());
+
+        cliquer = groupService.updateGroupSettings(cliquer.getGroupID(), cliquer.getGroupLeaderID(), "isPublic", "false");
+        hoops = groupService.updateGroupSettings(hoops.getGroupID(), hoops.getGroupLeaderID(), "isPublic", "true");
+        games = groupService.updateGroupSettings(games.getGroupID(), games.getGroupLeaderID(), "isPublic", "true");
+
+        List<Group> groups = groupService.searchBySettings("knagar", null);
+        assertEquals(2, groups.size());
+        assertEquals("Games", groups.get(0).getGroupName());
+        assertEquals("Hoops", groups.get(0).getGroupName());
+
+        groupRepository.delete(cliquer);
+        groupRepository.delete(hoops);
+        groupRepository.delete(games);
+        accountRepository.delete(jordan);
+        accountRepository.delete(shawn);
+        accountRepository.delete(kevin);
     }
 }
