@@ -242,7 +242,8 @@ public class RestController {
     public @ResponseBody Object search(@RequestParam(value = "type") String type,
                                        @RequestParam(value = "query", required = false, defaultValue = "null") String query,
                                        @RequestParam(value = "level", required = false, defaultValue = "0") int level,
-                                       @RequestParam(value = "suggestions", required = false, defaultValue = "true") boolean suggestions ){
+                                       @RequestParam(value = "suggestions", required = false, defaultValue = "true") boolean suggestions,
+                                       @RequestParam(value = "weights", required = false, defaultValue = "true") boolean weights ){
         Object obj = null;
         switch(type) {
             case "firstName":
@@ -258,7 +259,7 @@ public class RestController {
                 obj = accountService.searchByUsername(query);
                 break;
             case "reputation":
-                obj = accountService.searchByReputation(level, suggestions);
+                obj = accountService.searchByReputation(level, suggestions, weights);
                 break;
             case "skill":
                 obj = accountService.searchBySkill(query, level);

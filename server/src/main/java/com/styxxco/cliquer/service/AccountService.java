@@ -29,7 +29,7 @@ public interface AccountService extends UserDetailsService {
     List<Account> searchByLastName(String lastName);
     List<Account> searchByFullName(String firstName, String lastName);
     List<Account> searchByFullName(String fullName);
-    List<Account> searchByReputation(int minimumRep, boolean includeSuggested);
+    List<Account> searchByReputation(int minimumRep, boolean includeSuggested, boolean includeWeights);
     List<Account> searchBySkill(String skillName, int minimumLevel);
     Account searchByUsername(String username);
     List<Group> searchByGroupName(String groupName);
@@ -65,6 +65,7 @@ public interface AccountService extends UserDetailsService {
     List<Role> getModRoles();
 
     /* Miscellaneous logic */
-    List<Account> moveSuggestedToTop(List<Account> accounts, int reputation);
+    String checkNewUserFlag(String username);
+    List<Account> moveSuggestedToTop(List<Account> accounts, int reputation, boolean includeWeights);
     double getReputationRanking(String username);
 }

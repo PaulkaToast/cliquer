@@ -7,7 +7,10 @@ import org.springframework.data.annotation.Id;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalTime;
 import java.util.*;
+
+import static java.time.temporal.ChronoUnit.MINUTES;
 
 /* Serves as the entity representing user and moderator data.	*/
 /* Extended by the Moderator class								*/
@@ -27,7 +30,6 @@ public class Account implements UserDetails {
 	private String firstName;
 	private String lastName;
 	private String password;
-	/* private Location location;*/
 
 	private boolean isModerator;
 	private boolean isPublic;
@@ -35,6 +37,8 @@ public class Account implements UserDetails {
 	private boolean isOptedOut;
 	private double reputationReq;		/* Represents fraction of user rep */
 	private int proximityReq;
+	private int loggedInTime;			/* Minutes that user has spent logged in */
+	private LocalTime intervalTimer;
 
 	/* Inherited from UserDetails */
 	private boolean accountLocked;
@@ -42,10 +46,12 @@ public class Account implements UserDetails {
 	private boolean accountEnabled;
 	private boolean credentialsExpired;
 
-	private int reputation;
 	public static final int MAX_REP = 100;
 	public static final int MAX_SKILL = 10;
+	public static final int NEW_USER_HOURS = 24;
+	public static final int NEW_USER_REP = 50;		/* Reputation constant added to new user reputation */
 
+	private int reputation;
     private List<Role> authorities;
     private List<ObjectId> skillIDs;
     private List<ObjectId> groupIDs;
@@ -68,6 +74,8 @@ public class Account implements UserDetails {
 		this.isNewUser = true;
 		this.reputationReq = 0;
 		this.proximityReq = 0;
+		this.loggedInTime = 0;
+		this.intervalTimer = LocalTime.now();
 		this.reputation = 0;
 		this.skillIDs = new ArrayList<>();
 		this.groupIDs = new ArrayList<>();
@@ -82,6 +90,30 @@ public class Account implements UserDetails {
 	public String getFullName()
 	{
 		return this.firstName + " " + this.lastName;
+	}
+
+	public void setTimer()
+	{
+		this.intervalTimer = LocalTime.now();
+	}
+
+	public void incrementTimer()
+	{
+		this.loggedInTime += this.intervalTimer.until(LocalTime.now(), MINUTES);
+		this.intervalTimer = LocalTime.now();
+		if(this.loggedInTime >= NEW_USER_HOURS*60)
+		{
+			this.isNewUser = false;
+		}
+	}
+
+	public int getAdjustedReputation()
+	{
+		if(this.isNewUser)
+		{
+			return (int)(this.reputation + NEW_USER_REP*(1 - (((double)this.loggedInTime)/(NEW_USER_HOURS*60))));
+		}
+		return this.reputation;
 	}
 
 	public void addSkill(ObjectId skillID)
