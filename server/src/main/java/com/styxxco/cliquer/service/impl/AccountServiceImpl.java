@@ -170,6 +170,11 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Map<String, ? extends Searchable> searchWithFilter(String type, String query, int level, boolean suggestions) {
+        return null;
+    }
+
+    @Override
     public Account updateUserProfile(String username, String field, String value)
     {
         if(!accountRepository.existsByUsername(username))

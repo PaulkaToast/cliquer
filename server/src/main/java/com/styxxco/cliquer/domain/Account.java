@@ -18,7 +18,7 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 @Getter
 @Setter
 @ToString(of = {"username", "firstName", "lastName", "reputation"})
-public class Account implements UserDetails {
+public class Account extends Searchable implements UserDetails {
 
 	private static final long serialVersionUID = 4815877135015943617L;
 

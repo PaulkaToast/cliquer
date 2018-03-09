@@ -12,8 +12,7 @@ import java.util.*;
 
 @Getter
 @Setter
-public class Group
-{
+public class Group extends Searchable {
 	@Id
 	private final ObjectId groupID;
 	private final String gid;
@@ -31,8 +30,7 @@ public class Group
 	private ArrayList<ObjectId> groupMemberIDs;	/* Account ID of the group members */
 	/* private ChatLog chat */
 
-	public Group(@NonNull String groupName, String groupPurpose, ObjectId groupLeaderID)
-	{
+	public Group(@NonNull String groupName, String groupPurpose, ObjectId groupLeaderID) {
 		this.groupID = new ObjectId();
 		this.gid = this.groupID.toString();
 		this.groupName = groupName;
