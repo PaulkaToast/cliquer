@@ -1,15 +1,18 @@
 import React, { Component } from 'react'
 import '../../css/UserInfo.css'
+import jmbuck from '../../img/jmbuck.jpg'
 
 class UserInfo extends Component {
   render() {
+    const { user } = this.props
     return (
       <div className="UserInfo">
-           <img src="avatar_hat.jpg" alt="Avatar"></img>
-             <div class="avatar">
-                <h2>Jane Doe</h2>
-             </div>
-
+           <div className ="img">
+                <img src={jmbuck} alt="AvatarX"></img>  
+            </div> 
+           <div className = "UN"> 
+                   {user ? user.displayname : ''}  
+           </div>   
       </div>  
     )
   }
