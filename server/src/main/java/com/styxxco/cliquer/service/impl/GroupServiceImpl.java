@@ -256,6 +256,11 @@ public class GroupServiceImpl implements GroupService {
         group.removeGroupMember(accountID);
         groupRepository.save(group);
         Account member = accountRepository.findByAccountID(accountID);
+        Message notification = new Message(groupID,
+                "You have been removed from the group " + group.getGroupName(),
+                Message.Types.GROUP_NOTIFICATION);
+        messageRepository.save(notification);
+        member.addMessage(notification.getMessageID());
         member.removeGroup(groupID);
         accountRepository.save(member);
         return group;
