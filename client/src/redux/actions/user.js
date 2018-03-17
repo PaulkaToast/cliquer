@@ -31,3 +31,10 @@ export function clearNewSkills() {
         type: 'CLEAR_NEW_SKILLS'
     }
 }
+
+export function setLocation(position) {
+    return {
+        type: 'SET_LOCATION',
+        position
+    }
+}

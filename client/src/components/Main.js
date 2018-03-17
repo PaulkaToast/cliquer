@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { Switch, Route, Redirect } from 'react-router'
-import Websocket from 'react-websocket'
 import NotificationSystem from 'react-notification-system'
 import { Button, ButtonGroup } from 'reactstrap'
 
@@ -133,7 +132,6 @@ class Main extends Component {
         </Switch>
 
         {/*TODO: hook up Websocket for notifications*/}
-        <Websocket url="ws://example.com" onMessage={this.handleNotification}/>
         <NotificationSystem ref="notificationSystem" allowHTML={this.props.allowHTML} />
       </div>
     )

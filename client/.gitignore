@@ -23,3 +23,4 @@ yarn-debug.log*
 yarn-error.log*
 
 /src/firebase/firebase.js
+/src/server.js

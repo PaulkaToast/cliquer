@@ -5,6 +5,7 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import '../../css/SkillsPanel.css'
 import SkillsForm from './SkillsForm'
 import { addSkills, clearNewSkills, postSkill } from '../../redux/actions'
+import url from '../../server.js'
 
 class SkillsPanel extends Component {
 
@@ -18,7 +19,7 @@ class SkillsPanel extends Component {
   addSkills = () => {
     this.props.addSkills(this.props.newSkills)
     this.props.newSkills.forEach(skill => {
-      this.props.postSkill(`https://localhost:17922/api/addSkill?username=${this.props.uid}&name=${skill}&level=0`, { 'X-Authorization-Firebase': this.props.token})
+      this.props.postSkill(`${url}/api/addSkill?username=${this.props.uid}&name=${skill}&level=0`, { 'X-Authorization-Firebase': this.props.token})
     })
     this.toggle()
   }
