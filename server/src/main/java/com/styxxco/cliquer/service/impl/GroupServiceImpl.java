@@ -348,6 +348,11 @@ public class GroupServiceImpl implements GroupService {
             log.info("User " + accountID + " is not in group " + groupID);
             return null;
         }
+        if(group.getKickCandidate() == null)
+        {
+            log.info("Group " + groupID + " has no ongoing vote kick");
+            return null;
+        }
         if(accountID.equals(group.getKickCandidate()))
         {
             log.info("User " + accountID + " is the one being vote kicked");
@@ -392,6 +397,11 @@ public class GroupServiceImpl implements GroupService {
         if(!this.hasGroupMember(group, accountID))
         {
             log.info("User " + accountID + " is not in group " + groupID);
+            return null;
+        }
+        if(group.getKickCandidate() == null)
+        {
+            log.info("Group " + groupID + " has no ongoing vote kick");
             return null;
         }
         if(accountID.equals(group.getKickCandidate()))
