@@ -463,6 +463,16 @@ public class SprintTwoServicesTest {
                 "To play video games",
                 shawn.getAccountID());
 
+        jordan.setLatitude(40.00);
+        jordan.setLongitude(-80.00);
+        jordan.setProximityReq(Integer.MAX_VALUE);
+        shawn.setLatitude(40.2);
+        shawn.setLongitude(-80.4);
+        shawn.setProximityReq(Integer.MAX_VALUE);
+        kevin.setLatitude(40.4);
+        kevin.setLongitude(-80.8);
+        kevin.setProximityReq(Integer.MAX_VALUE);
+
         cliquer = groupService.updateGroupSettings(cliquer.getGroupID(), cliquer.getGroupLeaderID(), "isPublic", "false");
         hoops = groupService.updateGroupSettings(hoops.getGroupID(), hoops.getGroupLeaderID(), "isPublic", "true");
         games = groupService.updateGroupSettings(games.getGroupID(), games.getGroupLeaderID(), "isPublic", "true");
