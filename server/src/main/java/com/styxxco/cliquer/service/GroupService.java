@@ -33,6 +33,12 @@ public interface GroupService {
     List<Group> searchByLeaderLastName(String lastName, List<Group> groups);
     List<Group> searchByLeaderFullName(String firstName, String lastName, List<Group> groups);
 
+    /* Vote kicking services */
+    Group startVoteKick(ObjectId groupID, ObjectId groupLeaderID, ObjectId accountID);
+    Group closeVoteKick(ObjectId groupID, ObjectId groupLeaderID);
+    Group acceptVoteKick(ObjectId groupID, ObjectId accountID);
+    Group denyVoteKick(ObjectId groupID, ObjectId accountID);
+
     /* Skill centered services */
     List<Skill> getAllSkillReqs(ObjectId groupID);
     Skill getSkillReq(ObjectId groupID, String skillName);

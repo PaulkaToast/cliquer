@@ -27,8 +27,11 @@ public class Group extends Searchable {
     private int proximityReq;
 
     private ObjectId groupLeaderID;
-	private ArrayList<ObjectId> groupMemberIDs;	/* Account ID of the group members */
+	private List<ObjectId> groupMemberIDs;	/* Account ID of the group members */
 	/* private ChatLog chat */
+
+	private ObjectId kickCandidate;
+	private List<ObjectId> kickVotes;
 
 	public Group(@NonNull String groupName, String groupPurpose, ObjectId groupLeaderID) {
 		this.groupID = new ObjectId();
@@ -44,7 +47,25 @@ public class Group extends Searchable {
 		this.proximityReq = 0;
 		this.groupMemberIDs = new ArrayList<>();
 		this.groupMemberIDs.add(groupLeaderID);
+
+		this.kickCandidate = null;
+		this.kickVotes = new ArrayList<>();
 	}
+
+	public void addKickVote(ObjectId accountID)
+    {
+        kickVotes.add(accountID);
+    }
+
+    public void removeKickVote(ObjectId accountID)
+    {
+        kickVotes.remove(accountID);
+    }
+
+    public boolean hasKickVote(ObjectId accountID)
+    {
+        return kickVotes.contains(accountID);
+    }
 
 	public void addSkillReq(ObjectId skillID)
 	{
