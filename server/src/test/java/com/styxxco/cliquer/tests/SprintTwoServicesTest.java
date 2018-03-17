@@ -473,6 +473,10 @@ public class SprintTwoServicesTest {
         kevin.setLongitude(-80.8);
         kevin.setProximityReq(Integer.MAX_VALUE);
 
+        accountRepository.save(jordan);
+        accountRepository.save(shawn);
+        accountRepository.save(kevin);
+
         cliquer = groupService.updateGroupSettings(cliquer.getGroupID(), cliquer.getGroupLeaderID(), "isPublic", "false");
         hoops = groupService.updateGroupSettings(hoops.getGroupID(), hoops.getGroupLeaderID(), "isPublic", "true");
         games = groupService.updateGroupSettings(games.getGroupID(), games.getGroupLeaderID(), "isPublic", "true");
