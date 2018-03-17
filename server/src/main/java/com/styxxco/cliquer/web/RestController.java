@@ -1,10 +1,7 @@
 package com.styxxco.cliquer.web;
 
 import com.google.api.Http;
-import com.styxxco.cliquer.domain.Account;
-import com.styxxco.cliquer.domain.Group;
-import com.styxxco.cliquer.domain.Message;
-import com.styxxco.cliquer.domain.Skill;
+import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.security.FirebaseFilter;
 import lombok.extern.log4j.Log4j;
 import org.bson.types.ObjectId;
@@ -12,6 +9,8 @@ import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.FirebaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -40,240 +39,232 @@ public class RestController {
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public @ResponseBody Object register(@RequestHeader(value = FirebaseFilter.HEADER_NAME) String firebaseToken,
-                                         @RequestParam(value ="first") String first,
-                                         @RequestParam(value="last") String last) {
-        log.info("Register called");
+    public @ResponseBody ResponseEntity<?> register(@RequestHeader(value = FirebaseFilter.HEADER_NAME) String firebaseToken,
+                               @RequestParam(value = "first") String first,
+                               @RequestParam(value = "last") String last) {
         Account a = firebaseService.registerUser(firebaseToken, first, last);
         return getUserProfile(a.getUsername(), "user");
     }
 
     @RequestMapping(value = "/api/getProfile", method = RequestMethod.GET)
-    public @ResponseBody Object getUserProfile(@RequestParam(value="identifier") String identifier,
-                                               @RequestParam(value="type") String type) {
-        Account user;
-        switch (type) {
-            case "user":
-                user = accountService.getUserProfile(identifier);
-                break;
-            case "member":
-                ObjectId memberID = new ObjectId(identifier);
-                user = accountService.getMemberProfile(memberID);
-                break;
-            case "public":
-                ObjectId publicID = new ObjectId(identifier);
-                user = accountService.getPublicProfile(publicID);
-                break;
-            default:
-                return HttpStatus.BAD_REQUEST;
-        }
+    public @ResponseBody ResponseEntity<?> getUserProfile(@RequestParam(value = "identifier") String identifier,
+                                     @RequestParam(value = "type") String type) {
+        Account user = accountService.getProfile(identifier, type);
         if (user == null) {
-            return HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<>("Could not fetch profile with the query", HttpStatus.BAD_REQUEST);
         }
-        return user;
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    // TODO: Potentially deprecated from updating settings
     @RequestMapping(value = "/api/updateProfile", method = RequestMethod.POST)
-    public @ResponseBody Object updateProfile(@RequestParam(value="username") String username,
-                                              @RequestParam(value="key") String key,
-                                              @RequestParam(value="value") String value) {
-        Account user = accountService.updateUserProfile(username, key, value);
-        if(user == null)
-        {
-            return HttpStatus.BAD_REQUEST;
+    public @ResponseBody ResponseEntity<?> updateProfile(@RequestParam(value = "username") String username,
+                                    @RequestParam(value = "key") String key,
+                                    @RequestParam(value = "value") String value) {
+        Account account = accountService.updateUserProfile(username, key, value);
+        if (account == null) {
+            return new ResponseEntity<>("Could not update profile", HttpStatus.BAD_REQUEST);
         }
-        return user;
+        return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/deleteProfile", method = RequestMethod.POST)
-    public @ResponseBody Object deleteAccount(@RequestParam(value="username") String username) {
+    public @ResponseBody ResponseEntity<?> deleteAccount(@RequestParam(value = "username") String username) {
         String success = accountService.deleteAccount(username);
         if (success == null) {
-            return HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<>("Could not delete profile", HttpStatus.BAD_REQUEST);
         }
-        log.info(success);
-        return success;
+        return new ResponseEntity<>(success, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/addFriend", method = RequestMethod.POST)
-    public @ResponseBody Object addFriend(@RequestParam(value="username") String username,
-                                          @RequestParam(value="friend") String friend) {
+    public @ResponseBody ResponseEntity<?> addFriend(@RequestParam(value = "username") String username,
+                                @RequestParam(value = "friend") String friend) {
         ObjectId friendID = new ObjectId(friend);
         Account account = accountService.addFriend(username, friendID);
         if (account == null) {
-            return HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<>("Could not add friend", HttpStatus.BAD_REQUEST);
         }
-        return account;
+        return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
+    // TODO: /api/requestFriend endpoint
+
     @RequestMapping(value = "/api/removeFriend", method = RequestMethod.POST)
-    public @ResponseBody Object removeFriend(@RequestParam(value="username") String username,
-                                             @RequestParam(value="friend") String friend) {
+    public @ResponseBody ResponseEntity<?> removeFriend(@RequestParam(value = "username") String username,
+                                   @RequestParam(value = "friend") String friend) {
         ObjectId friendID = new ObjectId(friend);
         Account account = accountService.removeFriend(username, friendID);
         if (account == null) {
-            return HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<>("Could not remove friend", HttpStatus.BAD_REQUEST);
         }
-        return account;
+        return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
     /* TODO: Rewrite to accept lists of skills @Shawn @SprintTwo */
-    @RequestMapping(value ="/api/createGroup", method = RequestMethod.POST)
-    public @ResponseBody Object createGroup(@RequestParam(value = "username") String username,
-                                            @RequestParam(value="groupName") String groupName,
-                                            @RequestParam(value="bio") String bio) {
+    @RequestMapping(value = "/api/createGroup", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> createGroup(@RequestParam(value = "username") String username,
+                                  @RequestParam(value = "groupName") String groupName,
+                                  @RequestParam(value = "bio") String bio) {
         Group group = accountService.createGroup(username, groupName, bio);
         if (group == null) {
-            return HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<>("Could not create group", HttpStatus.BAD_REQUEST);
         }
-        return group;
+        return new ResponseEntity<>(group, HttpStatus.OK);
     }
 
-    @RequestMapping(value="/api/leaveGroup", method=RequestMethod.POST)
-    public @ResponseBody Object leaveGroup(@RequestParam(value="username") String username,
-                                            @RequestParam(value="groupId") String groupId) {
+    // TODO: /api/updateGroup endpoint
+
+    @RequestMapping(value = "/api/leaveGroup", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> leaveGroup(@RequestParam(value = "username") String username,
+                                 @RequestParam(value = "groupId") String groupId) {
         ObjectId groupID = new ObjectId(groupId);
         Account user = accountService.leaveGroup(username, groupID);
         if (user == null) {
-            return HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<>("Could not find group from this id", HttpStatus.BAD_REQUEST);
         }
-        return user;
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @RequestMapping(value="/api/deleteGroup", method=RequestMethod.POST)
-    public @ResponseBody Object deleteGroup(@RequestParam(value="username") String username,
-                                            @RequestParam(value="groupId") String groupId) {
+    @RequestMapping(value = "/api/deleteGroup", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> deleteGroup(@RequestParam(value = "username") String username,
+                                  @RequestParam(value = "groupId") String groupId) {
         ObjectId groupID = new ObjectId(groupId);
         String result = accountService.deleteGroup(username, groupID);
         if (result == null) {
-            return HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<>("Could not delete group", HttpStatus.BAD_REQUEST);
         }
-        return result;
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @RequestMapping(value="/api/joinGroup", method=RequestMethod.POST)
-    public @ResponseBody Object joinGroup(@RequestParam(value="username") String username,
-                                           @RequestParam(value="groupId") String groupId) {
+    // TODO: /api/requestGroup endpoint
+
+    // TODO: /api/setGroupSettings endpoint
+
+    // TODO: cascade "joinGroup" with "addToGroup"
+    @RequestMapping(value = "/api/addToGroup", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> addToGroup(@RequestParam(value = "username") String username,
+                                 @RequestParam(value = "groupId") String groupId) {
         ObjectId groupID = new ObjectId(groupId);
         Account user = accountService.joinGroup(username, groupID);
         if (user == null) {
-            return HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<>("Could not find group from this id", HttpStatus.BAD_REQUEST);
         }
-        return user;
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @RequestMapping(value="/api/inviteToGroup", method = RequestMethod.POST)
-    public @ResponseBody Object inviteToGroup(@RequestParam(value="username") String username,
-                                              @RequestParam(value="friend") String friend,
-                                              @RequestParam(value="groupId") String groupId) {
+    @RequestMapping(value = "/api/inviteToGroup", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> inviteToGroup(@RequestParam(value = "username") String username,
+                                    @RequestParam(value = "friend") String friend,
+                                    @RequestParam(value = "groupId") String groupId) {
         ObjectId accountID = new ObjectId(friend);
         ObjectId groupID = new ObjectId(groupId);
         Account user = accountService.inviteToGroup(username, accountID, groupID);
         if (user == null) {
-            return HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<>("Could not find group from this id", HttpStatus.BAD_REQUEST);
         }
-        return user;
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @RequestMapping(value="/api/getUserGroups")
-    public @ResponseBody Object getUserGroups(@RequestParam(value="username") String username) {
+    // TODO: /api/kick endpoint
+
+    @RequestMapping(value = "/api/getUserGroups")
+    public @ResponseBody ResponseEntity<?> getUserGroups(@RequestParam(value = "username") String username) {
         List<Group> groups = accountService.getAllUserGroups(username);
         if (groups == null) {
-            return HttpStatus.BAD_REQUEST;
+            return new ResponseEntity<>("Could not find groups", HttpStatus.BAD_REQUEST);
         }
         Map<String, Group> map = groups.stream().collect(Collectors.toMap(Group::getGid, group -> group));
-
-        return map;
+        return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/getSkillList", method = RequestMethod.GET)
-    public @ResponseBody Object getSkillList() {
+    public @ResponseBody ResponseEntity<?> getSkillList() {
         List<Skill> skills = accountService.getAllValidSkills();
-        if(skills == null) {
-            return HttpStatus.BAD_REQUEST;
+        if (skills == null) {
+            return new ResponseEntity<>("Could not find skills", HttpStatus.BAD_REQUEST);
         }
-        return skills;
+        Map<String, Skill> map = skills.stream().collect(Collectors.toMap(Skill::getSid, skill -> skill));
+        return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/getSkills", method = RequestMethod.GET)
-    public @ResponseBody Object getSkills(@RequestParam(value="username") String username) {
+    public @ResponseBody ResponseEntity<?> getSkills(@RequestParam(value = "username") String username) {
         List<Skill> skills = accountService.getAllUserSkills(username);
-        if(skills == null) {
-            return HttpStatus.BAD_REQUEST;
+        if (skills == null) {
+            return new ResponseEntity<>("Could not find skills", HttpStatus.BAD_REQUEST);
         }
-        return skills;
+        Map<String, Skill> map = skills.stream().collect(Collectors.toMap(Skill::getSid, skill -> skill));
+        return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
     /* TODO: Rewrite to accept lists of skills @Shawn @SprintTwo */
     @RequestMapping(value = "/api/addSkill", method = RequestMethod.POST)
-    public @ResponseBody Object addSkill(@RequestParam(value="username") String username,
-                                         @RequestParam(value="name") String skillName,
-                                         @RequestParam(value="level") String skillLevel) {
+    public @ResponseBody Object addSkill(@RequestParam(value = "username") String username,
+                    @RequestParam(value = "name") String skillName,
+                    @RequestParam(value = "level") String skillLevel) {
         Account user = accountService.addSkill(username, skillName, skillLevel);
-        if(user == null)
-        {
+        if (user == null) {
             return HttpStatus.BAD_REQUEST;
         }
         return user;
+    }
+
+    @RequestMapping(value = "/api/addSkills", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> addSkills(@RequestParam(value = "username") String username,
+                                @RequestBody String json) {
+        Account account = accountService.addSkills(username, json);
+        return null;
     }
 
     @RequestMapping(value = "/api/removeSkill", method = RequestMethod.POST)
-    public @ResponseBody Object removeSkill(@RequestParam(value="username") String username,
-                                            @RequestParam(value="name") String skillName) {
-        Account user = accountService.removeSkill(username, skillName);
-        if(user == null)
-        {
-            return HttpStatus.BAD_REQUEST;
+    public @ResponseBody ResponseEntity<?> removeSkill(@RequestParam(value = "username") String username,
+                                  @RequestParam(value = "name") String skillName) {
+        Account account = accountService.removeSkill(username, skillName);
+        if (account == null) {
+            return new ResponseEntity<>("Could not add skills", HttpStatus.BAD_REQUEST);
         }
-        return user;
+        return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/getMessages", method = RequestMethod.GET)
-    public @ResponseBody Object getMessages(@RequestParam(value="username") String username) {
+    public @ResponseBody ResponseEntity<?> getMessages(@RequestParam(value = "username") String username) {
         List<Message> messages = accountService.getNewMessages(username);
-        if(messages == null)
-        {
-            return HttpStatus.BAD_REQUEST;
+        if (messages == null) {
+            return new ResponseEntity<>("Could not find messages", HttpStatus.BAD_REQUEST);
         }
-        return messages;
+        Map<String, Message> map = messages.stream().collect(Collectors.toMap(Message::getMid, message -> message));
+        return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
+    // TODO: /api/getChatLog
+
+    // TODO: /api/sendChat
+
+    // TODO: /api/receiveChat
+
+    // TODO: /api/requestRating
+
+    // TODO: notification WebSocket
+
+    // TODO: /api/rateUser
+
     @RequestMapping(value = "/api/search", method = RequestMethod.GET)
-    public @ResponseBody Object search(@RequestParam(value = "type") String type,
-                                       @RequestParam(value = "query", required = false, defaultValue = "null") String query,
-                                       @RequestParam(value = "level", required = false, defaultValue = "0") int level,
-                                       @RequestParam(value = "suggestions", required = false, defaultValue = "true") boolean suggestions,
-                                       @RequestParam(value = "weights", required = false, defaultValue = "true") boolean weights ){
-        Object obj = null;
-        switch(type) {
-            case "firstName":
-                obj = accountService.searchByFirstName(query);
-                break;
-            case "lastName":
-                obj = accountService.searchByLastName(query);
-                break;
-            case "fullName":
-                obj = accountService.searchByFullName(query);
-                break;
-            case "username":
-                obj = accountService.searchByUsername(query);
-                break;
-            case "reputation":
-                obj = accountService.searchByReputation(level, suggestions, weights);
-                break;
-            case "skill":
-                obj = accountService.searchBySkill(query, level);
-                break;
-            case "groupName":
-                obj = accountService.searchByGroupName(query);
-                break;
-            default:
-                obj = null;
+    public @ResponseBody ResponseEntity<?> search(@RequestParam(value = "type") String type,
+                             @RequestParam(value = "query", required = false, defaultValue = "null") String query,
+                             @RequestParam(value = "level", required = false, defaultValue = "0") int level,
+                             @RequestParam(value = "suggestions", required = false, defaultValue = "true") boolean suggestions,
+                             @RequestParam(value = "weights", required = false, defaultValue = "true") boolean weights) {
+        Map<String, ? extends Searchable> map = accountService.searchWithFilter(type, query, level, suggestions, weights);
+        if (map == null) {
+            return new ResponseEntity<>("Could not find any results", HttpStatus.BAD_REQUEST);
         }
-        if (obj == null) {
-            obj = HttpStatus.BAD_REQUEST;
-        }
-        return obj;
+        return new ResponseEntity<>(map, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/setSettings", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody ResponseEntity<?> updateSettings(@RequestBody String s) {
+        return new ResponseEntity<>(s, HttpStatus.OK);
     }
 
 }

@@ -1,5 +1,5 @@
 export { logIn, logOut, registerHasError, registerIsLoading, registerSuccess, registerUser, setToken } from './auth'
-export { updateUserData, addSkills, addNewSkill, deleteNewSkill, clearNewSkills } from './user'
+export { updateUserData, addSkills, addNewSkill, deleteNewSkill, clearNewSkills, setLocation } from './user'
 export { postSkillHasError, postSkillIsLoading, postSkillDataSuccess, postSkill,
          getSkillsHasError, getSkillsIsLoading, getSkillsDataSuccess, getSkills,
          removeSkillHasError, removeSkillIsLoading, removeSkillDataSuccess, removeSkill,

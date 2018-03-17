@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import '../css/CreateGroup.css'
 import SkillsForm from './Profile/SkillsForm'
 import { addSkills, clearNewSkills, createGroup } from '../redux/actions'
+import url from '../server.js'
 
 class CreateGroup extends Component {
 
@@ -18,7 +19,7 @@ class CreateGroup extends Component {
     this.props.clearSkills()
     ev.target.reset()
 
-    this.props.createGroup(`https://localhost:17922/api/createGroup?username=${this.props.user.uid}&bio=${purpose}&groupName=${groupName}`, { 'X-Authorization-Firebase': this.props.token})
+    this.props.createGroup(`${url}/api/createGroup?username=${this.props.user.uid}&bio=${purpose}&groupName=${groupName}`, { 'X-Authorization-Firebase': this.props.token})
   }
   
   render() {

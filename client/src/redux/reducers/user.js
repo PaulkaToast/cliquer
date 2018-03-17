@@ -33,6 +33,10 @@ function user(state = {}, action) {
             return Object.assign({}, state, {
                 newSkills: []
             })
+        case 'SET_LOCATION':
+            return Object.assign({}, state, {
+                position: action.position,
+            } )
         default:
             return state
     }

@@ -7,6 +7,7 @@ import '../css/Register.css'
 import Logo from '../img/cliquerLogo.png'
 import { auth, firebase } from '../firebase'
 import { registerUser, setToken } from '../redux/actions'
+import url from '../server.js'
 
 export class Register extends Component {
 
@@ -32,7 +33,7 @@ export class Register extends Component {
           authUser.updateProfile({
               displayName: `${firstName} ${lastName}`,
             }).then(() => {
-                this.props.register(`https://localhost:17922/register?first=${firstName}&last=${lastName}`, { 'X-Authorization-Firebase': this.props.token})
+                this.props.register(`${url}/register?first=${firstName}&last=${lastName}`, { 'X-Authorization-Firebase': this.props.token})
             })
             .catch((error) => {
               console.log(error)

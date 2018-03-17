@@ -1,5 +1,7 @@
 package com.styxxco.cliquer.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Group;
 import com.styxxco.cliquer.domain.Skill;
@@ -22,7 +24,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.styxxco.cliquer.domain.Message.Types.FRIEND_INVITE;
 
@@ -156,6 +160,25 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Account getProfile(String username, String type) {
+        Account user = null;
+        switch (type) {
+            case "user":
+                user = getUserProfile(username);
+                break;
+            case "member":
+                ObjectId memberID = new ObjectId(username);
+                user = getMemberProfile(memberID);
+                break;
+            case "public":
+                ObjectId publicID = new ObjectId(username);
+                user = getPublicProfile(publicID);
+                break;
+        }
+        return user;
+    }
+
+    @Override
     public Account getUserProfile(String username)
     {
         if(!accountRepository.existsByUsername(username))
@@ -167,6 +190,31 @@ public class AccountServiceImpl implements AccountService {
         user.setTimer();
         accountRepository.save(user);
         return user;
+    }
+
+    // TODO: add group privacy search
+    @Override
+    public Map<String, ? extends Searchable> searchWithFilter(String type, String query, int level, boolean suggestions, boolean weights) {
+        switch(type) {
+            case "firstName":
+                return searchByFirstName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
+            case "lastName":
+                return searchByLastName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
+            case "fullName":
+                return searchByFullName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
+            case "username":
+                Map<String, Account> map = new HashMap<>();
+                Account account = searchByUsername(query);
+                map.put(account.getUsername(), account);
+                return map;
+            case "reputation":
+                return searchByReputation(level, suggestions, weights).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
+            case "skill":
+                return searchBySkill(query, level).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
+            case "groupName":
+                return searchByGroupName(query).stream().collect(Collectors.toMap(Group::getGid, _it -> _it));
+        }
+        return null;
     }
 
     @Override
@@ -450,6 +498,30 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Account addSkills(String username, String json) {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+
+        try {
+            ObjectMapper om = new ObjectMapper();
+            TypeReference<List<HashMap<String, String>>> typeRef = new TypeReference<List<HashMap<String, String>>>() {};
+            List<Map<String, String>> mapList = om.readValue(json, typeRef);
+            for (Map<String, String> s: mapList) {
+                String skillName = s.get("skillName");
+                String skillLevel = s.get("skillLevel");
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return user;
+    }
+
+    @Override
     public Skill addSkillToDatabase(String skillName)
     {
         if(skillRepository.existsBySkillName(skillName))
@@ -526,20 +598,24 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Account addSkill(String username, String skillName, String skillString)
     {
-        if(!skillRepository.existsBySkillName(skillName))
-        {
-            log.info("Skill " + skillName + " is invalid");
-            return null;
-        }
         if(!accountRepository.existsByUsername(username))
         {
             log.info("User " + username + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
-        if(this.getSkill(username, skillName) != null)
+        return addSkill(user, skillName, skillString);
+    }
+
+    private Account addSkill(Account account, String skillName, String skillString) {
+        if(!skillRepository.existsBySkillName(skillName))
         {
-            log.info("User " + username + " already has skill " + skillName);
+            log.info("Skill " + skillName + " is invalid");
+            return null;
+        }
+        if(this.getSkill(account.getUsername(), skillName) != null)
+        {
+            log.info("User " + account.getUsername() + " already has skill " + skillName);
             return null;
         }
         int skillLevel = 0;
@@ -555,9 +631,9 @@ public class AccountServiceImpl implements AccountService {
         }
         Skill skill = new Skill(skillName, skillLevel);
         skillRepository.save(skill);
-        user.addSkill(skill.getSkillID());
-        accountRepository.save(user);
-        return user;
+        account.addSkill(skill.getSkillID());
+        accountRepository.save(account);
+        return account;
     }
 
     @Override
@@ -874,6 +950,11 @@ public class AccountServiceImpl implements AccountService {
             return "New User";
         }
         return "Experienced User";
+    }
+
+    @Override
+    public void setSettings(String username, String json) {
+
     }
 }
 

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class SocketController {
 
-    @MessageMapping("/chat")
+    @MessageMapping("/chat.sendMessage")
     @SendTo("/group/messages")
     public Message send(Message msg) throws Exception {
         return msg;

@@ -16,6 +16,7 @@ public class Skill implements Comparable<Skill>
 {
 	@Id
 	private final ObjectId skillID;
+	private final String sid;
 
 	private String skillName;
 	private int skillLevel;
@@ -23,6 +24,7 @@ public class Skill implements Comparable<Skill>
 	public Skill(String skillName, int skillLevel)			/* Constructor for creating a skill for an account	*/
 	{
 		this.skillID = new ObjectId();
+		this.sid = this.skillID.toString();
 		this.skillName = skillName;
 		this.skillLevel = skillLevel;
 	}

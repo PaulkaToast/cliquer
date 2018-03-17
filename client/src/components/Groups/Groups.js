@@ -13,6 +13,7 @@ import Chat from './Chat'
 import GroupMembers from './GroupMembers'
 import GroupSettings from './GroupSettings'
 import { getGroups, setCurrentGroup, leaveGroup } from '../../redux/actions'
+import url from '../../server.js'
 
 class Groups extends Component {
   constructor(props) {
@@ -29,7 +30,7 @@ class Groups extends Component {
 
   componentWillReceiveProps = (nextProps) => {
     if(nextProps.user && nextProps.token && nextProps.user.uid && !nextProps.groups) {
-      this.props.getGroups(`https://localhost:17922/api/getUserGroups?username=${nextProps.user.uid}`, { 'X-Authorization-Firebase': nextProps.token, 'Origin': 'https://localhost:17922'})
+      this.props.getGroups(`${url}/api/getUserGroups?username=${nextProps.user.uid}`, { 'X-Authorization-Firebase': nextProps.token })
     }
   }
 
@@ -71,7 +72,7 @@ class Groups extends Component {
   }
 
   leaveGroup = () => {
-    this.props.leaveGroup(`https://localhost:17922/api/leaveGroup?username=${this.props.user.uid}&groupId=${this.props.currentGroup.gid}`, { 'X-Authorization-Firebase': this.props.token})
+    this.props.leaveGroup(`${url}/api/leaveGroup?username=${this.props.user.uid}&groupId=${this.props.currentGroup.gid}`, { 'X-Authorization-Firebase': this.props.token})
   }
 
   render() {

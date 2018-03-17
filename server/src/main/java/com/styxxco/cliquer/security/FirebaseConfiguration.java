@@ -27,7 +27,7 @@ public class FirebaseConfiguration {
     private String configPath;
 
     @PostConstruct
-    public void init() {
+    public void init() throws Exception {
         InputStream inputStream = FirebaseConfiguration.class.getClassLoader().getResourceAsStream(configPath);
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setServiceAccount(inputStream)

@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import '../css/App.css'
 import { firebase } from '../firebase'
-import { logIn, logOut, setToken } from '../redux/actions'
+import { logIn, logOut, setToken, setLocation } from '../redux/actions'
 import Login from './Login'
 import Register from './Register'
 import Main from './Main'
@@ -21,6 +21,14 @@ class App extends Component {
   }
 
   componentDidMount() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(position => {
+          this.props.setLocation(position)
+        })
+    } else {
+      console.log('Geolocation is not supported')
+    }
+    
     firebase.onAuthStateChanged(authUser => {
       if(authUser) {
         this.props.logIn(authUser)
@@ -59,6 +67,7 @@ class App extends Component {
   }
 
   render() {
+    console.log(this.props.position)
     return (
       <div className="App h-100">
         <Switch>
@@ -92,6 +101,7 @@ class App extends Component {
 const mapStateToProps = (state) => {
 	return {
     user: state.user.data,
+    position: state.user.position,
     loggedIn: state.auth.loggedIn
 	}
 }
@@ -101,6 +111,7 @@ const mapDispatchToProps = (dispatch) => {
     logIn: (user) => dispatch(logIn(user)),
     logOut: () => dispatch(logOut()),
     setToken: (token) => dispatch(setToken(token)),
+    setLocation: (position) => dispatch(setLocation(position)),
 	}
 }
 
