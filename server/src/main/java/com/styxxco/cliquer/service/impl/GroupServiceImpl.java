@@ -289,12 +289,20 @@ public class GroupServiceImpl implements GroupService {
             {
                 continue;
             }
-            if(!group.isPublic())
+            else if(!group.isPublic())
             {
                 continue;
             }
             Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
-            if(leader == null || group.getReputationReq()*leader.getReputation() < user.getReputationReq()*user.getReputation())
+            if(leader == null)
+            {
+                continue;
+            }
+            else if(group.getReputationReq()*leader.getReputation() < user.getReputationReq()*user.getReputation())
+            {
+                continue;
+            }
+            else if(user.distanceTo(leader.getLatitude(), leader.getLongitude()) > user.getProximityReq())
             {
                 continue;
             }
