@@ -294,9 +294,9 @@ public class GroupServiceImpl implements GroupService {
         group.setKickVotes(new ArrayList<>());
         group.addKickVote(groupLeaderID);
         groupRepository.save(group);
-        if(group.getKickVotes().size()*2 >= group.getGroupMemberIDs().size())
+        if(group.getKickVotes().size()*2 >= group.getGroupMemberIDs().size() - 1)
         {
-            this.removeGroupMember(groupID, groupLeaderID, accountID);
+            group = this.removeGroupMember(groupID, groupLeaderID, accountID);
             group.setKickCandidate(null);
             group.setKickVotes(new ArrayList<>());
             groupRepository.save(group);
@@ -365,9 +365,9 @@ public class GroupServiceImpl implements GroupService {
         }
         group.addKickVote(accountID);
         groupRepository.save(group);
-        if(group.getKickVotes().size()*2 >= group.getGroupMemberIDs().size())
+        if(group.getKickVotes().size()*2 >= group.getGroupMemberIDs().size() - 1)
         {
-            this.removeGroupMember(groupID, group.getGroupLeaderID(), group.getKickCandidate());
+            group = this.removeGroupMember(groupID, group.getGroupLeaderID(), group.getKickCandidate());
             group.setKickCandidate(null);
             group.setKickVotes(new ArrayList<>());
             groupRepository.save(group);
