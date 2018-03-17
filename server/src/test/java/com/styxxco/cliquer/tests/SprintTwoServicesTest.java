@@ -105,8 +105,14 @@ public class SprintTwoServicesTest {
 
         jordan.setReputation(50);
         jordan.setReputationReq(0.5);
+        jordan.setLatitude(40.00);
+        jordan.setLongitude(-80.00);
+        jordan.setProximityReq(Integer.MAX_VALUE);
         shawn.setReputation(60);
-        cliquer.setReputationReq(1.0);
+        shawn.setLatitude(40.2);
+        shawn.setLongitude(-80.4);
+        shawn.setProximityReq(Integer.MAX_VALUE);
+        cliquer.setReputationReq(0.5);
         hoops.setReputationReq(0.25);
         hoops.setReputationReq(0.5);
         games.setReputationReq(0.5);
@@ -153,6 +159,24 @@ public class SprintTwoServicesTest {
         List<Group> third = groupService.searchByLeaderFullName("Shawn", "Montgomery", null);
         assertEquals(first.size(), second.size());
         assertEquals(first.size(), third.size());
+
+        groups = groupService.searchBySettings("montgo38", null);
+        assertEquals(1, groups.size());
+        assertEquals("Cliquer", groups.get(0).getGroupName());
+
+        assertEquals(25, jordan.distanceTo(shawn.getLatitude(), shawn.getLongitude()));
+        jordan.setProximityReq(30);
+        shawn.setProximityReq(20);
+
+        accountRepository.save(jordan);
+        accountRepository.save(shawn);
+
+        groups = groupService.searchBySettings("reed226", null);
+        assertEquals(2, groups.size());
+        assertEquals("Hoops", groups.get(0).getGroupName());
+
+        groups = groupService.searchBySettings("montgo38", null);
+        assertEquals(0, groups.size());
 
         hula = groupRepository.findByGroupID(hula.getGroupID());
         hoops = groupRepository.findByGroupID(hoops.getGroupID());
@@ -438,6 +462,20 @@ public class SprintTwoServicesTest {
                 "Games",
                 "To play video games",
                 shawn.getAccountID());
+
+        jordan.setLatitude(40.00);
+        jordan.setLongitude(-80.00);
+        jordan.setProximityReq(Integer.MAX_VALUE);
+        shawn.setLatitude(40.2);
+        shawn.setLongitude(-80.4);
+        shawn.setProximityReq(Integer.MAX_VALUE);
+        kevin.setLatitude(40.4);
+        kevin.setLongitude(-80.8);
+        kevin.setProximityReq(Integer.MAX_VALUE);
+
+        accountRepository.save(jordan);
+        accountRepository.save(shawn);
+        accountRepository.save(kevin);
 
         cliquer = groupService.updateGroupSettings(cliquer.getGroupID(), cliquer.getGroupLeaderID(), "isPublic", "false");
         hoops = groupService.updateGroupSettings(hoops.getGroupID(), hoops.getGroupLeaderID(), "isPublic", "true");
