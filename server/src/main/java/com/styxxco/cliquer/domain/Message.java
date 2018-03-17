@@ -18,6 +18,7 @@ public class Message
 {
 	@Id
 	private final ObjectId messageID;
+	private final String mid;
 
 	private final String content;		/* The actual message in the Message		*/
 	private final ObjectId senderID;	/* MongoDB ID of entity that sent message	*/
@@ -41,6 +42,7 @@ public class Message
 	public Message(ObjectId senderID, String content, int type)
 	{
 		this.messageID = new ObjectId();
+		this.mid = this.messageID.toString();
 		this.senderID = senderID;
 		this.content = content;
 		this.type = type;

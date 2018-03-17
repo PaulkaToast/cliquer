@@ -14,6 +14,7 @@ public interface AccountService extends UserDetailsService {
     Account createAccount(String username, String email, String firstName, String lastName);
 
     /* Account Access */
+    Account getProfile(String username, String type);
     Account getUserProfile(String username);
     Account getMemberProfile(ObjectId accountID);
     Account maskPublicProfile(Account account);
@@ -22,11 +23,13 @@ public interface AccountService extends UserDetailsService {
     /* Account Modification */
     Account updateUserProfile(String username, String field, String value);
     Account addSkill(String username, String skillName, String skillLevel);
+    Account addSkills(String username, String json);
     Account removeSkill(String username, String skillName);
     String deleteAccount(String username);
 
     /* Account Searching */
-    Map<String, ? extends Searchable> searchWithFilter(String type, String query, int level, boolean suggestions);
+    Map<String, ? extends Searchable> searchWithFilter(String type, String query, int level, boolean suggestions, boolean weights);
+    void setSettings(String username, String json);
     List<Account> searchByFirstName(String firstName);
     List<Account> searchByLastName(String lastName);
     List<Account> searchByFullName(String firstName, String lastName);
