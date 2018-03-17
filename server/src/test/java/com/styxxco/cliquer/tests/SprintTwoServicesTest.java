@@ -572,7 +572,8 @@ public class SprintTwoServicesTest {
         assertEquals(false, result.getGroupMemberIDs().contains(kevin.getAccountID()));
         kevin = accountRepository.findByUsername(kevin.getUsername());
         assertEquals(0, kevin.getGroupIDs().size());
-        assertEquals(Types.GROUP_NOTIFICATION, kevin.getMessageIDs().get(0));
+        Message first = messageRepository.findByMessageID(kevin.getMessageIDs().get(0));
+        assertEquals(Types.GROUP_NOTIFICATION, first.getType());
 
         result = groupService.acceptVoteKick(cliquer.getGroupID(), rhys.getAccountID());
         assertNull(result);
@@ -587,8 +588,11 @@ public class SprintTwoServicesTest {
         assertEquals(false, result.getGroupMemberIDs().contains(rhys.getAccountID()));
         rhys = accountRepository.findByUsername(rhys.getUsername());
         assertEquals(0, rhys.getGroupIDs().size());
-        assertEquals(Types.GROUP_NOTIFICATION, rhys.getMessageIDs().get(0));
+        Message second = messageRepository.findByMessageID(rhys.getMessageIDs().get(0));
+        assertEquals(Types.GROUP_NOTIFICATION, second.getType());
 
+        messageRepository.delete(first);
+        messageRepository.delete(second);
         groupRepository.delete(cliquer);
         accountRepository.delete(jordan);
         accountRepository.delete(shawn);
