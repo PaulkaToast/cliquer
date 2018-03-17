@@ -7,23 +7,24 @@ import FriendsPanel from './FriendsPanel'
 import UserInfo from './UserInfo'
 import NotificationPanel from './NotificationPanel'
 import { getSkills, removeSkill, getProfile, getSkillsList } from '../../redux/actions'
+import url from '../../server.js'
 
 class Profile extends Component {
 
   componentWillReceiveProps = (nextProps) => {
-    if (nextProps.uid && nextProps.token) {
-      this.props.getSkills(`https://localhost:17922/api/getSkills?username=${nextProps.uid}`, { 'X-Authorization-Firebase': nextProps.token })
-
+    if(nextProps.uid && nextProps.token) {
+      this.props.getSkills(`${url}/api/getSkills?username=${nextProps.uid}`, { 'X-Authorization-Firebase': nextProps.token})
+     
       const type = nextProps.ownerUID === nextProps.uid ? 'user' : 'public'
       const uid = nextProps.uid //TODO: remove this later and just use ownerid
-      this.props.getSkillsList('https://localhost:17922/api/getSkillList', { 'X-Authorization-Firebase': nextProps.token })
-      this.props.getProfile(`https://localhost:17922/api/getProfile?identifier=${uid}&type=${type}`, { 'X-Authorization-Firebase': nextProps.token })
+      this.props.getSkillsList(`${url}/api/getSkillList`, { 'X-Authorization-Firebase': nextProps.token})
+      this.props.getProfile(`${url}/api/getProfile?identifier=${uid}&type=${type}`, { 'X-Authorization-Firebase': nextProps.token})
     }
   }
 
   removeSkill = (skill) => {
-    if (this.props.uid && this.props.token) {
-      this.props.removeSkill(`https://localhost:17922/api/removeSkill?username=${this.props.uid}&name=${skill}`, { 'X-Authorization-Firebase': this.props.token })
+    if(this.props.uid && this.props.token) {
+      this.props.removeSkill(`${url}/api/removeSkill?username=${this.props.uid}&name=${skill}`, { 'X-Authorization-Firebase': this.props.token})
     } else {
       console.log('UID or Token does not exist!')
     }
@@ -31,6 +32,7 @@ class Profile extends Component {
 
   
   render() {
+    const { user } = this.props
     return (
     
   <div>

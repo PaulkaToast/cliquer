@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Alert } from 'reactstrap'
-import Websocket from 'react-websocket'
+import SockJsClient from 'react-stomp'
 
 import '../../css/Chat.css'
 import { getChatLog, postChatMessage, updateChatLog } from '../../redux/actions'
+import url from '../../server.js'
 
 class Chat extends Component {
 
@@ -16,7 +17,16 @@ class Chat extends Component {
     }
   }
 
+  sendMessage = () => {
+    const msg = {
+      senderId: this.props.user.uid,
+      content: 'Test message'
+    }
+    this.clientRef.sendMessage('/secured/chat', JSON.stringify(msg));
+  }
+
   handleMessage = (data) => {
+    console.log(data)
     if(data) {
       const message = data.message
     }
@@ -31,15 +41,23 @@ class Chat extends Component {
   }
 
   render() {
+    console.log(window.location.protocol)
     return (
       <div className="Chat">
         <div>
+          <button onClick={() => this.sendMessage()} type="button">Send Message</button>
           <Alert color="danger">
           Group chat system is currently under construction. Check back in sprint 2!
           </Alert>
         </div>
+
         {/*TODO: link up websockets with backend*/}
-        <Websocket url="ws://example.com" onMessage={this.handleMessage}/>
+        <SockJsClient url={`${url}/chat`} topics={['/group/message']}
+          onMessage={this.handleMessage}
+          ref={ (client) => { this.clientRef = client }} 
+          subscribeHeaders={{ 'X-Authorization-Firebase': this.props.token }}
+          headers={{ 'X-Authorization-Firebase': this.props.token }}
+        />
       </div>
     )
   }
