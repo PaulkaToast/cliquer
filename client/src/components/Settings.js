@@ -59,7 +59,6 @@ class Settings extends Component {
         auth.doPasswordUpdate(newPassword).then(function(){
           window.alert("Password Updated Successfully")
         }).catch(error => {
-          console.log(error)
           this.setState({ error })
         })}
     }).catch(error => {

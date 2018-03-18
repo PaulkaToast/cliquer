@@ -26,7 +26,6 @@ class Chat extends Component {
   }
 
   handleMessage = (data) => {
-    console.log(data)
     if(data) {
       const message = data.message
     }
@@ -41,7 +40,6 @@ class Chat extends Component {
   }
 
   render() {
-    console.log(window.location.protocol)
     return (
       <div className="Chat">
         <div>
@@ -52,12 +50,7 @@ class Chat extends Component {
         </div>
 
         {/*TODO: link up websockets with backend*/}
-        <SockJsClient url={`${url}/chat`} topics={['/group/message']}
-          onMessage={this.handleMessage}
-          ref={ (client) => { this.clientRef = client }} 
-          subscribeHeaders={{ 'X-Authorization-Firebase': this.props.token }}
-          headers={{ 'X-Authorization-Firebase': this.props.token }}
-        />
+        {/* SOCK JS */}
       </div>
     )
   }

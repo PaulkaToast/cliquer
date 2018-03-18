@@ -33,10 +33,10 @@ export class Register extends Component {
           authUser.updateProfile({
               displayName: `${firstName} ${lastName}`,
             }).then(() => {
-                this.props.register(`${url}/register?first=${firstName}&last=${lastName}`, { 'X-Authorization-Firebase': this.props.token})
-            })
-            .catch((error) => {
-              console.log(error)
+              authUser.getIdToken(true)
+              .then((token) => {
+                this.props.register(`${url}/register?first=${firstName}&last=${lastName}`, { 'X-Authorization-Firebase': token })
+              })
             })
         })
         .catch(error => {

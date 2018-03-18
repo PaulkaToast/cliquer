@@ -1,6 +1,6 @@
 export { logIn, logOut, registerHasError, registerIsLoading, registerSuccess, registerUser, setToken } from './auth'
 export { updateUserData, addSkills, addNewSkill, deleteNewSkill, clearNewSkills, setLocation } from './user'
-export { postSkillHasError, postSkillIsLoading, postSkillDataSuccess, postSkill,
+export { postSkillsHasError, postSkillsIsLoading, postSkillsDataSuccess, postSkills,
          getSkillsHasError, getSkillsIsLoading, getSkillsDataSuccess, getSkills,
          removeSkillHasError, removeSkillIsLoading, removeSkillDataSuccess, removeSkill,
          getSkillsListHasError, getSkillsListIsLoading, getSkillsListDataSuccess, getSkillsList,} from './skills'

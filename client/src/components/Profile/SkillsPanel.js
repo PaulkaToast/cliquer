@@ -4,7 +4,7 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 
 import '../../css/SkillsPanel.css'
 import SkillsForm from './SkillsForm'
-import { addSkills, clearNewSkills, postSkill } from '../../redux/actions'
+import { clearNewSkills, postSkills, removeSkill } from '../../redux/actions'
 import url from '../../server.js'
 
 class SkillsPanel extends Component {
@@ -17,11 +17,14 @@ class SkillsPanel extends Component {
   }
   
   addSkills = () => {
-    this.props.addSkills(this.props.newSkills)
-    this.props.newSkills.forEach(skill => {
-      this.props.postSkill(`${url}/api/addSkill?username=${this.props.uid}&name=${skill}&level=0`, { 'X-Authorization-Firebase': this.props.token})
-    })
+    this.props.postSkills(`${url}/api/addSkills?username=${this.props.uid}`, { 'X-Authorization-Firebase': this.props.token }, JSON.stringify(this.props.newSkills))
     this.toggle()
+  }
+
+  removeSkill = (skill, index) => {
+    if(this.props.uid && this.props.token) {
+      this.props.removeSkill(`${url}/api/removeSkill?username=${this.props.uid}&name=${skill}`, { 'X-Authorization-Firebase': this.props.token}, null, index)
+    } 
   }
 
   toggle = (setState) => {
@@ -36,6 +39,10 @@ class SkillsPanel extends Component {
   render() {
     return (
       <div className="SkillsPanel">
+        { this.props.skills && this.props.skills.map((skill, i) => {
+          return <div onClick={() => {this.removeSkill(skill.skillName, i)}}>{skill.skillName} - {skill.skillLevel}</div>
+        })}
+
         <Button color="primary" onClick={this.toggle}>Add skills</Button>
         <Modal isOpen={this.state.modal} toggle={this.toggle} className="add-skills-modal">
           <ModalHeader toggle={this.toggle}>Add Skills</ModalHeader>
@@ -63,8 +70,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
 	return {
     clearSkills: () => dispatch(clearNewSkills()),
-    addSkills: (skills) => dispatch(addSkills(skills)),
-    postSkill: (url, headers) => dispatch(postSkill(url, headers)),
+    postSkills: (url, headers, body) => dispatch(postSkills(url, headers, body)),
+    removeSkill: (url, headers, body, index) => dispatch(removeSkill(url, headers, body, index)),
 	}
 }
 
