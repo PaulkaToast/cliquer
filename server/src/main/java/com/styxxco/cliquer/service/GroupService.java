@@ -39,6 +39,12 @@ public interface GroupService {
     Group acceptVoteKick(ObjectId groupID, ObjectId accountID);
     Group denyVoteKick(ObjectId groupID, ObjectId accountID);
 
+    /* Joining a Group */
+    boolean meetsGroupRequirements(ObjectId groupID, ObjectId accountID);
+    Message requestToJoinGroup(ObjectId groupID, ObjectId accountID);
+    Message acceptJoinRequest(ObjectId groupLeaderID, ObjectId messageID);
+    Message denyJoinRequest(ObjectId groupLeaderID, ObjectId messageID);
+
     /* Skill centered services */
     List<Skill> getAllSkillReqs(ObjectId groupID);
     Skill getSkillReq(ObjectId groupID, String skillName);

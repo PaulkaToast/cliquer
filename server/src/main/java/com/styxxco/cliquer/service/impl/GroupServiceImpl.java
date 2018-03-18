@@ -693,6 +693,152 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    public boolean meetsGroupRequirements(ObjectId groupID, ObjectId accountID)
+    {
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            log.info("Group " + groupID + " not found");
+            return false;
+        }
+        if(!accountRepository.existsByAccountID(accountID))
+        {
+            log.info("User " + accountID + " not found");
+            return false;
+        }
+        Group group = groupRepository.findByGroupID(groupID);
+        Account user = accountRepository.findByAccountID(accountID);
+        Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
+        if(user.getAdjustedReputation() < group.getReputationReq() * leader.getReputation())
+        {
+            return false;
+        }
+        if(user.distanceTo(leader.getLatitude(), leader.getLongitude()) > group.getProximityReq())
+        {
+            return false;
+        }
+        boolean metReq = true;
+        for(ObjectId skillReqID : group.getSkillReqs())
+        {
+            metReq = false;
+            Skill skillReq = skillRepository.findBySkillID(skillReqID);
+            for(ObjectId skillID : user.getSkillIDs())
+            {
+                Skill skill = skillRepository.findBySkillID(skillID);
+                if(skill.getSkillName().equals(skillReq.getSkillName()))
+                {
+                    if(skill.getSkillLevel() > skillReq.getSkillLevel())
+                    {
+                        metReq = true;
+                    }
+                    break;
+                }
+            }
+            if(!metReq)
+            {
+                break;
+            }
+        }
+        return metReq;
+    }
+
+    @Override
+    public Message requestToJoinGroup(ObjectId groupID, ObjectId accountID)
+    {
+        if(!this.meetsGroupRequirements(groupID, accountID))
+        {
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupID);
+        Account user = accountRepository.findByAccountID(accountID);
+        Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
+        Message joinRequest = new Message(accountID,
+                "User " + user.getFullName() + " wishes to join your group " + group.getGroupName(),
+                Message.Types.JOIN_REQUEST);
+        joinRequest.setGroupID(groupID);
+        messageRepository.save(joinRequest);
+        leader.addMessage(joinRequest.getMessageID());
+        accountRepository.save(leader);
+        return joinRequest;
+    }
+
+    @Override
+    public Message acceptJoinRequest(ObjectId groupLeaderID, ObjectId messageID)
+    {
+        if(!accountRepository.existsByAccountID(groupLeaderID))
+        {
+            log.info("User " + groupLeaderID + " not found");
+            return null;
+        }
+        Account leader = accountRepository.findByAccountID(groupLeaderID);
+        if(!leader.hasMessage(messageID))
+        {
+            log.info("User " + groupLeaderID + " did not receive message " + messageID);
+            return null;
+        }
+        Message request = messageRepository.findByMessageID(messageID);
+        messageRepository.delete(request);
+        if(!accountRepository.existsByAccountID(request.getSenderID()))
+        {
+            log.info("User " + request.getSenderID() + " not found");
+            return null;
+        }
+        if(!groupRepository.existsByGroupID(request.getGroupID()))
+        {
+            log.info("Group " + request.getGroupID() + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(request.getGroupID());
+        Account sender = accountRepository.findByAccountID(request.getSenderID());
+        group.addGroupMember(request.getSenderID());
+        groupRepository.save(group);
+        Message acceptance = new Message(request.getGroupID(),
+                "You have been accepted into group " + group.getGroupName(),
+                Message.Types.PROFILE_NOTIFICATION);
+        messageRepository.save(acceptance);
+        sender.addMessage(acceptance.getMessageID());
+        sender.addGroup(group.getGroupID());
+        accountRepository.save(sender);
+        return acceptance;
+    }
+
+    @Override
+    public Message denyJoinRequest(ObjectId groupLeaderID, ObjectId messageID)
+    {
+        if(!accountRepository.existsByAccountID(groupLeaderID))
+        {
+            log.info("User " + groupLeaderID + " not found");
+            return null;
+        }
+        Account leader = accountRepository.findByAccountID(groupLeaderID);
+        if(!leader.hasMessage(messageID))
+        {
+            log.info("User " + groupLeaderID + " did not receive message " + messageID);
+            return null;
+        }
+        Message request = messageRepository.findByMessageID(messageID);
+        messageRepository.delete(request);
+        if(!accountRepository.existsByAccountID(request.getSenderID()))
+        {
+            log.info("User " + request.getSenderID() + " not found");
+            return null;
+        }
+        if(!groupRepository.existsByGroupID(request.getGroupID()))
+        {
+            log.info("Group " + request.getGroupID() + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(request.getGroupID());
+        Account sender = accountRepository.findByAccountID(request.getSenderID());
+        Message denial = new Message(request.getGroupID(),
+                "You have been rejected from joining group " + group.getGroupName(),
+                Message.Types.PROFILE_NOTIFICATION);
+        messageRepository.save(denial);
+        sender.addMessage(denial.getMessageID());
+        accountRepository.save(sender);
+        return denial;
+    }
+
+    @Override
     public Message sendMessage(ObjectId groupID, ObjectId senderID, ObjectId receiverID, String content, int type)
     {
         if(!groupRepository.existsByGroupID(groupID))

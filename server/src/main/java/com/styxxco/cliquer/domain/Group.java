@@ -44,7 +44,7 @@ public class Group extends Searchable {
 		this.skillReqs = new ArrayList<>();
 		this.isPublic = false;
 		this.reputationReq = 0.0;
-		this.proximityReq = 0;
+		this.proximityReq = 100;
 		this.groupMemberIDs = new ArrayList<>();
 		this.groupMemberIDs.add(groupLeaderID);
 
