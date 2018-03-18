@@ -1,6 +1,9 @@
 .Chat{
     padding-right: 0px;
     padding-left: 0px;
+    background-image: url("../img/cliquerLogoLogo.png");
+    background-repeat: no-repeat;
+    background-position: right bottom;
 }
 .message-container{
     height: 80vh;
