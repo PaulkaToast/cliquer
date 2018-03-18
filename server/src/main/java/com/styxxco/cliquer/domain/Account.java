@@ -1,6 +1,7 @@
 
 package com.styxxco.cliquer.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -23,27 +24,38 @@ public class Account extends Searchable implements UserDetails {
 	private static final long serialVersionUID = 4815877135015943617L;
 
 	@Id
+	@JsonIgnore
 	private final ObjectId accountID;
 
     private String username;			/* Must be unique, equivalent to uid in frontend */
 	private String email;
 	private String firstName;
 	private String lastName;
+
+	@JsonIgnore
 	private String password;
 
 	private boolean isModerator;
-	private boolean isPublic;
 	private boolean isNewUser;
+	@JsonIgnore
+	private int loggedInTime;			/* Minutes that user has spent logged in */
+	@JsonIgnore
+	private LocalTime intervalTimer;
+
+	/* Start changeable settings */
+	private boolean isPublic;
 	private boolean isOptedOut;
 	private double reputationReq;		/* Represents fraction of user rep */
 	private int proximityReq;
-	private int loggedInTime;			/* Minutes that user has spent logged in */
-	private LocalTime intervalTimer;
 
 	/* Inherited from UserDetails */
+	@JsonIgnore
 	private boolean accountLocked;
+	@JsonIgnore
 	private boolean accountExpired;
+	@JsonIgnore
 	private boolean accountEnabled;
+	@JsonIgnore
 	private boolean credentialsExpired;
 
 	public static final int MAX_REP = 100;
@@ -52,10 +64,15 @@ public class Account extends Searchable implements UserDetails {
 	public static final int NEW_USER_REP = 50;		/* Reputation constant added to new user reputation */
 
 	private int reputation;
+	@JsonIgnore
     private List<Role> authorities;
+	@JsonIgnore
     private List<ObjectId> skillIDs;
+	@JsonIgnore
     private List<ObjectId> groupIDs;
+	@JsonIgnore
     private List<ObjectId> friendIDs;
+	@JsonIgnore
     private List<ObjectId> messageIDs;
 
     public Account() {
@@ -173,21 +190,25 @@ public class Account extends Searchable implements UserDetails {
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isAccountNonExpired() {
 		return !accountExpired;
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isAccountNonLocked() {
 		return !accountLocked;
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isCredentialsNonExpired() {
 		return !credentialsExpired;
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isEnabled() {
 		return accountEnabled;
 	}

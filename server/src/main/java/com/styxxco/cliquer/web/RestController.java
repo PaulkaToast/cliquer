@@ -1,6 +1,5 @@
 package com.styxxco.cliquer.web;
 
-import com.google.api.Http;
 import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.security.FirebaseFilter;
 import lombok.extern.log4j.Log4j;
@@ -12,12 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.View;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -47,25 +42,13 @@ public class RestController {
     }
 
     @RequestMapping(value = "/api/getProfile", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<?> getUserProfile(@RequestParam(value = "identifier") String identifier,
+    public @ResponseBody ResponseEntity<?> getUserProfile(@RequestParam(value = "username") String username,
                                      @RequestParam(value = "type") String type) {
-        Account user = accountService.getProfile(identifier, type);
+        Account user = accountService.getProfile(username, type);
         if (user == null) {
             return new ResponseEntity<>("Could not fetch profile with the query", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(user, HttpStatus.OK);
-    }
-
-    // TODO: Potentially deprecated from updating settings
-    @RequestMapping(value = "/api/updateProfile", method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<?> updateProfile(@RequestParam(value = "username") String username,
-                                    @RequestParam(value = "key") String key,
-                                    @RequestParam(value = "value") String value) {
-        Account account = accountService.updateUserProfile(username, key, value);
-        if (account == null) {
-            return new ResponseEntity<>("Could not update profile", HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/deleteProfile", method = RequestMethod.POST)
@@ -101,7 +84,6 @@ public class RestController {
         return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
-    /* TODO: Rewrite to accept lists of skills @Shawn @SprintTwo */
     @RequestMapping(value = "/api/createGroup", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> createGroup(@RequestParam(value = "username") String username,
                                   @RequestParam(value = "groupName") String groupName,
@@ -141,12 +123,11 @@ public class RestController {
 
     // TODO: /api/setGroupSettings endpoint
 
-    // TODO: cascade "joinGroup" with "addToGroup"
     @RequestMapping(value = "/api/addToGroup", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> addToGroup(@RequestParam(value = "username") String username,
                                  @RequestParam(value = "groupId") String groupId) {
         ObjectId groupID = new ObjectId(groupId);
-        Account user = accountService.joinGroup(username, groupID);
+        Account user = accountService.addToGroup(username, groupID);
         if (user == null) {
             return new ResponseEntity<>("Could not find group from this id", HttpStatus.BAD_REQUEST);
         }
@@ -178,14 +159,14 @@ public class RestController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/api/getSkillList", method = RequestMethod.GET)
+    @RequestMapping(value = "/getSkillList", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<?> getSkillList() {
         List<Skill> skills = accountService.getAllValidSkills();
         if (skills == null) {
             return new ResponseEntity<>("Could not find skills", HttpStatus.BAD_REQUEST);
         }
-        Map<String, Skill> map = skills.stream().collect(Collectors.toMap(Skill::getSid, skill -> skill));
-        return new ResponseEntity<>(map, HttpStatus.OK);
+        List<String> list = skills.stream().map(Skill::getSkillName).collect(Collectors.toList());
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/getSkills", method = RequestMethod.GET)
@@ -194,27 +175,17 @@ public class RestController {
         if (skills == null) {
             return new ResponseEntity<>("Could not find skills", HttpStatus.BAD_REQUEST);
         }
-        Map<String, Skill> map = skills.stream().collect(Collectors.toMap(Skill::getSid, skill -> skill));
-        return new ResponseEntity<>(map, HttpStatus.OK);
-    }
-
-    /* TODO: Rewrite to accept lists of skills @Shawn @SprintTwo */
-    @RequestMapping(value = "/api/addSkill", method = RequestMethod.POST)
-    public @ResponseBody Object addSkill(@RequestParam(value = "username") String username,
-                    @RequestParam(value = "name") String skillName,
-                    @RequestParam(value = "level") String skillLevel) {
-        Account user = accountService.addSkill(username, skillName, skillLevel);
-        if (user == null) {
-            return HttpStatus.BAD_REQUEST;
-        }
-        return user;
+        return new ResponseEntity<>(skills, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/addSkills", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> addSkills(@RequestParam(value = "username") String username,
                                 @RequestBody String json) {
-        Account account = accountService.addSkills(username, json);
-        return null;
+        List<? extends Searchable> skills = accountService.addSkills(username, json);
+        if (skills == null) {
+            return new ResponseEntity<>("Could not add skills", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(skills, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/removeSkill", method = RequestMethod.POST)
@@ -222,7 +193,7 @@ public class RestController {
                                   @RequestParam(value = "name") String skillName) {
         Account account = accountService.removeSkill(username, skillName);
         if (account == null) {
-            return new ResponseEntity<>("Could not add skills", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Could not remove skill", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(account, HttpStatus.OK);
     }

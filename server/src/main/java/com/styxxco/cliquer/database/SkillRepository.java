@@ -15,4 +15,6 @@ public interface SkillRepository extends MongoRepository<Skill, String>
 	boolean existsBySkillID(ObjectId skillID);
 	Skill findBySkillID(ObjectId skillID);
 	ArrayList<Skill> findBySkillLevel(int skillLevel);
+	Skill findBySkillNameAndSkillLevel(String skillName, int skillLevel);
+	boolean existsBySkillNameAndSkillLevel(String skillName, int skillLevel);
 }

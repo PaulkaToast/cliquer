@@ -2,6 +2,7 @@ package com.styxxco.cliquer.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Group;
 import com.styxxco.cliquer.domain.Skill;
@@ -27,8 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.styxxco.cliquer.domain.Message.Types.FRIEND_INVITE;
 
 @Log4j
 @Service(value = AccountServiceImpl.NAME)
@@ -127,7 +126,7 @@ public class AccountServiceImpl implements AccountService {
             account.setPassword(UUID.randomUUID().toString());
             System.out.println(account.toString());
             accountRepository.save(account);
-            log.info("registerUser -> user \"" + tokenHolder.getName() + "\" created");
+            log.info("registerUser -> user \"" + account.getFirstName() + " " + account.getLastName() + "\" created");
             return account;
         } else {
             log.info("registerUser -> user \"" + tokenHolder.getUid() + "\" exists");
@@ -167,12 +166,10 @@ public class AccountServiceImpl implements AccountService {
                 user = getUserProfile(username);
                 break;
             case "member":
-                ObjectId memberID = new ObjectId(username);
-                user = getMemberProfile(memberID);
+                user = getMemberProfile(username);
                 break;
             case "public":
-                ObjectId publicID = new ObjectId(username);
-                user = getPublicProfile(publicID);
+                user = getPublicProfile(username);
                 break;
         }
         return user;
@@ -217,7 +214,7 @@ public class AccountServiceImpl implements AccountService {
         return null;
     }
 
-    @Override
+
     public Account updateUserProfile(String username, String field, String value)
     {
         if(!accountRepository.existsByUsername(username))
@@ -276,18 +273,19 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account getMemberProfile(ObjectId accountID)
+    public Account getMemberProfile(String username)
     {
-        if(!accountRepository.existsByAccountID(accountID))
+        if(!accountRepository.existsByUsername(username))
         {
-            log.info("User " + accountID + " not found");
+            log.info("User " + username + " not found");
             return null;
         }
-        Account user = accountRepository.findByAccountID(accountID);
+        Account user = accountRepository.findByUsername(username);
         /* Mask private information and settings */
-        user.setUsername(null);
         user.setModerator(false);
         user.setMessageIDs(null);
+        user.setPassword(null);
+        user.setOptedOut(false);
         user.setProximityReq(-1);
         user.setReputationReq(-1.0);
         return user;
@@ -304,23 +302,26 @@ public class AccountServiceImpl implements AccountService {
             account.setFriendIDs(null);
         }
         /* Mask private information and settings */
-        account.setUsername(null);
         account.setModerator(false);
         account.setMessageIDs(null);
+        account.setPassword(null);
+        account.setOptedOut(false);
+        account.setEmail(null);
+        account.setLoggedInTime(-1);
         account.setProximityReq(-1);
         account.setReputationReq(-1.0);
         return account;
     }
 
     @Override
-    public Account getPublicProfile(ObjectId accountID)
+    public Account getPublicProfile(String username)
     {
-        if(!accountRepository.existsByAccountID(accountID))
+        if(!accountRepository.existsByUsername(username))
         {
-            log.info("User " + accountID + " not found");
+            log.info("User " + username + " not found");
             return null;
         }
-        Account user = accountRepository.findByAccountID(accountID);
+        Account user = accountRepository.findByUsername(username);
         return this.maskPublicProfile(user);
     }
 
@@ -498,27 +499,25 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account addSkills(String username, String json) {
+    public List<Skill> addSkills(String username, String json) {
         if(!accountRepository.existsByUsername(username))
         {
             log.info("User " + username + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
-
+        List<Skill> skills = new ArrayList<>();
         try {
             ObjectMapper om = new ObjectMapper();
-            TypeReference<List<HashMap<String, String>>> typeRef = new TypeReference<List<HashMap<String, String>>>() {};
-            List<Map<String, String>> mapList = om.readValue(json, typeRef);
-            for (Map<String, String> s: mapList) {
-                String skillName = s.get("skillName");
-                String skillLevel = s.get("skillLevel");
-
+            TypeFactory typeFactory = om.getTypeFactory();
+            List<String> list = om.readValue(json, typeFactory.constructCollectionType(List.class, String.class));
+            for (String s: list) {
+                skills.add(addSkill(user, s, "0"));
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return user;
+        return skills;
     }
 
     @Override
@@ -596,7 +595,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account addSkill(String username, String skillName, String skillString)
+    public Skill addSkill(String username, String skillName, String skillString)
     {
         if(!accountRepository.existsByUsername(username))
         {
@@ -607,7 +606,7 @@ public class AccountServiceImpl implements AccountService {
         return addSkill(user, skillName, skillString);
     }
 
-    private Account addSkill(Account account, String skillName, String skillString) {
+    private Skill addSkill(Account account, String skillName, String skillString) {
         if(!skillRepository.existsBySkillName(skillName))
         {
             log.info("Skill " + skillName + " is invalid");
@@ -629,11 +628,18 @@ public class AccountServiceImpl implements AccountService {
             log.info("Skill level " + skillLevel + " is invalid");
             return null;
         }
-        Skill skill = new Skill(skillName, skillLevel);
-        skillRepository.save(skill);
+        Skill skill;
+        if (skillRepository.existsBySkillNameAndSkillLevel(skillName, skillLevel)) {
+            skill = skillRepository.findBySkillNameAndSkillLevel(skillName, skillLevel);
+        } else if (skillRepository.existsBySkillName(skillName)){
+            skill = new Skill(skillName, skillLevel);
+            skillRepository.save(skill);
+        } else {
+            return null;
+        }
         account.addSkill(skill.getSkillID());
         accountRepository.save(account);
-        return account;
+        return skill;
     }
 
     @Override
@@ -652,7 +658,6 @@ public class AccountServiceImpl implements AccountService {
             return null;
 
         }
-        skillRepository.delete(skill);
         user.removeSkill(skill.getSkillID());
         accountRepository.save(user);
         return user;
@@ -716,7 +721,7 @@ public class AccountServiceImpl implements AccountService {
 
     /* TODO: Ensure user fits requirements @Shawn @SprintTwo */
     @Override
-    public Account joinGroup(String username, ObjectId groupID) {
+    public Account addToGroup(String username, ObjectId groupID) {
         if(!accountRepository.existsByUsername(username))
         {
             log.info("User " + username + " not found");
@@ -954,7 +959,32 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void setSettings(String username, String json) {
-
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return;
+        }
+        Account user = accountRepository.findByUsername(username);
+        List<Skill> skills = new ArrayList<>();
+        try {
+            ObjectMapper om = new ObjectMapper();
+            TypeReference<HashMap<String, String>> typeRef = new TypeReference<HashMap<String, String>>() {};
+            Map<String, String> map = om.readValue(json, typeRef);
+            for (String key: map.keySet()) {
+                switch(key) {
+                    case "isPublic":
+                        break;
+                    case "isOptedOut":
+                        break;
+                    case "reputationReq":
+                        break;
+                    case "proximityReq":
+                        break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
 

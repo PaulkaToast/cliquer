@@ -110,22 +110,22 @@ public class SprintOneServicesTest {
 		retrieve = service.getUserProfile("reed");
 		assertNull(retrieve);
 
-		retrieve = service.getMemberProfile(shawn.getAccountID());
-		assertNull(retrieve.getUsername());
+		retrieve = service.getMemberProfile(shawn.getUsername());
+		assertNull(retrieve.getPassword());
 		assertEquals("Montgomery", shawn.getLastName());
 
 		jordan.setPublic(true);
 		ObjectId test = new ObjectId();
 		jordan.addSkill(test);
 		accountRepository.save(jordan);
-		retrieve = service.getPublicProfile(jordan.getAccountID());
+		retrieve = service.getPublicProfile(jordan.getUsername());
 		assertEquals(test, retrieve.getSkillIDs().get(0));
 
 		shawn.setPublic(false);
 		test = new ObjectId();
 		shawn.addSkill(test);
 		accountRepository.save(shawn);
-		retrieve = service.getPublicProfile(shawn.getAccountID());
+		retrieve = service.getPublicProfile(shawn.getUsername());
 		assertNull(retrieve.getSkillIDs());
 
 		accountRepository.delete(jordan);
@@ -142,28 +142,18 @@ public class SprintOneServicesTest {
 		Account jordan = service.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
 		Account shawn = service.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 
-		Account modify = service.updateUserProfile("reed226", "firstName", "William");
-		assertEquals("William", modify.getFirstName());
-		Account retrieve = service.getUserProfile("reed226");
-		assertEquals("William", retrieve.getFirstName());
-
-		modify = service.updateUserProfile("montgo38", "accountID", new ObjectId().toString());
-		assertNull(modify);
-		retrieve = service.getUserProfile("montgo38");
-		assertEquals(shawn.getAccountID(), retrieve.getAccountID());
-
 		Skill programming = new Skill("Programming", 0);
 		skillRepository.save(programming);
-		modify = service.addSkill("reed226", "Lifter", "1");
-		assertNull(modify);
-		retrieve = service.getUserProfile("reed226");
+		Skill skill = service.addSkill("reed226", "Lifter", "1");
+		assertNull(skill);
+		Account retrieve = service.getUserProfile("reed226");
 		assertEquals(0, retrieve.getSkillIDs().size());
 
 		Skill boardgame = new Skill("Board Gaming", 0);
 		skillRepository.save(boardgame);
 		service.addSkill("montgo38", "Programming", "8");
 		service.addSkill("montgo38", "Board Gaming", "6");
-		Skill skill = service.getSkill("montgo38", "Programming");
+		skill = service.getSkill("montgo38", "Programming");
 		assertEquals("Programming", skill.getSkillName());
 		skill = service.getSkill("montgo38", "Board Gaming");
 		assertEquals(6, skill.getSkillLevel());
@@ -173,11 +163,11 @@ public class SprintOneServicesTest {
 		skill = service.getSkill("montgo38", "Board Gaming");
 		assertNull(skill);
 		skill = skillRepository.findBySkillID(skillID);
-		assertNull(skill);
-		
+		assertNotNull(skill);
+
 		jordan = accountRepository.findByAccountID(jordan.getAccountID());
 		shawn = accountRepository.findByAccountID(shawn.getAccountID());
-		
+
 		skillRepository.delete(programming);
 		skillRepository.delete(boardgame);
 		for(ObjectId id : jordan.getSkillIDs())
@@ -222,8 +212,8 @@ public class SprintOneServicesTest {
 		Skill programming = new Skill("Programming", 0);
 		skillRepository.save(programming);
 		service.addSkill("reed226", "Programming", "7");
-		Account test = service.addSkill("buckmast", "Programming", "-2");
-		assertNull(test);
+		Skill skill = service.addSkill("buckmast", "Programming", "-2");
+		assertNull(skill);
 		service.addSkill("buckmast", "Programming", "8");
 		service.addSkill("rbuckmas", "Programming", "4");
 		service.addSkill("montgo38", "Programming", "7");
@@ -231,7 +221,6 @@ public class SprintOneServicesTest {
 
 		List<Account> search = service.searchByFirstName("Jordan");
 		assertEquals(2, search.size());
-		assertNull(search.get(0).getUsername());
 		assertEquals("Buckmaster", search.get(0).getLastName());
 
 		search = service.searchByLastName("Buckmaster");
@@ -262,7 +251,7 @@ public class SprintOneServicesTest {
 		assertEquals(new Double(100.0), new Double(service.getReputationRanking("buckmast")));
 		assertEquals(new Double(25.0), new Double(service.getReputationRanking("rbuckmas")));
 		assertEquals(new Double(50.0), new Double(service.getReputationRanking("montgo38")));
-		
+
 		reed = accountRepository.findByAccountID(reed.getAccountID());
 		buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
 		rhys = accountRepository.findByAccountID(rhys.getAccountID());
@@ -415,13 +404,13 @@ public class SprintOneServicesTest {
 		assertNull(skill);
 
 		modify = groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID());
-		Account account = accountService.getMemberProfile(modify.getGroupMemberIDs().get(2));
+		Account account = accountService.getMemberProfile(accountRepository.findByAccountID(modify.getGroupMemberIDs().get(2)).getUsername());
 		assertEquals("Kevin", account.getFirstName());
 		assertEquals(3, modify.getGroupMemberIDs().size());
 		assertEquals(cliquer.getGroupID(), account.getGroupIDs().get(0));
 
 		modify = groupService.removeGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID());
-		account = accountService.getMemberProfile(modify.getGroupMemberIDs().get(1));
+		account = accountService.getMemberProfile(accountRepository.findByAccountID(modify.getGroupMemberIDs().get(1)).getUsername());
 		assertEquals("Nagar", account.getLastName());
 		assertEquals(2, modify.getGroupMemberIDs().size());
 		account = accountService.getUserProfile(shawn.getUsername());
@@ -430,7 +419,7 @@ public class SprintOneServicesTest {
 		account = accountService.leaveGroup(kevin.getUsername(), cliquer.getGroupID());
 		assertEquals(0, account.getGroupIDs().size());
 		retrieve = groupService.getUserGroup(cliquer.getGroupID(), jordan.getAccountID());
-		account = accountService.getMemberProfile(retrieve.getGroupMemberIDs().get(0));
+		account = accountService.getMemberProfile(accountRepository.findByAccountID(retrieve.getGroupMemberIDs().get(0)).getUsername());
 		assertEquals("Jordan", account.getFirstName());
 		assertEquals(1, retrieve.getGroupMemberIDs().size());
 

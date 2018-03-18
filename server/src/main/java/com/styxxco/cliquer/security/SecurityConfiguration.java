@@ -75,6 +75,7 @@ public class SecurityConfiguration {
                     .authorizeRequests()
                         .antMatchers("/login").permitAll()
                         .antMatchers("/register").permitAll()
+                        .antMatchers("/getSkillList").permitAll()
                         .antMatchers("/api/**").hasRole(Roles.USER)
                         .antMatchers("/**").denyAll()
                     .and()

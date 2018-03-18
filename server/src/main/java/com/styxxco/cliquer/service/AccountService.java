@@ -16,14 +16,13 @@ public interface AccountService extends UserDetailsService {
     /* Account Access */
     Account getProfile(String username, String type);
     Account getUserProfile(String username);
-    Account getMemberProfile(ObjectId accountID);
+    Account getMemberProfile(String username);
     Account maskPublicProfile(Account account);
-    Account getPublicProfile(ObjectId accountID);
+    Account getPublicProfile(String username);
 
     /* Account Modification */
-    Account updateUserProfile(String username, String field, String value);
-    Account addSkill(String username, String skillName, String skillLevel);
-    Account addSkills(String username, String json);
+    Skill addSkill(String username, String skillName, String skillLevel);
+    List<Skill> addSkills(String username, String json);
     Account removeSkill(String username, String skillName);
     String deleteAccount(String username);
 
@@ -53,7 +52,7 @@ public interface AccountService extends UserDetailsService {
     /* Group centered services */
     Group createGroup(String username, String groupName, String bio);
     String deleteGroup(String username, ObjectId groupID);
-    Account joinGroup(String username, ObjectId groupID);
+    Account addToGroup(String username, ObjectId groupID);
     Account leaveGroup(String username, ObjectId groupID);
     Account inviteToGroup(String username, ObjectId accountID, ObjectId groupID);
 
