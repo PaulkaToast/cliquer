@@ -1,6 +1,10 @@
 
 package com.styxxco.cliquer.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.StringSerializer;
+import com.styxxco.cliquer.database.ObjectIdSerial;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -14,6 +18,7 @@ import java.util.*;
 @Setter
 public class Group extends Searchable {
 	@Id
+	@JsonSerialize(using = ObjectIdSerial.ObjectIdJsonSerializer.class)
 	private final ObjectId groupID;
 	private final String gid;
 
@@ -33,6 +38,10 @@ public class Group extends Searchable {
 	private ObjectId kickCandidate;
 	private List<ObjectId> kickVotes;
 
+	@Getter
+	@JsonIgnore
+	private List<ChatMessage> chatHistory;
+
 	public Group(@NonNull String groupName, String groupPurpose, ObjectId groupLeaderID) {
 		this.groupID = new ObjectId();
 		this.gid = this.groupID.toString();
@@ -50,6 +59,8 @@ public class Group extends Searchable {
 
 		this.kickCandidate = null;
 		this.kickVotes = new ArrayList<>();
+
+		this.chatHistory = new ArrayList<>();
 	}
 
 	public void addKickVote(ObjectId accountID)
@@ -86,6 +97,8 @@ public class Group extends Searchable {
 	{
 		groupMemberIDs.remove(accountID);
 	}
+
+	public void addMessage(ChatMessage msg) { chatHistory.add(msg); }
 
 	/*
 	public Message makeAccountInvite(String content)

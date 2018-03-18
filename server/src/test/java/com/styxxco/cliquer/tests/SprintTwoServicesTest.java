@@ -1,11 +1,8 @@
 package com.styxxco.cliquer.tests;
 
 import com.styxxco.cliquer.database.*;
-import com.styxxco.cliquer.domain.Account;
-import com.styxxco.cliquer.domain.Group;
-import com.styxxco.cliquer.domain.Message;
+import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.domain.Message.Types;
-import com.styxxco.cliquer.domain.Skill;
 import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.GroupService;
 import com.styxxco.cliquer.service.impl.GroupServiceImpl;
@@ -599,5 +596,50 @@ public class SprintTwoServicesTest {
         accountRepository.delete(kevin);
         accountRepository.delete(buckmaster);
         accountRepository.delete(rhys);
+    }
+
+    @Test
+    public void testChatHistory()
+    {
+        this.clearDatabase();
+        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+        GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+
+        Account jordan = accountService.createAccount(new ObjectId().toHexString(), "reed226@purdue.edu", "Jordan", "Reed");
+        Account kevin = accountService.createAccount(new ObjectId().toHexString(), "knagar@purdue.edu", "Kevin", "Nagar");
+
+        Group cliquer = groupService.createGroup(
+                "Cliquer",
+                "To create a web app that facilitates the teaming of people who may have never met before",
+                jordan.getAccountID());
+
+        cliquer.addGroupMember(kevin.getAccountID());
+        groupRepository.save(cliquer);
+
+        groupService.sendChatMessage(new ChatMessage("Hello", jordan.getUsername(), "Jordan Reed"),cliquer.getGroupID());
+        groupService.sendChatMessage(new ChatMessage("Hey", kevin.getUsername(), "Kevin Nagar"), cliquer.getGroupID());
+        groupService.sendChatMessage(new ChatMessage("Bye", jordan.getUsername(), "Jordan Reed"), cliquer.getGroupID());
+
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        List<Group> groups = accountService.getAllUserGroups(jordan.getUsername());
+
+        assertEquals(1, groups.size());
+        List<ChatMessage> messages = groups.get(0).getChatHistory();
+
+        assertEquals(3, messages.size());
+
+        assertEquals("Hello", messages.get(0).getContent());
+        assertEquals("Hey", messages.get(1).getContent());
+        assertEquals("Bye", messages.get(2).getContent());
+
+        accountRepository.delete(jordan);
+        accountRepository.delete(kevin);
+        groupRepository.delete(cliquer);
+
+
     }
 }

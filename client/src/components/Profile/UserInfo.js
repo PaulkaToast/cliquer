@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import '../../css/UserInfo.css'
-import jmbuck from '../../img/jmbuck.jpg'
+import jmbuck from '../../img/avatar.png'
 
 class UserInfo extends Component {
   render() {
