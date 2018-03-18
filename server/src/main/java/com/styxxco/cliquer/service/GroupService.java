@@ -1,9 +1,6 @@
 package com.styxxco.cliquer.service;
 
-import com.styxxco.cliquer.domain.Group;
-import com.styxxco.cliquer.domain.Account;
-import com.styxxco.cliquer.domain.Message;
-import com.styxxco.cliquer.domain.Skill;
+import com.styxxco.cliquer.domain.*;
 import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
@@ -47,4 +44,5 @@ public interface GroupService {
 
     /* Message centered services */
     Message sendMessage(ObjectId groupID, ObjectId senderID, ObjectId receiverId, String content, int type);
+    void sendChatMessage(ChatMessage msg, ObjectId groupID);
 }

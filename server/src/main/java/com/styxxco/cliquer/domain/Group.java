@@ -33,6 +33,9 @@ public class Group extends Searchable {
 	private ObjectId kickCandidate;
 	private List<ObjectId> kickVotes;
 
+	@Getter
+	private List<ChatMessage> chatHistory;
+
 	public Group(@NonNull String groupName, String groupPurpose, ObjectId groupLeaderID) {
 		this.groupID = new ObjectId();
 		this.gid = this.groupID.toString();
@@ -50,6 +53,8 @@ public class Group extends Searchable {
 
 		this.kickCandidate = null;
 		this.kickVotes = new ArrayList<>();
+
+		this.chatHistory = new ArrayList<>();
 	}
 
 	public void addKickVote(ObjectId accountID)
@@ -86,6 +91,8 @@ public class Group extends Searchable {
 	{
 		groupMemberIDs.remove(accountID);
 	}
+
+	public void addMessage(ChatMessage msg) { chatHistory.add(msg); }
 
 	/*
 	public Message makeAccountInvite(String content)
