@@ -21,6 +21,7 @@ class Chat extends Component {
     super(props);
 
     this.state = {
+      messagesEnd: "",
       messages: [{
         sender: "Jordan Reed",
         message: "Hi ):"
@@ -48,6 +49,18 @@ class Chat extends Component {
       {
         sender: "Announcer",
         message: "Good morning. You have been in suspension for -nine nine nine nine nine... nine ni (continues repeating behind the following:)- This courtesy call is to inform you that all test subjects should vacate the Enrichment Center immediately. Any test subject not emerging from suspension at this time will be assumed to have exercised his or her right to remain in extended relaxation, for the duration of the destruction of this facility. If you have questions or concerns regarding this policy, or if you require a Spanish-language version of this message, feel free to take a complimentary piece of stationery from the desk drawer in front of you, and write us a letter. Good luck."
+      },
+      {
+        sender: "Jordan Reed",
+        message: "Hi ):"
+      },
+      {
+        sender: "Jordan Reed",
+        message: "Hi ):"
+      },
+      {
+        sender: "Jordan Reed",
+        message: "Hi ):"
       },
       ]
     }
@@ -84,6 +97,18 @@ class Chat extends Component {
     this.props.postMessage(``, { 'X-Authorization-Firebase': this.props.token})
   }
 
+  scrollToBottom = () => {
+    this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+  }
+  
+  componentDidMount() {
+    this.scrollToBottom();
+  }
+  
+  componentDidUpdate() {
+    this.scrollToBottom();
+  }
+
   render() {
     console.log(window.location.protocol)
     const messages = this.state.messages;
@@ -91,10 +116,11 @@ class Chat extends Component {
       <div className="Chat">
         <div className="message-container">
           {
-            messages.map((c) => 
-              <Message sender={c.sender} message={c.message}></Message> 
+            messages.map((c, index) => 
+              <Message key={index} sender={c.sender} message={c.message}></Message> 
             )
           }
+          <div ref={(el) => { this.messagesEnd = el; }}></div>
         </div>
         <div className="send-message-container">
           <InputGroup>
@@ -106,11 +132,12 @@ class Chat extends Component {
         </div>
 
         {/*TODO: link up websockets with backend*/}
-        <SockJsClient url={`${url}/chat`} topics={['/group/message']}
+        <SockJsClient url={`${url}/sockJS`} topics={['/group/message']}
           onMessage={this.handleMessage}
           ref={ (client) => { this.clientRef = client }} 
           subscribeHeaders={{ 'X-Authorization-Firebase': this.props.token }}
           headers={{ 'X-Authorization-Firebase': this.props.token }}
+          debug
         />
       </div>
     )
