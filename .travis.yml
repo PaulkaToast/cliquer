@@ -10,6 +10,7 @@ matrix:
       before_script:
         - cd client
         - touch src/firebase/firebase.js
+        - echo "const url = ''; export default url" > src/server.js
         - npm install
       script:
         - npm run-script coverage
