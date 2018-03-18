@@ -22,48 +22,15 @@ class Chat extends Component {
 
     this.state = {
       messagesEnd: "",
-      messages: [{
-        sender: "Jordan Reed",
-        message: "Hi ):"
-      },
-      {
-        sender: "Paula Toth",
-        message: "Paint the man cut the lines, paint the man cut the lines, ease the man's cry, hush hush now you sleep"
-      },
-      {
-        sender: "Kevin Nagar",
-        message : "Look at you, flying through the air majestically. Like an eagle... piloting a blimp."
-      },
-      {
-        sender: "Ammar Askar",
-        message : "Please be advised that a noticeable taste of blood is not part of any test protocol but is an unintended side effect of the Aperture Science Material Emancipation Grill, which may, in semi-rare cases, emancipate dental fillings, crowns, tooth enamel, and teeth."
-      },
-      {
-        sender: "GlaDOS",
-        message : "Remember when the platform was sliding into the fire pit and I said 'Goodbye' and you were like 'no way' and then I was all 'I was just pretending to murder you'? That was great!"
-      },
-      {
-        sender: "Cave Johnson",
-        message: "When life gives you lemons, don't make lemonade. Make life take the lemons back! Get mad! I don't want your D*** lemons, what the h*** am I supposed to do with these? Demand to see life's manager! Make life rue the day it thought it could give Cave Johnson lemons! Do you know who I am? I'm the man who's gonna burn your house down! With the lemons! I'm gonna get my engineers to invent a combustible lemon that burns your house down!"
-      },
-      {
-        sender: "Announcer",
-        message: "Good morning. You have been in suspension for -nine nine nine nine nine... nine ni (continues repeating behind the following:)- This courtesy call is to inform you that all test subjects should vacate the Enrichment Center immediately. Any test subject not emerging from suspension at this time will be assumed to have exercised his or her right to remain in extended relaxation, for the duration of the destruction of this facility. If you have questions or concerns regarding this policy, or if you require a Spanish-language version of this message, feel free to take a complimentary piece of stationery from the desk drawer in front of you, and write us a letter. Good luck."
-      },
-      {
-        sender: "Jordan Reed",
-        message: "Hi ):"
-      },
-      {
-        sender: "Jordan Reed",
-        message: "Hi ):"
-      },
-      {
-        sender: "Jordan Reed",
-        message: "Hi ):"
-      },
-      ]
+      messages: [],
+      msgInput: ""
     }
+    this.handleChange = this.handleChange.bind(this);
+    this.sendMessage = this.sendMessage.bind(this);
+  }
+
+  handleChange(event) {
+    this.setState({msgInput: event.target.value});
   }
 
   componentWillReceiveProps = (nextProps) => {
@@ -74,18 +41,32 @@ class Chat extends Component {
     }
   }
 
-  sendMessage = () => {
+  sendMessage = (event) => {
+    event.preventDefault();
+    if (this.state.msgInput == "") {
+      return;
+    }
     const msg = {
       senderId: this.props.user.uid,
-      content: 'Test message'
+      content: this.state.msgInput,
     }
-    this.clientRef.sendMessage('/secured/chat', JSON.stringify(msg));
+    this.clientRef.sendMessage('/chat/'+  this.props.group.groupID +'/sendMessage', JSON.stringify(msg));
+    this.state.msgInput = "";
+    event.target.reset();
   }
 
   handleMessage = (data) => {
-    console.log(data)
-    if(data) {
-      const message = data.message
+    //if data is an array
+    if (data[0]){
+      this.state.messages = data.map( (m) => {
+        return {sender: m.senderName, message: m.content}
+      })
+      this.setState(this.state)
+    } else {
+      this.state.messages.push({
+        sender: data.senderName, message: data.content
+      })
+      this.setState(this.state)
     }
   }
 
@@ -103,15 +84,38 @@ class Chat extends Component {
   
   componentDidMount() {
     this.scrollToBottom();
+    
   }
   
   componentDidUpdate() {
     this.scrollToBottom();
   }
 
+  onWebsocketConnect() {
+    if (this.props.group) {
+      this.clientRef.sendMessage('/chat/'+ this.props.user.uid + '/' + this.props.group.groupID +'/messageHistory', "");
+    }
+  }
+
+  getWebsocket() {
+    if (this.props.group) {
+      return <SockJsClient url={`${url}/sockJS`} topics={['/group/'+ this.props.group.groupID + '/message', '/group/' + this.props.user.uid + '/' + this.props.group.groupID]}
+          onMessage={this.handleMessage.bind(this)}
+          onConnect={this.onWebsocketConnect.bind(this)}
+          ref={ (client) => { this.clientRef = client }} 
+          subscribeHeaders={{ 'X-Authorization-Firebase': this.props.token }}
+          headers={{ 'X-Authorization-Firebase': this.props.token }}
+          debug
+        />
+    } else {
+      return;
+    }
+  }
+
   render() {
     console.log(window.location.protocol)
     const messages = this.state.messages;
+
     return (
       <div className="Chat">
         <div className="message-container">
@@ -123,22 +127,16 @@ class Chat extends Component {
           <div ref={(el) => { this.messagesEnd = el; }}></div>
         </div>
         <div className="send-message-container">
+        <form onSubmit={this.sendMessage}>
           <InputGroup>
-            <Input/>
+            <Input value={this.state.value} onChange={this.handleChange}/>
             <InputGroupAddon addonType="append">
-              <Button onClick={() => this.sendMessage()} color="success">Send Message</Button>
+              <Button color="success">Send Message</Button>
             </InputGroupAddon>
           </InputGroup>
+        </form>
         </div>
-
-        {/*TODO: link up websockets with backend*/}
-        <SockJsClient url={`${url}/sockJS`} topics={['/group/message']}
-          onMessage={this.handleMessage}
-          ref={ (client) => { this.clientRef = client }} 
-          subscribeHeaders={{ 'X-Authorization-Firebase': this.props.token }}
-          headers={{ 'X-Authorization-Firebase': this.props.token }}
-          debug
-        />
+        {this.getWebsocket()}
       </div>
     )
   }
