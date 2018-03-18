@@ -7,7 +7,22 @@ import '../../css/Chat.css'
 import { getChatLog, postChatMessage, updateChatLog } from '../../redux/actions'
 import url from '../../server.js'
 
+const Message = ({message, sender}) => {
+  return (<p>{sender} : {message}</p>);
+};
+
 class Chat extends Component {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      messages: [{
+        sender: "Paula Toth",
+        message: "Hi ):"
+      }]
+    }
+  }
 
   componentWillReceiveProps = (nextProps) => {
     if(nextProps.user && nextProps.token && nextProps.user.uid && !nextProps.group) {
@@ -42,8 +57,16 @@ class Chat extends Component {
 
   render() {
     console.log(window.location.protocol)
+    const messages = this.state.messages;
     return (
       <div className="Chat">
+        <ul>
+          {
+            messages.map((c) => 
+              <Message sender={c.sender} message={c.message}></Message> 
+            )
+          }
+        </ul>
         <div>
           <button onClick={() => this.sendMessage()} type="button">Send Message</button>
           <Alert color="danger">
