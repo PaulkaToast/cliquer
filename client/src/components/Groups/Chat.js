@@ -7,10 +7,11 @@ import '../../css/Chat.css'
 import { getChatLog, postChatMessage, updateChatLog } from '../../redux/actions'
 import url from '../../server.js'
 
-const Message = ({message, sender}) => {
+const Message = ({message, sender, align}) => {
   return (
-    <div>
+    <div className={align}>
       <Badge color="secondary">{sender}</Badge>
+      <br/>
       <Alert className="single-message" color="secondary"> {message} </Alert>
     </div>);
 };
@@ -59,12 +60,12 @@ class Chat extends Component {
     //if data is an array
     if (data[0]){
       this.state.messages = data.map( (m) => {
-        return {sender: m.senderName, message: m.content}
+        return {sender: m.senderName, message: m.content, id: m.senderId}
       })
       this.setState(this.state)
     } else {
       this.state.messages.push({
-        sender: data.senderName, message: data.content
+        sender: data.senderName, message: data.content, id: data.senderId
       })
       this.setState(this.state)
     }
@@ -120,9 +121,13 @@ class Chat extends Component {
       <div className="Chat">
         <div className="message-container">
           {
-            messages.map((c, index) => 
-              <Message key={index} sender={c.sender} message={c.message}></Message> 
-            )
+            messages.map((c, index) => { 
+              if( c.id === this.props.user.uid ){
+                return <Message align="sender-message-right" key={index} sender={c.sender} message={c.message}></Message>
+              } else {
+                return <Message align="sender-message-left" key={index} sender={c.sender} message={c.message}></Message> 
+              }
+            })
           }
           <div ref={(el) => { this.messagesEnd = el; }}></div>
         </div>

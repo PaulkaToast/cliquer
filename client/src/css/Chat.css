@@ -9,8 +9,13 @@
 
 .single-message{
     border-color: transparent;
+    display:inline-block;
 }
 
 .send-message-container{
     margin-top: 10px;
+}
+
+.sender-message-right{
+    text-align: right;
 }
