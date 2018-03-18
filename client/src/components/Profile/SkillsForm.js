@@ -5,7 +5,7 @@ import AutosuggestHighlightMatch from 'autosuggest-highlight/match'
 import AutosuggestHighlightParse from 'autosuggest-highlight/parse'
 
 import '../../css/SkillsForm.css'
-import { addNewSkill, deleteNewSkill, getSkillsList } from '../../redux/actions'
+import { addNewSkill, deleteNewSkill, getSkillsList, setNewSkills } from '../../redux/actions'
 import url from '../../server.js'
 
 class SkillsForm extends Component {
@@ -24,6 +24,10 @@ class SkillsForm extends Component {
   componentDidMount = () => {
     if(!this.props.skills || this.props.skills.length === 0) {
       this.props.getSkillsList(`${url}/getSkillList`, {})
+    }
+
+    if(this.props.defaultSkills && this.props.defaultSkills.length > 0) {
+      this.props.setSkills(this.props.defaultSkills)
     }
   }
 
@@ -197,6 +201,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
 	return {
     addSkill: (skill) => dispatch(addNewSkill(skill)),
+    setSkills: (skills) => dispatch(setNewSkills(skills)),
     deleteSkill: (skill) => dispatch(deleteNewSkill(skill)),
     getSkillsList: (url, headers) => dispatch(getSkillsList(url, headers)),
 	}

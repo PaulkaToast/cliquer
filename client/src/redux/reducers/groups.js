@@ -1,4 +1,5 @@
 function groups(state = {}, action) {
+    let groupsCopy
     switch(action.type) {
         case 'GET_GROUPS_HAS_ERROR':
             return Object.assign({}, state, {
@@ -41,8 +42,11 @@ function groups(state = {}, action) {
                 deleteGroupHasError: action.hasError,
             })
         case 'DELETE_GROUP_DATA_SUCCESS':
+            groupsCopy = state.getGroupsData ? {...state.getGroupsData} : {}
+            if(groupsCopy[action.gid]) delete groupsCopy[action.gid]
             return Object.assign({}, state, {
                 deleteGroupData: action.data,
+                getGroupsData: groupsCopy
             })
         case 'DELETE_GROUP_IS_LOADING':
             return Object.assign({}, state, {
@@ -53,8 +57,11 @@ function groups(state = {}, action) {
                 leaveGroupHasError: action.hasError,
             })
         case 'LEAVE_GROUP_DATA_SUCCESS':
+            groupsCopy = state.getGroupsData ? {...state.getGroupsData} : {}
+            if(groupsCopy[action.gid]) delete groupsCopy[action.gid]
             return Object.assign({}, state, {
                 leaveGroupData: action.data,
+                getGroupsData: groupsCopy
             })
         case 'LEAVE_GROUP_IS_LOADING':
             return Object.assign({}, state, {
@@ -109,6 +116,18 @@ function groups(state = {}, action) {
         case 'POST_CHAT_MESSAGE_IS_LOADING':
             return Object.assign({}, state, {
                 postChatMessageIsLoading: action.isLoading,
+            })
+        case 'SET_GROUP_SETTINGS_HAS_ERROR':
+            return Object.assign({}, state, {
+                setGroupSettingsHasError: action.hasError,
+            })
+        case 'SET_GROUP_SETTINGS_DATA_SUCCESS':
+            return Object.assign({}, state, {
+                setGroupSettingsData: action.data,
+            })
+        case 'SET_GROUP_SETTINGS_IS_LOADING':
+            return Object.assign({}, state, {
+                setGroupSettingsIsLoading: action.isLoading,
             })
         default:
             return state

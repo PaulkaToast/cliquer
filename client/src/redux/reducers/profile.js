@@ -24,6 +24,18 @@ function profile(state = {}, action) {
             return Object.assign({}, state, {
                 deleteIsLoading: action.isLoading,
             })
+        case 'SET_SETTINGS_HAS_ERROR':
+            return Object.assign({}, state, {
+                setSettingsHasError: action.hasError,
+            })
+        case 'SET_SETTINGS_DATA_SUCCESS':
+            return Object.assign({}, state, {
+                setSettingsData: action.data,
+            })
+        case 'SET_SETTINGS_IS_LOADING':
+            return Object.assign({}, state, {
+                setSettingsIsLoading: action.isLoading,
+            })
         default:
             return state
     }

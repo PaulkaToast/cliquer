@@ -22,7 +22,7 @@ class Chat extends Component {
       senderId: this.props.user.uid,
       content: 'Test message'
     }
-    this.clientRef.sendMessage('/secured/chat', JSON.stringify(msg));
+    this.clientRef.sendMessage('/secured/chat', JSON.stringify(msg))
   }
 
   handleMessage = (data) => {

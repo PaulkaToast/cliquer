@@ -19,8 +19,8 @@ class NavigationBar extends Component {
       url: 'firstname',
       value: '',
       isOpen: false
-    };
-    this.toggle = this.toggle.bind(this);
+    }
+    this.toggle = this.toggle.bind(this)
   }
 
   toggleSplit = () => {
@@ -47,7 +47,7 @@ class NavigationBar extends Component {
   }
 
   toggle() {
-    this.setState({ isOpen: !this.state.isOpen });
+    this.setState({ isOpen: !this.state.isOpen })
   }
 
   render() {

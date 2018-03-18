@@ -49,3 +49,29 @@ export function deleteProfileDataSuccess(data) {
 export const deleteProfile = genericDispatch(
     deleteProfileHasError, deleteProfileIsLoading, deleteProfileDataSuccess, 'POST'
 )
+
+export function setSettingsHasError(hasError) {
+    return {
+        type: 'SET_SETTINGS_HAS_ERROR',
+        hasError
+    }  
+}
+
+export function setSettingsIsLoading(isLoading) {
+    return {
+        type: 'SET_SETTINGS_IS_LOADING',
+        isLoading
+    }
+}
+
+export function setSettingsDataSuccess(data) {
+    return {
+        type: 'SET_SETTINGS_DATA_SUCCESS',
+        data
+    }
+}
+
+export const setSettings = genericDispatch(
+    setSettingsHasError, setSettingsIsLoading, setSettingsDataSuccess, 'POST'
+)
+
