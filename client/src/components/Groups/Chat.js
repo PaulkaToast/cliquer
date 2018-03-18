@@ -10,9 +10,9 @@ import url from '../../server.js'
 const Message = ({message, sender, align}) => {
   return (
     <div className={align}>
-      <Badge color="secondary">{sender}</Badge>
+      <Badge className={align.concat("-badge")}>{sender}</Badge>
       <br/>
-      <Alert className="single-message" color="secondary"> {message} </Alert>
+      <Alert className="single-message" className={align.concat("-alert")}> {message} </Alert>
     </div>);
 };
 
