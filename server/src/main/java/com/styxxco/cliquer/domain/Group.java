@@ -25,15 +25,20 @@ public class Group extends Searchable {
     private String groupName;
     private String groupPurpose;
     private byte[] groupPic;
-	
-	private ArrayList<ObjectId> skillReqs;
+
+    @JsonIgnore
+	private List<ObjectId> skillReqs;
     private boolean isPublic;
     private double reputationReq;			/* Fraction of leader's reputation */
     private int proximityReq;
 
+    @JsonIgnore
     private ObjectId groupLeaderID;
+  
+    private String ownerUID;
+
+    @JsonIgnore
 	private List<ObjectId> groupMemberIDs;	/* Account ID of the group members */
-	/* private ChatLog chat */
 
 	private ObjectId kickCandidate;
 	private List<ObjectId> kickVotes;
@@ -48,12 +53,13 @@ public class Group extends Searchable {
 		this.groupName = groupName;
 		this.groupPurpose = groupPurpose;
 		this.groupLeaderID = groupLeaderID;
+		this.ownerUID = groupLeaderID.toString();
 
 		this.groupPic = null;
 		this.skillReqs = new ArrayList<>();
 		this.isPublic = false;
-		this.reputationReq = 0.0;
-		this.proximityReq = 0;
+		this.reputationReq = 0;
+		this.proximityReq = 10;
 		this.groupMemberIDs = new ArrayList<>();
 		this.groupMemberIDs.add(groupLeaderID);
 
@@ -98,13 +104,9 @@ public class Group extends Searchable {
 		groupMemberIDs.remove(accountID);
 	}
 
-	public void addMessage(ChatMessage msg) { chatHistory.add(msg); }
+	public void addMessage(ChatMessage msg) { 
+    chatHistory.add(msg); 
+  }
 
-	/*
-	public Message makeAccountInvite(String content)
-	{
-		return new Message(content, this.groupID, "Group Invite");
-	}
-	*/	
 }
 

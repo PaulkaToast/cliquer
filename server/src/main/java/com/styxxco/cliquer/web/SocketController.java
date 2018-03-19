@@ -43,7 +43,6 @@ public class SocketController {
         }
 
         groupService.sendChatMessage(msg, group.getGroupID());
-
         return msg;
     }
 

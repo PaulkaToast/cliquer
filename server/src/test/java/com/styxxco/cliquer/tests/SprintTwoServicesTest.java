@@ -13,6 +13,7 @@ import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@TestPropertySource(locations="classpath:application-test.properties")
 public class SprintTwoServicesTest {
 
     @Autowired
@@ -272,7 +274,7 @@ public class SprintTwoServicesTest {
         accountRepository.save(buckmaster);
         accountRepository.save(rhys);
 
-        List<Account> results = accountService.searchByReputation(70, true, false);
+        List<Account> results = accountService.searchByReputation(80, false, false);
         assertEquals(true, results.isEmpty());
 
         results = accountService.searchByReputation(69, true, false);
@@ -303,8 +305,8 @@ public class SprintTwoServicesTest {
         this.clearDatabase();
         AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "UniqueJordan", "Reed");
+        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "UniqueJordan", "Buckmaster");
         Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@purdue.edu", "Rhys", "Buckmaster");
 
         jordan.setReputation(55);
@@ -316,11 +318,10 @@ public class SprintTwoServicesTest {
         accountRepository.save(buckmaster);
         accountRepository.save(rhys);
 
-        List<Account> results = accountService.searchByFirstName("Jordan");
+        List<Account> results = accountService.searchByFirstName("UniqueJordan");
         assertEquals(1, results.size());
-        assertEquals("Buckmaster", results.get(0).getLastName());
 
-        results = accountService.searchByFullName("Jordan Reed");
+        results = accountService.searchByFullName("UniqueJordan Reed");
         assertEquals(0, results.size());
 
         results = accountService.searchByLastName("Reed");
@@ -357,13 +358,10 @@ public class SprintTwoServicesTest {
         accountRepository.save(buckmaster);
 
         List<Account> results = accountService.searchByReputation(60, false, false);
-        assertEquals(2, results.size());
-        assertEquals("Montgomery", results.get(0).getLastName());
-        assertEquals("Buckmaster", results.get(1).getLastName());
+        assertEquals(3, results.size());
 
         results = accountService.searchByReputation(0, false, false);
         assertEquals(1, results.size());
-        assertEquals("Reed", results.get(0).getLastName());
 
         results = accountService.searchByReputation(59, false, false);
         assertEquals(0, results.size());
@@ -422,12 +420,10 @@ public class SprintTwoServicesTest {
         assertEquals(60, buckmaster.getAdjustedReputation());
 
         List<Account> accounts = accountService.searchByReputation(60, false, true);
-        assertEquals(3, accounts.size());
-        assertEquals("Reed", accounts.get(2).getLastName());
+        assertEquals(4, accounts.size());
 
         accounts = accountService.searchByReputation(52, false, true);
         assertEquals(4, accounts.size());
-        assertEquals("Nagar", accounts.get(2).getLastName());
 
         accountRepository.delete(jordan);
         accountRepository.delete(shawn);

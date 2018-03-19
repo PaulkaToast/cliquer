@@ -19,7 +19,7 @@ public interface GroupService {
     boolean hasGroupMember(Group group, ObjectId accountID);
     Group addGroupMember(ObjectId groupID, ObjectId groupLeaderID, ObjectId accountID);
     Group removeGroupMember(ObjectId groupID, ObjectId groupLeaderID, ObjectId accountID);
-    String deleteGroup(ObjectId groupID, ObjectId groupLeaderID);
+    Group deleteGroup(ObjectId groupID, ObjectId groupLeaderID);
 
     /* Group Searching */
     /* List<Group> groups is used to chain together filters */

@@ -5,7 +5,8 @@ import AutosuggestHighlightMatch from 'autosuggest-highlight/match'
 import AutosuggestHighlightParse from 'autosuggest-highlight/parse'
 
 import '../../css/SkillsForm.css'
-import { addNewSkill, deleteNewSkill } from '../../redux/actions'
+import { addNewSkill, deleteNewSkill, getSkillsList, setNewSkills } from '../../redux/actions'
+import url from '../../server.js'
 
 class SkillsForm extends Component {
 
@@ -20,6 +21,16 @@ class SkillsForm extends Component {
     }
   }
 
+  componentDidMount = () => {
+    if(!this.props.skills || this.props.skills.length === 0) {
+      this.props.getSkillsList(`${url}/getSkillList`, {})
+    }
+
+    if(this.props.defaultSkills && this.props.defaultSkills.length > 0) {
+      this.props.setSkills(this.props.defaultSkills)
+    }
+  }
+
   getSuggestions = (value) => {
     const escapedValue = value.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
     
@@ -29,7 +40,7 @@ class SkillsForm extends Component {
   
     const regex = new RegExp('\\b' + escapedValue, 'i')
     
-    return this.props.skills.filter(skill => regex.test(this.getSuggestionValue(skill.skillName)))
+    return this.props.skills.filter(skill => regex.test(this.getSuggestionValue(skill)))
   }
 
   getSuggestions = value => {
@@ -37,7 +48,7 @@ class SkillsForm extends Component {
     const inputLength = inputValue.length
   
     return inputLength === 0 ? [] : this.props.skills.filter(skill =>
-      skill.skillName.toLowerCase().slice(0, inputLength) === inputValue
+      skill.toLowerCase().slice(0, inputLength) === inputValue
     )
   }
 
@@ -68,7 +79,7 @@ class SkillsForm extends Component {
 
   contains = (skill) => {
     for(const i in this.props.skills) {
-      if(this.props.skills[i].skillName.toLowerCase() === skill.trim().toLowerCase()) return this.props.skills[i].skillName
+      if(this.props.skills[i].toLowerCase() === skill.trim().toLowerCase()) return this.props.skills[i]
     }
     return false
   }
@@ -98,8 +109,8 @@ class SkillsForm extends Component {
   }
 
   renderSuggestion = (suggestion, { query }) => {
-    const matches = AutosuggestHighlightMatch(suggestion.skillName, query)
-    const parts = AutosuggestHighlightParse(suggestion.skillName, matches)
+    const matches = AutosuggestHighlightMatch(suggestion, query)
+    const parts = AutosuggestHighlightParse(suggestion, matches)
   
     return (
       <span className={'suggestion-content'}>
@@ -190,7 +201,9 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
 	return {
     addSkill: (skill) => dispatch(addNewSkill(skill)),
+    setSkills: (skills) => dispatch(setNewSkills(skills)),
     deleteSkill: (skill) => dispatch(deleteNewSkill(skill)),
+    getSkillsList: (url, headers) => dispatch(getSkillsList(url, headers)),
 	}
 }
 
