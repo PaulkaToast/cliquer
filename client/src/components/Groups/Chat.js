@@ -8,6 +8,7 @@ import { getChatLog, postChatMessage, updateChatLog } from '../../redux/actions'
 import url from '../../server.js'
 
 const Message = ({message, sender, align}) => {
+  if (!message) return <div></div>;
   return (
     <div className={align}>
       <Badge className={align.concat("-badge")}>{sender}</Badge>
@@ -39,6 +40,11 @@ class Chat extends Component {
       //TODO: Add URL to link up with backend
       //TODO: prevent unnecessary calling
       this.props.getLog(``, { 'X-Authorization-Firebase': nextProps.token})
+    }
+    if(nextProps.group != this.props.group){
+      this.state.messages = [];
+      this.setState(this.state);
+      setTimeout(() => this.onWebsocketConnect(),1)
     }
   }
 
@@ -114,7 +120,6 @@ class Chat extends Component {
   }
 
   render() {
-    console.log(window.location.protocol)
     const messages = this.state.messages;
 
     return (
