@@ -16,7 +16,7 @@ import GroupMembers from './GroupMembers'
 import GroupSettings from './GroupSettings'
 import SkillsForm from '../Profile/SkillsForm'
 import { getGroups, setCurrentGroup, leaveGroup, deleteGroup, clearNewSkills, setGroupSettings, getProfile } from '../../redux/actions'
-import url from '../../server.js'
+import url from '../../server'
 
 class Groups extends Component {
   constructor(props) {

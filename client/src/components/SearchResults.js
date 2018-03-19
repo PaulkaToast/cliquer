@@ -3,11 +3,19 @@ import { Button } from 'reactstrap'
 import { connect } from 'react-redux'
 
 import '../css/SearchResults.css'
+import { search } from '../redux/actions'
+import url from '../server'
 
 class SearchResults extends Component {
   componentWillReceiveProps = (nextProps) => {
+    console.log(nextProps)
     const { query, category } = nextProps.match.params
     //API call for searching goes here, redux
+    console.log(query)
+    console.log(category)
+    if(query && category && nextProps.token) {
+      this.props.search(`${url}/api/search?query=${query}&type=${category}`, { 'X-Authorization-Firebase': nextProps.token})
+    }
   }
 
   renderGroupPreview = (group, i) => {
@@ -74,8 +82,15 @@ class SearchResults extends Component {
 
 const mapStateToProps = (state) => {
 	return {
-    /*results*/
+    user: state.user.data,
+    token: state.auth.token,
 	}
 }
 
-export default connect(mapStateToProps)(SearchResults)
+const mapDispatchToProps = (dispatch) => {
+  return {
+    search: (url, headers) => dispatch(search(url, headers))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SearchResults)
