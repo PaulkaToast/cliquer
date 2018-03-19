@@ -1,5 +1,6 @@
 package com.styxxco.cliquer.web;
 
+import com.google.api.Http;
 import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.security.FirebaseFilter;
 import lombok.extern.log4j.Log4j;
@@ -8,6 +9,7 @@ import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.FirebaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -69,6 +71,8 @@ public class RestController {
         }
         return new ResponseEntity<>(account, HttpStatus.OK);
     }
+
+    // TODO: /api/requestFriend endpoint
 
     @RequestMapping(value = "/api/removeFriend", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> removeFriend(@RequestParam(value = "username") String username,
@@ -218,30 +222,6 @@ public class RestController {
         Map<String, Message> map = messages.stream().collect(Collectors.toMap(Message::getMid, message -> message));
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
-
-    @RequestMapping(value = "/api/getChatLog", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<?> getChatLog(@RequestParam(value = "username") String username,
-                                                      @RequestParam(value = "groupId") String groupId,
-                                                      @RequestParam(value = "lower", required = false, defaultValue = "0") int lower,
-                                                      @RequestParam(value = "upper", required = false, defaultValue = "100") int upper) {
-        List<Message> messages = accountService.getGroupChatLog(username, groupId, lower, upper);
-        if (messages == null) {
-            return new ResponseEntity<>("Could not get chat log", HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(messages, HttpStatus.OK);
-    }
-
-    // TODO: /api/sendChat
-
-    // TODO: /api/receiveChat
-
-    // TODO: /api/requestRating
-
-    // TODO: notification WebSocket
-
-    // TODO: /api/requestFriend endpoint
-
-    // TODO: /api/requestGroup endpoint
 
     @RequestMapping(value = "/api/rateUser", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> rateUser(@RequestParam(value = "username") String username,

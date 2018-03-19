@@ -1,9 +1,6 @@
 package com.styxxco.cliquer.service;
 
-import com.styxxco.cliquer.domain.Group;
-import com.styxxco.cliquer.domain.Account;
-import com.styxxco.cliquer.domain.Message;
-import com.styxxco.cliquer.domain.Skill;
+import com.styxxco.cliquer.domain.*;
 import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
@@ -33,6 +30,12 @@ public interface GroupService {
     List<Group> searchByLeaderLastName(String lastName, List<Group> groups);
     List<Group> searchByLeaderFullName(String firstName, String lastName, List<Group> groups);
 
+    /* Vote kicking services */
+    Group startVoteKick(ObjectId groupID, ObjectId groupLeaderID, ObjectId accountID);
+    Group closeVoteKick(ObjectId groupID, ObjectId groupLeaderID);
+    Group acceptVoteKick(ObjectId groupID, ObjectId accountID);
+    Group denyVoteKick(ObjectId groupID, ObjectId accountID);
+
     /* Skill centered services */
     List<Skill> getAllSkillReqs(ObjectId groupID);
     Skill getSkillReq(ObjectId groupID, String skillName);
@@ -41,4 +44,5 @@ public interface GroupService {
 
     /* Message centered services */
     Message sendMessage(ObjectId groupID, ObjectId senderID, ObjectId receiverId, String content, int type);
+    void sendChatMessage(ChatMessage msg, ObjectId groupID);
 }

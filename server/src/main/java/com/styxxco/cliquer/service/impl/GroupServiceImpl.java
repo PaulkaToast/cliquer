@@ -4,10 +4,7 @@ import com.styxxco.cliquer.database.AccountRepository;
 import com.styxxco.cliquer.database.GroupRepository;
 import com.styxxco.cliquer.database.MessageRepository;
 import com.styxxco.cliquer.database.SkillRepository;
-import com.styxxco.cliquer.domain.Account;
-import com.styxxco.cliquer.domain.Group;
-import com.styxxco.cliquer.domain.Message;
-import com.styxxco.cliquer.domain.Skill;
+import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.service.GroupService;
 import lombok.extern.log4j.Log4j;
 import org.bson.types.ObjectId;
@@ -251,8 +248,176 @@ public class GroupServiceImpl implements GroupService {
         group.removeGroupMember(accountID);
         groupRepository.save(group);
         Account member = accountRepository.findByAccountID(accountID);
+        Message notification = new Message(groupID,
+                "You have been removed from the group " + group.getGroupName(),
+                Message.Types.GROUP_NOTIFICATION);
+        messageRepository.save(notification);
+        member.addMessage(notification.getMessageID());
         member.removeGroup(groupID);
         accountRepository.save(member);
+        return group;
+    }
+
+    @Override
+    public Group startVoteKick(ObjectId groupID, ObjectId groupLeaderID, ObjectId accountID)
+    {
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            log.info("Group " + groupID + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupID);
+        if(!group.getGroupLeaderID().equals(groupLeaderID))
+        {
+            log.info("User " + groupLeaderID + " is not the leader of group " + groupID);
+            return null;
+        }
+        if(group.getKickCandidate() != null)
+        {
+            log.info("User " + groupLeaderID + " has an ongoing vote kick");
+            return null;
+        }
+        if(!accountRepository.existsByAccountID(accountID))
+        {
+            log.info("User " + accountID + " not found");
+            return null;
+        }
+        if(!this.hasGroupMember(group, accountID))
+        {
+            log.info("User " + accountID + " is not in group " + groupID);
+            return null;
+        }
+        group.setKickCandidate(accountID);
+        group.setKickVotes(new ArrayList<>());
+        group.addKickVote(groupLeaderID);
+        groupRepository.save(group);
+        if(group.getKickVotes().size()*2 >= group.getGroupMemberIDs().size() - 1)
+        {
+            group = this.removeGroupMember(groupID, groupLeaderID, accountID);
+            group.setKickCandidate(null);
+            group.setKickVotes(new ArrayList<>());
+            groupRepository.save(group);
+        }
+        return group;
+    }
+
+    @Override
+    public Group closeVoteKick(ObjectId groupID, ObjectId groupLeaderID)
+    {
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            log.info("Group " + groupID + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupID);
+        if(!group.getGroupLeaderID().equals(groupLeaderID))
+        {
+            log.info("User " + groupLeaderID + " is not the leader of group " + groupID);
+            return null;
+        }
+        if(group.getKickCandidate() == null)
+        {
+            log.info("User " + groupLeaderID + " has not started a vote kick");
+            return null;
+        }
+        group.setKickCandidate(null);
+        group.setKickVotes(new ArrayList<>());
+        groupRepository.save(group);
+        return group;
+    }
+
+    @Override
+    public Group acceptVoteKick(ObjectId groupID, ObjectId accountID)
+    {
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            log.info("Group " + groupID + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupID);
+        if(!accountRepository.existsByAccountID(accountID))
+        {
+            log.info("User " + accountID + " not found");
+            return null;
+        }
+        if(!this.hasGroupMember(group, accountID))
+        {
+            log.info("User " + accountID + " is not in group " + groupID);
+            return null;
+        }
+        if(group.getKickCandidate() == null)
+        {
+            log.info("Group " + groupID + " has no ongoing vote kick");
+            return null;
+        }
+        if(accountID.equals(group.getKickCandidate()))
+        {
+            log.info("User " + accountID + " is the one being vote kicked");
+            return null;
+        }
+        if(accountID.equals(group.getGroupLeaderID()))
+        {
+            log.info("User " + accountID + " started the vote kick and cannot change vote");
+            return null;
+        }
+        if(group.hasKickVote(accountID))
+        {
+            log.info("User " + accountID + " has already voted to kick " + group.getKickCandidate());
+            return null;
+        }
+        group.addKickVote(accountID);
+        groupRepository.save(group);
+        if(group.getKickVotes().size()*2 >= group.getGroupMemberIDs().size() - 1)
+        {
+            group = this.removeGroupMember(groupID, group.getGroupLeaderID(), group.getKickCandidate());
+            group.setKickCandidate(null);
+            group.setKickVotes(new ArrayList<>());
+            groupRepository.save(group);
+        }
+        return group;
+    }
+
+    @Override
+    public Group denyVoteKick(ObjectId groupID, ObjectId accountID)
+    {
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            log.info("Group " + groupID + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupID);
+        if(!accountRepository.existsByAccountID(accountID))
+        {
+            log.info("User " + accountID + " not found");
+            return null;
+        }
+        if(!this.hasGroupMember(group, accountID))
+        {
+            log.info("User " + accountID + " is not in group " + groupID);
+            return null;
+        }
+        if(group.getKickCandidate() == null)
+        {
+            log.info("Group " + groupID + " has no ongoing vote kick");
+            return null;
+        }
+        if(accountID.equals(group.getKickCandidate()))
+        {
+            log.info("User " + accountID + " is the one being vote kicked");
+            return null;
+        }
+        if(accountID.equals(group.getGroupLeaderID()))
+        {
+            log.info("User " + accountID + " started the vote kick and cannot change vote");
+            return null;
+        }
+        if(!group.hasKickVote(accountID))
+        {
+            log.info("User " + accountID + " has already chosen to not kick " + group.getKickCandidate());
+            return null;
+        }
+        group.removeKickVote(accountID);
+        groupRepository.save(group);
         return group;
     }
 
@@ -284,12 +449,21 @@ public class GroupServiceImpl implements GroupService {
             {
                 continue;
             }
-            if(!group.isPublic())
+            else if(!group.isPublic())
             {
                 continue;
             }
             Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
-            if(leader == null || group.getReputationReq()*leader.getReputation() < user.getReputationReq()*user.getReputation())
+          
+            if(leader == null)
+            {
+                continue;
+            }
+            else if(group.getReputationReq()*leader.getReputation() < user.getReputationReq()*user.getReputation())
+            {
+                continue;
+            }
+            else if(user.distanceTo(leader.getLatitude(), leader.getLongitude()) > user.getProximityReq())
             {
                 continue;
             }
@@ -531,5 +705,28 @@ public class GroupServiceImpl implements GroupService {
         receiver.addMessage(message.getMessageID());
         accountRepository.save(receiver);
         return message;
+    }
+
+    @Override
+    public void sendChatMessage(ChatMessage msg, ObjectId groupID)
+    {
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            log.info("Group " + groupID + " not found");
+            return;
+        }
+        Group group = groupRepository.findByGroupID(groupID);
+        Account a = accountRepository.findByUsername(msg.getSenderId());
+        if (a == null) {
+            log.info("No accountID found for User: " + msg.getSenderId());
+        }
+        if(!group.getGroupMemberIDs().contains(a.getAccountID()))
+        {
+            log.info("User " + msg.getSenderId() + " is not in the group " + groupID);
+            return;
+        }
+
+        group.addMessage(msg);
+        groupRepository.save(group);
     }
 }

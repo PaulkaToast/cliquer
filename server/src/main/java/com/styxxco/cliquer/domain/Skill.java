@@ -17,6 +17,7 @@ public class Skill extends Searchable implements Comparable<Skill> {
 	@Id
 	@JsonIgnore
 	private final ObjectId skillID;
+  
 	@JsonIgnore
 	private final String sid;
 

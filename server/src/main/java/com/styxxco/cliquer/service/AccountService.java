@@ -23,6 +23,8 @@ public interface AccountService extends UserDetailsService {
     /* Account Modification */
     Skill addSkill(String username, String skillName, String skillLevel);
     List<Skill> addSkills(String username, String json);
+    Account addSkill(String username, String skillName, String skillLevel);
+    Account addSkills(String username, String json);
     Account removeSkill(String username, String skillName);
     Account deleteAccount(String username);
     Account rateUser(String username, String friend, String json);

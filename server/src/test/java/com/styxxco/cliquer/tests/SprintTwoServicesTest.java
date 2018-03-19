@@ -1,11 +1,8 @@
 package com.styxxco.cliquer.tests;
 
 import com.styxxco.cliquer.database.*;
-import com.styxxco.cliquer.domain.Account;
-import com.styxxco.cliquer.domain.Group;
-import com.styxxco.cliquer.domain.Message;
+import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.domain.Message.Types;
-import com.styxxco.cliquer.domain.Skill;
 import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.GroupService;
 import com.styxxco.cliquer.service.impl.GroupServiceImpl;
@@ -107,8 +104,14 @@ public class SprintTwoServicesTest {
 
         jordan.setReputation(50);
         jordan.setReputationReq(0.5);
+        jordan.setLatitude(40.00);
+        jordan.setLongitude(-80.00);
+        jordan.setProximityReq(Integer.MAX_VALUE);
         shawn.setReputation(60);
-        cliquer.setReputationReq(1.0);
+        shawn.setLatitude(40.2);
+        shawn.setLongitude(-80.4);
+        shawn.setProximityReq(Integer.MAX_VALUE);
+        cliquer.setReputationReq(0.5);
         hoops.setReputationReq(0.25);
         hoops.setReputationReq(0.5);
         games.setReputationReq(0.5);
@@ -155,6 +158,24 @@ public class SprintTwoServicesTest {
         List<Group> third = groupService.searchByLeaderFullName("Shawn", "Montgomery", null);
         assertEquals(first.size(), second.size());
         assertEquals(first.size(), third.size());
+
+        groups = groupService.searchBySettings("montgo38", null);
+        assertEquals(1, groups.size());
+        assertEquals("Cliquer", groups.get(0).getGroupName());
+
+        assertEquals(25, jordan.distanceTo(shawn.getLatitude(), shawn.getLongitude()));
+        jordan.setProximityReq(30);
+        shawn.setProximityReq(20);
+
+        accountRepository.save(jordan);
+        accountRepository.save(shawn);
+
+        groups = groupService.searchBySettings("reed226", null);
+        assertEquals(2, groups.size());
+        assertEquals("Hoops", groups.get(0).getGroupName());
+
+        groups = groupService.searchBySettings("montgo38", null);
+        assertEquals(0, groups.size());
 
         hula = groupRepository.findByGroupID(hula.getGroupID());
         hoops = groupRepository.findByGroupID(hoops.getGroupID());
@@ -435,6 +456,20 @@ public class SprintTwoServicesTest {
                 "To play video games",
                 shawn.getAccountID());
 
+        jordan.setLatitude(40.00);
+        jordan.setLongitude(-80.00);
+        jordan.setProximityReq(Integer.MAX_VALUE);
+        shawn.setLatitude(40.2);
+        shawn.setLongitude(-80.4);
+        shawn.setProximityReq(Integer.MAX_VALUE);
+        kevin.setLatitude(40.4);
+        kevin.setLongitude(-80.8);
+        kevin.setProximityReq(Integer.MAX_VALUE);
+
+        accountRepository.save(jordan);
+        accountRepository.save(shawn);
+        accountRepository.save(kevin);
+
         cliquer = groupService.updateGroupSettings(cliquer.getGroupID(), cliquer.getGroupLeaderID(), "isPublic", "false");
         hoops = groupService.updateGroupSettings(hoops.getGroupID(), hoops.getGroupLeaderID(), "isPublic", "true");
         games = groupService.updateGroupSettings(games.getGroupID(), games.getGroupLeaderID(), "isPublic", "true");
@@ -452,7 +487,7 @@ public class SprintTwoServicesTest {
         accountRepository.delete(kevin);
     }
 
-    /* Back end Unit Test for User Story 23 */
+    /* Back end Unit Test for User Story 24 */
     @Test
     public void testGroupClosing()
     {
@@ -477,8 +512,8 @@ public class SprintTwoServicesTest {
                 kevin.getAccountID());
         groupService.addGroupMember(hoops.getGroupID(), kevin.getAccountID(), jordan.getAccountID());
 
-        Group deletedGroup = groupService.deleteGroup(cliquer.getGroupID(), jordan.getAccountID());
-        assertNotNull(deletedGroup);
+        String result = groupService.deleteGroup(cliquer.getGroupID(), jordan.getAccountID());
+        assertNotNull(result);
         Group retrieve = groupService.getUserGroup(cliquer.getGroupID(), jordan.getAccountID());
         assertNull(retrieve);
 
@@ -492,5 +527,115 @@ public class SprintTwoServicesTest {
         accountRepository.delete(jordan);
         accountRepository.delete(shawn);
         accountRepository.delete(kevin);
+    }
+
+    /* Back end Unit Test for User Story 25 */
+    @Test
+    public void testGroupMemberKicking()
+    {
+        this.clearDatabase();
+        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+        GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
+        Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@purdue.edu", "Rhys", "Buckmaster");
+
+        Group cliquer = groupService.createGroup(
+                "Cliquer",
+                "To create a web app that facilitates the teaming of people who may have never met before",
+                jordan.getAccountID());
+        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID());
+        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID());
+        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), buckmaster.getAccountID());
+        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), rhys.getAccountID());
+
+        Group result = groupService.acceptVoteKick(cliquer.getGroupID(), buckmaster.getAccountID());
+        assertNull(result);
+
+        result = groupService.startVoteKick(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID());
+        assertEquals(kevin.getAccountID(), result.getKickCandidate());
+
+        result = groupService.acceptVoteKick(cliquer.getGroupID(), kevin.getAccountID());
+        assertNull(result);
+
+        result = groupService.acceptVoteKick(cliquer.getGroupID(), buckmaster.getAccountID());
+        assertEquals(false, result.getGroupMemberIDs().contains(kevin.getAccountID()));
+        kevin = accountRepository.findByUsername(kevin.getUsername());
+        assertEquals(0, kevin.getGroupIDs().size());
+        Message first = messageRepository.findByMessageID(kevin.getMessageIDs().get(0));
+        assertEquals(Types.GROUP_NOTIFICATION, first.getType());
+
+        result = groupService.acceptVoteKick(cliquer.getGroupID(), rhys.getAccountID());
+        assertNull(result);
+
+        result = groupService.startVoteKick(cliquer.getGroupID(), jordan.getAccountID(), rhys.getAccountID());
+        assertEquals(rhys.getAccountID(), result.getKickCandidate());
+
+        result = groupService.closeVoteKick(cliquer.getGroupID(), jordan.getAccountID());
+        assertNull(result.getKickCandidate());
+
+        result = groupService.removeGroupMember(cliquer.getGroupID(), jordan.getAccountID(), rhys.getAccountID());
+        assertEquals(false, result.getGroupMemberIDs().contains(rhys.getAccountID()));
+        rhys = accountRepository.findByUsername(rhys.getUsername());
+        assertEquals(0, rhys.getGroupIDs().size());
+        Message second = messageRepository.findByMessageID(rhys.getMessageIDs().get(0));
+        assertEquals(Types.GROUP_NOTIFICATION, second.getType());
+
+        messageRepository.delete(first);
+        messageRepository.delete(second);
+        groupRepository.delete(cliquer);
+        accountRepository.delete(jordan);
+        accountRepository.delete(shawn);
+        accountRepository.delete(kevin);
+        accountRepository.delete(buckmaster);
+        accountRepository.delete(rhys);
+    }
+
+    @Test
+    public void testChatHistory()
+    {
+        this.clearDatabase();
+        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+        GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+
+        Account jordan = accountService.createAccount(new ObjectId().toHexString(), "reed226@purdue.edu", "Jordan", "Reed");
+        Account kevin = accountService.createAccount(new ObjectId().toHexString(), "knagar@purdue.edu", "Kevin", "Nagar");
+
+        Group cliquer = groupService.createGroup(
+                "Cliquer",
+                "To create a web app that facilitates the teaming of people who may have never met before",
+                jordan.getAccountID());
+
+        cliquer.addGroupMember(kevin.getAccountID());
+        groupRepository.save(cliquer);
+
+        groupService.sendChatMessage(new ChatMessage("Hello", jordan.getUsername(), "Jordan Reed"),cliquer.getGroupID());
+        groupService.sendChatMessage(new ChatMessage("Hey", kevin.getUsername(), "Kevin Nagar"), cliquer.getGroupID());
+        groupService.sendChatMessage(new ChatMessage("Bye", jordan.getUsername(), "Jordan Reed"), cliquer.getGroupID());
+
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        List<Group> groups = accountService.getAllUserGroups(jordan.getUsername());
+
+        assertEquals(1, groups.size());
+        List<ChatMessage> messages = groups.get(0).getChatHistory();
+
+        assertEquals(3, messages.size());
+
+        assertEquals("Hello", messages.get(0).getContent());
+        assertEquals("Hey", messages.get(1).getContent());
+        assertEquals("Bye", messages.get(2).getContent());
+
+        accountRepository.delete(jordan);
+        accountRepository.delete(kevin);
+        groupRepository.delete(cliquer);
+
+
     }
 }

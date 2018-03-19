@@ -10,6 +10,7 @@ matrix:
       before_script:
         - cd client
         - touch src/firebase/firebase.js
+        - echo "const url = ''; export default url" > src/server.js
         - npm install
       script:
         - npm run-script coverage
@@ -24,6 +25,7 @@ matrix:
       before_script: 
         - cd server
         - wget -O src/main/resources/FirebaseConfigurationJSON.json "$FIREBASE_CONFIG_URL"
+        - wget -O src/main/resources/application.properties "$PROP_URL_SERVER"
       script: "mvn test"
       after_success:
         - bash <(curl -s https://codecov.io/bash) -F server -t "c40160c7-daa8-4fbc-99df-f7383a356af3"

@@ -2,6 +2,9 @@
 package com.styxxco.cliquer.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.StringSerializer;
+import com.styxxco.cliquer.database.ObjectIdSerial;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -15,7 +18,7 @@ import java.util.*;
 @Setter
 public class Group extends Searchable {
 	@Id
-	@JsonIgnore
+	@JsonSerialize(using = ObjectIdSerial.ObjectIdJsonSerializer.class)
 	private final ObjectId groupID;
 	private final String gid;
 
@@ -31,13 +34,18 @@ public class Group extends Searchable {
 
     @JsonIgnore
     private ObjectId groupLeaderID;
+  
     private String ownerUID;
 
     @JsonIgnore
 	private List<ObjectId> groupMemberIDs;	/* Account ID of the group members */
 
+	private ObjectId kickCandidate;
+	private List<ObjectId> kickVotes;
+
+	@Getter
 	@JsonIgnore
-	private List<ObjectId> chatLog;
+	private List<ChatMessage> chatHistory;
 
 	public Group(@NonNull String groupName, String groupPurpose, ObjectId groupLeaderID) {
 		this.groupID = new ObjectId();
@@ -54,7 +62,27 @@ public class Group extends Searchable {
 		this.proximityReq = 10;
 		this.groupMemberIDs = new ArrayList<>();
 		this.groupMemberIDs.add(groupLeaderID);
+
+		this.kickCandidate = null;
+		this.kickVotes = new ArrayList<>();
+
+		this.chatHistory = new ArrayList<>();
 	}
+
+	public void addKickVote(ObjectId accountID)
+    {
+        kickVotes.add(accountID);
+    }
+
+    public void removeKickVote(ObjectId accountID)
+    {
+        kickVotes.remove(accountID);
+    }
+
+    public boolean hasKickVote(ObjectId accountID)
+    {
+        return kickVotes.contains(accountID);
+    }
 
 	public void addSkillReq(ObjectId skillID)
 	{
@@ -76,12 +104,9 @@ public class Group extends Searchable {
 		groupMemberIDs.remove(accountID);
 	}
 
-	public List<ObjectId> getChatLogsFrom(int from, int to) {
-		return chatLog.subList(from, to);
-	}
+	public void addMessage(ChatMessage msg) { 
+    chatHistory.add(msg); 
+  }
 
-	public void addMessage(Message message) {
-		chatLog.add(message.getMessageID());
-	}
 }
 

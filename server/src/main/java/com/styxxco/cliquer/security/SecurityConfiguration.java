@@ -24,6 +24,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 @Configuration
 @EnableGlobalMethodSecurity(securedEnabled = true)
@@ -76,6 +77,7 @@ public class SecurityConfiguration {
                         .antMatchers("/login").permitAll()
                         .antMatchers("/register").permitAll()
                         .antMatchers("/getSkillList").permitAll()
+                        .antMatchers("/sockJS/**").permitAll()
                         .antMatchers("/api/**").hasRole(Roles.USER)
                         .antMatchers("/**").denyAll()
                     .and()
@@ -111,17 +113,17 @@ public class SecurityConfiguration {
 
     @Configuration
     @EnableWebSocketMessageBroker
-    protected static class SocketBrokerConfig extends AbstractWebSocketMessageBrokerConfigurer {
+    public static class SocketBrokerConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
         @Override
         public void configureMessageBroker(MessageBrokerRegistry config) {
             config.enableSimpleBroker("/group");
-            config.setApplicationDestinationPrefixes("/secured");
+            config.setApplicationDestinationPrefixes("/chat");
         }
 
         @Override
         public void registerStompEndpoints(StompEndpointRegistry registry) {
-            registry.addEndpoint("/chat").withSockJS();
+            registry.addEndpoint("/sockJS").setAllowedOrigins("*").withSockJS();
         }
     }
 }

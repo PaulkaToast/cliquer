@@ -46,7 +46,9 @@ public class Account extends Searchable implements UserDetails {
 	private boolean isPublic;
 	private boolean isOptedOut;
 	private double reputationReq;		/* Represents fraction of user rep */
-	private int proximityReq;
+	private int proximityReq;			/* Miles that matches must fit within */
+	private int loggedInTime;			/* Minutes that user has spent logged in */
+	private LocalTime intervalTimer;
 
 	/* Inherited from UserDetails */
 	@JsonIgnore
@@ -63,6 +65,8 @@ public class Account extends Searchable implements UserDetails {
 	public static final int NEW_USER_HOURS = 24;
 	public static final int NEW_USER_REP = 50;		/* Reputation constant added to new user reputation */
 
+	private double latitude;
+	private double longitude;
 	private int reputation;
 	@JsonIgnore
     private List<Role> authorities;
@@ -90,10 +94,12 @@ public class Account extends Searchable implements UserDetails {
 		this.isOptedOut = false;
 		this.isNewUser = true;
 		this.reputationReq = 0;
-		this.proximityReq = 10;
+		this.proximityReq = 50;
 		this.loggedInTime = 0;
 		this.intervalTimer = LocalTime.now();
 		this.reputation = 1;
+		this.latitude = 360.00;
+		this.longitude = 360.00;
 		this.skillIDs = new ArrayList<>();
 		this.groupIDs = new ArrayList<>();
 		this.friendIDs = new ArrayList<>();
@@ -213,10 +219,30 @@ public class Account extends Searchable implements UserDetails {
 		return accountEnabled;
 	}
 
-	/*public Message makeFriendInvite(String content)
+	public int distanceTo(double latitude, double longitude)
 	{
-		return new Message(content, this.accountID, "Friend Invite");
+		if(Math.abs(this.latitude) > 90.00 || Math.abs(this.longitude) > 180.00
+				|| Math.abs(latitude) > 90.00 || Math.abs(longitude) > 180.00)
+		{
+			return Integer.MAX_VALUE;
+		}
+		double theta = this.longitude - longitude;
+		double distance = Math.sin(degToRad(this.latitude)) * Math.sin(degToRad(latitude))
+				+ Math.cos(degToRad(this.latitude)) * Math.cos(degToRad(latitude)) * Math.cos(degToRad(this.longitude - longitude));
+		distance = Math.acos(distance);
+		distance = radToDeg(distance);
+		return (int)(distance * 60 * 1.1515);
 	}
-	*/
+
+	public static double degToRad(double degrees)
+	{
+		return (degrees * Math.PI)/180;
+	}
+
+	public static double radToDeg(double radians)
+	{
+		return (radians * 180)/Math.PI;
+	}
+
 
 }

@@ -1,0 +1,25 @@
+.min-rep-container{
+    max-width: 250px;
+    margin-right: 5px
+}
+
+.max-dis-container{
+    max-width: 300px;
+    margin-right: 5px
+}
+
+.pref-skills-container{
+    max-width: 400px;
+    margin-right: 5px
+}
+
+.filer-navbar{
+    border-color: transparent;
+    background-color: #c8ced4;
+    text-align: center !important;
+
+}
+
+.filter-public-groups{
+    text-align: center;
+}

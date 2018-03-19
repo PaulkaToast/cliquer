@@ -38,7 +38,6 @@ public class Message
 		public static final int MOD_FLAG = 2;
 		public static final int GROUP_NOTIFICATION = 3;
 		public static final int PROFILE_NOTIFICATION = 4;
-		public static final int CHAT_MESSAGE = 5;
 	}
 
 	public Message(ObjectId senderID, String content, int type)

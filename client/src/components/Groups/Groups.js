@@ -161,7 +161,6 @@ class Groups extends Component {
             <Chat group={this.props.currentGroup}/>
           </Col>
         </Row>
-            
         { this.props.currentGroup &&
           <div>
           <Popover placement="left" isOpen={this.state.membersPopOver} target="PopoverM" toggle={this.toggleM}>
