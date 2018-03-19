@@ -8,7 +8,6 @@ import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.FirebaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -53,7 +52,7 @@ public class RestController {
 
     @RequestMapping(value = "/api/deleteProfile", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> deleteAccount(@RequestParam(value = "username") String username) {
-        String success = accountService.deleteAccount(username);
+        Account success = accountService.deleteAccount(username);
         if (success == null) {
             return new ResponseEntity<>("Could not delete profile", HttpStatus.BAD_REQUEST);
         }
@@ -71,8 +70,6 @@ public class RestController {
         return new ResponseEntity<>(account, HttpStatus.OK);
     }
 
-    // TODO: /api/requestFriend endpoint
-
     @RequestMapping(value = "/api/removeFriend", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> removeFriend(@RequestParam(value = "username") String username,
                                    @RequestParam(value = "friend") String friend) {
@@ -86,16 +83,13 @@ public class RestController {
 
     @RequestMapping(value = "/api/createGroup", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> createGroup(@RequestParam(value = "username") String username,
-                                  @RequestParam(value = "groupName") String groupName,
-                                  @RequestParam(value = "bio") String bio) {
-        Group group = accountService.createGroup(username, groupName, bio);
+                                  @RequestBody String json) {
+        Group group = accountService.createGroup(username, json);
         if (group == null) {
             return new ResponseEntity<>("Could not create group", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(group, HttpStatus.OK);
     }
-
-    // TODO: /api/updateGroup endpoint
 
     @RequestMapping(value = "/api/leaveGroup", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> leaveGroup(@RequestParam(value = "username") String username,
@@ -112,16 +106,24 @@ public class RestController {
     public @ResponseBody ResponseEntity<?> deleteGroup(@RequestParam(value = "username") String username,
                                   @RequestParam(value = "groupId") String groupId) {
         ObjectId groupID = new ObjectId(groupId);
-        String result = accountService.deleteGroup(username, groupID);
+        Group result = accountService.deleteGroup(username, groupID);
         if (result == null) {
             return new ResponseEntity<>("Could not delete group", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    // TODO: /api/requestGroup endpoint
-
-    // TODO: /api/setGroupSettings endpoint
+    @RequestMapping(value = "/api/setGroupSettings", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> setGroupSettings(@RequestParam(value = "username") String username,
+                                                            @RequestParam(value = "groupId") String groupId,
+                                                            @RequestBody String json) {
+        ObjectId gid = new ObjectId(groupId);
+        Group group = accountService.setGroupSettings(username, gid, json);
+        if (group == null) {
+            return new ResponseEntity<>("Could not update group settings", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(group, HttpStatus.OK);
+    }
 
     @RequestMapping(value = "/api/addToGroup", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> addToGroup(@RequestParam(value = "username") String username,
@@ -138,16 +140,25 @@ public class RestController {
     public @ResponseBody ResponseEntity<?> inviteToGroup(@RequestParam(value = "username") String username,
                                     @RequestParam(value = "friend") String friend,
                                     @RequestParam(value = "groupId") String groupId) {
-        ObjectId accountID = new ObjectId(friend);
         ObjectId groupID = new ObjectId(groupId);
-        Account user = accountService.inviteToGroup(username, accountID, groupID);
+        Account user = accountService.inviteToGroup(username, friend, groupID);
         if (user == null) {
             return new ResponseEntity<>("Could not find group from this id", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    // TODO: /api/kick endpoint
+    @RequestMapping(value = "/api/kick", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> kick(@RequestParam(value = "username") String username,
+                     @RequestParam(value = "friend") String friend,
+                     @RequestParam(value = "groupId") String groupId) {
+        ObjectId groupID = new ObjectId(groupId);
+        Account user = accountService.kickMember(username, friend, groupID);
+        if (user == null) {
+            return new ResponseEntity<>("Could not kick member from group", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
 
     @RequestMapping(value = "/api/getUserGroups")
     public @ResponseBody ResponseEntity<?> getUserGroups(@RequestParam(value = "username") String username) {
@@ -208,7 +219,17 @@ public class RestController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    // TODO: /api/getChatLog
+    @RequestMapping(value = "/api/getChatLog", method = RequestMethod.GET)
+    public @ResponseBody ResponseEntity<?> getChatLog(@RequestParam(value = "username") String username,
+                                                      @RequestParam(value = "groupId") String groupId,
+                                                      @RequestParam(value = "lower", required = false, defaultValue = "0") int lower,
+                                                      @RequestParam(value = "upper", required = false, defaultValue = "100") int upper) {
+        List<Message> messages = accountService.getGroupChatLog(username, groupId, lower, upper);
+        if (messages == null) {
+            return new ResponseEntity<>("Could not get chat log", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(messages, HttpStatus.OK);
+    }
 
     // TODO: /api/sendChat
 
@@ -218,24 +239,42 @@ public class RestController {
 
     // TODO: notification WebSocket
 
-    // TODO: /api/rateUser
+    // TODO: /api/requestFriend endpoint
+
+    // TODO: /api/requestGroup endpoint
+
+    @RequestMapping(value = "/api/rateUser", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> rateUser(@RequestParam(value = "username") String username,
+                                                    @RequestParam(value = "friend") String friend,
+                                                    @RequestBody String json) {
+        Account user = accountService.rateUser(username, friend, json);
+        if (user == null) {
+            return new ResponseEntity<>("Could not rate user", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
 
     @RequestMapping(value = "/api/search", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<?> search(@RequestParam(value = "type") String type,
                              @RequestParam(value = "query", required = false, defaultValue = "null") String query,
-                             @RequestParam(value = "level", required = false, defaultValue = "0") int level,
                              @RequestParam(value = "suggestions", required = false, defaultValue = "true") boolean suggestions,
                              @RequestParam(value = "weights", required = false, defaultValue = "true") boolean weights) {
-        Map<String, ? extends Searchable> map = accountService.searchWithFilter(type, query, level, suggestions, weights);
+        Map<String, ? extends Searchable> map = accountService.searchWithFilter(type, query, suggestions, weights);
         if (map == null) {
             return new ResponseEntity<>("Could not find any results", HttpStatus.BAD_REQUEST);
         }
+        System.out.println(map);
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/api/setSettings", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody ResponseEntity<?> updateSettings(@RequestBody String s) {
-        return new ResponseEntity<>(s, HttpStatus.OK);
+    @RequestMapping(value = "/api/setSettings", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> updateSettings(@RequestParam(value = "username") String username,
+                               @RequestBody String json) {
+        Account user = accountService.setAccountSettings(username, json);
+        if (user == null) {
+            return new ResponseEntity<>("Could not update account settings", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
 }

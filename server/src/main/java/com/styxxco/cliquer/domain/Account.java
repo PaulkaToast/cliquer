@@ -90,10 +90,10 @@ public class Account extends Searchable implements UserDetails {
 		this.isOptedOut = false;
 		this.isNewUser = true;
 		this.reputationReq = 0;
-		this.proximityReq = 0;
+		this.proximityReq = 10;
 		this.loggedInTime = 0;
 		this.intervalTimer = LocalTime.now();
-		this.reputation = 0;
+		this.reputation = 1;
 		this.skillIDs = new ArrayList<>();
 		this.groupIDs = new ArrayList<>();
 		this.friendIDs = new ArrayList<>();

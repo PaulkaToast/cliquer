@@ -4,6 +4,7 @@ package com.styxxco.cliquer.domain;
 /* Serves as the entity representing user and moderator data.	*/
 /* Extended by the Moderator class								*/
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -17,6 +18,7 @@ import java.time.LocalTime;
 public class Message
 {
 	@Id
+	@JsonIgnore
 	private final ObjectId messageID;
 	private final String mid;
 

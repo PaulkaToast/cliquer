@@ -47,6 +47,7 @@ public class GroupServiceImpl implements GroupService {
         }
         Account user = accountRepository.findByAccountID(groupLeaderID);
         Group group = new Group(groupName, groupPurpose, groupLeaderID);
+        group.setOwnerUID(user.getUsername());
         this.groupRepository.save(group);
         user.addGroup(group.getGroupID());
         this.accountRepository.save(user);
@@ -54,7 +55,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public String deleteGroup(ObjectId groupID, ObjectId groupLeaderID)
+    public Group deleteGroup(ObjectId groupID, ObjectId groupLeaderID)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -74,7 +75,7 @@ public class GroupServiceImpl implements GroupService {
             accountRepository.save(account);
         }
         groupRepository.delete(group);
-        return "Success";
+        return group;
 
     }
 
@@ -138,7 +139,6 @@ public class GroupServiceImpl implements GroupService {
         {
             case "groupName" : group.setGroupName(value); break;
             case "groupPurpose" : group.setGroupPurpose(value); break;
-            case "groupLeaderID" : group.setGroupLeaderID(new ObjectId(value)); break;
             case "isPublic" : group.setPublic(Boolean.parseBoolean(value)); break;
             case "reputationReq" :
                 double repReq;
@@ -151,12 +151,7 @@ public class GroupServiceImpl implements GroupService {
                     log.info("Invalid reputation requirement");
                     return null;
                 }
-                if(repReq < 0.0 || repReq > 1.0)
-                {
-                    log.info("Invalid reputation requirement");
-                    return null;
-                }
-                group.setReputationReq(repReq);
+                group.setReputationReq(repReq / accountRepository.findByAccountID(groupLeaderID).getReputation());
                 break;
             case "proximityReq" :
                 int proxReq;

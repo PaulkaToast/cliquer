@@ -86,7 +86,7 @@ public class SprintOneServicesTest {
 		assertEquals("Reed", user.getLastName());
 		user = accountRepository.findByAccountID(id);
 		assertEquals("Shawn", user.getFirstName());
-		
+
 		accountRepository.delete(jordan);
 		accountRepository.delete(shawn);
 	}
@@ -189,9 +189,9 @@ public class SprintOneServicesTest {
 		this.clearDatabase();
 		AccountService service = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 
-		Account reed = service.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-		Account buckmaster = service.createAccount("buckmast", "buckmast@purdue.edu","Jordan", "Buckmaster");
-		Account rhys = service.createAccount("rbuckmas", "rbuckmas@purdue.edu",  "Rhys", "Buckmaster");
+		Account reed = service.createAccount("reed226", "reed226@purdue.edu", "UniqueJordan", "Reed");
+		Account buckmaster = service.createAccount("buckmast", "buckmast@purdue.edu","UniqueJordan", "UniqueBuckmaster");
+		Account rhys = service.createAccount("rbuckmas", "rbuckmas@purdue.edu",  "Rhys", "UniqueBuckmaster");
 		Account shawn = service.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 
 		reed.setReputation(7);
@@ -219,33 +219,25 @@ public class SprintOneServicesTest {
 		service.addSkill("montgo38", "Programming", "7");
 
 
-		List<Account> search = service.searchByFirstName("Jordan");
+		List<Account> search = service.searchByFirstName("UniqueJordan");
 		assertEquals(2, search.size());
-		assertEquals("Buckmaster", search.get(0).getLastName());
+		assertEquals("Reed", search.get(0).getLastName());
 
-		search = service.searchByLastName("Buckmaster");
+		search = service.searchByLastName("UniqueBuckmaster");
 		assertEquals(2, search.size());
-		assertEquals("Rhys", search.get(1).getFirstName());
 
-		search = service.searchByFullName("Jordan", "Buckmaster");
+		search = service.searchByFullName("UniqueJordan", "UniqueBuckmaster");
 		assertEquals(1, search.size());
-		assertEquals("Jordan", search.get(0).getFirstName());
-		assertEquals("Buckmaster", search.get(0).getLastName());
+		assertEquals("UniqueJordan", search.get(0).getFirstName());
+		assertEquals("UniqueBuckmaster", search.get(0).getLastName());
 
 		search = service.searchByReputation(6, false, false);
-		assertEquals(3, search.size());
-		assertEquals("Shawn", search.get(2).getFirstName());
-		assertEquals("Buckmaster", search.get(0).getLastName());
+		assertEquals(4, search.size());
+		assertEquals("UniqueJordan", search.get(2).getFirstName());
+		assertEquals("UniqueBuckmaster", search.get(0).getLastName());
 
-		search = service.searchBySkill("Programming", 7);
-		assertEquals(3, search.size());
-		assertEquals("Buckmaster", search.get(0).getLastName());
-		assertEquals("Montgomery", search.get(1).getLastName());
-		assertEquals("Reed", search.get(2).getLastName());
-
-
-		search = service.searchBySkill("Programming", 9);
-		assertEquals(true, search.isEmpty());
+		search = service.searchBySkill("Programming");
+		assertEquals(4, search.size());
 
 		assertEquals(new Double(75.0), new Double(service.getReputationRanking("reed226")));
 		assertEquals(new Double(100.0), new Double(service.getReputationRanking("buckmast")));
@@ -314,7 +306,7 @@ public class SprintOneServicesTest {
 		groupRepository.save(cliquer);
 		retrieve = groupService.getPublicGroup(cliquer.getGroupID());
 		assertNull(retrieve);
-		
+
 		accountRepository.delete(jordan);
 		accountRepository.delete(shawn);
 		accountRepository.delete(kevin);
@@ -354,7 +346,7 @@ public class SprintOneServicesTest {
         {
             assertEquals(groupsOne.get(i).getGroupID(), groupsTwo.get(i).getGroupID());
         }
-        
+
         accountRepository.delete(jordan);
 		groupRepository.delete(cliquer);
 		groupRepository.delete(hoops);
@@ -424,7 +416,7 @@ public class SprintOneServicesTest {
 		assertEquals(1, retrieve.getGroupMemberIDs().size());
 
 		cliquer = groupRepository.findByGroupID(cliquer.getGroupID());
-		
+
 		skillRepository.delete(programming);
 		skillRepository.delete(lifter);
 		for(ObjectId id : cliquer.getSkillReqs())
@@ -458,7 +450,7 @@ public class SprintOneServicesTest {
 		newMessages = service.getNewMessages("montgo38");
 		assertEquals(1, newMessages.size());
 		assertEquals("Pretty please be my friend?", newMessages.get(0).getContent());
-		
+
 		messageRepository.delete(first);
 		messageRepository.delete(second);
 		messageRepository.delete(third);
@@ -490,8 +482,8 @@ public class SprintOneServicesTest {
 				kevin.getAccountID());
 		groupService.addGroupMember(hoops.getGroupID(), kevin.getAccountID(), jordan.getAccountID());
 
-		String result = accountService.deleteAccount(jordan.getUsername());
-		assertNotNull(result);
+		Account deletedAccount = accountService.deleteAccount(jordan.getUsername());
+		assertNotNull(deletedAccount);
 		Group retrieve = groupService.getUserGroup(cliquer.getGroupID(), shawn.getAccountID());
 		Account account = accountRepository.findByAccountID(retrieve.getGroupLeaderID());
 		assertEquals("Shawn", account.getFirstName());
@@ -502,8 +494,8 @@ public class SprintOneServicesTest {
 		account = accountRepository.findByUsername(jordan.getUsername());
 		assertNull(account);
 
-		result = groupService.deleteGroup(cliquer.getGroupID(), shawn.getAccountID());
-		assertNotNull(result);
+		Group deletedGroup = groupService.deleteGroup(cliquer.getGroupID(), shawn.getAccountID());
+		assertNotNull(deletedGroup);
 		retrieve = groupService.getUserGroup(cliquer.getGroupID(), shawn.getAccountID());
 		assertNull(retrieve);
 
@@ -511,7 +503,7 @@ public class SprintOneServicesTest {
 		assertEquals(0, account.getGroupIDs().size());
 		account = accountRepository.findByUsername(kevin.getUsername());
 		assertEquals(1, account.getGroupIDs().size());
-		
+
 		accountRepository.delete(shawn);
 		accountRepository.delete(kevin);
 		groupRepository.delete(hoops);
