@@ -23,8 +23,6 @@ public interface AccountService extends UserDetailsService {
     /* Account Modification */
     Skill addSkill(String username, String skillName, String skillLevel);
     List<Skill> addSkills(String username, String json);
-    Account addSkill(String username, String skillName, String skillLevel);
-    Account addSkills(String username, String json);
     Account removeSkill(String username, String skillName);
     Account deleteAccount(String username);
     Account rateUser(String username, String friend, String json);
@@ -52,7 +50,6 @@ public interface AccountService extends UserDetailsService {
 
     /* Message centered services */
     List<Message> getNewMessages(String username);
-    List<Message> getGroupChatLog(String username, String groupId, int lower, int upper);
     Message sendMessage(String username, ObjectId receiverID, String content, int type);
 
     /* Group centered services */

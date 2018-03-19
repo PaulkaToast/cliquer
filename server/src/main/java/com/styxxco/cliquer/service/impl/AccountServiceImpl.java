@@ -195,31 +195,6 @@ public class AccountServiceImpl implements AccountService {
         return user;
     }
 
-    // TODO: add group privacy search
-    @Override
-    public Map<String, ? extends Searchable> searchWithFilter(String type, String query, int level, boolean suggestions, boolean weights) {
-        switch(type) {
-            case "firstName":
-                return searchByFirstName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "lastName":
-                return searchByLastName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "fullName":
-                return searchByFullName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "username":
-                Map<String, Account> map = new HashMap<>();
-                Account account = searchByUsername(query);
-                map.put(account.getUsername(), account);
-                return map;
-            case "reputation":
-                return searchByReputation(level, suggestions, weights).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "skill":
-                return searchBySkill(query, level).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "groupName":
-                return searchByGroupName(query).stream().collect(Collectors.toMap(Group::getGid, _it -> _it));
-        }
-        return null;
-    }
-
     @Override
     public Map<String, ? extends Searchable> searchWithFilter(String type, String query, boolean suggestions, boolean weights) {
         System.out.println(type + " " + query);
@@ -494,30 +469,6 @@ public class AccountServiceImpl implements AccountService {
             e.printStackTrace();
         }
         return skills;
-    }
-
-    @Override
-    public Account addSkills(String username, String json) {
-        if(!accountRepository.existsByUsername(username))
-        {
-            log.info("User " + username + " not found");
-            return null;
-        }
-        Account user = accountRepository.findByUsername(username);
-
-        try {
-            ObjectMapper om = new ObjectMapper();
-            TypeReference<List<HashMap<String, String>>> typeRef = new TypeReference<List<HashMap<String, String>>>() {};
-            List<Map<String, String>> mapList = om.readValue(json, typeRef);
-            for (Map<String, String> s: mapList) {
-                String skillName = s.get("skillName");
-                String skillLevel = s.get("skillLevel");
-
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return user;
     }
 
     @Override

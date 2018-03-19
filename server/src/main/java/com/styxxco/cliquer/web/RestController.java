@@ -195,7 +195,7 @@ public class RestController {
 
     @RequestMapping(value = "/api/addSkills", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> addSkills(@RequestParam(value = "username") String username,
-                                @RequestBody String json) {
+                                                        @RequestBody String json) {
         List<? extends Searchable> skills = accountService.addSkills(username, json);
         if (skills == null) {
             return new ResponseEntity<>("Could not add skills", HttpStatus.BAD_REQUEST);

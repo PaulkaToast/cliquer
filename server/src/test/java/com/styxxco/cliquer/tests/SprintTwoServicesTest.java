@@ -358,7 +358,7 @@ public class SprintTwoServicesTest {
         accountRepository.save(buckmaster);
 
         List<Account> results = accountService.searchByReputation(60, false, false);
-        assertEquals(3, results.size());
+        assertEquals(2, results.size());
 
         results = accountService.searchByReputation(0, false, false);
         assertEquals(1, results.size());
@@ -420,7 +420,7 @@ public class SprintTwoServicesTest {
         assertEquals(60, buckmaster.getAdjustedReputation());
 
         List<Account> accounts = accountService.searchByReputation(60, false, true);
-        assertEquals(4, accounts.size());
+        assertEquals(3, accounts.size());
 
         accounts = accountService.searchByReputation(52, false, true);
         assertEquals(4, accounts.size());
@@ -512,8 +512,8 @@ public class SprintTwoServicesTest {
                 kevin.getAccountID());
         groupService.addGroupMember(hoops.getGroupID(), kevin.getAccountID(), jordan.getAccountID());
 
-        String result = groupService.deleteGroup(cliquer.getGroupID(), jordan.getAccountID());
-        assertNotNull(result);
+        Group group = groupService.deleteGroup(cliquer.getGroupID(), jordan.getAccountID());
+        assertNotNull(group);
         Group retrieve = groupService.getUserGroup(cliquer.getGroupID(), jordan.getAccountID());
         assertNull(retrieve);
 

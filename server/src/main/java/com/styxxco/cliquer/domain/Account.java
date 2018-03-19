@@ -47,8 +47,6 @@ public class Account extends Searchable implements UserDetails {
 	private boolean isOptedOut;
 	private double reputationReq;		/* Represents fraction of user rep */
 	private int proximityReq;			/* Miles that matches must fit within */
-	private int loggedInTime;			/* Minutes that user has spent logged in */
-	private LocalTime intervalTimer;
 
 	/* Inherited from UserDetails */
 	@JsonIgnore

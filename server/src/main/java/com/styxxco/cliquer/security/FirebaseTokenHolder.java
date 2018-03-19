@@ -1,11 +1,6 @@
 package com.styxxco.cliquer.security;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.util.ArrayMap;
 import com.google.firebase.auth.FirebaseToken;
 

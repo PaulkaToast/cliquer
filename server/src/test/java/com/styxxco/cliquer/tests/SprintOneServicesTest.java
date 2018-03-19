@@ -234,8 +234,8 @@ public class SprintOneServicesTest {
 		assertEquals("UniqueBuckmaster", search.get(0).getLastName());
 
 		search = service.searchByReputation(6, false, false);
-		assertEquals(4, search.size());
-		assertEquals("UniqueJordan", search.get(2).getFirstName());
+		assertEquals(3, search.size());
+		assertEquals("Shawn", search.get(2).getFirstName());
 		assertEquals("UniqueBuckmaster", search.get(0).getLastName());
 
 		search = service.searchBySkill("Programming");
