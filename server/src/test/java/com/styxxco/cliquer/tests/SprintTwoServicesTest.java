@@ -8,6 +8,8 @@ import com.styxxco.cliquer.service.GroupService;
 import com.styxxco.cliquer.service.impl.GroupServiceImpl;
 import org.bson.types.ObjectId;
 import com.styxxco.cliquer.service.impl.AccountServiceImpl;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
@@ -33,51 +35,13 @@ public class SprintTwoServicesTest {
     @Autowired
     public GroupRepository groupRepository;
 
-    /* Function to clear items that should not already be in database */
-    public void clearDatabase()
-    {
-        if(accountRepository.existsByUsername("reed226"))
-        {
-            accountRepository.delete(accountRepository.findByUsername("reed226"));
-        }
-        if(accountRepository.existsByUsername("montgo38"))
-        {
-            accountRepository.delete(accountRepository.findByUsername("montgo38"));
-        }
-        if(accountRepository.existsByUsername("knagar"))
-        {
-            accountRepository.delete(accountRepository.findByUsername("knagar"));
-        }
-        if(accountRepository.existsByUsername("buckmast"))
-        {
-            accountRepository.delete(accountRepository.findByUsername("buckmast"));
-        }
-        if(accountRepository.existsByUsername("rbuckmas"))
-        {
-            accountRepository.delete(accountRepository.findByUsername("rbuckmas"));
-        }
+    public AccountService accountService;
 
-        if(skillRepository.existsBySkillName("Programming"))
-        {
-            skillRepository.delete(skillRepository.findBySkillName("Programming"));
-        }
-        if(skillRepository.existsBySkillName("Lifter"))
-        {
-            skillRepository.delete(skillRepository.findBySkillName("Lifter"));
-        }
-        if(skillRepository.existsBySkillName("Board Gaming"))
-        {
-            skillRepository.delete(skillRepository.findBySkillName("Board Gaming"));
-        }
-    }
+    public GroupService groupService;
 
     /* Back end Unit Test for User Story 10 */
     @Test
     public void testGroupSearchFilters() {
-        this.clearDatabase();
-        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-        GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 
@@ -176,35 +140,12 @@ public class SprintTwoServicesTest {
 
         groups = groupService.searchBySettings("montgo38", null);
         assertEquals(0, groups.size());
-
-        hula = groupRepository.findByGroupID(hula.getGroupID());
-        hoops = groupRepository.findByGroupID(hoops.getGroupID());
-
-        skillRepository.delete(lifter);
-        accountRepository.delete(jordan);
-        accountRepository.delete(shawn);
-        for(ObjectId id : hula.getSkillReqs())
-        {
-            skillRepository.delete(id.toString());
-        }
-        for(ObjectId id : hoops.getSkillReqs())
-        {
-            skillRepository.delete(id.toString());
-        }
-        groupRepository.delete(cliquer);
-        groupRepository.delete(hula);
-        groupRepository.delete(hoops);
-        groupRepository.delete(games);
-        groupRepository.delete(styxx);
     }
 
     /* Back end Unit Test for User Story 13 */
     @Test
     public void testFriendInvites()
     {
-        this.clearDatabase();
-        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "montgo38@purdue.edu", "Kevin", "Nagar");
@@ -243,19 +184,12 @@ public class SprintTwoServicesTest {
         assertNull(invite);
         assertEquals(false, messageRepository.existsByMessageID(first));
         assertEquals(false, messageRepository.existsByMessageID(second));
-
-        accountRepository.delete(jordan);
-        accountRepository.delete(shawn);
-        accountRepository.delete(kevin);
     }
 
     /* Back end Unit Test for User Story 15 */
     @Test
     public void testReputationSuggestions()
     {
-        this.clearDatabase();
-        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "montgo38@purdue.edu", "Kevin", "Nagar");
@@ -290,21 +224,12 @@ public class SprintTwoServicesTest {
             assertEquals("Jordan Buckmaster", results.get(2).getFullName());
             assertEquals("Shawn Montgomery", results.get(3).getFullName());
         }
-
-        accountRepository.delete(jordan);
-        accountRepository.delete(shawn);
-        accountRepository.delete(kevin);
-        accountRepository.delete(buckmaster);
-        accountRepository.delete(rhys);
     }
 
     /* Back end Unit Test for User Story 16 */
     @Test
     public void testOptingOutOfSearch()
     {
-        this.clearDatabase();
-        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "UniqueJordan", "Reed");
         Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "UniqueJordan", "Buckmaster");
         Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@purdue.edu", "Rhys", "Buckmaster");
@@ -330,19 +255,12 @@ public class SprintTwoServicesTest {
         results = accountService.searchByReputation(50, false, false);
         assertEquals(1, results.size());
         assertEquals("Rhys Buckmaster", results.get(0).getFullName());
-
-        accountRepository.delete(jordan);
-        accountRepository.delete(buckmaster);
-        accountRepository.delete(rhys);
     }
 
     /* Back end Unit Test for User Story 17 */
     @Test
     public void testReputationRange()
     {
-        this.clearDatabase();
-        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
@@ -365,19 +283,12 @@ public class SprintTwoServicesTest {
 
         results = accountService.searchByReputation(59, false, false);
         assertEquals(0, results.size());
-
-        accountRepository.delete(jordan);
-        accountRepository.delete(shawn);
-        accountRepository.delete(buckmaster);
     }
 
     /* Back end Unit Test for User Story 20 */
     @Test
     public void testNewUserFlag()
     {
-        this.clearDatabase();
-        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
@@ -424,21 +335,12 @@ public class SprintTwoServicesTest {
 
         accounts = accountService.searchByReputation(52, false, true);
         assertEquals(4, accounts.size());
-
-        accountRepository.delete(jordan);
-        accountRepository.delete(shawn);
-        accountRepository.delete(kevin);
-        accountRepository.delete(buckmaster);
     }
 
     /* Back end Unit Test for User Story 23 */
     @Test
     public void testPublicPrivateGroupSearch()
     {
-        this.clearDatabase();
-        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-        GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
@@ -470,31 +372,20 @@ public class SprintTwoServicesTest {
         accountRepository.save(shawn);
         accountRepository.save(kevin);
 
-        cliquer = groupService.updateGroupSettings(cliquer.getGroupID(), cliquer.getGroupLeaderID(), "isPublic", "false");
-        hoops = groupService.updateGroupSettings(hoops.getGroupID(), hoops.getGroupLeaderID(), "isPublic", "true");
-        games = groupService.updateGroupSettings(games.getGroupID(), games.getGroupLeaderID(), "isPublic", "true");
+        groupService.updateGroupSettings(cliquer.getGroupID(), cliquer.getGroupLeaderID(), "isPublic", "false");
+        groupService.updateGroupSettings(hoops.getGroupID(), hoops.getGroupLeaderID(), "isPublic", "true");
+        groupService.updateGroupSettings(games.getGroupID(), games.getGroupLeaderID(), "isPublic", "true");
 
         List<Group> groups = groupService.searchBySettings("knagar", null);
         assertEquals(2, groups.size());
         assertEquals("Games", groups.get(0).getGroupName());
         assertEquals("Hoops", groups.get(1).getGroupName());
-
-        groupRepository.delete(cliquer);
-        groupRepository.delete(hoops);
-        groupRepository.delete(games);
-        accountRepository.delete(jordan);
-        accountRepository.delete(shawn);
-        accountRepository.delete(kevin);
     }
 
     /* Back end Unit Test for User Story 24 */
     @Test
     public void testGroupClosing()
     {
-        this.clearDatabase();
-        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-        GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
@@ -521,22 +412,12 @@ public class SprintTwoServicesTest {
         assertEquals(0, account.getGroupIDs().size());
         account = accountRepository.findByUsername(kevin.getUsername());
         assertEquals(1, account.getGroupIDs().size());
-
-        groupRepository.delete(cliquer);
-        groupRepository.delete(hoops);
-        accountRepository.delete(jordan);
-        accountRepository.delete(shawn);
-        accountRepository.delete(kevin);
     }
 
     /* Back end Unit Test for User Story 25 */
     @Test
     public void testGroupMemberKicking()
     {
-        this.clearDatabase();
-        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-        GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
@@ -583,24 +464,11 @@ public class SprintTwoServicesTest {
         assertEquals(0, rhys.getGroupIDs().size());
         Message second = messageRepository.findByMessageID(rhys.getMessageIDs().get(0));
         assertEquals(Types.GROUP_NOTIFICATION, second.getType());
-
-        messageRepository.delete(first);
-        messageRepository.delete(second);
-        groupRepository.delete(cliquer);
-        accountRepository.delete(jordan);
-        accountRepository.delete(shawn);
-        accountRepository.delete(kevin);
-        accountRepository.delete(buckmaster);
-        accountRepository.delete(rhys);
     }
 
     @Test
     public void testChatHistory()
     {
-        this.clearDatabase();
-        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-        GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-
         Account jordan = accountService.createAccount(new ObjectId().toHexString(), "reed226@purdue.edu", "Jordan", "Reed");
         Account kevin = accountService.createAccount(new ObjectId().toHexString(), "knagar@purdue.edu", "Kevin", "Nagar");
 
@@ -631,11 +499,51 @@ public class SprintTwoServicesTest {
         assertEquals("Hello", messages.get(0).getContent());
         assertEquals("Hey", messages.get(1).getContent());
         assertEquals("Bye", messages.get(2).getContent());
+    }
 
-        accountRepository.delete(jordan);
-        accountRepository.delete(kevin);
-        groupRepository.delete(cliquer);
+    /* Populates valid skills into database, in case they were deleted */
+    @Before
+    public void populateSkills()
+    {
+        accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+        groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+        accountService.addSkillToDatabase("Java");
+        accountService.addSkillToDatabase("JavaScript");
+        accountService.addSkillToDatabase("C");
+        accountService.addSkillToDatabase("C++");
+        accountService.addSkillToDatabase("Python");
+        accountService.addSkillToDatabase("C#");
+        accountService.addSkillToDatabase("Ruby");
+        accountService.addSkillToDatabase("Pascal");
+        accountService.addSkillToDatabase("ARM");
+        accountService.addSkillToDatabase("x86");
+        accountService.addSkillToDatabase("Verilog");
+        accountService.addSkillToDatabase("VIM");
+        accountService.addSkillToDatabase("Microsoft Word");
+        accountService.addSkillToDatabase("Google Sheets");
+        accountService.addSkillToDatabase("Swift");
+        accountService.addSkillToDatabase("Real Time Strategy Games");
+        accountService.addSkillToDatabase("Role-Playing Games");
+        accountService.addSkillToDatabase("Board Games");
+        accountService.addSkillToDatabase("Platformer Games");
+        accountService.addSkillToDatabase("Massively Multiplayer Online Role-Playing Games");
+        accountService.addSkillToDatabase("Basketball");
+        accountService.addSkillToDatabase("Lifting");
+        accountService.addSkillToDatabase("Football");
+        accountService.addSkillToDatabase("Volleyball");
+        accountService.addSkillToDatabase("Baseball");
+        accountService.addSkillToDatabase("Soccer");
+        accountService.addSkillToDatabase("Tennis");
+        accountService.addSkillToDatabase("Really Long Skill Name That Likely Needs To Be Shortened When It Is Shown On The Front End");
+    }
 
-
+    /* Function to clear items that should not already be in database */
+    @After
+    public void clearDatabase()
+    {
+        accountRepository.deleteAll();
+        skillRepository.deleteAll();
+        messageRepository.deleteAll();
+        groupRepository.deleteAll();
     }
 }
