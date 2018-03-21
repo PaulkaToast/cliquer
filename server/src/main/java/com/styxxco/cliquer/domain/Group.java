@@ -87,6 +87,11 @@ public class Group extends Searchable {
 		groupMemberIDs.remove(accountID);
 	}
 
+	public boolean hasGroupMember(ObjectId accountID)
+	{
+		return groupMemberIDs.contains(accountID);
+	}
+
 	/*
 	public Message makeAccountInvite(String content)
 	{

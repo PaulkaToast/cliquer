@@ -600,4 +600,41 @@ public class SprintTwoServicesTest {
         accountRepository.delete(buckmaster);
         accountRepository.delete(rhys);
     }
+
+    /* Back end Unit Test for User Story 28 */
+    @Test
+    public void testJoiningGroup() {
+        this.clearDatabase();
+        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+        GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
+
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
+        Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@purdue.edu", "Rhys", "Buckmaster");
+
+        Group cliquer = groupService.createGroup(
+                "Cliquer",
+                "To create a web app that facilitates the teaming of people who may have never met before",
+                jordan.getAccountID());
+
+        cliquer.addGroupMember(shawn.getAccountID());
+        cliquer.setProximityReq(30);
+        jordan.setProximityReq(10);
+        jordan.setLatitude(40.0);
+        jordan.setLongitude(-80.0);
+
+        // Tests when member tries joining a group they are in
+        shawn.addGroup(cliquer.getGroupID());
+        shawn.setLatitude(40.0);
+        shawn.setLongitude(-80.0);
+
+        // Tests when is too far away from the group leader
+        kevin.setLatitude(40.4);
+        kevin.setLongitude(-80.8);
+
+        // Tests when a member satisfies all requirements
+
+    }
 }

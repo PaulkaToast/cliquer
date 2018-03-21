@@ -708,6 +708,11 @@ public class GroupServiceImpl implements GroupService {
         Group group = groupRepository.findByGroupID(groupID);
         Account user = accountRepository.findByAccountID(accountID);
         Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
+        if(group.hasGroupMember(user.getAccountID()))
+        {
+            log.info("User " + accountID + " is already a member of group " + groupID);
+            return false;
+        }
         if(user.getAdjustedReputation() < group.getReputationReq() * leader.getReputation())
         {
             return false;
