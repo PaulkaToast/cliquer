@@ -26,18 +26,15 @@ class App extends Component {
           this.props.setLocation(position)
         })
     } else {
-      console.log('Geolocation is not supported')
+      //TODO: Geolocation is not supported
     }
-    
+
     firebase.onAuthStateChanged(authUser => {
       if(authUser) {
         this.props.logIn(authUser)
         authUser.getIdToken(true)
           .then((token) => {
             this.props.setToken(token)
-          })
-          .catch((error) => {
-            console.log(error)
           })
       } else {
         this.props.logOut(authUser)
@@ -67,7 +64,6 @@ class App extends Component {
   }
 
   render() {
-    console.log(this.props.position)
     return (
       <div className="App h-100">
         <Switch>

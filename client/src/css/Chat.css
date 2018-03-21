@@ -1,32 +1,40 @@
-/*.Chat {
-    width: 60%;
-    background-color: #81B298;
-}
-
-.Chat .header {
-    text-align: center;
-}
-
-.Chat .header h3 {
-    color: #F7F7F7;
-    text-transform: uppercase;
-    font-size: 1rem;
-    font-weight: 300;
-    letter-spacing: 3px;
-    margin: 15px 2rem;
-}
-
-.Chat .body {
-    height: 100%;
-    text-align: center;
-    background-color: #F7F7F7;
-}
-
-.Chat .body h3 { 
-    margin: auto;
-}
-*/
 .Chat{
     padding-right: 0px;
     padding-left: 0px;
+    background-image: url("../img/cliquerLogoLogo.png");
+    background-repeat: no-repeat;
+    background-position: right bottom;
+}
+.message-container{
+    height: 80vh;
+    overflow-y: scroll;
+}
+
+.send-message-container{
+    margin-top: 10px;
+}
+
+.sender-message-right{
+    text-align: right;
+}
+.sender-message-right-badge{
+    background-color: #dbdbdb;
+}
+
+.sender-message-right-alert{
+    color: black;
+    background-color: #dbdbdb;
+    border-color: transparent;
+    display:inline-block;
+}
+
+.sender-message-left-badge{
+    background-color: #A7C5BD;
+}
+
+.sender-message-left-alert{
+    color: black;
+    background-color: #A7C5BD;
+    border-color: transparent;
+    display:inline-block;
 }

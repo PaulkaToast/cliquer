@@ -2,6 +2,9 @@ package com.styxxco.cliquer.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Group;
 import com.styxxco.cliquer.domain.Skill;
@@ -15,6 +18,8 @@ import com.styxxco.cliquer.database.*;
 import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.security.SecurityConfiguration;
 import com.styxxco.cliquer.service.AccountService;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -93,7 +98,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public String deleteAccount(String username)
+    public Account deleteAccount(String username)
     {
         if(!accountRepository.existsByUsername(username))
         {
@@ -112,7 +117,7 @@ public class AccountServiceImpl implements AccountService {
             groupRepository.save(group);
         }
         accountRepository.delete(user);
-        return "Success";
+        return user;
     }
 
     @Override
@@ -127,7 +132,7 @@ public class AccountServiceImpl implements AccountService {
             account.setPassword(UUID.randomUUID().toString());
             System.out.println(account.toString());
             accountRepository.save(account);
-            log.info("registerUser -> user \"" + tokenHolder.getName() + "\" created");
+            log.info("registerUser -> user \"" + account.getFirstName() + " " + account.getLastName() + "\" created");
             return account;
         } else {
             log.info("registerUser -> user \"" + tokenHolder.getUid() + "\" exists");
@@ -167,12 +172,10 @@ public class AccountServiceImpl implements AccountService {
                 user = getUserProfile(username);
                 break;
             case "member":
-                ObjectId memberID = new ObjectId(username);
-                user = getMemberProfile(memberID);
+                user = getMemberProfile(username);
                 break;
             case "public":
-                ObjectId publicID = new ObjectId(username);
-                user = getPublicProfile(publicID);
+                user = getPublicProfile(username);
                 break;
         }
         return user;
@@ -192,15 +195,15 @@ public class AccountServiceImpl implements AccountService {
         return user;
     }
 
-    // TODO: add group privacy search
     @Override
-    public Map<String, ? extends Searchable> searchWithFilter(String type, String query, int level, boolean suggestions, boolean weights) {
+    public Map<String, ? extends Searchable> searchWithFilter(String type, String query, boolean suggestions, boolean weights) {
+        System.out.println(type + " " + query);
         switch(type) {
-            case "firstName":
+            case "firstname":
                 return searchByFirstName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "lastName":
+            case "lastname":
                 return searchByLastName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "fullName":
+            case "fullname":
                 return searchByFullName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
             case "username":
                 Map<String, Account> map = new HashMap<>();
@@ -208,17 +211,19 @@ public class AccountServiceImpl implements AccountService {
                 map.put(account.getUsername(), account);
                 return map;
             case "reputation":
-                return searchByReputation(level, suggestions, weights).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
+                return searchByReputation(Integer.parseInt(query), suggestions, weights).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
             case "skill":
-                return searchBySkill(query, level).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "groupName":
+                return searchBySkill(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
+            case "groupname":
                 return searchByGroupName(query).stream().collect(Collectors.toMap(Group::getGid, _it -> _it));
+            case "ispublic":
+                return searchByGroupPublic(Boolean.parseBoolean(query)).stream().collect(Collectors.toMap(Group::getGid, _it -> _it));
         }
         return null;
     }
 
     @Override
-    public Account updateUserProfile(String username, String field, String value)
+    public Account getMemberProfile(String username)
     {
         if(!accountRepository.existsByUsername(username))
         {
@@ -226,68 +231,11 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Account user = accountRepository.findByUsername(username);
-        switch(field)
-        {
-            case "firstName" : user.setFirstName(value); break;
-            case "lastName" : user.setLastName(value); break;
-            case "isPublic" : user.setPublic(Boolean.parseBoolean(value)); break;
-            case "reputationReq" :
-                double repReq;
-                try
-                {
-                    repReq = Double.parseDouble(value);
-                }
-                catch(NumberFormatException e)
-                {
-                    log.info("Invalid reputation requirement");
-                    return null;
-                }
-                if(repReq < 0.0 || repReq > 1.0)
-                {
-                    log.info("Invalid reputation requirement");
-                    return null;
-                }
-                user.setReputationReq(repReq);
-                break;
-            case "proximityReq" :
-                int proxReq;
-                try
-                {
-                    proxReq = Integer.parseInt(value);
-                }
-                catch(NumberFormatException e)
-                {
-                    log.info("Invalid proximity requirement");
-                    return null;
-                }
-                if(proxReq <= 0)
-                {
-                    log.info("Invalid proximity requirement");
-                    return null;
-                }
-                user.setProximityReq(proxReq);
-                break;
-            default:
-                log.info("Field " + field + " is invalid");
-                return null;
-        }
-        accountRepository.save(user);
-        return user;
-    }
-
-    @Override
-    public Account getMemberProfile(ObjectId accountID)
-    {
-        if(!accountRepository.existsByAccountID(accountID))
-        {
-            log.info("User " + accountID + " not found");
-            return null;
-        }
-        Account user = accountRepository.findByAccountID(accountID);
         /* Mask private information and settings */
-        user.setUsername(null);
         user.setModerator(false);
         user.setMessageIDs(null);
+        user.setPassword(null);
+        user.setOptedOut(false);
         user.setProximityReq(-1);
         user.setReputationReq(-1.0);
         return user;
@@ -304,30 +252,33 @@ public class AccountServiceImpl implements AccountService {
             account.setFriendIDs(null);
         }
         /* Mask private information and settings */
-        account.setUsername(null);
         account.setModerator(false);
         account.setMessageIDs(null);
+        account.setPassword(null);
+        account.setOptedOut(false);
+        account.setEmail(null);
+        account.setLoggedInTime(-1);
         account.setProximityReq(-1);
         account.setReputationReq(-1.0);
         return account;
     }
 
     @Override
-    public Account getPublicProfile(ObjectId accountID)
+    public Account getPublicProfile(String username)
     {
-        if(!accountRepository.existsByAccountID(accountID))
+        if(!accountRepository.existsByUsername(username))
         {
-            log.info("User " + accountID + " not found");
+            log.info("User " + username + " not found");
             return null;
         }
-        Account user = accountRepository.findByAccountID(accountID);
+        Account user = accountRepository.findByUsername(username);
         return this.maskPublicProfile(user);
     }
 
     @Override
     public List<Account> searchByFirstName(String firstName)
     {
-        List<Account> accounts = accountRepository.findByFirstName(firstName);
+        List<Account> accounts = accountRepository.findAccountsByFirstNameIsLike(firstName);
         List<Account> masked = new ArrayList<>();
         for(Account account : accounts)
         {
@@ -464,24 +415,20 @@ public class AccountServiceImpl implements AccountService {
         return results;
     }
 
+    // TODO: sort by level for front end
     @Override
-    public List<Account> searchBySkill(String skillName, int minimumLevel)
-    {
+    public List<Account> searchBySkill(String skillName) {
         List<Account> accounts = accountRepository.findAll();
         Comparator<Account> byFirstName = Comparator.comparing(Account::getFirstName);
         accounts.sort(byFirstName);
         Comparator<Account> byLastName = Comparator.comparing(Account::getLastName);
         accounts.sort(byLastName);
+
         List<Account> qualified = new ArrayList<>();
-        for(int i = 10; i >= minimumLevel; i--)
-        {
-            for (Account account : accounts)
-            {
-                Skill skill = this.getSkill(account.getUsername(), skillName);
-                if (account.isPublic() && skill != null && skill.getSkillLevel() == i)
-                {
-                    qualified.add(this.maskPublicProfile(account));
-                }
+        for (Account account : accounts) {
+            Skill skill = this.getSkill(account.getUsername(), skillName);
+            if (account.isPublic() && skill != null) {
+                qualified.add(this.maskPublicProfile(account));
             }
         }
         return qualified;
@@ -494,31 +441,34 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<Group> searchByGroupName(String name) {
-        return groupRepository.findByGroupName(name);
+        return groupRepository.findAllByGroupName(name);
     }
 
     @Override
-    public Account addSkills(String username, String json) {
+    public List<Group> searchByGroupPublic(boolean isPublic) {
+        return groupRepository.findAllByPublic(isPublic);
+    }
+
+    @Override
+    public List<Skill> addSkills(String username, String json) {
         if(!accountRepository.existsByUsername(username))
         {
             log.info("User " + username + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
-
+        List<Skill> skills = new ArrayList<>();
         try {
             ObjectMapper om = new ObjectMapper();
-            TypeReference<List<HashMap<String, String>>> typeRef = new TypeReference<List<HashMap<String, String>>>() {};
-            List<Map<String, String>> mapList = om.readValue(json, typeRef);
-            for (Map<String, String> s: mapList) {
-                String skillName = s.get("skillName");
-                String skillLevel = s.get("skillLevel");
-
+            TypeFactory typeFactory = om.getTypeFactory();
+            List<String> list = om.readValue(json, typeFactory.constructCollectionType(List.class, String.class));
+            for (String s: list) {
+                skills.add(addSkill(user, s, "0"));
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return user;
+        return skills;
     }
 
     @Override
@@ -596,7 +546,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account addSkill(String username, String skillName, String skillString)
+    public Skill addSkill(String username, String skillName, String skillString)
     {
         if(!accountRepository.existsByUsername(username))
         {
@@ -607,15 +557,10 @@ public class AccountServiceImpl implements AccountService {
         return addSkill(user, skillName, skillString);
     }
 
-    private Account addSkill(Account account, String skillName, String skillString) {
+    private Skill addSkill(Account account, String skillName, String skillString) {
         if(!skillRepository.existsBySkillName(skillName))
         {
             log.info("Skill " + skillName + " is invalid");
-            return null;
-        }
-        if(this.getSkill(account.getUsername(), skillName) != null)
-        {
-            log.info("User " + account.getUsername() + " already has skill " + skillName);
             return null;
         }
         int skillLevel = 0;
@@ -629,11 +574,29 @@ public class AccountServiceImpl implements AccountService {
             log.info("Skill level " + skillLevel + " is invalid");
             return null;
         }
-        Skill skill = new Skill(skillName, skillLevel);
-        skillRepository.save(skill);
+
+        Skill skill;
+        if (skillRepository.existsBySkillNameAndSkillLevel(skillName, skillLevel)) {
+            skill = skillRepository.findBySkillNameAndSkillLevel(skillName, skillLevel);
+        } else if (skillRepository.existsBySkillName(skillName)){
+            skill = new Skill(skillName, skillLevel);
+            skillRepository.save(skill);
+        } else {
+            return null;
+        }
+        Skill curr = this.getSkill(account.getUsername(), skillName);
+        if(curr != null)
+        {
+            if (curr.getSkillLevel() == skillLevel) {
+                log.info("User " + account.getUsername() + " already has skill " + skillName);
+                return null;
+            } else {
+                account.removeSkill(curr.getSkillID());
+            }
+        }
         account.addSkill(skill.getSkillID());
         accountRepository.save(account);
-        return account;
+        return skill;
     }
 
     @Override
@@ -652,7 +615,6 @@ public class AccountServiceImpl implements AccountService {
             return null;
 
         }
-        skillRepository.delete(skill);
         user.removeSkill(skill.getSkillID());
         accountRepository.save(user);
         return user;
@@ -680,6 +642,36 @@ public class AccountServiceImpl implements AccountService {
         return messages;
     }
 
+     // Deprecated by Paula's chatlog but logic may be needed
+    /*
+    @Override
+    public List<Message> getGroupChatLog(String username, String groupId, int lower, int upper) {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        ObjectId groupID = new ObjectId(groupId);
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            log.info("Group " + groupId + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupID);
+        if (!group.getGroupMemberIDs().contains(user.getAccountID())) {
+            log.info("User is not apart of this group");
+            return null;
+        }
+        List<ObjectId> messageIds = group.getChatLogsFrom(lower, upper);
+        List<Message> messages = new ArrayList<>();
+        for (ObjectId id: messageIds) {
+            messages.add(messageRepository.findByMessageID(id));
+        }
+        return messages;
+    }
+    */
+
     // TODO: @Reed insert function to notify receiver in real time once web sockets done
     @Override
     public Message sendMessage(String username, ObjectId receiverID, String content, int type)
@@ -704,19 +696,43 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Group createGroup(String username, String groupName, String bio) {
+    public Group createGroup(String username, String json) {
         if(!accountRepository.existsByUsername(username))
         {
             log.info("User " + username + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
-        return groupService.createGroup(groupName, bio, user.getAccountID());
+        Group group = null;
+        try {
+            JSONObject obj = new JSONObject(json);
+            String name = obj.getString("groupName");
+            String purpose = obj.getString("groupPurpose");
+            group = groupService.createGroup(name, purpose, user.getAccountID());
+            for (Object k: obj.keySet()) {
+                String key = k.toString();
+                if (key.contentEquals("skillsReq")) {
+                    JSONArray skills = obj.getJSONArray("skillsReq");
+                    List<ObjectId> list = new ArrayList<>();
+                    for (int i = 0; i < skills.length(); i++) {
+                        if (skillRepository.existsBySkillName(skills.getString(i))) {
+                            list.add(skillRepository.findBySkillNameAndSkillLevel(skills.getString(i), 0).getSkillID());
+                        }
+                    }
+                    group.setSkillReqs(list);
+                    groupRepository.save(group);
+                }
+                groupService.updateGroupSettings(group.getGroupID(), group.getGroupLeaderID(), key, obj.get(key).toString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return group;
     }
 
     /* TODO: Ensure user fits requirements @Shawn @SprintTwo */
     @Override
-    public Account joinGroup(String username, ObjectId groupID) {
+    public Account addToGroup(String username, ObjectId groupID) {
         if(!accountRepository.existsByUsername(username))
         {
             log.info("User " + username + " not found");
@@ -759,14 +775,15 @@ public class AccountServiceImpl implements AccountService {
         {
             if(group.getGroupMemberIDs().size() == 1)
             {
-                groupRepository.delete(group);
                 user.removeGroup(groupID);
+                groupRepository.delete(group);
                 accountRepository.save(user);
                 return user;
             }
             else
             {
                 group.setGroupLeaderID(group.getGroupMemberIDs().get(0));
+                group.setOwnerUID(accountRepository.findByAccountID(group.getGroupLeaderID()).getUsername());
             }
 
         }
@@ -779,15 +796,15 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account inviteToGroup(String username, ObjectId accountID, ObjectId groupID) {
+    public Account inviteToGroup(String username, String friend, ObjectId groupID) {
         if(!accountRepository.existsByUsername(username))
         {
             log.info("User " + username + " not found");
             return null;
         }
-        if(!accountRepository.existsByAccountID(accountID))
+        if(!accountRepository.existsByUsername(friend))
         {
-            log.info("User " + accountID + " not found");
+            log.info("User " + friend + " not found");
             return null;
         }
         if(!groupRepository.existsByGroupID(groupID))
@@ -796,13 +813,40 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Account user = accountRepository.findByUsername(username);
-        Account account = accountRepository.findByAccountID(accountID);
+        Account account = accountRepository.findByUsername(friend);
         sendMessage(user.getUsername(), account.getAccountID(), groupID.toString(), Types.GROUP_INVITE);
         return account;
     }
 
+    // TODO: send message to kicked to notify
     @Override
-    public String deleteGroup(String username, ObjectId groupID) {
+    public Account kickMember(String username, String friend, ObjectId groupID) {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        if(!accountRepository.existsByUsername(friend))
+        {
+            log.info("User " + friend + " not found");
+            return null;
+        }
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            log.info("Group " + groupID + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        Account account = accountRepository.findByUsername(friend);
+        Group group = groupService.removeGroupMember(groupID, user.getAccountID(), account.getAccountID());
+        if (group.getGroupMemberIDs().contains(account.getAccountID())) {
+            return null;
+        }
+        return account;
+    }
+
+    @Override
+    public Group deleteGroup(String username, ObjectId groupID) {
         if(!accountRepository.existsByUsername(username))
         {
             log.info("User " + username + " not found");
@@ -953,8 +997,129 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void setSettings(String username, String json) {
+    public Account setAccountSettings(String username, String json) {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        try {
+            ObjectMapper om = new ObjectMapper();
+            TypeReference<HashMap<String, String>> typeRef = new TypeReference<HashMap<String, String>>() {};
+            Map<String, String> map = om.readValue(json, typeRef);
+            for (String key: map.keySet()) {
+                switch(key) {
+                    case "isPublic":
+                        Boolean isPublic = Boolean.parseBoolean(map.get("isPublic"));
+                        user.setPublic(isPublic);
+                        break;
+                    case "isOptedOut":
+                        Boolean isOptedOut = Boolean.parseBoolean(map.get("isOptedOut"));
+                        user.setOptedOut(isOptedOut);
+                        break;
+                    case "reputationReq":
+                        Double repReq = Double.parseDouble(map.get("reputationReq"));
+                        user.setReputationReq(repReq / user.getReputation());
+                        break;
+                    case "proximityReq":
+                        Integer proxReq = Integer.parseInt(map.get("proximityReq"));
+                        user.setProximityReq(proxReq);
+                        break;
+                }
+            }
+            accountRepository.save(user);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return user;
+    }
 
+    @Override
+    public Group setGroupSettings(String username, ObjectId groupId, String json) {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        if (!groupRepository.existsByGroupID(groupId)) {
+            log.info("Group " + groupId.toString() + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupId);
+        if (!group.getGroupLeaderID().equals(user.getAccountID())) {
+            log.info("User does not have right to change settings");
+            return null;
+        }
+        try {
+            JSONObject obj = new JSONObject(json);
+            for (Object k: obj.keySet()) {
+                String key = k.toString();
+                if (key.contentEquals("skillsReq")) {
+                    JSONArray skills = obj.getJSONArray("skillsReq");
+                    List<ObjectId> list = new ArrayList<>();
+                    for (int i = 0; i < skills.length(); i++) {
+                        if (skillRepository.existsBySkillName(skills.getString(i))) {
+                            list.add(skillRepository.findBySkillNameAndSkillLevel(skills.getString(i), 0).getSkillID());
+                        }
+                    }
+                    group.setSkillReqs(list);
+                    groupRepository.save(group);
+                }
+                groupService.updateGroupSettings(groupId, user.getAccountID(), key, obj.get(key).toString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return group;
+    }
+
+    @Override
+    public Account rateUser(String username, String friend, String json) {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        if(!accountRepository.existsByUsername(friend)) {
+            log.info("User " + friend + " not found");
+            return null;
+        }
+        Account other = accountRepository.findByUsername(friend);
+
+        try {
+            JSONObject obj = new JSONObject(json);
+            for (Object k: obj.keySet()) {
+                String key = k.toString();
+                if (key.contentEquals("skillsRank")) {
+                    JSONArray skills = obj.getJSONArray("skillsRank");
+                    List<String> currSkillsString = new ArrayList<>();
+                    List<ObjectId> currSkillsIds = other.getSkillIDs();
+                    for (ObjectId id: currSkillsIds) {
+                        currSkillsString.add(skillRepository.findBySkillID(id).getSkillName());
+                    }
+                    for (int i = 0; i < skills.length(); i++) {
+                        JSONObject skill = skills.getJSONObject(i);
+                        String skillName = skill.getString("skillName");
+                        int add = skill.getInt("skillLevel");
+                        if (skillRepository.existsBySkillName(skillName)) {
+                            if (currSkillsString.contains(skillName)) {
+                                int change = getSkill(other.getUsername(), skillName).getSkillLevel() + add;
+                                addSkill(other, skillName, change + "");
+                            }
+                        }
+                    }
+                } else if (key.contentEquals("reputation")) {
+                    other.setReputation(other.getReputation() + obj.getInt("reputation"));
+                }
+                accountRepository.save(other);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return other;
     }
 }
 

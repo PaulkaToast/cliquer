@@ -89,10 +89,11 @@ export function deleteGroupIsLoading(isLoading) {
     }
 }
 
-export function deleteGroupDataSuccess(data) {
+export function deleteGroupDataSuccess(data, gid) {
     return {
         type: 'DELETE_GROUP_DATA_SUCCESS',
-        data
+        data,
+        gid,
     }
 }
 
@@ -114,10 +115,11 @@ export function leaveGroupIsLoading(isLoading) {
     }
 }
 
-export function leaveGroupDataSuccess(data) {
+export function leaveGroupDataSuccess(data, gid) {
     return {
         type: 'LEAVE_GROUP_DATA_SUCCESS',
-        data
+        data,
+        gid,
     }
 }
 
@@ -213,5 +215,30 @@ export function postChatMessageDataSuccess(data) {
 
 export const postChatMessage = genericDispatch(
     postChatMessageHasError, postChatMessageIsLoading, postChatMessageDataSuccess, 'POST'
+)
+
+export function setGroupSettingsHasError(hasError) {
+    return {
+        type: 'SET_GROUP_SETTINGS_HAS_ERROR',
+        hasError
+    }  
+}
+
+export function setGroupSettingsIsLoading(isLoading) {
+    return {
+        type: 'SET_GROUP_SETTINGS_IS_LOADING',
+        isLoading
+    }
+}
+
+export function setGroupSettingsDataSuccess(data) {
+    return {
+        type: 'SET_GROUP_SETTINGS_DATA_SUCCESS',
+        data
+    }
+}
+
+export const setGroupSettings = genericDispatch(
+    setGroupSettingsHasError, setGroupSettingsIsLoading, setGroupSettingsDataSuccess, 'POST'
 )
 

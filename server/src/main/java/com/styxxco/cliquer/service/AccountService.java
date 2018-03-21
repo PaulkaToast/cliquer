@@ -16,28 +16,30 @@ public interface AccountService extends UserDetailsService {
     /* Account Access */
     Account getProfile(String username, String type);
     Account getUserProfile(String username);
-    Account getMemberProfile(ObjectId accountID);
+    Account getMemberProfile(String username);
     Account maskPublicProfile(Account account);
-    Account getPublicProfile(ObjectId accountID);
+    Account getPublicProfile(String username);
 
     /* Account Modification */
-    Account updateUserProfile(String username, String field, String value);
-    Account addSkill(String username, String skillName, String skillLevel);
-    Account addSkills(String username, String json);
+    Skill addSkill(String username, String skillName, String skillLevel);
+    List<Skill> addSkills(String username, String json);
     Account removeSkill(String username, String skillName);
-    String deleteAccount(String username);
+    Account deleteAccount(String username);
+    Account rateUser(String username, String friend, String json);
 
     /* Account Searching */
-    Map<String, ? extends Searchable> searchWithFilter(String type, String query, int level, boolean suggestions, boolean weights);
-    void setSettings(String username, String json);
+    Map<String, ? extends Searchable> searchWithFilter(String type, String query, boolean suggestions, boolean weights);
+    Account setAccountSettings(String username, String json);
+    Group setGroupSettings(String username, ObjectId groupId, String json);
     List<Account> searchByFirstName(String firstName);
     List<Account> searchByLastName(String lastName);
     List<Account> searchByFullName(String firstName, String lastName);
     List<Account> searchByFullName(String fullName);
     List<Account> searchByReputation(int minimumRep, boolean includeSuggested, boolean includeWeights);
-    List<Account> searchBySkill(String skillName, int minimumLevel);
+    List<Account> searchBySkill(String skillName);
     Account searchByUsername(String username);
     List<Group> searchByGroupName(String groupName);
+    List<Group> searchByGroupPublic(boolean isPublic);
 
     /* Skill centered services */
     Skill addSkillToDatabase(String skillName);
@@ -51,11 +53,12 @@ public interface AccountService extends UserDetailsService {
     Message sendMessage(String username, ObjectId receiverID, String content, int type);
 
     /* Group centered services */
-    Group createGroup(String username, String groupName, String bio);
-    String deleteGroup(String username, ObjectId groupID);
-    Account joinGroup(String username, ObjectId groupID);
+    Group createGroup(String username, String json);
+    Group deleteGroup(String username, ObjectId groupID);
+    Account addToGroup(String username, ObjectId groupID);
     Account leaveGroup(String username, ObjectId groupID);
-    Account inviteToGroup(String username, ObjectId accountID, ObjectId groupID);
+    Account inviteToGroup(String username, String friend, ObjectId groupID);
+    Account kickMember(String username, String friend, ObjectId groupID);
 
     /* Friend invite services */
     Message sendFriendInvite(String username, ObjectId receiverID);

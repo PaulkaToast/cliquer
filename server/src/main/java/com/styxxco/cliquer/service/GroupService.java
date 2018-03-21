@@ -1,9 +1,6 @@
 package com.styxxco.cliquer.service;
 
-import com.styxxco.cliquer.domain.Group;
-import com.styxxco.cliquer.domain.Account;
-import com.styxxco.cliquer.domain.Message;
-import com.styxxco.cliquer.domain.Skill;
+import com.styxxco.cliquer.domain.*;
 import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
@@ -22,7 +19,7 @@ public interface GroupService {
     boolean hasGroupMember(Group group, ObjectId accountID);
     Group addGroupMember(ObjectId groupID, ObjectId groupLeaderID, ObjectId accountID);
     Group removeGroupMember(ObjectId groupID, ObjectId groupLeaderID, ObjectId accountID);
-    String deleteGroup(ObjectId groupID, ObjectId groupLeaderID);
+    Group deleteGroup(ObjectId groupID, ObjectId groupLeaderID);
 
     /* Group Searching */
     /* List<Group> groups is used to chain together filters */
@@ -53,4 +50,5 @@ public interface GroupService {
 
     /* Message centered services */
     Message sendMessage(ObjectId groupID, ObjectId senderID, ObjectId receiverId, String content, int type);
+    void sendChatMessage(ChatMessage msg, ObjectId groupID);
 }

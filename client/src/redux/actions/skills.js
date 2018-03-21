@@ -1,28 +1,28 @@
 import genericDispatch from './fetch'
 
-export function postSkillHasError(hasError) {
+export function postSkillsHasError(hasError) {
     return {
-        type: 'POST_SKILL_HAS_ERROR',
+        type: 'POST_SKILLS_HAS_ERROR',
         hasError
     }
 }
 
-export function postSkillIsLoading(isLoading) {
+export function postSkillsIsLoading(isLoading) {
     return {
-        type: 'POST_SKILL_IS_LOADING',
+        type: 'POST_SKILLS_IS_LOADING',
         isLoading
     }
 }
 
-export function postSkillDataSuccess(data) {
+export function postSkillsDataSuccess(data) {
     return {
-        type: 'POST_SKILL_DATA_SUCCESS',
+        type: 'POST_SKILLS_DATA_SUCCESS',
         data
     }
 }
 
-export const postSkill = genericDispatch(
-    postSkillHasError, postSkillIsLoading, postSkillDataSuccess, 'POST'
+export const postSkills = genericDispatch(
+    postSkillsHasError, postSkillsIsLoading, postSkillsDataSuccess, 'POST'
 )
 
 export function getSkillsHasError(hasError) {
@@ -64,10 +64,11 @@ export function removeSkillIsLoading(isLoading) {
     }
 }
 
-export function removeSkillDataSuccess(data) {
+export function removeSkillDataSuccess(data, index) {
     return {
         type: 'REMOVE_SKILL_DATA_SUCCESS',
-        data
+        data,
+        index
     }
 }
 

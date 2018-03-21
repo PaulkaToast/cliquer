@@ -1,6 +1,7 @@
 
 package com.styxxco.cliquer.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -23,27 +24,38 @@ public class Account extends Searchable implements UserDetails {
 	private static final long serialVersionUID = 4815877135015943617L;
 
 	@Id
+	@JsonIgnore
 	private final ObjectId accountID;
 
     private String username;			/* Must be unique, equivalent to uid in frontend */
 	private String email;
 	private String firstName;
 	private String lastName;
+
+	@JsonIgnore
 	private String password;
 
 	private boolean isModerator;
-	private boolean isPublic;
 	private boolean isNewUser;
+	@JsonIgnore
+	private int loggedInTime;			/* Minutes that user has spent logged in */
+	@JsonIgnore
+	private LocalTime intervalTimer;
+
+	/* Start changeable settings */
+	private boolean isPublic;
 	private boolean isOptedOut;
 	private double reputationReq;		/* Represents fraction of user rep */
 	private int proximityReq;			/* Miles that matches must fit within */
-	private int loggedInTime;			/* Minutes that user has spent logged in */
-	private LocalTime intervalTimer;
 
 	/* Inherited from UserDetails */
+	@JsonIgnore
 	private boolean accountLocked;
+	@JsonIgnore
 	private boolean accountExpired;
+	@JsonIgnore
 	private boolean accountEnabled;
+	@JsonIgnore
 	private boolean credentialsExpired;
 
 	public static final int MAX_REP = 100;
@@ -54,10 +66,15 @@ public class Account extends Searchable implements UserDetails {
 	private double latitude;
 	private double longitude;
 	private int reputation;
+	@JsonIgnore
     private List<Role> authorities;
+	@JsonIgnore
     private List<ObjectId> skillIDs;
+	@JsonIgnore
     private List<ObjectId> groupIDs;
+	@JsonIgnore
     private List<ObjectId> friendIDs;
+	@JsonIgnore
     private List<ObjectId> messageIDs;
 
     public Account() {
@@ -74,11 +91,11 @@ public class Account extends Searchable implements UserDetails {
 		this.isPublic = false;
 		this.isOptedOut = false;
 		this.isNewUser = true;
-		this.reputationReq = 0.0;
+		this.reputationReq = 0;
 		this.proximityReq = 50;
 		this.loggedInTime = 0;
 		this.intervalTimer = LocalTime.now();
-		this.reputation = 0;
+		this.reputation = 1;
 		this.latitude = 360.00;
 		this.longitude = 360.00;
 		this.skillIDs = new ArrayList<>();
@@ -177,21 +194,25 @@ public class Account extends Searchable implements UserDetails {
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isAccountNonExpired() {
 		return !accountExpired;
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isAccountNonLocked() {
 		return !accountLocked;
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isCredentialsNonExpired() {
 		return !credentialsExpired;
 	}
 
 	@Override
+	@JsonIgnore
 	public boolean isEnabled() {
 		return accountEnabled;
 	}

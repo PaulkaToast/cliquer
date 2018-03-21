@@ -19,8 +19,8 @@ class NavigationBar extends Component {
       url: 'firstname',
       value: '',
       isOpen: false
-    };
-    this.toggle = this.toggle.bind(this);
+    }
+    this.toggle = this.toggle.bind(this)
   }
 
   toggleSplit = () => {
@@ -47,10 +47,11 @@ class NavigationBar extends Component {
   }
 
   toggle() {
-    this.setState({ isOpen: !this.state.isOpen });
+    this.setState({ isOpen: !this.state.isOpen })
   }
 
   render() {
+    const { user } = this.props
     return (
       <div className="Navbar">
         <Navbar color="primary" dark expand="md">
@@ -68,7 +69,7 @@ class NavigationBar extends Component {
               <NavLink href="/public">Public Groups</NavLink>
             </NavItem> 
             <NavItem>
-              <NavLink href="/profile">Profile</NavLink>
+              <NavLink href={`/profile/${user ? user.uid : ''}`}>Profile</NavLink>
             </NavItem>
             <NavItem>
               <NavLink href="/settings">Settings</NavLink>

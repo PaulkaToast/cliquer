@@ -1,6 +1,10 @@
 
 package com.styxxco.cliquer.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.StringSerializer;
+import com.styxxco.cliquer.database.ObjectIdSerial;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -14,24 +18,34 @@ import java.util.*;
 @Setter
 public class Group extends Searchable {
 	@Id
+	@JsonSerialize(using = ObjectIdSerial.ObjectIdJsonSerializer.class)
 	private final ObjectId groupID;
 	private final String gid;
 
     private String groupName;
     private String groupPurpose;
     private byte[] groupPic;
-	
-	private ArrayList<ObjectId> skillReqs;
+
+    @JsonIgnore
+	private List<ObjectId> skillReqs;
     private boolean isPublic;
     private double reputationReq;			/* Fraction of leader's reputation */
     private int proximityReq;
 
+    @JsonIgnore
     private ObjectId groupLeaderID;
+  
+    private String ownerUID;
+
+    @JsonIgnore
 	private List<ObjectId> groupMemberIDs;	/* Account ID of the group members */
-	/* private ChatLog chat */
 
 	private ObjectId kickCandidate;
 	private List<ObjectId> kickVotes;
+
+	@Getter
+	@JsonIgnore
+	private List<ChatMessage> chatHistory;
 
 	public Group(@NonNull String groupName, String groupPurpose, ObjectId groupLeaderID) {
 		this.groupID = new ObjectId();
@@ -39,6 +53,7 @@ public class Group extends Searchable {
 		this.groupName = groupName;
 		this.groupPurpose = groupPurpose;
 		this.groupLeaderID = groupLeaderID;
+		this.ownerUID = groupLeaderID.toString();
 
 		this.groupPic = null;
 		this.skillReqs = new ArrayList<>();
@@ -50,6 +65,8 @@ public class Group extends Searchable {
 
 		this.kickCandidate = null;
 		this.kickVotes = new ArrayList<>();
+
+		this.chatHistory = new ArrayList<>();
 	}
 
 	public void addKickVote(ObjectId accountID)
@@ -97,6 +114,10 @@ public class Group extends Searchable {
 	{
 		return new Message(content, this.groupID, "Group Invite");
 	}
-	*/	
+	*/
+	public void addMessage(ChatMessage msg) { 
+    chatHistory.add(msg); 
+  }
+
 }
 

@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import '../../css/UserInfo.css'
-import jmbuck from '../../img/jmbuck.jpg'
+
+import jmbuck from '../../img/avatar.png'
 
 class UserInfo extends Component {
   render() {
@@ -8,7 +9,6 @@ class UserInfo extends Component {
     return (
       <div className="UserInfo">
            <div className ="img">
-                <img src={jmbuck} alt="AvatarX"></img>  
             </div> 
            <div className = "UN"> 
                    {user ? user.displayname : ''}  

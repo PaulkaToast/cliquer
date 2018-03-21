@@ -26,6 +26,13 @@ export function deleteNewSkill(skill) {
     }
 }
 
+export function setNewSkills(skills) {
+    return {
+        type: 'SET_NEW_SKILLS',
+        skills
+    }
+}
+
 export function clearNewSkills() {
     return {
         type: 'CLEAR_NEW_SKILLS'
