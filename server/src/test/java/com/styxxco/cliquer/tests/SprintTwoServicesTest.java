@@ -466,6 +466,127 @@ public class SprintTwoServicesTest {
         assertEquals(Types.GROUP_NOTIFICATION, second.getType());
     }
 
+    /* Back end Unit Test for User Story 28 */
+    @Test
+    public void testJoiningGroup() {
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
+        Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@purdue.edu", "Rhys", "Buckmaster");
+
+        Group cliquer = groupService.createGroup(
+                "Cliquer",
+                "To create a web app that facilitates the teaming of people who may have never met before",
+                jordan.getAccountID());
+
+        Skill requirement = skillRepository.findBySkillNameAndSkillLevel("JavaScript", 7);
+        Skill meetReq = skillRepository.findBySkillNameAndSkillLevel("JavaScript", 8);
+        Skill missReq = skillRepository.findBySkillNameAndSkillLevel("JavaScript", 6);
+
+        cliquer.setReputationReq(0.5);
+        cliquer.setProximityReq(30);
+        cliquer.addSkillReq(missReq.getSkillID());
+        jordan.setNewUser(false);
+        jordan.setReputation(50);
+        jordan.setLatitude(40.0);
+        jordan.setLongitude(-80.0);
+        jordan.setProximityReq(10);
+        jordan.addSkill(meetReq.getSkillID());
+
+        // Tests when member tries joining a group they are in
+        shawn.setNewUser(false);
+        shawn.setLatitude(40.0);
+        shawn.setLongitude(-80.0);
+        shawn.addSkill(meetReq.getSkillID());
+
+        // Tests when joiner is too far away from the group leader
+        kevin.setNewUser(false);
+        kevin.setLatitude(40.4);
+        kevin.setLongitude(-80.8);
+        kevin.setReputation(40);
+        kevin.addSkill(meetReq.getSkillID());
+
+        // Tests when a joiner satisfies all requirements, then tests if joiner lacks reputation
+        buckmaster.setNewUser(false);
+        buckmaster.setLatitude(40.2);
+        buckmaster.setLongitude(-80.4);
+        buckmaster.setReputation(40);
+        buckmaster.addSkill(meetReq.getSkillID());
+
+        // Tests when a joiner lacks the skill requirement
+        rhys.setNewUser(false);
+        rhys.setLatitude(40.0);
+        rhys.setLongitude(-80.0);
+        rhys.setReputation(35);
+        rhys.addSkill(missReq.getSkillID());
+
+        groupRepository.save(cliquer);
+        accountRepository.save(jordan);
+        accountRepository.save(shawn);
+        accountRepository.save(kevin);
+        accountRepository.save(buckmaster);
+        accountRepository.save(rhys);
+
+        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID());
+
+        Message result = groupService.requestToJoinGroup(cliquer.getGroupID(), shawn.getAccountID());
+        assertNull(result);
+
+        result = groupService.requestToJoinGroup(cliquer.getGroupID(), kevin.getAccountID());
+        assertNull(result);
+
+        result = groupService.requestToJoinGroup(cliquer.getGroupID(), buckmaster.getAccountID());
+        assertEquals("User Jordan Buckmaster wishes to join your group Cliquer", result.getContent());
+
+        result = groupService.requestToJoinGroup(cliquer.getGroupID(), rhys.getAccountID());
+        assertNull(result);
+
+        buckmaster.setReputation(20);
+        accountRepository.save(buckmaster);
+        result = groupService.requestToJoinGroup(cliquer.getGroupID(), buckmaster.getAccountID());
+        assertNull(result);
+
+        jordan = accountRepository.findByUsername(jordan.getUsername());
+        assertEquals(1, jordan.getMessageIDs().size());
+        Message message = messageRepository.findByMessageID(jordan.getMessageIDs().get(0));
+        assertEquals(buckmaster.getAccountID(), message.getSenderID());
+        assertEquals(cliquer.getGroupID(), message.getGroupID());
+
+        result = groupService.denyJoinRequest(jordan.getAccountID(), message.getMessageID());
+        assertEquals("You have been rejected from joining group Cliquer", result.getContent());
+        jordan = accountRepository.findByUsername(jordan.getUsername());
+        assertEquals(0, jordan.getMessageIDs().size());
+
+        buckmaster = accountRepository.findByUsername(buckmaster.getUsername());
+        assertEquals(1, buckmaster.getMessageIDs().size());
+        assertEquals(0, buckmaster.getGroupIDs().size());
+        message = messageRepository.findByMessageID(buckmaster.getMessageIDs().get(0));
+        assertEquals(jordan.getAccountID(), message.getSenderID());
+
+        buckmaster.setMessageIDs(new ArrayList<>());
+        buckmaster.setReputation(40);
+        accountRepository.save(buckmaster);
+        result = groupService.requestToJoinGroup(cliquer.getGroupID(), buckmaster.getAccountID());
+        assertEquals("User Jordan Buckmaster wishes to join your group Cliquer", result.getContent());
+
+        jordan = accountRepository.findByUsername(jordan.getUsername());
+        message = messageRepository.findByMessageID(jordan.getMessageIDs().get(0));
+        result = groupService.acceptJoinRequest(jordan.getAccountID(), message.getMessageID());
+        assertEquals("You have been accepted into group Cliquer", result.getContent());
+        jordan = accountRepository.findByUsername(jordan.getUsername());
+        assertEquals(0, jordan.getMessageIDs().size());
+
+        buckmaster = accountRepository.findByUsername(buckmaster.getUsername());
+        assertEquals(1, buckmaster.getMessageIDs().size());
+        assertEquals(1, buckmaster.getGroupIDs().size());
+        assertEquals(cliquer.getGroupID(), buckmaster.getGroupIDs().get(0));
+
+        cliquer = groupRepository.findByGroupID(cliquer.getGroupID());
+        assertEquals(true, cliquer.getGroupMemberIDs().contains(buckmaster.getAccountID()));
+    }
+
+    /* Back end Unit Test for User Story 30 */
     @Test
     public void testChatHistory()
     {
@@ -545,42 +666,5 @@ public class SprintTwoServicesTest {
         skillRepository.deleteAll();
         messageRepository.deleteAll();
         groupRepository.deleteAll();
-    }
-
-    /* Back end Unit Test for User Story 28 */
-    @Test
-    public void testJoiningGroup() {
-        this.clearDatabase();
-        AccountService accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-        GroupService groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
-        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
-        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
-        Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@purdue.edu", "Rhys", "Buckmaster");
-
-        Group cliquer = groupService.createGroup(
-                "Cliquer",
-                "To create a web app that facilitates the teaming of people who may have never met before",
-                jordan.getAccountID());
-
-        cliquer.addGroupMember(shawn.getAccountID());
-        cliquer.setProximityReq(30);
-        jordan.setProximityReq(10);
-        jordan.setLatitude(40.0);
-        jordan.setLongitude(-80.0);
-
-        // Tests when member tries joining a group they are in
-        shawn.addGroup(cliquer.getGroupID());
-        shawn.setLatitude(40.0);
-        shawn.setLongitude(-80.0);
-
-        // Tests when is too far away from the group leader
-        kevin.setLatitude(40.4);
-        kevin.setLongitude(-80.8);
-
-        // Tests when a member satisfies all requirements
-
     }
 }

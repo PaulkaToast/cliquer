@@ -479,9 +479,12 @@ public class AccountServiceImpl implements AccountService {
             log.info("Skill " + skillName + " is already in database");
             return null;
         }
-        Skill skill = new Skill(skillName, 0);
-        skillRepository.save(skill);
-        return skill;
+        for(int i = 1; i <= 10; i ++)
+        {
+            Skill skill = new Skill(skillName, i);
+            skillRepository.save(skill);
+        }
+        return skillRepository.findBySkillNameAndSkillLevel(skillName, 1);
     }
 
     @Override
