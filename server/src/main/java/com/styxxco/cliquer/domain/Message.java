@@ -30,6 +30,8 @@ public class Message
 	private final LocalDate creationDate;
 
 	@Setter
+	private ObjectId groupID;	/* MongoDB ID of group that message refers to, if applicable	*/
+	@Setter
 	private boolean read;
 
 	public static class Types {
@@ -38,6 +40,8 @@ public class Message
 		public static final int MOD_FLAG = 2;
 		public static final int GROUP_NOTIFICATION = 3;
 		public static final int PROFILE_NOTIFICATION = 4;
+		public static final int JOIN_REQUEST = 5;
+		public static final int CHAT_MESSAGE = 6;
 	}
 
 	public Message(ObjectId senderID, String content, int type)
@@ -49,6 +53,7 @@ public class Message
 		this.type = type;
 		this.creationTime = LocalTime.now();
 		this.creationDate = LocalDate.now();
+		this.groupID = null;
 		this.read = false;
 	}
 }

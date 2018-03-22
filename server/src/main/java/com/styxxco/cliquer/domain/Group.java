@@ -61,8 +61,8 @@ public class Group extends Searchable {
 		this.groupPic = null;
 		this.skillReqs = new ArrayList<>();
 		this.isPublic = false;
-		this.reputationReq = 0;
-		this.proximityReq = 10;
+		this.reputationReq = 0.0;
+		this.proximityReq = 100;
 		this.groupMemberIDs = new ArrayList<>();
 		this.groupMemberIDs.add(groupLeaderID);
 
@@ -109,6 +109,17 @@ public class Group extends Searchable {
 		groupMemberIDs.remove(accountID);
 	}
 
+	public boolean hasGroupMember(ObjectId accountID)
+	{
+		return groupMemberIDs.contains(accountID);
+	}
+
+	/*
+	public Message makeAccountInvite(String content)
+	{
+		return new Message(content, this.groupID, "Group Invite");
+	}
+	*/
 	public void addMessage(ChatMessage msg) { 
     chatHistory.add(msg);
 	}
