@@ -76,6 +76,10 @@ public class Account extends Searchable implements UserDetails {
     private List<ObjectId> friendIDs;
 	@JsonIgnore
     private List<ObjectId> messageIDs;
+	@JsonIgnore
+	private Map<String, Integer> numRatings;		/* Mapping for number of times each skill has been rated */
+	@JsonIgnore
+	private Map<String, Integer> totalRating;		/* Mapping for cumulative value of ratings for each skill */
 
     public Account() {
     	this.accountID = new ObjectId();
@@ -106,6 +110,8 @@ public class Account extends Searchable implements UserDetails {
 		this.accountExpired = false;
 		this.accountEnabled = true;
 		this.credentialsExpired = false;
+		this.numRatings = new TreeMap<>();
+		this.totalRating = new TreeMap<>();
 	}
 
 	public String getFullName()
@@ -242,5 +248,30 @@ public class Account extends Searchable implements UserDetails {
 		return (radians * 180)/Math.PI;
 	}
 
+	public Map<String, Integer> addSkillRatings(List<Skill> skills, List<Integer> ratings)
+	{
+		Map<String, Integer> adjustedSkills = new TreeMap<>();
+		for(int i = 0; i < skills.size(); i++)
+		{
+			String skillName = skills.get(i).getSkillName();
+			int rating = ratings.get(i);
+			if(numRatings.containsKey(skillName))
+			{
+				numRatings.replace(skillName, numRatings.get(skillName) + 1);
+				totalRating.replace(skillName, totalRating.get(skillName) + rating);
+			}
+			else
+			{
+				numRatings.put(skillName, 1);
+				totalRating.put(skillName, rating);
+			}
+			if(Math.abs(totalRating.get(skillName) / numRatings.get(skillName) - skills.get(i).getSkillLevel()) >= 1)
+			{
+				skillIDs.remove(skills.get(i).getSkillID());
+				adjustedSkills.put(skillName, totalRating.get(skillName) / numRatings.get(skillName));
+			}
+		}
+		return adjustedSkills;
+	}
 
 }

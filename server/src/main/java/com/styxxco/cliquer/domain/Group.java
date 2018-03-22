@@ -43,7 +43,10 @@ public class Group extends Searchable {
 	private ObjectId kickCandidate;
 	private List<ObjectId> kickVotes;
 
-	@Getter
+	@JsonIgnore
+	private Map<ObjectId, List<ObjectId>> ratingsToGive;		/* Members that each group member can rate */
+	private int maxRatings;
+
 	@JsonIgnore
 	private List<ChatMessage> chatHistory;
 
@@ -65,6 +68,8 @@ public class Group extends Searchable {
 
 		this.kickCandidate = null;
 		this.kickVotes = new ArrayList<>();
+		this.ratingsToGive = new TreeMap<>();
+		this.maxRatings = 1;
 
 		this.chatHistory = new ArrayList<>();
 	}
@@ -105,8 +110,31 @@ public class Group extends Searchable {
 	}
 
 	public void addMessage(ChatMessage msg) { 
-    chatHistory.add(msg); 
-  }
+    chatHistory.add(msg);
+	}
+
+	public boolean startMemberRatings()
+	{
+		if(maxRatings <= 0)
+		{
+			return false;
+		}
+		ratingsToGive = new TreeMap<>();
+		for(ObjectId accountID : groupMemberIDs)
+		{
+			List<ObjectId> members = new ArrayList<>();
+			Collections.copy(members, groupMemberIDs);
+			members.remove(accountID);
+			ratingsToGive.put(accountID, members);
+		}
+		maxRatings--;
+		return true;
+	}
+
+	public boolean canGiveRating(ObjectId raterID, ObjectId rateeID)
+	{
+		return ratingsToGive.get(raterID).remove(rateeID);
+	}
 
 }
 

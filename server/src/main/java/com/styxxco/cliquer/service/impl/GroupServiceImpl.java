@@ -1,30 +1,39 @@
 package com.styxxco.cliquer.service.impl;
 
-import com.styxxco.cliquer.database.AccountRepository;
-import com.styxxco.cliquer.database.GroupRepository;
-import com.styxxco.cliquer.database.MessageRepository;
-import com.styxxco.cliquer.database.SkillRepository;
+import com.styxxco.cliquer.database.*;
 import com.styxxco.cliquer.domain.*;
+import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.GroupService;
 import lombok.extern.log4j.Log4j;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Log4j
 @Service(value = GroupServiceImpl.NAME)
 public class GroupServiceImpl implements GroupService {
     public final static String NAME = "GroupService";
 
-    private final AccountRepository accountRepository;
-    private final SkillRepository skillRepository;
-    private final MessageRepository messageRepository;
-    private final GroupRepository groupRepository;
+    @Autowired
+    private AccountRepository accountRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private SkillRepository skillRepository;
+
+    @Autowired
+    private MessageRepository messageRepository;
+
+    @Autowired
+    private GroupRepository groupRepository;
+
+    @Autowired
+    private AccountService accountService;
 
     public GroupServiceImpl(AccountRepository ar, SkillRepository sr, MessageRepository mr, GroupRepository gr)
     {
@@ -32,6 +41,7 @@ public class GroupServiceImpl implements GroupService {
         this.skillRepository = sr;
         this.messageRepository = mr;
         this.groupRepository = gr;
+        this.accountService = new AccountServiceImpl(ar, sr, mr, gr);
     }
 
     @Override
@@ -728,5 +738,81 @@ public class GroupServiceImpl implements GroupService {
 
         group.addMessage(msg);
         groupRepository.save(group);
+    }
+
+    @Override
+    public String initiateRatings(ObjectId groupID, ObjectId groupLeaderID)
+    {
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            log.info("Group " + groupID + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupID);
+        if(!group.getGroupLeaderID().equals(groupLeaderID))
+        {
+            log.info("User " + groupLeaderID + " is not the leader of group " + groupID);
+            return null;
+        }
+        if(!group.startMemberRatings())
+        {
+            log.info("Group " + groupID + " has maxed out the limit for group ratings");
+            return null;
+        }
+        for(ObjectId accountID : group.getGroupMemberIDs())
+        {
+            if(accountID.equals(groupLeaderID))
+            {
+                continue;
+            }
+            Message message = new Message(groupLeaderID,
+                    "You can now rate your fellow members in group " + group.getGroupName() + "!",
+                    Message.Types.GROUP_NOTIFICATION);
+
+        }
+    }
+
+    @Override
+    public String rateGroupMemberSkills(ObjectId groupID, ObjectId raterID, ObjectId rateeID, Map<ObjectId, Integer> skillRatings)
+    {
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            log.info("Group " + groupID + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupID);
+        if(!group.getGroupMemberIDs().contains(raterID))
+        {
+            log.info("User " + raterID + " is not in group " + groupID);
+            return null;
+        }
+        if(!group.getGroupMemberIDs().contains(rateeID))
+        {
+            log.info("User " + raterID + " is not in group " + groupID);
+            return null;
+        }
+        if(!group.canGiveRating(raterID, rateeID))
+        {
+            log.info("User " + raterID + " cannot rate user " + rateeID);
+            return null;
+        }
+        Account member = accountRepository.findByAccountID(rateeID);
+        List<Skill> skills = new ArrayList<>();
+        List<Integer> ratings = new ArrayList<>();
+        for(ObjectId skillID : skillRatings.keySet())
+        {
+            if(skillRatings.get(skillID) > 0 && skillRatings.get(skillID) <= 10)
+            {
+                skills.add(skillRepository.findBySkillID(skillID));
+                ratings.add(skillRatings.get(skillID));
+            }
+        }
+        Map<String, Integer> updatedSkills = member.addSkillRatings(skills, ratings);
+        for(String skillName : updatedSkills.keySet())
+        {
+            accountService.addSkill(member.getUsername(), skillName, updatedSkills.get(skillName).toString());
+        }
+        groupRepository.save(group);
+        return "Success";
     }
 }

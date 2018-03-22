@@ -5,6 +5,7 @@ import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public interface GroupService {
     /* Group Creation */
@@ -45,4 +46,8 @@ public interface GroupService {
     /* Message centered services */
     Message sendMessage(ObjectId groupID, ObjectId senderID, ObjectId receiverId, String content, int type);
     void sendChatMessage(ChatMessage msg, ObjectId groupID);
+
+    /* Skill and reputation rating services */
+    String initiateRatings(ObjectId groupID, ObjectId groupLeaderID);
+    String rateGroupMemberSkills(ObjectId groupID, ObjectId raterID, ObjectId rateeID, Map<ObjectId, Integer> skillRatings);
 }
