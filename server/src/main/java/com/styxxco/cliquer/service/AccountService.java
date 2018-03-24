@@ -51,6 +51,7 @@ public interface AccountService extends UserDetailsService {
     /* Message centered services */
     List<Message> getNewMessages(String username);
     Message sendMessage(String username, ObjectId receiverID, String content, int type);
+    String deleteMessage(String username, ObjectId messageID);
 
     /* Group centered services */
     Group createGroup(String username, String json);

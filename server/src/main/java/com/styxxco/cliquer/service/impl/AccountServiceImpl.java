@@ -415,7 +415,6 @@ public class AccountServiceImpl implements AccountService {
         return results;
     }
 
-    // TODO: sort by level for front end
     @Override
     public List<Account> searchBySkill(String skillName) {
         List<Account> accounts = accountRepository.findAll();
@@ -426,9 +425,11 @@ public class AccountServiceImpl implements AccountService {
 
         List<Account> qualified = new ArrayList<>();
         for (Account account : accounts) {
-            Skill skill = this.getSkill(account.getUsername(), skillName);
-            if (account.isPublic() && skill != null) {
-                qualified.add(this.maskPublicProfile(account));
+            for(int i = 10; i >= 1; i--) {
+                Skill skill = this.getSkill(account.getUsername(), skillName);
+                if (account.isPublic() && skill != null && skill.getSkillLevel() == i) {
+                    qualified.add(this.maskPublicProfile(account));
+                }
             }
         }
         return qualified;
@@ -696,6 +697,25 @@ public class AccountServiceImpl implements AccountService {
         receiver.addMessage(message.getMessageID());
         accountRepository.save(receiver);
         return message;
+    }
+
+    @Override
+    public String deleteMessage(String username, ObjectId messageID)
+    {
+        if(!accountRepository.existsByUsername(username))
+        {
+            log.info("User " + username + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByUsername(username);
+        if(!user.hasMessage(messageID))
+        {
+            log.info("User " + username + " did not receive message " + messageID);
+            return null;
+        }
+        user.removeMessage(messageID);
+        accountRepository.save(user);
+        return "Success";
     }
 
     @Override
@@ -1078,6 +1098,7 @@ public class AccountServiceImpl implements AccountService {
         return group;
     }
 
+    @Deprecated
     @Override
     public Account rateUser(String username, String friend, String json) {
         if(!accountRepository.existsByUsername(username))

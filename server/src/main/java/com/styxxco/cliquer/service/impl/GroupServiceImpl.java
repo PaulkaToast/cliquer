@@ -919,8 +919,36 @@ public class GroupServiceImpl implements GroupService {
             Message message = new Message(groupLeaderID,
                     "You can now rate your fellow members in group " + group.getGroupName() + "!",
                     Message.Types.GROUP_NOTIFICATION);
+            message.setGroupID(groupID);
+            messageRepository.save(message);
+            Account member = accountRepository.findByAccountID(accountID);
+            member.addMessage(message.getMessageID());
+            accountRepository.save(member);
+        }
+        return "Success";
+    }
+
+    @Override
+    public Map<ObjectId, Integer> getGroupMemberRatingForm(ObjectId groupID, ObjectId rateeID)
+    {
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            log.info("Group " + groupID + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupID);
+        if(!group.getGroupMemberIDs().contains(rateeID))
+        {
+            log.info("User " + rateeID + " is not in group " + groupID);
+            return null;
+        }
+        Account member = accountRepository.findByAccountID(rateeID);
+        for(ObjectId skillID : group.getSkillReqs())
+        {
 
         }
+
+        return null;
     }
 
     @Override

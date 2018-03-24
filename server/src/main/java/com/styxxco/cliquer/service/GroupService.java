@@ -55,5 +55,6 @@ public interface GroupService {
 
     /* Skill and reputation rating services */
     String initiateRatings(ObjectId groupID, ObjectId groupLeaderID);
+    Map<ObjectId, Integer> getGroupMemberRatingForm(ObjectId groupID, ObjectId rateeID);
     String rateGroupMemberSkills(ObjectId groupID, ObjectId raterID, ObjectId rateeID, Map<ObjectId, Integer> skillRatings);
 }
