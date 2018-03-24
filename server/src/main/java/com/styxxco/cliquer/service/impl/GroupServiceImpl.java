@@ -774,6 +774,8 @@ public class GroupServiceImpl implements GroupService {
         }
         Message request = messageRepository.findByMessageID(messageID);
         messageRepository.delete(request);
+        leader.removeMessage(messageID);
+        accountRepository.save(leader);
         if(!accountRepository.existsByAccountID(request.getSenderID()))
         {
             log.info("User " + request.getSenderID() + " not found");
@@ -788,7 +790,7 @@ public class GroupServiceImpl implements GroupService {
         Account sender = accountRepository.findByAccountID(request.getSenderID());
         group.addGroupMember(request.getSenderID());
         groupRepository.save(group);
-        Message acceptance = new Message(request.getGroupID(),
+        Message acceptance = new Message(groupLeaderID,
                 "You have been accepted into group " + group.getGroupName(),
                 Message.Types.PROFILE_NOTIFICATION);
         messageRepository.save(acceptance);
@@ -828,7 +830,7 @@ public class GroupServiceImpl implements GroupService {
         }
         Group group = groupRepository.findByGroupID(request.getGroupID());
         Account sender = accountRepository.findByAccountID(request.getSenderID());
-        Message denial = new Message(request.getGroupID(),
+        Message denial = new Message(groupLeaderID,
                 "You have been rejected from joining group " + group.getGroupName(),
                 Message.Types.PROFILE_NOTIFICATION);
         messageRepository.save(denial);
