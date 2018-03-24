@@ -814,6 +814,8 @@ public class GroupServiceImpl implements GroupService {
         }
         Message request = messageRepository.findByMessageID(messageID);
         messageRepository.delete(request);
+        leader.removeMessage(messageID);
+        accountRepository.save(leader);
         if(!accountRepository.existsByAccountID(request.getSenderID()))
         {
             log.info("User " + request.getSenderID() + " not found");
