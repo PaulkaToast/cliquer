@@ -34,13 +34,16 @@ public class GroupServiceImpl implements GroupService {
     @Autowired
     private AccountService accountService;
 
+    public GroupServiceImpl() {
+
+    }
+
     public GroupServiceImpl(AccountRepository ar, SkillRepository sr, MessageRepository mr, GroupRepository gr)
     {
         this.accountRepository = ar;
         this.skillRepository = sr;
         this.messageRepository = mr;
         this.groupRepository = gr;
-        this.accountService = new AccountServiceImpl(ar, sr, mr, gr);
     }
 
     @Override
