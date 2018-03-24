@@ -1,7 +1,6 @@
 package com.styxxco.cliquer.service;
 
 import com.styxxco.cliquer.domain.*;
-import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,18 +8,18 @@ import java.util.Map;
 
 public interface GroupService {
     /* Group Creation */
-    Group createGroup(String groupName, String groupPurpose, ObjectId groupLeaderID);
+    Group createGroup(String groupName, String groupPurpose, String groupLeaderID);
 
     /* Group Access */
-    Group getUserGroup(ObjectId groupID, ObjectId accountID);
-    Group getPublicGroup(ObjectId groupID);
+    Group getUserGroup(String groupID, String accountID);
+    Group getPublicGroup(String groupID);
 
     /* Group Modification */
-    Group updateGroupSettings(ObjectId groupID, ObjectId groupLeaderID, String field, String value);
-    boolean hasGroupMember(Group group, ObjectId accountID);
-    Group addGroupMember(ObjectId groupID, ObjectId groupLeaderID, ObjectId accountID);
-    Group removeGroupMember(ObjectId groupID, ObjectId groupLeaderID, ObjectId accountID);
-    Group deleteGroup(ObjectId groupID, ObjectId groupLeaderID);
+    Group updateGroupSettings(String groupID, String groupLeaderID, String field, String value);
+    boolean hasGroupMember(Group group, String accountID);
+    Group addGroupMember(String groupID, String groupLeaderID, String accountID);
+    Group removeGroupMember(String groupID, String groupLeaderID, String accountID);
+    Group deleteGroup(String groupID, String groupLeaderID);
 
     /* Group Searching */
     /* List<Group> groups is used to chain together filters */
@@ -32,29 +31,29 @@ public interface GroupService {
     List<Group> searchByLeaderFullName(String firstName, String lastName, List<Group> groups);
 
     /* Vote kicking services */
-    Group startVoteKick(ObjectId groupID, ObjectId groupLeaderID, ObjectId accountID);
-    Group closeVoteKick(ObjectId groupID, ObjectId groupLeaderID);
-    Group acceptVoteKick(ObjectId groupID, ObjectId accountID);
-    Group denyVoteKick(ObjectId groupID, ObjectId accountID);
+    Group startVoteKick(String groupID, String groupLeaderID, String accountID);
+    Group closeVoteKick(String groupID, String groupLeaderID);
+    Group acceptVoteKick(String groupID, String accountID);
+    Group denyVoteKick(String groupID, String accountID);
 
     /* Joining a Group */
-    boolean meetsGroupRequirements(ObjectId groupID, ObjectId accountID);
-    Message requestToJoinGroup(ObjectId groupID, ObjectId accountID);
-    Message acceptJoinRequest(ObjectId groupLeaderID, ObjectId messageID);
-    Message denyJoinRequest(ObjectId groupLeaderID, ObjectId messageID);
+    boolean meetsGroupRequirements(String groupID, String accountID);
+    Message requestToJoinGroup(String groupID, String accountID);
+    Message acceptJoinRequest(String groupLeaderID, String messageID);
+    Message denyJoinRequest(String groupLeaderID, String messageID);
 
     /* Skill centered services */
-    List<Skill> getAllSkillReqs(ObjectId groupID);
-    Skill getSkillReq(ObjectId groupID, String skillName);
-    Group addSkillReq(ObjectId groupID, ObjectId groupLeaderID, String skillName, int skillLevel);
-    Group removeSkillReq(ObjectId groupID, ObjectId groupLeaderID, String skillName);
+    List<Skill> getAllSkillReqs(String groupID);
+    Skill getSkillReq(String groupID, String skillName);
+    Group addSkillReq(String groupID, String groupLeaderID, String skillName, int skillLevel);
+    Group removeSkillReq(String groupID, String groupLeaderID, String skillName);
 
     /* Message centered services */
-    Message sendMessage(ObjectId groupID, ObjectId senderID, ObjectId receiverId, String content, int type);
-    void sendChatMessage(ChatMessage msg, ObjectId groupID);
+    Message sendMessage(String groupID, String senderID, String receiverId, String content, int type);
+    void sendChatMessage(ChatMessage msg, String groupID);
 
     /* Skill and reputation rating services */
-    String initiateRatings(ObjectId groupID, ObjectId groupLeaderID);
-    Map<ObjectId, Integer> getGroupMemberRatingForm(ObjectId groupID, ObjectId rateeID);
-    String rateGroupMemberSkills(ObjectId groupID, ObjectId raterID, ObjectId rateeID, Map<ObjectId, Integer> skillRatings);
+    String initiateRatings(String groupID, String groupLeaderID);
+    Map<String, Integer> getGroupMemberRatingForm(String groupID, String rateeID);
+    String rateGroupMemberSkills(String groupID, String raterID, String rateeID, Map<String, Integer> skillRatings);
 }

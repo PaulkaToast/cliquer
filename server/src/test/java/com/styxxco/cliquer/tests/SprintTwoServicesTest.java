@@ -6,7 +6,6 @@ import com.styxxco.cliquer.domain.Message.Types;
 import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.GroupService;
 import com.styxxco.cliquer.service.impl.GroupServiceImpl;
-import org.bson.types.ObjectId;
 import com.styxxco.cliquer.service.impl.AccountServiceImpl;
 import org.junit.After;
 import org.junit.Before;
@@ -155,7 +154,7 @@ public class SprintTwoServicesTest {
         shawn = accountRepository.findByUsername(shawn.getUsername());
         assertEquals(invite.getMessageID(), shawn.getMessageIDs().get(0));
         assertEquals(Types.FRIEND_INVITE, invite.getType());
-        ObjectId first = invite.getMessageID();
+        String first = invite.getMessageID();
 
         Account account = accountService.acceptFriendInvite("montgo38", invite.getMessageID());
         assertEquals(jordan.getFirstName(), account.getFirstName());
@@ -170,7 +169,7 @@ public class SprintTwoServicesTest {
         kevin = accountRepository.findByUsername(kevin.getUsername());
         assertEquals(invite.getMessageID(), kevin.getMessageIDs().get(0));
         assertEquals(Types.FRIEND_INVITE, invite.getType());
-        ObjectId second = invite.getMessageID();
+        String second = invite.getMessageID();
 
         String result = accountService.rejectFriendInvite("knagar", invite.getMessageID());
         assertEquals("Success", result);
@@ -590,8 +589,8 @@ public class SprintTwoServicesTest {
     @Test
     public void testChatHistory()
     {
-        Account jordan = accountService.createAccount(new ObjectId().toHexString(), "reed226@purdue.edu", "Jordan", "Reed");
-        Account kevin = accountService.createAccount(new ObjectId().toHexString(), "knagar@purdue.edu", "Kevin", "Nagar");
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
 
         Group cliquer = groupService.createGroup(
                 "Cliquer",

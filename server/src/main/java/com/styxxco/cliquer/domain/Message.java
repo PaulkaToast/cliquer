@@ -18,19 +18,17 @@ import java.time.LocalTime;
 public class Message
 {
 	@Id
-	@JsonIgnore
-	private final ObjectId messageID;
-	private final String mid;
+	private final String messageID;
 
 	private final String content;		/* The actual message in the Message		*/
-	private final ObjectId senderID;	/* MongoDB ID of entity that sent message	*/
+	private final String senderID;	/* MongoDB ID of entity that sent message	*/
 
 	private final int type;			/* Dictates behavior on user interation		*/
 	private final LocalTime creationTime;
 	private final LocalDate creationDate;
 
 	@Setter
-	private ObjectId groupID;	/* MongoDB ID of group that message refers to, if applicable	*/
+	private String groupID;	/* MongoDB ID of group that message refers to, if applicable	*/
 	@Setter
 	private boolean read;
 
@@ -44,10 +42,9 @@ public class Message
 		public static final int CHAT_MESSAGE = 6;
 	}
 
-	public Message(ObjectId senderID, String content, int type)
+	public Message(String senderID, String content, int type)
 	{
-		this.messageID = new ObjectId();
-		this.mid = this.messageID.toString();
+		this.messageID = new ObjectId().toString();
 		this.senderID = senderID;
 		this.content = content;
 		this.type = type;

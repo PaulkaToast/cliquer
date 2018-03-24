@@ -8,8 +8,8 @@ import com.styxxco.cliquer.domain.Skill;
 import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.GroupService;
 import com.styxxco.cliquer.service.impl.GroupServiceImpl;
-import org.bson.types.ObjectId;
 import com.styxxco.cliquer.service.impl.AccountServiceImpl;
+import org.bson.types.ObjectId;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class SprintOneServicesTest {
 	public void testDatabase() {
 		Account jordan = new Account("reed226", "reed226@purdue.edu", "Jordan", "Reed");
 		Account shawn = new Account("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
-		ObjectId id = shawn.getAccountID();
+		String id = shawn.getAccountID();
 
 		accountRepository.save(jordan);
 		accountRepository.save(shawn);
@@ -77,14 +77,14 @@ public class SprintOneServicesTest {
 		assertEquals("Montgomery", shawn.getLastName());
 
 		jordan.setPublic(true);
-		ObjectId test = new ObjectId();
+		String test = new ObjectId().toString();
 		jordan.addSkill(test);
 		accountRepository.save(jordan);
 		retrieve = accountService.getPublicProfile(jordan.getUsername());
 		assertEquals(test, retrieve.getSkillIDs().get(0));
 
 		shawn.setPublic(false);
-		test = new ObjectId();
+		test = new ObjectId().toString();
 		shawn.addSkill(test);
 		accountRepository.save(shawn);
 		retrieve = accountService.getPublicProfile(shawn.getUsername());
@@ -114,7 +114,7 @@ public class SprintOneServicesTest {
 		skill = accountService.getSkill("montgo38", "Board Gaming");
 		assertEquals(6, skill.getSkillLevel());
 
-		ObjectId skillID = skill.getSkillID();
+		String skillID = skill.getSkillID();
         accountService.removeSkill("montgo38", "Board Gaming");
 		skill = accountService.getSkill("montgo38", "Board Gaming");
 		assertNull(skill);

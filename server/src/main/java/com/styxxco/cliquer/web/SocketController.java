@@ -36,7 +36,7 @@ public class SocketController {
         }
         msg.setSenderName(a.getFirstName() + " " + a.getLastName());
 
-        Group group = groupService.getUserGroup(new ObjectId(groupID), a.getAccountID());
+        Group group = groupService.getUserGroup(groupID, a.getAccountID());
         if (group == null) {
             log.info("No group found for groupID: " + groupID + " and User: " + msg.getSenderId());
             return null;
@@ -54,7 +54,7 @@ public class SocketController {
             log.info("Account ID not found for User: " + username);
             return null;
         }
-        Group group = groupService.getUserGroup(new ObjectId(groupID), a.getAccountID());
+        Group group = groupService.getUserGroup(groupID, a.getAccountID());
 
         return group.getChatHistory();
     }

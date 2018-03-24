@@ -12,11 +12,11 @@ public interface AccountRepository extends MongoRepository<Account, String>
 {
 	boolean existsByUsername(String username);
 	Account findByUsername(String username);
-	boolean existsByAccountID(ObjectId accountID);
-	Account findByAccountID(ObjectId accountID);
+	boolean existsByAccountID(String accountID);
+	Account findByAccountID(String accountID);
 	List<Account> findAccountsByFirstNameIsLike(String firstName);
 	List<Account> findByFirstName(String firstName);
 	List<Account> findByLastName(String firstName);
 	List<Account> findByReputation(int reputation);
-	List<Account> findBySkillIDs(ObjectId skillID);
+	List<Account> findBySkillIDs(String skillID);
 }

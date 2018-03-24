@@ -18,41 +18,34 @@ import java.util.*;
 @Setter
 public class Group extends Searchable {
 	@Id
-	@JsonSerialize(using = ObjectIdSerial.ObjectIdJsonSerializer.class)
-	private final ObjectId groupID;
-	private final String gid;
+	private final String groupID;
 
     private String groupName;
     private String groupPurpose;
     private byte[] groupPic;
 
-    @JsonIgnore
-	private List<ObjectId> skillReqs;
+	private List<String> skillReqs;
     private boolean isPublic;
     private double reputationReq;			/* Fraction of leader's reputation */
     private int proximityReq;
 
-    @JsonIgnore
-    private ObjectId groupLeaderID;
+    private String groupLeaderID;
   
     private String ownerUID;
 
-    @JsonIgnore
-	private List<ObjectId> groupMemberIDs;	/* Account ID of the group members */
+	private List<String> groupMemberIDs;	/* Account ID of the group members */
 
-	private ObjectId kickCandidate;
-	private List<ObjectId> kickVotes;
+	private String kickCandidate;
+	private List<String> kickVotes;
 
-	@JsonIgnore
-	private Map<ObjectId, List<ObjectId>> ratingsToGive;		/* Members that each group member can rate */
+	private Map<String, List<String>> ratingsToGive;		/* Members that each group member can rate */
 	private int maxRatings;
 
 	@JsonIgnore
 	private List<ChatMessage> chatHistory;
 
-	public Group(@NonNull String groupName, String groupPurpose, ObjectId groupLeaderID) {
-		this.groupID = new ObjectId();
-		this.gid = this.groupID.toString();
+	public Group(@NonNull String groupName, String groupPurpose, String groupLeaderID) {
+		this.groupID = new ObjectId().toString();
 		this.groupName = groupName;
 		this.groupPurpose = groupPurpose;
 		this.groupLeaderID = groupLeaderID;
@@ -74,42 +67,42 @@ public class Group extends Searchable {
 		this.chatHistory = new ArrayList<>();
 	}
 
-	public void addKickVote(ObjectId accountID)
+	public void addKickVote(String accountID)
     {
         kickVotes.add(accountID);
     }
 
-    public void removeKickVote(ObjectId accountID)
+    public void removeKickVote(String accountID)
     {
         kickVotes.remove(accountID);
     }
 
-    public boolean hasKickVote(ObjectId accountID)
+    public boolean hasKickVote(String accountID)
     {
         return kickVotes.contains(accountID);
     }
 
-	public void addSkillReq(ObjectId skillID)
+	public void addSkillReq(String skillID)
 	{
 		skillReqs.add(skillID);
 	}
 
-	public void removeSkillReq(ObjectId skillID)
+	public void removeSkillReq(String skillID)
 	{
 		skillReqs.remove(skillID);
 	}
 
-	public void addGroupMember(ObjectId accountID)
+	public void addGroupMember(String accountID)
 	{
 		groupMemberIDs.add(accountID);
 	}
 
-	public void removeGroupMember(ObjectId accountID)
+	public void removeGroupMember(String accountID)
 	{
 		groupMemberIDs.remove(accountID);
 	}
 
-	public boolean hasGroupMember(ObjectId accountID)
+	public boolean hasGroupMember(String accountID)
 	{
 		return groupMemberIDs.contains(accountID);
 	}
@@ -131,9 +124,9 @@ public class Group extends Searchable {
 			return false;
 		}
 		ratingsToGive = new TreeMap<>();
-		for(ObjectId accountID : groupMemberIDs)
+		for(String accountID : groupMemberIDs)
 		{
-			List<ObjectId> members = new ArrayList<>();
+			List<String> members = new ArrayList<>();
 			Collections.copy(members, groupMemberIDs);
 			members.remove(accountID);
 			ratingsToGive.put(accountID, members);
@@ -142,7 +135,7 @@ public class Group extends Searchable {
 		return true;
 	}
 
-	public boolean canGiveRating(ObjectId raterID, ObjectId rateeID)
+	public boolean canGiveRating(String raterID, String rateeID)
 	{
 		return ratingsToGive.get(raterID).remove(rateeID);
 	}

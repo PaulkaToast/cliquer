@@ -2,7 +2,6 @@ package com.styxxco.cliquer.service;
 
 import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.security.FirebaseTokenHolder;
-import org.bson.types.ObjectId;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
@@ -30,7 +29,7 @@ public interface AccountService extends UserDetailsService {
     /* Account Searching */
     Map<String, ? extends Searchable> searchWithFilter(String type, String query, boolean suggestions, boolean weights);
     Account setAccountSettings(String username, String json);
-    Group setGroupSettings(String username, ObjectId groupId, String json);
+    Group setGroupSettings(String username, String groupId, String json);
     List<Account> searchByFirstName(String firstName);
     List<Account> searchByLastName(String lastName);
     List<Account> searchByFullName(String firstName, String lastName);
@@ -50,23 +49,23 @@ public interface AccountService extends UserDetailsService {
 
     /* Message centered services */
     List<Message> getNewMessages(String username);
-    Message sendMessage(String username, ObjectId receiverID, String content, int type);
-    String deleteMessage(String username, ObjectId messageID);
+    Message sendMessage(String username, String receiverID, String content, int type);
+    String deleteMessage(String username, String messageID);
 
     /* Group centered services */
     Group createGroup(String username, String json);
-    Group deleteGroup(String username, ObjectId groupID);
-    Account addToGroup(String username, ObjectId groupID);
-    Account leaveGroup(String username, ObjectId groupID);
-    Account inviteToGroup(String username, String friend, ObjectId groupID);
-    Account kickMember(String username, String friend, ObjectId groupID);
+    Group deleteGroup(String username, String groupID);
+    Account addToGroup(String username, String groupID);
+    Account leaveGroup(String username, String groupID);
+    Account inviteToGroup(String username, String friend, String groupID);
+    Account kickMember(String username, String friend, String groupID);
 
     /* Friend invite services */
-    Message sendFriendInvite(String username, ObjectId receiverID);
-    Account acceptFriendInvite(String username, ObjectId inviteID);
-    String rejectFriendInvite(String username, ObjectId inviteID);
-    Account addFriend(String username, ObjectId friendID);
-    Account removeFriend(String username, ObjectId friendID);
+    Message sendFriendInvite(String username, String receiverID);
+    Account acceptFriendInvite(String username, String inviteID);
+    String rejectFriendInvite(String username, String inviteID);
+    Account addFriend(String username, String friendID);
+    Account removeFriend(String username, String friendID);
 
     /* Role services */
     List<Role> getAnonRoles();

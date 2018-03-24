@@ -25,7 +25,7 @@ public class Account extends Searchable implements UserDetails {
 
 	@Id
 	@JsonIgnore
-	private final ObjectId accountID;
+	private final String accountID;
 
     private String username;			/* Must be unique, equivalent to uid in frontend */
 	private String email;
@@ -69,24 +69,24 @@ public class Account extends Searchable implements UserDetails {
 	@JsonIgnore
     private List<Role> authorities;
 	@JsonIgnore
-    private List<ObjectId> skillIDs;
+    private List<String> skillIDs;
 	@JsonIgnore
-    private List<ObjectId> groupIDs;
+    private List<String> groupIDs;
 	@JsonIgnore
-    private List<ObjectId> friendIDs;
+    private List<String> friendIDs;
 	@JsonIgnore
-    private List<ObjectId> messageIDs;
+    private List<String> messageIDs;
 	@JsonIgnore
 	private Map<String, Integer> numRatings;		/* Mapping for number of times each skill has been rated */
 	@JsonIgnore
 	private Map<String, Integer> totalRating;		/* Mapping for cumulative value of ratings for each skill */
 
     public Account() {
-    	this.accountID = new ObjectId();
+    	this.accountID = new ObjectId().toString();
 	}
 
 	public Account(@NonNull String username, String email, String firstName, String lastName)	{
-		this.accountID = new ObjectId();
+		this.accountID = new ObjectId().toString();
 		this.username = username;
 		this.email = email;
 		this.firstName = firstName;
@@ -143,51 +143,51 @@ public class Account extends Searchable implements UserDetails {
 		return this.reputation;
 	}
 
-	public void addSkill(ObjectId skillID)
+	public void addSkill(String skillID)
 	{
 		this.skillIDs.add(skillID);
 	}
 
-	public void removeSkill(ObjectId skillID)
+	public void removeSkill(String skillID)
 	{
 		this.skillIDs.remove(skillID);
 	}
 
-	public void addMessage(ObjectId messageID)
+	public void addMessage(String messageID)
 	{
 		this.messageIDs.add(messageID);
 	}
 
-	public boolean hasMessage(ObjectId messageID)
+	public boolean hasMessage(String messageID)
 	{
 		return this.messageIDs.contains(messageID);
 	}
 
-	public void removeMessage(ObjectId messageID)
+	public void removeMessage(String messageID)
 	{
 		this.messageIDs.remove(messageID);
 	}
 
-	public void addGroup(ObjectId groupID)
+	public void addGroup(String groupID)
 	{
 		this.groupIDs.add(groupID);
 	}
 
-	public void removeGroup(ObjectId groupID)
+	public void removeGroup(String groupID)
 	{
 		this.groupIDs.remove(groupID);
 	}
 
-	public void addFriend(ObjectId friendID) {
+	public void addFriend(String friendID) {
     	this.friendIDs.add(friendID);
 	}
 
-	public boolean hasFriend(ObjectId friendID)
+	public boolean hasFriend(String friendID)
 	{
 		return this.friendIDs.contains(friendID);
 	}
 
-	public void removeFriend(ObjectId friendID) {
+	public void removeFriend(String friendID) {
     	this.friendIDs.remove(friendID);
 	}
 

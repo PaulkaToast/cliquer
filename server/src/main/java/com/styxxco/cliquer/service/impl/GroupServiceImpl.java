@@ -5,7 +5,6 @@ import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.GroupService;
 import lombok.extern.log4j.Log4j;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +44,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Group createGroup(String groupName, String groupPurpose, ObjectId groupLeaderID)
+    public Group createGroup(String groupName, String groupPurpose, String groupLeaderID)
     {
         if(!accountRepository.existsByAccountID(groupLeaderID))
         {
@@ -62,7 +61,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Group deleteGroup(ObjectId groupID, ObjectId groupLeaderID)
+    public Group deleteGroup(String groupID, String groupLeaderID)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -75,7 +74,7 @@ public class GroupServiceImpl implements GroupService {
             log.info("User " + groupLeaderID + " is not the leader of group " + groupID);
             return null;
         }
-        for(ObjectId accountID : group.getGroupMemberIDs())
+        for(String accountID : group.getGroupMemberIDs())
         {
             Account account = accountRepository.findByAccountID(accountID);
             account.removeGroup(groupID);
@@ -87,7 +86,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Group getUserGroup(ObjectId groupID, ObjectId accountID)
+    public Group getUserGroup(String groupID, String accountID)
     {
         if(!accountRepository.existsByAccountID(accountID))
         {
@@ -100,7 +99,7 @@ public class GroupServiceImpl implements GroupService {
             return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
-        for(ObjectId id : group.getGroupMemberIDs())
+        for(String id : group.getGroupMemberIDs())
         {
             if(id.equals(accountID))
             {
@@ -112,7 +111,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Group getPublicGroup(ObjectId groupID)
+    public Group getPublicGroup(String groupID)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -129,7 +128,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Group updateGroupSettings(ObjectId groupID, ObjectId groupLeaderID, String field, String value)
+    public Group updateGroupSettings(String groupID, String groupLeaderID, String field, String value)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -187,9 +186,9 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public boolean hasGroupMember(Group group, ObjectId accountID)
+    public boolean hasGroupMember(Group group, String accountID)
     {
-        for(ObjectId id : group.getGroupMemberIDs())
+        for(String id : group.getGroupMemberIDs())
         {
             if(id.equals(accountID))
             {
@@ -200,7 +199,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Group addGroupMember(ObjectId groupID, ObjectId groupLeaderID, ObjectId accountID)
+    public Group addGroupMember(String groupID, String groupLeaderID, String accountID)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -232,7 +231,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Group removeGroupMember(ObjectId groupID, ObjectId groupLeaderID, ObjectId accountID)
+    public Group removeGroupMember(String groupID, String groupLeaderID, String accountID)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -269,7 +268,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Group startVoteKick(ObjectId groupID, ObjectId groupLeaderID, ObjectId accountID)
+    public Group startVoteKick(String groupID, String groupLeaderID, String accountID)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -312,7 +311,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Group closeVoteKick(ObjectId groupID, ObjectId groupLeaderID)
+    public Group closeVoteKick(String groupID, String groupLeaderID)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -337,7 +336,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Group acceptVoteKick(ObjectId groupID, ObjectId accountID)
+    public Group acceptVoteKick(String groupID, String accountID)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -388,7 +387,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Group denyVoteKick(ObjectId groupID, ObjectId accountID)
+    public Group denyVoteKick(String groupID, String accountID)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -448,7 +447,7 @@ public class GroupServiceImpl implements GroupService {
         for(Group group : groups)
         {
             boolean exit = false;
-            for(ObjectId member : group.getGroupMemberIDs())
+            for(String member : group.getGroupMemberIDs())
             {
                 if(member.equals(user.getAccountID()))
                 {
@@ -596,7 +595,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public List<Skill> getAllSkillReqs(ObjectId groupID)
+    public List<Skill> getAllSkillReqs(String groupID)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -605,7 +604,7 @@ public class GroupServiceImpl implements GroupService {
         }
         Group group = groupRepository.findByGroupID(groupID);
         List<Skill> skills = new ArrayList<>();
-        for(ObjectId skillID : group.getSkillReqs())
+        for(String skillID : group.getSkillReqs())
         {
             Skill skill = skillRepository.findBySkillID(skillID);
             skills.add(skill);
@@ -615,7 +614,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Skill getSkillReq(ObjectId groupID, String skillName)
+    public Skill getSkillReq(String groupID, String skillName)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -634,7 +633,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Group addSkillReq(ObjectId groupID, ObjectId groupLeaderID, String skillName, int skillLevel)
+    public Group addSkillReq(String groupID, String groupLeaderID, String skillName, int skillLevel)
     {
         if(!skillRepository.existsBySkillName(skillName))
         {
@@ -670,7 +669,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Group removeSkillReq(ObjectId groupID, ObjectId groupLeaderID, String skillName)
+    public Group removeSkillReq(String groupID, String groupLeaderID, String skillName)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -696,7 +695,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public boolean meetsGroupRequirements(ObjectId groupID, ObjectId accountID)
+    public boolean meetsGroupRequirements(String groupID, String accountID)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -725,11 +724,11 @@ public class GroupServiceImpl implements GroupService {
             return false;
         }
         boolean metReq = true;
-        for(ObjectId skillReqID : group.getSkillReqs())
+        for(String skillReqID : group.getSkillReqs())
         {
             metReq = false;
             Skill skillReq = skillRepository.findBySkillID(skillReqID);
-            for(ObjectId skillID : user.getSkillIDs())
+            for(String skillID : user.getSkillIDs())
             {
                 Skill skill = skillRepository.findBySkillID(skillID);
                 if(skill.getSkillName().equals(skillReq.getSkillName()))
@@ -750,7 +749,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Message requestToJoinGroup(ObjectId groupID, ObjectId accountID)
+    public Message requestToJoinGroup(String groupID, String accountID)
     {
         if(!this.meetsGroupRequirements(groupID, accountID))
         {
@@ -770,7 +769,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Message acceptJoinRequest(ObjectId groupLeaderID, ObjectId messageID)
+    public Message acceptJoinRequest(String groupLeaderID, String messageID)
     {
         if(!accountRepository.existsByAccountID(groupLeaderID))
         {
@@ -810,7 +809,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Message denyJoinRequest(ObjectId groupLeaderID, ObjectId messageID)
+    public Message denyJoinRequest(String groupLeaderID, String messageID)
     {
         if(!accountRepository.existsByAccountID(groupLeaderID))
         {
@@ -847,7 +846,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Message sendMessage(ObjectId groupID, ObjectId senderID, ObjectId receiverID, String content, int type)
+    public Message sendMessage(String groupID, String senderID, String receiverID, String content, int type)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -869,7 +868,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void sendChatMessage(ChatMessage msg, ObjectId groupID)
+    public void sendChatMessage(ChatMessage msg, String groupID)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -880,6 +879,7 @@ public class GroupServiceImpl implements GroupService {
         Account a = accountRepository.findByUsername(msg.getSenderId());
         if (a == null) {
             log.info("No accountID found for User: " + msg.getSenderId());
+            return;
         }
         if(!group.getGroupMemberIDs().contains(a.getAccountID()))
         {
@@ -892,7 +892,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public String initiateRatings(ObjectId groupID, ObjectId groupLeaderID)
+    public String initiateRatings(String groupID, String groupLeaderID)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -910,7 +910,7 @@ public class GroupServiceImpl implements GroupService {
             log.info("Group " + groupID + " has maxed out the limit for group ratings");
             return null;
         }
-        for(ObjectId accountID : group.getGroupMemberIDs())
+        for(String accountID : group.getGroupMemberIDs())
         {
             if(accountID.equals(groupLeaderID))
             {
@@ -928,8 +928,9 @@ public class GroupServiceImpl implements GroupService {
         return "Success";
     }
 
+    // TODO
     @Override
-    public Map<ObjectId, Integer> getGroupMemberRatingForm(ObjectId groupID, ObjectId rateeID)
+    public Map<String, Integer> getGroupMemberRatingForm(String groupID, String rateeID)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -943,7 +944,7 @@ public class GroupServiceImpl implements GroupService {
             return null;
         }
         Account member = accountRepository.findByAccountID(rateeID);
-        for(ObjectId skillID : group.getSkillReqs())
+        for(String skillID : group.getSkillReqs())
         {
 
         }
@@ -952,7 +953,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public String rateGroupMemberSkills(ObjectId groupID, ObjectId raterID, ObjectId rateeID, Map<ObjectId, Integer> skillRatings)
+    public String rateGroupMemberSkills(String groupID, String raterID, String rateeID, Map<String, Integer> skillRatings)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -978,7 +979,7 @@ public class GroupServiceImpl implements GroupService {
         Account member = accountRepository.findByAccountID(rateeID);
         List<Skill> skills = new ArrayList<>();
         List<Integer> ratings = new ArrayList<>();
-        for(ObjectId skillID : skillRatings.keySet())
+        for(String skillID : skillRatings.keySet())
         {
             if(skillRatings.get(skillID) > 0 && skillRatings.get(skillID) <= 10)
             {

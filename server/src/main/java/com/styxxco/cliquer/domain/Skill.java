@@ -15,19 +15,14 @@ import org.springframework.data.annotation.Id;
 
 public class Skill extends Searchable implements Comparable<Skill> {
 	@Id
-	@JsonIgnore
-	private final ObjectId skillID;
-  
-	@JsonIgnore
-	private final String sid;
+	private final String skillID;
 
 	private String skillName;
 	private int skillLevel;
 
 	public Skill(String skillName, int skillLevel)			/* Constructor for creating a skill for an account	*/
 	{
-		this.skillID = new ObjectId();
-		this.sid = this.skillID.toString();
+		this.skillID = new ObjectId().toString();
 		this.skillName = skillName;
 		this.skillLevel = skillLevel;
 	}

@@ -64,8 +64,7 @@ public class RestController {
     @RequestMapping(value = "/api/addFriend", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> addFriend(@RequestParam(value = "username") String username,
                                 @RequestParam(value = "friend") String friend) {
-        ObjectId friendID = new ObjectId(friend);
-        Account account = accountService.addFriend(username, friendID);
+        Account account = accountService.addFriend(username, friend);
         if (account == null) {
             return new ResponseEntity<>("Could not add friend", HttpStatus.BAD_REQUEST);
         }
@@ -77,8 +76,7 @@ public class RestController {
     @RequestMapping(value = "/api/removeFriend", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> removeFriend(@RequestParam(value = "username") String username,
                                    @RequestParam(value = "friend") String friend) {
-        ObjectId friendID = new ObjectId(friend);
-        Account account = accountService.removeFriend(username, friendID);
+        Account account = accountService.removeFriend(username, friend);
         if (account == null) {
             return new ResponseEntity<>("Could not remove friend", HttpStatus.BAD_REQUEST);
         }
@@ -98,8 +96,7 @@ public class RestController {
     @RequestMapping(value = "/api/leaveGroup", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> leaveGroup(@RequestParam(value = "username") String username,
                                  @RequestParam(value = "groupId") String groupId) {
-        ObjectId groupID = new ObjectId(groupId);
-        Account user = accountService.leaveGroup(username, groupID);
+        Account user = accountService.leaveGroup(username, groupId);
         if (user == null) {
             return new ResponseEntity<>("Could not find group from this id", HttpStatus.BAD_REQUEST);
         }
@@ -109,8 +106,7 @@ public class RestController {
     @RequestMapping(value = "/api/deleteGroup", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> deleteGroup(@RequestParam(value = "username") String username,
                                   @RequestParam(value = "groupId") String groupId) {
-        ObjectId groupID = new ObjectId(groupId);
-        Group result = accountService.deleteGroup(username, groupID);
+        Group result = accountService.deleteGroup(username, groupId);
         if (result == null) {
             return new ResponseEntity<>("Could not delete group", HttpStatus.BAD_REQUEST);
         }
@@ -121,8 +117,7 @@ public class RestController {
     public @ResponseBody ResponseEntity<?> setGroupSettings(@RequestParam(value = "username") String username,
                                                             @RequestParam(value = "groupId") String groupId,
                                                             @RequestBody String json) {
-        ObjectId gid = new ObjectId(groupId);
-        Group group = accountService.setGroupSettings(username, gid, json);
+        Group group = accountService.setGroupSettings(username, groupId, json);
         if (group == null) {
             return new ResponseEntity<>("Could not update group settings", HttpStatus.BAD_REQUEST);
         }
@@ -132,8 +127,7 @@ public class RestController {
     @RequestMapping(value = "/api/addToGroup", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> addToGroup(@RequestParam(value = "username") String username,
                                  @RequestParam(value = "groupId") String groupId) {
-        ObjectId groupID = new ObjectId(groupId);
-        Account user = accountService.addToGroup(username, groupID);
+        Account user = accountService.addToGroup(username, groupId);
         if (user == null) {
             return new ResponseEntity<>("Could not find group from this id", HttpStatus.BAD_REQUEST);
         }
@@ -144,8 +138,7 @@ public class RestController {
     public @ResponseBody ResponseEntity<?> inviteToGroup(@RequestParam(value = "username") String username,
                                     @RequestParam(value = "friend") String friend,
                                     @RequestParam(value = "groupId") String groupId) {
-        ObjectId groupID = new ObjectId(groupId);
-        Account user = accountService.inviteToGroup(username, friend, groupID);
+        Account user = accountService.inviteToGroup(username, friend, groupId);
         if (user == null) {
             return new ResponseEntity<>("Could not find group from this id", HttpStatus.BAD_REQUEST);
         }
@@ -156,8 +149,7 @@ public class RestController {
     public @ResponseBody ResponseEntity<?> kick(@RequestParam(value = "username") String username,
                      @RequestParam(value = "friend") String friend,
                      @RequestParam(value = "groupId") String groupId) {
-        ObjectId groupID = new ObjectId(groupId);
-        Account user = accountService.kickMember(username, friend, groupID);
+        Account user = accountService.kickMember(username, friend, groupId);
         if (user == null) {
             return new ResponseEntity<>("Could not kick member from group", HttpStatus.BAD_REQUEST);
         }
@@ -170,7 +162,7 @@ public class RestController {
         if (groups == null) {
             return new ResponseEntity<>("Could not find groups", HttpStatus.BAD_REQUEST);
         }
-        Map<String, Group> map = groups.stream().collect(Collectors.toMap(Group::getGid, group -> group));
+        Map<String, Group> map = groups.stream().collect(Collectors.toMap(Group::getGroupID, group -> group));
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
@@ -219,7 +211,7 @@ public class RestController {
         if (messages == null) {
             return new ResponseEntity<>("Could not find messages", HttpStatus.BAD_REQUEST);
         }
-        Map<String, Message> map = messages.stream().collect(Collectors.toMap(Message::getMid, message -> message));
+        Map<String, Message> map = messages.stream().collect(Collectors.toMap(Message::getMessageID, message -> message));
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
