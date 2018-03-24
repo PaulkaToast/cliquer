@@ -16,7 +16,6 @@ public interface GroupService {
 
     /* Group Modification */
     Group updateGroupSettings(String groupID, String groupLeaderID, String field, String value);
-    boolean hasGroupMember(Group group, String accountID);
     Group addGroupMember(String groupID, String groupLeaderID, String accountID);
     Group removeGroupMember(String groupID, String groupLeaderID, String accountID);
     Group deleteGroup(String groupID, String groupLeaderID);

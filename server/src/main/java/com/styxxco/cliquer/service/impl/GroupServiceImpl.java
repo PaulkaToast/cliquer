@@ -189,19 +189,6 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public boolean hasGroupMember(Group group, String accountID)
-    {
-        for(String id : group.getGroupMemberIDs())
-        {
-            if(id.equals(accountID))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
     public Group addGroupMember(String groupID, String groupLeaderID, String accountID)
     {
         if(!groupRepository.existsByGroupID(groupID))
@@ -220,7 +207,7 @@ public class GroupServiceImpl implements GroupService {
             log.info("User " + accountID + " not found");
             return null;
         }
-        if(this.hasGroupMember(group, accountID))
+        if(group.hasGroupMember(accountID))
         {
             log.info("User " + accountID + " is already in group " + groupID);
             return null;
@@ -252,7 +239,7 @@ public class GroupServiceImpl implements GroupService {
             log.info("User " + accountID + " not found");
             return null;
         }
-        if(!this.hasGroupMember(group, accountID))
+        if(!group.hasGroupMember(accountID))
         {
             log.info("User " + accountID + " is not in group " + groupID);
             return null;
@@ -294,7 +281,7 @@ public class GroupServiceImpl implements GroupService {
             log.info("User " + accountID + " not found");
             return null;
         }
-        if(!this.hasGroupMember(group, accountID))
+        if(!group.hasGroupMember(accountID))
         {
             log.info("User " + accountID + " is not in group " + groupID);
             return null;
@@ -352,7 +339,7 @@ public class GroupServiceImpl implements GroupService {
             log.info("User " + accountID + " not found");
             return null;
         }
-        if(!this.hasGroupMember(group, accountID))
+        if(!group.hasGroupMember(accountID))
         {
             log.info("User " + accountID + " is not in group " + groupID);
             return null;
@@ -403,7 +390,7 @@ public class GroupServiceImpl implements GroupService {
             log.info("User " + accountID + " not found");
             return null;
         }
-        if(!this.hasGroupMember(group, accountID))
+        if(!group.hasGroupMember(accountID))
         {
             log.info("User " + accountID + " is not in group " + groupID);
             return null;

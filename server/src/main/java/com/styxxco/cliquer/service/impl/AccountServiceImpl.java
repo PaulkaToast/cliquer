@@ -787,7 +787,7 @@ public class AccountServiceImpl implements AccountService {
         }
         Account user = accountRepository.findByUsername(username);
         Group group = groupRepository.findByGroupID(groupID);
-        if(!groupService.hasGroupMember(group, user.getAccountID()))
+        if(!group.hasGroupMember(user.getAccountID()))
         {
             log.info("User " + username + " is not in group " + groupID);
             return null;
