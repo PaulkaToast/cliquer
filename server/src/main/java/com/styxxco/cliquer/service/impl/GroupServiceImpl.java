@@ -990,9 +990,9 @@ public class GroupServiceImpl implements GroupService {
             }
         }
         Map<String, Integer> updatedSkills = member.addSkillRatings(skills, ratings);
-        for(String skillName : updatedSkills.keySet())
+        for(Map.Entry<String, Integer> entry : updatedSkills.entrySet())
         {
-            accountService.addSkill(member.getUsername(), skillName, updatedSkills.get(skillName).toString());
+            accountService.addSkill(member.getUsername(), entry.getKey(), entry.getValue().toString());
         }
         if(endorse)
         {

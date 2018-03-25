@@ -622,7 +622,7 @@ public class SprintTwoServicesTest {
         assertEquals("Bye", messages.get(2).getContent());
     }
 
-    /* Back end Unit Test for User Story 33 */
+    /* Back end Unit Test for User Story 32 */
     @Test
     public void testSkillRating()
     {
@@ -711,7 +711,7 @@ public class SprintTwoServicesTest {
         assertEquals(false, jordan.getSkillIDs().contains(java.getSkillID()));
     }
 
-    /* Back end Unit Test for User Story 34 */
+    /* Back end Unit Test for User Story 33 */
     @Test
     public void testReputationRating()
     {
