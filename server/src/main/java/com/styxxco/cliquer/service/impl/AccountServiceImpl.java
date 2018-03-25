@@ -163,18 +163,36 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account getProfile(String username, String type) {
+    public Account getProfile(String username, String userid, String type) {
         Account user = null;
-        switch (type) {
-            case "user":
-                user = getUserProfile(username);
-                break;
-            case "member":
-                user = getMemberProfile(username);
-                break;
-            case "public":
-                user = getPublicProfile(username);
-                break;
+        if (username != null) {
+            switch (type) {
+                case "user":
+                    user = getUserProfile(username);
+                    break;
+                case "member":
+                    user = getMemberProfile(username);
+                    break;
+                case "public":
+                    user = getPublicProfile(username);
+                    break;
+            }
+        } else if (userid != null) {
+            Account account = accountRepository.findByAccountID(userid);
+            if (account != null) {
+                String name = account.getUsername();
+                switch (type) {
+                    case "user":
+                        user = getUserProfile(name);
+                        break;
+                    case "member":
+                        user = getMemberProfile(name);
+                        break;
+                    case "public":
+                        user = getPublicProfile(name);
+                        break;
+                }
+            }
         }
         return user;
     }

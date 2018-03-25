@@ -13,7 +13,7 @@ public interface AccountService extends UserDetailsService {
     Account createAccount(String username, String email, String firstName, String lastName);
 
     /* Account Access */
-    Account getProfile(String username, String type);
+    Account getProfile(String username, String userid, String type);
     Account getUserProfile(String username);
     Account getMemberProfile(String username);
     Account maskPublicProfile(Account account);

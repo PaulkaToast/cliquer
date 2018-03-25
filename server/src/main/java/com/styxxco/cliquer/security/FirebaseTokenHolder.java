@@ -1,11 +1,14 @@
 package com.styxxco.cliquer.security;
 
 import java.util.ArrayList;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.api.client.util.ArrayMap;
 import com.google.firebase.auth.FirebaseToken;
 
 public class FirebaseTokenHolder {
 
+    @JsonIgnore
     private FirebaseToken token;
 
     public FirebaseTokenHolder(FirebaseToken token) {
@@ -14,10 +17,6 @@ public class FirebaseTokenHolder {
 
     public String getEmail() {
         return token.getEmail();
-    }
-
-    public String getIssuer() {
-        return token.getIssuer();
     }
 
     public String getName() {
@@ -34,17 +33,6 @@ public class FirebaseTokenHolder {
 
     public String getUid() {
         return token.getUid();
-    }
-
-    public String getGoogleId() {
-        String userId = ((ArrayList<String>) ((ArrayMap) ((ArrayMap) token.getClaims().get("firebase"))
-                .get("identities")).get("google.com")).get(0);
-
-        return userId;
-    }
-
-    public boolean getVerified() {
-        return token.isEmailVerified();
     }
 
 }
