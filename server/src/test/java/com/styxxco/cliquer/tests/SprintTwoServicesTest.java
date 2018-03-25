@@ -638,10 +638,14 @@ public class SprintTwoServicesTest {
         Skill java = skillRepository.findBySkillNameAndSkillLevel("Java", 7);
         Skill vim = skillRepository.findBySkillNameAndSkillLevel("VIM", 5);
 
-        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID());
-        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID());
+        assertNotNull(groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID()));
+        assertNotNull(groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID()));
 
         cliquer = groupRepository.findByGroupID(cliquer.getGroupID());
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        shawn = accountRepository.findByAccountID(shawn.getAccountID());
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+
         cliquer.addSkillReq(java.getSkillID());
         cliquer.addSkillReq(vim.getSkillID());
         groupRepository.save(cliquer);
@@ -665,9 +669,6 @@ public class SprintTwoServicesTest {
         assertNotNull(form);
         form.replace(java.getSkillID(), 5);
         form.replace(vim.getSkillID(), 7);
-        assertNotNull(cliquer.getGroupID());
-        assertNotNull(shawn.getAccountID());
-        assertNotNull(kevin.getAccountID());
         result = groupService.rateGroupMember(cliquer.getGroupID(), shawn.getAccountID(), kevin.getAccountID(), false, form);
         assertNotNull(result);
         Skill newJava = skillRepository.findBySkillNameAndSkillLevel("Java", 5);
@@ -723,10 +724,13 @@ public class SprintTwoServicesTest {
                 "To create a web app that facilitates the teaming of people who may have never met before",
                 jordan.getAccountID());
 
-        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID());
-        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID());
+        assertNotNull(groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID()));
+        assertNotNull(groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID()));
 
         cliquer = groupRepository.findByGroupID(cliquer.getGroupID());
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        shawn = accountRepository.findByAccountID(shawn.getAccountID());
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
 
 
         jordan.setReputation(40);
@@ -757,9 +761,7 @@ public class SprintTwoServicesTest {
         assertNotNull(form);
         result = groupService.rateGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID(), true, form);
         assertNotNull(result);
-        assertNotNull(kevin);
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
-        assertNotNull(kevin);
         assertEquals(12, kevin.getReputation());
 
         form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), jordan.getAccountID());
