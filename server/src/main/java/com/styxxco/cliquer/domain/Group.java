@@ -127,8 +127,13 @@ public class Group extends Searchable {
 		for(String accountID : groupMemberIDs)
 		{
 			List<String> members = new ArrayList<>();
-			Collections.copy(members, groupMemberIDs);
-			members.remove(accountID);
+			for(String memberID : groupMemberIDs)
+			{
+				if(!memberID.equals(accountID))
+				{
+					members.add(memberID);
+				}
+			}
 			ratingsToGive.put(accountID, members);
 		}
 		maxRatings--;
