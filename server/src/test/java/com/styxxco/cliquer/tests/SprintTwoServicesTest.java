@@ -674,6 +674,8 @@ public class SprintTwoServicesTest {
         Skill newJava = skillRepository.findBySkillNameAndSkillLevel("Java", 5);
         Skill newVim = skillRepository.findBySkillNameAndSkillLevel("VIM", 7);
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        assertEquals("Java", skillRepository.findBySkillID(kevin.getSkillIDs().get(0)).getSkillName());
+        assertEquals(5, skillRepository.findBySkillID(kevin.getSkillIDs().get(0)).getSkillLevel());
         assertEquals(true, kevin.getSkillIDs().contains(newJava.getSkillID()));
         assertEquals(true, kevin.getSkillIDs().contains(newVim.getSkillID()));
         assertEquals(false, kevin.getSkillIDs().contains(java.getSkillID()));
