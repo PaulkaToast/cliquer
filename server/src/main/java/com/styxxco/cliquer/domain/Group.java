@@ -30,8 +30,6 @@ public class Group extends Searchable {
     private int proximityReq;
 
     private String groupLeaderID;
-  
-    private String ownerUID;
 
 	private List<String> groupMemberIDs;	/* Account ID of the group members */
 
@@ -49,7 +47,6 @@ public class Group extends Searchable {
 		this.groupName = groupName;
 		this.groupPurpose = groupPurpose;
 		this.groupLeaderID = groupLeaderID;
-		this.ownerUID = groupLeaderID.toString();
 
 		this.groupPic = null;
 		this.skillReqs = new ArrayList<>();

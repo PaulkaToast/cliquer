@@ -891,17 +891,20 @@ public class GroupServiceImpl implements GroupService {
         if(!groupRepository.existsByGroupID(groupID))
         {
             log.info("Group " + groupID + " not found");
+            System.out.println("\n\nConditional 1\n\n");
             return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
         if(!group.getGroupLeaderID().equals(groupLeaderID))
         {
             log.info("User " + groupLeaderID + " is not the leader of group " + groupID);
+            System.out.println("\n\nConditional 2\n\n");
             return null;
         }
         if(!group.startMemberRatings())
         {
             log.info("Group " + groupID + " has maxed out the limit for group ratings");
+            System.out.println("\n\nConditional 3\n\n");
             return null;
         }
         for(String accountID : group.getGroupMemberIDs())
