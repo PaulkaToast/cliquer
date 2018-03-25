@@ -24,7 +24,6 @@ public class Account extends Searchable implements UserDetails {
 	private static final long serialVersionUID = 4815877135015943617L;
 
 	@Id
-	@JsonIgnore
 	private final String accountID;
 
     private String username;			/* Must be unique, equivalent to uid in frontend */

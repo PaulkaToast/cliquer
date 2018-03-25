@@ -20,6 +20,7 @@ import java.util.List;
 @Log4j
 @Controller
 public class SocketController {
+
     @Autowired
     private AccountService accountService;
 
@@ -58,4 +59,11 @@ public class SocketController {
 
         return group.getChatHistory();
     }
+
+    @MessageMapping("/{username}")
+    @SendTo("/notification/{username}")
+    public List<Message> getNewNotifications(@DestinationVariable String username) {
+        return accountService.getNewMessages(username);
+    }
+
 }
