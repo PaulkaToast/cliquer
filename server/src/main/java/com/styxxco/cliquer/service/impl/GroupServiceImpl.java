@@ -999,10 +999,10 @@ public class GroupServiceImpl implements GroupService {
             Account rater = accountRepository.findByAccountID(raterID);
             int reputation = member.getReputation();
             reputation += (2 + rater.getReputation()/15);
-            reputation = Math.max(reputation, 100);
+            reputation = Math.min(reputation, 100);
             member.setReputation(reputation);
-            accountRepository.save(member);
         }
+        accountRepository.save(member);
         groupRepository.save(group);
         return "Success";
     }
