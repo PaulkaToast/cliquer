@@ -804,7 +804,6 @@ public class AccountServiceImpl implements AccountService {
             else
             {
                 group.setGroupLeaderID(group.getGroupMemberIDs().get(0));
-                group.setOwnerUID(accountRepository.findByAccountID(group.getGroupLeaderID()).getUsername());
             }
 
         }
