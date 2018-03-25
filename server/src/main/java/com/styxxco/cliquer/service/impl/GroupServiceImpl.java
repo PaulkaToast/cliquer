@@ -992,13 +992,7 @@ public class GroupServiceImpl implements GroupService {
         Map<String, Integer> updatedSkills = member.addSkillRatings(skills, ratings);
         for(Map.Entry<String, Integer> entry : updatedSkills.entrySet())
         {
-            if(entry.getKey() == null || entry.getValue() == null)
-            {
-                continue;
-            }
-            member.getUsername();
-            entry.getKey();
-            Integer.toString(entry.getValue());
+            Account guy = accountService.getUserProfile(member.getUsername());
             accountService.addSkill(member.getUsername(), entry.getKey(), Integer.toString(entry.getValue()));
         }
         if(endorse)
