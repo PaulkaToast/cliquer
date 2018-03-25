@@ -889,18 +889,18 @@ public class GroupServiceImpl implements GroupService {
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
-            log.info("\n\n\n\n\nGroup " + groupID + " not found\n\n\n\n\n");
+            log.info("Group " + groupID + " not found");
             return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
         if(!group.getGroupLeaderID().equals(groupLeaderID))
         {
-            log.info("\n\n\n\n\nUser " + groupLeaderID + " is not the leader of group \n\n\n\n\n" + groupID);
+            log.info("User " + groupLeaderID + " is not the leader of group " + groupID);
             return null;
         }
         if(!group.startMemberRatings())
         {
-            log.info("\n\n\n\n\nGroup " + groupID + " has maxed out the limit for group ratings\n\n\n\n\n");
+            log.info("Group " + groupID + " has maxed out the limit for group ratings");
             return null;
         }
         for(String accountID : group.getGroupMemberIDs())
@@ -933,11 +933,6 @@ public class GroupServiceImpl implements GroupService {
         if(!group.getGroupMemberIDs().contains(rateeID))
         {
             log.info("User " + rateeID + " is not in group " + groupID);
-            return null;
-        }
-        if(group.getRatingsToGive().isEmpty())
-        {
-            log.info("Group " + groupID + " has no active group ratings");
             return null;
         }
         Account member = accountRepository.findByAccountID(rateeID);
