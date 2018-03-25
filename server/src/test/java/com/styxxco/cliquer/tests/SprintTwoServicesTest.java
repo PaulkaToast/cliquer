@@ -665,6 +665,9 @@ public class SprintTwoServicesTest {
         assertNotNull(form);
         form.replace(java.getSkillID(), 5);
         form.replace(vim.getSkillID(), 7);
+        assertNotNull(cliquer.getGroupID());
+        assertNotNull(shawn.getAccountID());
+        assertNotNull(kevin.getAccountID());
         result = groupService.rateGroupMember(cliquer.getGroupID(), shawn.getAccountID(), kevin.getAccountID(), false, form);
         assertNotNull(result);
         Skill newJava = skillRepository.findBySkillNameAndSkillLevel("Java", 5);
