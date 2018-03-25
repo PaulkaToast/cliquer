@@ -918,6 +918,7 @@ public class GroupServiceImpl implements GroupService {
             member.addMessage(message.getMessageID());
             accountRepository.save(member);
         }
+        groupRepository.save(group);
         return "Success";
     }
 
