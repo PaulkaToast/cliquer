@@ -46,6 +46,7 @@ public class RestController {
     public @ResponseBody ResponseEntity<?> getUserProfile(@RequestParam(value = "username", required = false) String username,
                                      @RequestParam(value = "userid", required = false) String userid,
                                      @RequestParam(value = "type") String type) {
+        
         Account user = accountService.getProfile(username, userid, type);
         if (user == null) {
             return new ResponseEntity<>("Could not fetch profile with the query", HttpStatus.BAD_REQUEST);
