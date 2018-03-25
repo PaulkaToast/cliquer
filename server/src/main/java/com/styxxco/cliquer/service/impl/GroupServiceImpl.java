@@ -996,6 +996,9 @@ public class GroupServiceImpl implements GroupService {
             {
                 continue;
             }
+            member.getUsername();
+            entry.getKey();
+            Integer.toString(entry.getValue());
             accountService.addSkill(member.getUsername(), entry.getKey(), Integer.toString(entry.getValue()));
         }
         if(endorse)
