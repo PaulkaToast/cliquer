@@ -19,6 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -619,6 +620,159 @@ public class SprintTwoServicesTest {
         assertEquals("Hello", messages.get(0).getContent());
         assertEquals("Hey", messages.get(1).getContent());
         assertEquals("Bye", messages.get(2).getContent());
+    }
+
+    /* Back end Unit Test for User Story 33 */
+    @Test
+    public void testSkillRating()
+    {
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+
+        Group cliquer = groupService.createGroup(
+                "Cliquer",
+                "To create a web app that facilitates the teaming of people who may have never met before",
+                jordan.getAccountID());
+
+        Skill java = skillRepository.findBySkillNameAndSkillLevel("Java", 7);
+        Skill vim = skillRepository.findBySkillNameAndSkillLevel("VIM", 5);
+
+        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID());
+        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID());
+
+        cliquer = groupRepository.findByGroupID(cliquer.getGroupID());
+        cliquer.addSkillReq(java.getSkillID());
+        cliquer.addSkillReq(vim.getSkillID());
+        groupRepository.save(cliquer);
+        
+        jordan.addSkill(java.getSkillID());
+        jordan.addSkill(java.getSkillID());
+        accountRepository.save(jordan);
+
+        shawn.addSkill(java.getSkillID());
+        shawn.addSkill(java.getSkillID());
+        accountRepository.save(shawn);
+
+        kevin.addSkill(java.getSkillID());
+        kevin.addSkill(java.getSkillID());
+        accountRepository.save(kevin);
+        
+        Map<String, Integer> form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), kevin.getAccountID());
+        assertNull(form);
+        
+        String result = groupService.initiateRatings(cliquer.getGroupID(), jordan.getAccountID());
+        assertNotNull(result);
+
+        form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), kevin.getAccountID());
+        assertNotNull(form);
+        form.replace(java.getSkillID(), 5);
+        form.replace(vim.getSkillID(), 7);
+        result = groupService.rateGroupMember(cliquer.getGroupID(), shawn.getAccountID(), kevin.getAccountID(), false, form);
+        assertNotNull(result);
+        Skill newJava = skillRepository.findBySkillNameAndSkillLevel("Java", 5);
+        Skill newVim = skillRepository.findBySkillNameAndSkillLevel("VIM", 7);
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        assertEquals(true, kevin.getSkillIDs().contains(newJava.getSkillID()));
+        assertEquals(true, kevin.getSkillIDs().contains(newVim.getSkillID()));
+        assertEquals(false, kevin.getSkillIDs().contains(java.getSkillID()));
+
+        form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), kevin.getAccountID());
+        assertNotNull(form);
+        form.replace(newJava.getSkillID(), 5);
+        form.replace(newVim.getSkillID(), 7);
+        result = groupService.rateGroupMember(cliquer.getGroupID(), shawn.getAccountID(), kevin.getAccountID(), false, form);
+        assertNull(result);
+
+        form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), kevin.getAccountID());
+        assertNotNull(form);
+        form.replace(newJava.getSkillID(), 7);
+        form.replace(newVim.getSkillID(), 9);
+        result = groupService.rateGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID(), false, form);
+        assertNotNull(result);
+        newJava = skillRepository.findBySkillNameAndSkillLevel("Java", 6);
+        newVim = skillRepository.findBySkillNameAndSkillLevel("VIM", 8);
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        assertEquals(true, kevin.getSkillIDs().contains(newJava.getSkillID()));
+        assertEquals(true, kevin.getSkillIDs().contains(newVim.getSkillID()));
+        assertEquals(false, kevin.getSkillIDs().contains(java.getSkillID()));
+
+        form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), jordan.getAccountID());
+        assertNotNull(form);
+        form.replace(java.getSkillID(), 5);
+        form.replace(vim.getSkillID(), 7);
+        result = groupService.rateGroupMember(cliquer.getGroupID(), shawn.getAccountID(), jordan.getAccountID(), false, form);
+        assertNotNull(result);
+        newJava = skillRepository.findBySkillNameAndSkillLevel("Java", 8);
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        assertEquals(true, jordan.getSkillIDs().contains(newJava.getSkillID()));
+        assertEquals(true, jordan.getSkillIDs().contains(vim.getSkillID()));
+        assertEquals(false, jordan.getSkillIDs().contains(java.getSkillID()));
+    }
+
+    /* Back end Unit Test for User Story 34 */
+    @Test
+    public void testReputationRating()
+    {
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+
+        Group cliquer = groupService.createGroup(
+                "Cliquer",
+                "To create a web app that facilitates the teaming of people who may have never met before",
+                jordan.getAccountID());
+
+        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID());
+        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID());
+
+        cliquer = groupRepository.findByGroupID(cliquer.getGroupID());
+
+
+        jordan.setReputation(40);
+        accountRepository.save(jordan);
+
+        shawn.setReputation(99);
+        accountRepository.save(shawn);
+
+        kevin.setReputation(0);
+        accountRepository.save(kevin);
+
+        String result = groupService.initiateRatings(cliquer.getGroupID(), jordan.getAccountID());
+        assertNotNull(result);
+
+        Map<String, Integer> form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), kevin.getAccountID());
+        assertNotNull(form);
+        result = groupService.rateGroupMember(cliquer.getGroupID(), shawn.getAccountID(), kevin.getAccountID(), true, form);
+        assertNotNull(result);
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        assertEquals(8, kevin.getReputation());
+
+        form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), kevin.getAccountID());
+        assertNotNull(form);
+        result = groupService.rateGroupMember(cliquer.getGroupID(), shawn.getAccountID(), kevin.getAccountID(), true, form);
+        assertNull(result);
+
+        form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), kevin.getAccountID());
+        assertNotNull(form);
+        result = groupService.rateGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID(), true, form);
+        assertNotNull(result);
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        assertEquals(12, kevin.getReputation());
+
+        form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), jordan.getAccountID());
+        assertNotNull(form);
+        result = groupService.rateGroupMember(cliquer.getGroupID(), kevin.getAccountID(), jordan.getAccountID(), true, form);
+        assertNotNull(result);
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        assertEquals(42, jordan.getReputation());
+
+        form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), shawn.getAccountID());
+        assertNotNull(form);
+        result = groupService.rateGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID(), true, form);
+        assertNotNull(result);
+        shawn = accountRepository.findByAccountID(shawn.getAccountID());
+        assertEquals(100, shawn.getReputation());
     }
 
     /* Populates valid skills into database, in case they were deleted */

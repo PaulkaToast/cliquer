@@ -922,7 +922,6 @@ public class GroupServiceImpl implements GroupService {
         return "Success";
     }
 
-    // TODO
     @Override
     public Map<String, Integer> getGroupMemberRatingForm(String groupID, String rateeID)
     {
@@ -937,17 +936,31 @@ public class GroupServiceImpl implements GroupService {
             log.info("User " + rateeID + " is not in group " + groupID);
             return null;
         }
+        if(group.getRatingsToGive().isEmpty())
+        {
+            log.info("Group " + groupID + " has no active group ratings");
+            return null;
+        }
         Account member = accountRepository.findByAccountID(rateeID);
+        Map<String, Integer> form = new TreeMap<>();
         for(String skillID : group.getSkillReqs())
         {
-
+            for(String id : member.getSkillIDs())
+            {
+                String skillReq = skillRepository.findBySkillID(skillID).getSkillName();
+                String skillName = skillRepository.findBySkillID(id).getSkillName();
+                if(skillReq.equals(skillName))
+                {
+                    form.put(id, 0);
+                    break;
+                }
+            }
         }
-
-        return null;
+        return form;
     }
 
     @Override
-    public String rateGroupMemberSkills(String groupID, String raterID, String rateeID, Map<String, Integer> skillRatings)
+    public String rateGroupMember(String groupID, String raterID, String rateeID,boolean endorse, Map<String, Integer> skillRatings)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -985,6 +998,15 @@ public class GroupServiceImpl implements GroupService {
         for(String skillName : updatedSkills.keySet())
         {
             accountService.addSkill(member.getUsername(), skillName, updatedSkills.get(skillName).toString());
+        }
+        if(endorse)
+        {
+            Account rater = accountRepository.findByAccountID(raterID);
+            int reputation = member.getReputation();
+            reputation += (2 + rater.getReputation()/15);
+            reputation = Math.max(reputation, 100);
+            member.setReputation(reputation);
+            accountRepository.save(member);
         }
         groupRepository.save(group);
         return "Success";
