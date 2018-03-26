@@ -11,6 +11,7 @@ import UserInfo from './UserInfo'
 import NotificationPanel from './NotificationPanel'
 import { getSkills, getProfile } from '../../redux/actions'
 import url from '../../server.js'
+import nFlag from '../../img/newUser.png'
 
 class Profile extends Component {
   constructor(props) {
@@ -46,10 +47,10 @@ class Profile extends Component {
       }
     }
   }
+
   
   render() {
     const { user, profile, skills } = this.props
-
     if(!profile){
       return (
         <div>
@@ -57,7 +58,7 @@ class Profile extends Component {
         </div>
       )
     }
-
+  let flag = profile.newUser ? nFlag : "";
     return (
       <div>
         <Nav tabs>
@@ -80,9 +81,11 @@ class Profile extends Component {
         </Nav>
         <TabContent activeTab={this.state.activeTab}>
           <TabPane tabId="1">
+          
             <h1>
-              {profile.fullName}
+              {profile.fullName}<img src={flag} alt=""></img>
             </h1>
+            
               <SkillsPanel skills={skills}/>
           </TabPane>
           <TabPane tabId="2">
