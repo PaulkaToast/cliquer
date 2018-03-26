@@ -50,6 +50,14 @@ class Profile extends Component {
   render() {
     const { user, profile, skills } = this.props
 
+    if(!profile){
+      return (
+        <div>
+          is loading
+        </div>
+      )
+    }
+
     return (
       <div>
         <Nav tabs>
@@ -71,9 +79,13 @@ class Profile extends Component {
           </NavItem>
         </Nav>
         <TabContent activeTab={this.state.activeTab}>
-          <TabPane tabID="1">
+          <TabPane tabId="1">
+            <h1>
+              {profile.fullName}
+            </h1>
+              <SkillsPanel skills={skills}/>
           </TabPane>
-          <TabPane tabID="2">
+          <TabPane tabId="2">
           </TabPane>
         </TabContent>
       </div>
