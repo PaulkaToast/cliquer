@@ -47,10 +47,10 @@ public class RestController {
 
     @RequestMapping(value = "/api/getProfile", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<?> getUserProfile(@RequestParam(value = "username", required = false) String username,
-                                     @RequestParam(value = "userid", required = false) String userid,
+                                     @RequestParam(value = "userId", required = false) String userId,
                                      @RequestParam(value = "type") String type) {
 
-        Account user = accountService.getProfile(username, userid, type);
+        Account user = accountService.getProfile(username, userId, type);
         if (user == null) {
             return new ResponseEntity<>("Could not fetch profile with the query", HttpStatus.BAD_REQUEST);
         }
@@ -150,7 +150,7 @@ public class RestController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @MessageMapping("/inviteToGroup/{userid}/{friendId}/{groupId}")
+    @MessageMapping("/inviteToGroup/{userId}/{friendId}/{groupId}")
     @SendTo("/notification/{friendId}")
     public List<Message> getInviteToGroup(@DestinationVariable String userId,
                                           @DestinationVariable String friendId,
