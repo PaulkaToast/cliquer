@@ -1,5 +1,6 @@
 package com.styxxco.cliquer.security;
 
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.database.DatabaseReference;
@@ -30,7 +31,7 @@ public class FirebaseConfiguration {
     public void init() throws Exception {
         InputStream inputStream = FirebaseConfiguration.class.getClassLoader().getResourceAsStream(configPath);
         FirebaseOptions options = new FirebaseOptions.Builder()
-                .setServiceAccount(inputStream)
+                .setCredentials(GoogleCredentials.fromStream(inputStream))
                 .setDatabaseUrl(databaseUrl)
                 .build();
         FirebaseApp.initializeApp(options);

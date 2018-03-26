@@ -39,13 +39,14 @@ public class RestController {
                                @RequestParam(value = "first") String first,
                                @RequestParam(value = "last") String last) {
         Account a = firebaseService.registerUser(firebaseToken, first, last);
-        return getUserProfile(a.getUsername(), "user");
+        return getUserProfile(a.getUsername(), null,"user");
     }
 
     @RequestMapping(value = "/api/getProfile", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<?> getUserProfile(@RequestParam(value = "username") String username,
+    public @ResponseBody ResponseEntity<?> getUserProfile(@RequestParam(value = "username", required = false) String username,
+                                     @RequestParam(value = "userid", required = false) String userid,
                                      @RequestParam(value = "type") String type) {
-        Account user = accountService.getProfile(username, type);
+        Account user = accountService.getProfile(username, userid, type);
         if (user == null) {
             return new ResponseEntity<>("Could not fetch profile with the query", HttpStatus.BAD_REQUEST);
         }
@@ -156,7 +157,7 @@ public class RestController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/api/getUserGroups")
+    @RequestMapping(value = "/api/getUserGroups", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<?> getUserGroups(@RequestParam(value = "username") String username) {
         List<Group> groups = accountService.getAllUserGroups(username);
         if (groups == null) {
