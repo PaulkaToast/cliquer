@@ -53,9 +53,7 @@ class Profile extends Component {
     const { user, profile, skills } = this.props
     if(!profile){
       return (
-        <div>
-          is loading
-        </div>
+        <div class="loader">Loading...</div>
       )
     }
   let flag = profile.newUser ? nFlag : "";
