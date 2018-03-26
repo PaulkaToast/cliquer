@@ -44,7 +44,6 @@ public class GroupServiceImpl implements GroupService {
         this.skillRepository = sr;
         this.messageRepository = mr;
         this.groupRepository = gr;
-        this.accountService = new AccountServiceImpl(ar, sr, mr, gr);
     }
 
     @Override
@@ -993,7 +992,8 @@ public class GroupServiceImpl implements GroupService {
         Map<String, Integer> updatedSkills = member.addSkillRatings(skills, ratings);
         for(Map.Entry<String, Integer> entry : updatedSkills.entrySet())
         {
-            accountService.addSkill(member.getUsername(), entry.getKey(), Integer.toString(entry.getValue()));
+            Skill skill = skillRepository.findBySkillNameAndSkillLevel(entry.getKey(), entry.getValue());
+            member.addSkill(skill.getSkillID());
         }
         if(endorse)
         {
