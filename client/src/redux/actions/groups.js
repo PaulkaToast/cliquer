@@ -248,3 +248,28 @@ export const setGroupSettings = genericDispatch(
     setGroupSettingsHasError, setGroupSettingsIsLoading, setGroupSettingsDataSuccess, 'POST'
 )
 
+export function kickHasError(hasError) {
+    return {
+        type: 'KICK_HAS_ERROR',
+        hasError
+    }  
+}
+
+export function kickIsLoading(isLoading) {
+    return {
+        type: 'KICK_IS_LOADING',
+        isLoading
+    }
+}
+
+export function kickDataSuccess(data) {
+    return {
+        type: 'KICK_DATA_SUCCESS',
+        data
+    }
+}
+
+export const kick = genericDispatch(
+    kickHasError, kickIsLoading, kickDataSuccess, 'POST'
+)
+

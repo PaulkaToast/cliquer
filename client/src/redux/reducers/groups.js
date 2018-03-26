@@ -136,6 +136,18 @@ function groups(state = {}, action) {
             return Object.assign({}, state, {
                 setGroupSettingsIsLoading: action.isLoading,
             })
+        case 'KICK_HAS_ERROR':
+            return Object.assign({}, state, {
+                kickHasError: action.hasError,
+            })
+        case 'KICK_DATA_SUCCESS':
+            return Object.assign({}, state, {
+                kickData: action.data,
+            })
+        case 'KICK_IS_LOADING':
+            return Object.assign({}, state, {
+                kickIsLoading: action.isLoading,
+            })
         default:
             return state
     }

@@ -29,7 +29,6 @@ class Groups extends Component {
       membersPopOver: false,
       settingsPopOver: false,
       modal: false,
-      currentGID: '',
       userObjectID: '',
     }
   }
