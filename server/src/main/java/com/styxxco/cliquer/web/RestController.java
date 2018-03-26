@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -147,11 +150,29 @@ public class RestController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    @MessageMapping("/inviteToGroup/{userid}/{friendId}/{groupId}")
+    @SendTo("/notification/{friendId}")
+    public List<Message> getInviteToGroup(@DestinationVariable String userId,
+                                          @DestinationVariable String friendId,
+                                          @DestinationVariable String groupId) {
+        Account friend = accountService.inviteToGroup(userId, friendId, groupId);
+        if (friend == null) {
+            return null;
+        }
+        return getNewNotifications(friend.getUsername());
+    }
+
+    @MessageMapping("/{username}")
+    @SendTo("/notification/{username}")
+    public List<Message> getNewNotifications(@DestinationVariable String username) {
+        return accountService.getNewMessages(username);
+    }
+
     @RequestMapping(value = "/api/kick", method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<?> kick(@RequestParam(value = "username") String username,
-                     @RequestParam(value = "friend") String friend,
+    public @ResponseBody ResponseEntity<?> kick(@RequestParam(value = "userId") String userId,
+                     @RequestParam(value = "kickedId") String kickedId,
                      @RequestParam(value = "groupId") String groupId) {
-        Account user = accountService.kickMember(username, friend, groupId);
+        Account user = accountService.kickMember(userId, kickedId, groupId);
         if (user == null) {
             return new ResponseEntity<>("Could not kick member from group", HttpStatus.BAD_REQUEST);
         }
@@ -205,16 +226,6 @@ public class RestController {
             return new ResponseEntity<>("Could not remove skill", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(account, HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/api/getMessages", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<?> getMessages(@RequestParam(value = "username") String username) {
-        List<Message> messages = accountService.getNewMessages(username);
-        if (messages == null) {
-            return new ResponseEntity<>("Could not find messages", HttpStatus.BAD_REQUEST);
-        }
-        Map<String, Message> map = messages.stream().collect(Collectors.toMap(Message::getMessageID, message -> message));
-        return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/rateUser", method = RequestMethod.POST)

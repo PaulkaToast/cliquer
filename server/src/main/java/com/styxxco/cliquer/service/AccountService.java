@@ -14,6 +14,7 @@ public interface AccountService extends UserDetailsService {
 
     /* Account Access */
     Account getProfile(String username, String userid, String type);
+    Account getProfile(String userid);
     Account getUserProfile(String username);
     Account getMemberProfile(String username);
     Account maskPublicProfile(Account account);
@@ -58,7 +59,7 @@ public interface AccountService extends UserDetailsService {
     Account addToGroup(String username, String groupID);
     Account leaveGroup(String username, String groupID);
     Account inviteToGroup(String username, String friend, String groupID);
-    Account kickMember(String username, String friend, String groupID);
+    Account kickMember(String userId, String kickedId, String groupID);
 
     /* Friend invite services */
     Message sendFriendInvite(String username, String receiverID);

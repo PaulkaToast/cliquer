@@ -59,11 +59,4 @@ public class SocketController {
 
         return group.getChatHistory();
     }
-
-    @MessageMapping("/{username}")
-    @SendTo("/notification/{username}")
-    public List<Message> getNewNotifications(@DestinationVariable String username) {
-        return accountService.getNewMessages(username);
-    }
-
 }
