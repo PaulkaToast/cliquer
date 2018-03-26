@@ -57,7 +57,7 @@ class Chat extends Component {
       senderId: this.props.user.uid,
       content: this.state.msgInput,
     }
-    this.clientRef.sendMessage('/chat/'+  this.props.group.groupID +'/sendMessage', JSON.stringify(msg));
+    this.clientRef.sendMessage('/app/'+  this.props.group.groupID +'/sendMessage', JSON.stringify(msg));
     this.state.msgInput = "";
     event.target.reset();
   }
@@ -100,7 +100,7 @@ class Chat extends Component {
 
   onWebsocketConnect() {
     if (this.props.group) {
-      this.clientRef.sendMessage('/chat/'+ this.props.user.uid + '/' + this.props.group.groupID +'/messageHistory', "");
+      this.clientRef.sendMessage('/app/'+ this.props.user.uid + '/' + this.props.group.groupID +'/messageHistory', "");
     }
   }
 

@@ -83,6 +83,14 @@ function groups(state = {}, action) {
             return Object.assign({}, state, {
                 currentGroup: action.group,
             })
+        case 'ADD_CURRENT_GROUP_MEMBER':
+            const members = state.currentGroup && state.currentGroup.members ? {...state.currentGroup.members} : {}
+            members[action.member.accountID] = action.member
+            return Object.assign({}, state, {
+                currentGroup: Object.assign({}, state.currentGroup, {
+                    members
+                })
+            })
         case 'UPDATE_CHAT_LOG':
             const messages = state.currentGroup && state.currentGroup.messages ? [...state.currentGroup.messages, action.message] : [action.message]
             return Object.assign({}, state, {
@@ -95,7 +103,6 @@ function groups(state = {}, action) {
                 getChatLogHasError: action.hasError,
             })
         case 'GET_CHAT_LOG_DATA_SUCCESS':
-            //TODO: make sure backend is returning messages in right format (array of objects, preferably)
             return Object.assign({}, state, {
                 currentGroup: Object.assign({}, state.currentGroup, {
                     messages: action.data

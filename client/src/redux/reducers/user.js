@@ -41,6 +41,10 @@ function user(state = {}, action) {
             return Object.assign({}, state, {
                 position: action.position,
             } )
+        case 'ADD_OBJECT_ID':
+            return Object.assign({}, state, {
+                accountID: action.id
+            })
         default:
             return state
     }

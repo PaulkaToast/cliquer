@@ -4,7 +4,8 @@ import { connect } from 'react-redux'
 
 import '../css/App.css'
 import { firebase } from '../firebase'
-import { logIn, logOut, setToken, setLocation } from '../redux/actions'
+import { logIn, logOut, setToken, setLocation, getProfile, addObjectID } from '../redux/actions'
+import url from '../server'
 import Login from './Login'
 import Register from './Register'
 import Main from './Main'
@@ -17,6 +18,12 @@ class App extends Component {
     this.state = { 
       error: '',
       isLoading: true,
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if(nextProps.profile && !this.props.profile && !this.props.accountID) {
+      this.props.addObjectID(nextProps.profile.accountID)
     }
   }
 
@@ -35,6 +42,7 @@ class App extends Component {
         authUser.getIdToken(true)
           .then((token) => {
             this.props.setToken(token)
+            this.props.getProfile(`${url}/api/getProfile?username=${authUser.uid}&type=user`, { 'X-Authorization-Firebase': token})
           })
       } else {
         this.props.logOut(authUser)
@@ -84,6 +92,7 @@ class App extends Component {
                 logOut={this.logOut}
                 sendFriendRequest={this.sendFriendRequest}
                 allowHTML={false}
+                accountID={this.props.accountID}
               />
             : <Redirect to="/login" />
           }/>
@@ -98,7 +107,9 @@ const mapStateToProps = (state) => {
 	return {
     user: state.user.data,
     position: state.user.position,
-    loggedIn: state.auth.loggedIn
+    loggedIn: state.auth.loggedIn,
+    accountID: state.user.accountID,
+    profile: state.profile && state.profile.getData ? state.profile.getData : null,
 	}
 }
 
@@ -108,6 +119,8 @@ const mapDispatchToProps = (dispatch) => {
     logOut: () => dispatch(logOut()),
     setToken: (token) => dispatch(setToken(token)),
     setLocation: (position) => dispatch(setLocation(position)),
+    getProfile: (url, headers) => dispatch(getProfile(url, headers)),
+    addObjectID: (id) => dispatch(addObjectID(id))
 	}
 }
 

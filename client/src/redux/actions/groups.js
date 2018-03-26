@@ -159,6 +159,12 @@ export function setCurrentGroup(group) {
     }
 }
 
+export function addCurrentGroupMember(member) {
+    return {
+        type: 'ADD_CURRENT_GROUP_MEMBER',
+        member
+    }
+}
 
 export function updateChatLog(message) {
     return {

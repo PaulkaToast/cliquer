@@ -1,5 +1,6 @@
 export { logIn, logOut, registerHasError, registerIsLoading, registerSuccess, registerUser, setToken } from './auth'
-export { updateUserData, addSkills, addNewSkill, deleteNewSkill, clearNewSkills, setLocation, setNewSkills } from './user'
+export { updateUserData, addSkills, addNewSkill, deleteNewSkill, clearNewSkills, setLocation, setNewSkills,
+         addObjectID } from './user'
 export { postSkillsHasError, postSkillsIsLoading, postSkillsDataSuccess, postSkills,
          getSkillsHasError, getSkillsIsLoading, getSkillsDataSuccess, getSkills,
          removeSkillHasError, removeSkillIsLoading, removeSkillDataSuccess, removeSkill,
@@ -15,7 +16,7 @@ export { getGroupsHasError, getGroupsIsLoading, getGroupsDataSuccess, getGroups,
          createGroupHasError, createGroupIsLoading, createGroupDataSuccess, createGroup,
          getChatLogHasError, getChatLogIsLoading, getChatLogDataSuccess, getChatLog,
          postChatMessageHasError, postChatMessageIsLoading, postChatMessageDataSuccess, postChatMessage,
-         updateChatLog, setCurrentGroup,
+         updateChatLog, setCurrentGroup, addCurrentGroupMember,
          setGroupSettingsHasError, setGroupSettingsIsLoading, setGroupSettingsDataSuccess, setGroupSettings,} from './groups'
 export { addFriendHasError, addFriendIsLoading, addFriendDataSuccess, addFriend,
          removeFriendHasError, removeFriendIsLoading, removeFriendDataSuccess, removeFriend } from './friends'
