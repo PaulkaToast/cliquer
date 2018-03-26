@@ -8,12 +8,18 @@ import url from '../server'
 
 class SearchResults extends Component {
 
+  componentDidMount = () => {
+    const { query, category } = this.props.match.params
+
+    if(query && category && this.props.token && !this.props.results) {
+      this.props.search(`${url}/api/search?query=${query}&type=${category}`, { 'X-Authorization-Firebase': this.props.token})
+    }
+  }
+
   componentWillReceiveProps = (nextProps) => {
     const { query, category } = nextProps.match.params
 
-    console.log(query, category)
     if(query && category && nextProps.token && !nextProps.results) {
-      console.log('here 2')
       this.props.search(`${url}/api/search?query=${query}&type=${category}`, { 'X-Authorization-Firebase': nextProps.token})
     }
   }

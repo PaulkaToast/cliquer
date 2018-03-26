@@ -17,7 +17,7 @@ import GroupSettings from './GroupSettings'
 import SkillsForm from '../Profile/SkillsForm'
 import { getGroups, setCurrentGroup, addCurrentGroupMember, 
          leaveGroup, deleteGroup, clearNewSkills, setGroupSettings, 
-         getProfile, kick } from '../../redux/actions'
+         getProfile, kick, removeCurrentGroupMember} from '../../redux/actions'
 import url from '../../server'
 
 class Groups extends Component {
@@ -89,7 +89,7 @@ class Groups extends Component {
     const proximityReq = ev.target.proximity.value
     const isPublic = ev.target.isPublic.checked
 
-    this.props.setSettings(`${url}/api/setGroupSettings?username=${this.props.user.uid}&groupId=${this.props.currentGroup.gid}`, { 'X-Authorization-Firebase': this.props.token}, 
+    this.props.setSettings(`${url}/api/setGroupSettings?username=${this.props.user.uid}&groupId=${this.props.currentGroup.groupID}`, { 'X-Authorization-Firebase': this.props.token}, 
                           JSON.stringify({
                             groupName,
                             groupPurpose,
@@ -112,7 +112,9 @@ class Groups extends Component {
   }
 
   kickUser = (group, memberID) => {
-    this.props.kick(`${url}/api/kick?userId=${this.props.accountID}&kickedId=${memberID}&groupId=${group.groupID}`, { 'X-Authorization-Firebase': this.props.token})
+    this.toggleM()
+    this.props.removeMember(memberID)
+    this.props.kick(`${url}/api/kick?userId=${this.props.accountID}&kickedId=${memberID}&groupId=${group.groupID}`, { 'X-Authorization-Firebase': this.props.token}, { gid: group.groupID, memberID})
   }
 
   clearGroup = () => {
@@ -129,12 +131,12 @@ class Groups extends Component {
   }
 
   disbandGroup = () => {
-    this.props.deleteGroup(`${url}/api/deleteGroup?username=${this.props.user.uid}&groupId=${this.props.currentGroup.gid}`, { 'X-Authorization-Firebase': this.props.token}, null, this.props.currentGroup.gid)
+    this.props.deleteGroup(`${url}/api/deleteGroup?username=${this.props.user.uid}&groupId=${this.props.currentGroup.groupID}`, { 'X-Authorization-Firebase': this.props.token}, null, this.props.currentGroup.groupID)
     this.clearGroup()
   }
   
   leaveGroup = () => {
-    this.props.leaveGroup(`${url}/api/leaveGroup?username=${this.props.user.uid}&groupId=${this.props.currentGroup.gid}`, { 'X-Authorization-Firebase': this.props.token}, null, this.props.currentGroup.gid)
+    this.props.leaveGroup(`${url}/api/leaveGroup?username=${this.props.user.uid}&groupId=${this.props.currentGroup.groupID}`, { 'X-Authorization-Firebase': this.props.token}, null, this.props.currentGroup.groupID)
     this.clearGroup()
   }
 
@@ -292,7 +294,8 @@ const mapDispatchToProps = (dispatch) => {
     setSettings: (url, header, body) => dispatch(setGroupSettings(url, header, body)),
     getProfile: (url, headers) => dispatch(getProfile(url, headers)),
     addMember: (member) => dispatch(addCurrentGroupMember(member)),
-    kick: (url, headers) => dispatch(kick(url, headers)),
+    kick: (url, headers, extra) => dispatch(kick(url, headers, null, extra)),
+    removeMember: (memberID) => dispatch(removeCurrentGroupMember(memberID)),
   }
 }
 

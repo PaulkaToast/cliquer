@@ -166,6 +166,13 @@ export function addCurrentGroupMember(member) {
     }
 }
 
+export function removeCurrentGroupMember(memberID) {
+    return {
+        type: 'REMOVE_CURRENT_GROUP_MEMBER',
+        memberID
+    }
+}
+
 export function updateChatLog(message) {
     return {
         type: 'UPDATE_CHAT_LOG',
@@ -262,10 +269,12 @@ export function kickIsLoading(isLoading) {
     }
 }
 
-export function kickDataSuccess(data) {
+export function kickDataSuccess(data, extra) {
+    //TODO: fick visual issue with member still displaying
     return {
         type: 'KICK_DATA_SUCCESS',
-        data
+        data,
+        extra
     }
 }
 

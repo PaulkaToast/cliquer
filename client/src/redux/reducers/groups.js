@@ -1,5 +1,6 @@
 function groups(state = {}, action) {
     let groupsCopy
+    let members
     switch(action.type) {
         case 'GET_GROUPS_HAS_ERROR':
             return Object.assign({}, state, {
@@ -84,8 +85,16 @@ function groups(state = {}, action) {
                 currentGroup: action.group,
             })
         case 'ADD_CURRENT_GROUP_MEMBER':
-            const members = state.currentGroup && state.currentGroup.members ? {...state.currentGroup.members} : {}
+            members = state.currentGroup && state.currentGroup.members ? {...state.currentGroup.members} : {}
             members[action.member.accountID] = action.member
+            return Object.assign({}, state, {
+                currentGroup: Object.assign({}, state.currentGroup, {
+                    members
+                })
+            })
+        case 'REMOVE_CURRENT_GROUP_MEMBER':
+            members = state.currentGroup && state.currentGroup.members ? {...state.currentGroup.members} : {}
+            if(members[action.memberID]) delete members[action.memberID]
             return Object.assign({}, state, {
                 currentGroup: Object.assign({}, state.currentGroup, {
                     members
@@ -141,8 +150,14 @@ function groups(state = {}, action) {
                 kickHasError: action.hasError,
             })
         case 'KICK_DATA_SUCCESS':
+            groupsCopy = state.getGroupsData ? {...state.getGroupsData} : {}
+            if(groupsCopy[action.extra.gid]) {
+                const index = groupsCopy[action.extra.gid].groupMemberIDs.indexOf(action.extra.memberID)
+                groupsCopy[action.extra.gid].groupMemberIDs.splice(index, 1)
+            }
             return Object.assign({}, state, {
                 kickData: action.data,
+                getGroupsData: groupsCopy
             })
         case 'KICK_IS_LOADING':
             return Object.assign({}, state, {

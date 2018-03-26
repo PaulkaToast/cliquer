@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import { Switch, Route, Redirect } from 'react-router'
 import NotificationSystem from 'react-notification-system'
 import { Button, ButtonGroup } from 'reactstrap'
+import SockJsClient from 'react-stomp'
+import { connect } from 'react-redux'
 
 import '../css/Main.css'
 import Navbar from './Navbar'
@@ -11,6 +13,8 @@ import PublicGroups from './PublicGroups'
 import Profile from './Profile/Profile'
 import Settings from './Settings'
 import SearchResults from './SearchResults'
+import url from '../server'
+
 
 class Main extends Component {
 
@@ -74,6 +78,18 @@ class Main extends Component {
           })
           break
         case 4:
+          // Join Request
+          this._notificationSystem.addNotification({
+            title: 'Join request',
+            message: '[NAME] has requested to join [GROUP NAME].',
+            level: 'success',
+            action: {
+              label: 'Allow',
+              callback: this.joinGroup
+            }
+          })
+          break
+        case 5:
           // Rate request
           this._notificationSystem.addNotification({
             title: 'Rate request',
@@ -117,6 +133,32 @@ class Main extends Component {
     console.log('ignored group')
   }
 
+  onWebsocketConnect = () => {
+    if (this.props.group) {
+      this.clientRef.sendMessage('/app/'+ this.props.user.uid + '/' + this.props.group.groupID +'/messageHistory', "");
+    }
+  }
+
+  handleMessage = (data) => {
+    //if data is an array
+    console.log(data)
+  }
+
+  getWebsocket = () => {
+    if (this.props.group) {
+      return <SockJsClient url={`${url}/sockJS`} topics={[`/notification/${this.props.accountID}`]}
+          onMessage={this.handleMessage}
+          onConnect={this.onWebsocketConnect}
+          ref={ (client) => { this.clientRef = client }} 
+          subscribeHeaders={{ 'X-Authorization-Firebase': this.props.token }}
+          headers={{ 'X-Authorization-Firebase': this.props.token }}
+          debug
+        />
+    } 
+
+    return
+  }
+
   render() {
     return (
       <div className="Main h-100">
@@ -132,10 +174,26 @@ class Main extends Component {
         </Switch>
 
         {/*TODO: hook up Websocket for notifications*/}
+        {this.getWebsocket()}
         <NotificationSystem ref="notificationSystem" allowHTML={this.props.allowHTML} />
       </div>
     )
   }
 }
 
-export default Main
+const mapStateToProps = (state) => {
+	return {
+    user: state.user.data,
+    token: state.auth.token,
+    accountID: state.user.accountID,
+	}
+}
+
+const mapDispatchToProps = (dispatch) => {
+	return {
+
+	}
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(Main)

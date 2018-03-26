@@ -16,7 +16,7 @@ export { getGroupsHasError, getGroupsIsLoading, getGroupsDataSuccess, getGroups,
          createGroupHasError, createGroupIsLoading, createGroupDataSuccess, createGroup,
          getChatLogHasError, getChatLogIsLoading, getChatLogDataSuccess, getChatLog,
          postChatMessageHasError, postChatMessageIsLoading, postChatMessageDataSuccess, postChatMessage,
-         updateChatLog, setCurrentGroup, addCurrentGroupMember,
+         updateChatLog, setCurrentGroup, addCurrentGroupMember, removeCurrentGroupMember,
          setGroupSettingsHasError, setGroupSettingsIsLoading, setGroupSettingsDataSuccess, setGroupSettings,
          kickHasError, kickIsLoading, kickDataSuccess, kick } from './groups'
 export { addFriendHasError, addFriendIsLoading, addFriendDataSuccess, addFriend,

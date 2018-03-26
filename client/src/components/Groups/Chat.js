@@ -5,7 +5,7 @@ import SockJsClient from 'react-stomp'
 
 import '../../css/Chat.css'
 import { getChatLog, postChatMessage, updateChatLog } from '../../redux/actions'
-import url from '../../server.js'
+import url from '../../server'
 
 const Message = ({message, sender, align}) => {
   if (!message) return <div></div>;
@@ -36,15 +36,10 @@ class Chat extends Component {
   }
 
   componentWillReceiveProps = (nextProps) => {
-    if(nextProps.user && nextProps.token && nextProps.user.uid && !nextProps.group) {
-      //TODO: Add URL to link up with backend
-      //TODO: prevent unnecessary calling
-      this.props.getLog(``, { 'X-Authorization-Firebase': nextProps.token})
-    }
     if(nextProps.group != this.props.group){
       this.state.messages = [];
       this.setState(this.state);
-      setTimeout(() => this.onWebsocketConnect(),1)
+      setTimeout(() => this.onWebsocketConnect(), 1)
     }
   }
 
@@ -77,14 +72,6 @@ class Chat extends Component {
     }
   }
 
-  handleSubmit = (ev) => {
-    ev.preventDefault()
-    //TODO: verify message object structure, add URL to postmessage
-    const message = { message: ev.target.message, owner: this.props.user.uid }
-    this.props.updateLog(message)
-    this.props.postMessage(``, { 'X-Authorization-Firebase': this.props.token})
-  }
-
   scrollToBottom = () => {
     this.messagesEnd.scrollIntoView({ behavior: "smooth" });
   }
@@ -112,7 +99,6 @@ class Chat extends Component {
           ref={ (client) => { this.clientRef = client }} 
           subscribeHeaders={{ 'X-Authorization-Firebase': this.props.token }}
           headers={{ 'X-Authorization-Firebase': this.props.token }}
-          debug
         />
     } else {
       return;
