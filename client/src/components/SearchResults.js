@@ -7,10 +7,13 @@ import { search } from '../redux/actions'
 import url from '../server'
 
 class SearchResults extends Component {
+
   componentWillReceiveProps = (nextProps) => {
-    console.log('hello')
     const { query, category } = nextProps.match.params
+
+    console.log(query, category)
     if(query && category && nextProps.token && !nextProps.results) {
+      console.log('here 2')
       this.props.search(`${url}/api/search?query=${query}&type=${category}`, { 'X-Authorization-Firebase': nextProps.token})
     }
   }
@@ -22,14 +25,14 @@ class SearchResults extends Component {
   renderUserPreview = (user, i) => {
     //may need to change button function to be a prop later (to allow reusing for group member searching)
     return (
-      <div className="user-result" key={i}>
+      <div className="user-result" onClick={(ev) => this.props.goToProfile(ev, user.accountID, document.querySelector('.friend-request'))} key={user.accountID}>
         <div className="right-content">
           <div className="right-top-content">
             <div className="user-name">{user.fullName}</div>
             <div className="user-reputation">{user.reputation}</div>
           </div>
         </div>
-        <Button color="success" className="request" onClick={() => this.props.sendFriendRequest(user)}>Send Friend Request</Button>
+        <Button color="success" className="friend-request" onClick={() => this.props.sendFriendRequest(user.accountID)}>Send Friend Request</Button>
       </div>
     )
   }

@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { Button } from 'reactstrap'
 
 import '../../css/Profile.css'
 import SkillsPanel from './SkillsPanel'
@@ -29,8 +30,12 @@ class Profile extends Component {
   }
 
   isOwner = (accountID) => {
-    return accountID === this.props.accountID
+    return accountID === this.props.accountID || !this.props.accountID
   } 
+
+  inviteToGroup = (accountID) => {
+
+  }
   
   render() {
     const { user, profile, skills } = this.props
@@ -39,6 +44,8 @@ class Profile extends Component {
     return (
       <div>
         <SkillsPanel skills={skills}/>
+        {!this.isOwner(ownerID) && <Button type="button" size="lg" onClick={() => this.props.sendFriendRequest(ownerID)}>Send Friend Request</Button>}
+        {!this.isOwner(ownerID) && <Button type="button" size="lg" onClick={() => this.inviteToGroup(ownerID)}>Invite To Group</Button>}
         {/* Page Container */}
         <div className="pk-container pk-content" style={{maxWidth: 1400, marginTop: 80}}>    
           {/* The Grid */}

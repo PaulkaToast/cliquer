@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import '../css/App.css'
 import { firebase } from '../firebase'
 import { logIn, logOut, setToken, setLocation, getProfile, addObjectID, requestFriend } from '../redux/actions'
+import { history } from '../redux/store'
 import url from '../server'
 import Login from './Login'
 import Register from './Register'
@@ -67,6 +68,12 @@ class App extends Component {
     return false 
   }
 
+  goToProfile = (ev, memberID, button) => {
+    if(ev.target !== button) {
+      history.push(`/profile/${memberID}`)
+    }
+  }
+
   sendFriendRequest = (user) => {
     //TODO: API call for friend request
   }
@@ -93,6 +100,7 @@ class App extends Component {
                 sendFriendRequest={this.sendFriendRequest}
                 allowHTML={false}
                 accountID={this.props.accountID}
+                goToProfile={this.goToProfile}
               />
             : <Redirect to="/login" />
           }/>
