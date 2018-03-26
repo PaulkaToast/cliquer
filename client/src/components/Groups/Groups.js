@@ -17,7 +17,7 @@ import GroupSettings from './GroupSettings'
 import SkillsForm from '../Profile/SkillsForm'
 import { getGroups, setCurrentGroup, addCurrentGroupMember, 
          leaveGroup, deleteGroup, clearNewSkills, setGroupSettings, 
-         getProfile } from '../../redux/actions'
+         getProfile, kick } from '../../redux/actions'
 import url from '../../server'
 
 class Groups extends Component {
@@ -111,8 +111,8 @@ class Groups extends Component {
     }
   }
 
-  kickUser = (memberID) => {
-
+  kickUser = (group, memberID) => {
+    this.props.kick(`${url}/api/kick?userId=${this.props.accountID}&kickedId=${memberID}&groupId=${group.groupID}`, { 'X-Authorization-Firebase': this.props.token})
   }
 
   clearGroup = () => {
@@ -124,7 +124,7 @@ class Groups extends Component {
     this.props.setGroup(this.props.groups[groupID])
     history.push(`/groups/${groupID}`)
     this.props.groups[groupID].groupMemberIDs.forEach((memberID) => {
-      this.props.getProfile(`${url}/api/getProfile?userid=${memberID}&type=member`, { 'X-Authorization-Firebase': this.props.token})
+      this.props.getProfile(`${url}/api/getProfile?userId=${memberID}&type=member`, { 'X-Authorization-Firebase': this.props.token})
     })
   }
 
@@ -138,8 +138,10 @@ class Groups extends Component {
     this.clearGroup()
   }
 
-  goToProfile = (memberID) => {
-    history.push(`/profile/${memberID}`)
+  goToProfile = (ev, memberID) => {
+    if(ev.target === ev.currentTarget) {
+      history.push(`/profile/${memberID}`)
+    }
   }
 
   renderMemberList = (group) => {
@@ -148,7 +150,7 @@ class Groups extends Component {
           {this.props.currentGroup && this.props.currentGroup.members
           && Object.keys(this.props.currentGroup.members).map((memberID, i) => {
             return (
-              <ListGroupItem onClick={() => this.goToProfile(memberID)} key={memberID} className="d-flex justify-content-between align-items-center" action> 
+              <ListGroupItem onClick={(ev) => this.goToProfile(ev, memberID)} key={memberID} className="d-flex justify-content-between align-items-center" action> 
                 {this.props.currentGroup.members[memberID].fullName}
                 {this.isOwner(this.props.currentGroup) && <Button type="button" size="lg" onClick={() => this.kickUser(this.props.currentGroup, memberID)}>Kick</Button>}
               </ListGroupItem>
@@ -282,6 +284,7 @@ const mapStateToProps = (state) => {
     currentGroup: state.groups.currentGroup,
     profileIsLoading: state.profile && state.profile.getIsLoading ? state.profile.getIsLoading : null,
     profile: state.profile && state.profile.getData ? state.profile.getData : null,
+    accountID: state.user ? state.user.accountID : null,
   }
 }
 
@@ -295,6 +298,7 @@ const mapDispatchToProps = (dispatch) => {
     setSettings: (url, header, body) => dispatch(setGroupSettings(url, header, body)),
     getProfile: (url, headers) => dispatch(getProfile(url, headers)),
     addMember: (member) => dispatch(addCurrentGroupMember(member)),
+    kick: (url, headers) => dispatch(kick(url, headers)),
   }
 }
 

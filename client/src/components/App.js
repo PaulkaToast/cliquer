@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import '../css/App.css'
 import { firebase } from '../firebase'
-import { logIn, logOut, setToken, setLocation, getProfile, addObjectID } from '../redux/actions'
+import { logIn, logOut, setToken, setLocation, getProfile, addObjectID, requestFriend } from '../redux/actions'
 import url from '../server'
 import Login from './Login'
 import Register from './Register'
@@ -120,7 +120,8 @@ const mapDispatchToProps = (dispatch) => {
     setToken: (token) => dispatch(setToken(token)),
     setLocation: (position) => dispatch(setLocation(position)),
     getProfile: (url, headers) => dispatch(getProfile(url, headers)),
-    addObjectID: (id) => dispatch(addObjectID(id))
+    addObjectID: (id) => dispatch(addObjectID(id)),
+    requestFriend: (url, headers) => dispatch(requestFriend(url, headers))
 	}
 }
 

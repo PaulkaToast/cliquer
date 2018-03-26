@@ -12,13 +12,13 @@ import url from '../../server.js'
 class Profile extends Component {
 
   componentWillReceiveProps = (nextProps) => {
-    if(nextProps.uid && nextProps.token) {    
-      const type = nextProps.ownerUID === nextProps.uid ? 'user' : 'public'
-      const uid = nextProps.uid //TODO: remove this later and just use ownerid
+    if(nextProps.uid && nextProps.accountID && nextProps.token) {    
+      const ownerID = nextProps.match.params.ownerID
+      const type = ownerID === nextProps.accountID ? 'user' : 'public'
 
       // Get profile data
       if(!nextProps.profile && !nextProps.profileIsLoading) {
-        this.props.getProfile(`${url}/api/getProfile?username=${uid}&type=${type}`, { 'X-Authorization-Firebase': nextProps.token})
+        this.props.getProfile(`${url}/api/getProfile?userId=${ownerID}&type=${type}`, { 'X-Authorization-Firebase': nextProps.token})
       }
 
       // Get skills data
@@ -27,10 +27,15 @@ class Profile extends Component {
       }
     }
   }
+
+  isOwner = (accountID) => {
+    return accountID === this.props.accountID
+  } 
   
   render() {
     const { user, profile, skills } = this.props
-
+    const ownerID = this.props.match.params.ownerID
+    
     return (
       <div>
         <SkillsPanel skills={skills}/>
@@ -277,6 +282,7 @@ const mapStateToProps = (state) => {
     skills: state.skills && state.skills.getData ? state.skills.getData : null,
     skillsIsLoading: state.skills && state.skills.getIsLoading ? state.skills.getIsLoading : null,
     postData: state.skills && state.skills.postData ? state.skills.postData : null,
+    accountID: state.user.accountID,
     token: state.auth.token
   }
 }

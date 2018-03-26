@@ -20,6 +20,7 @@ export { getGroupsHasError, getGroupsIsLoading, getGroupsDataSuccess, getGroups,
          setGroupSettingsHasError, setGroupSettingsIsLoading, setGroupSettingsDataSuccess, setGroupSettings,
          kickHasError, kickIsLoading, kickDataSuccess, kick } from './groups'
 export { addFriendHasError, addFriendIsLoading, addFriendDataSuccess, addFriend,
-         removeFriendHasError, removeFriendIsLoading, removeFriendDataSuccess, removeFriend } from './friends'
+         removeFriendHasError, removeFriendIsLoading, removeFriendDataSuccess, removeFriend,
+         requestFriendHasError, requestFriendIsLoading, requestFriendDataSuccess, requestFriend, } from './friends'
 export { getMessagesHasError, getMessagesIsLoading, getMessagesDataSuccess, getMessages } from './messages'
 export { searchHasError, searchIsLoading, searchDataSuccess, search } from './search'

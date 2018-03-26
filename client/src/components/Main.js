@@ -125,9 +125,9 @@ class Main extends Component {
             <Route path="/create" render={(navProps) => <CreateGroup {...navProps} />}/>
             <Route path="/groups" render={(navProps) => <Groups {...navProps} />}/>
             <Route path="/public" render={(navProps) => <PublicGroups {...navProps} />}/>
-            <Route path="/profile/:ownerUID" render={(navProps) => <Profile {...navProps} />}/>
+            <Route path="/profile/:ownerID" render={(navProps) => <Profile {...navProps} />}/>
             <Route path="/settings" render={(navProps) => <Settings {...navProps} />}/>
-            <Route path="/search/:category/:query" render={(navProps) => <SearchResults {...navProps} />}/>
+            <Route path="/search/:category/:query" render={(navProps) => <SearchResults {...navProps} {...this.props} />}/>
             <Route path='/' render={(navProps) => <Redirect to="/groups" />}/>
         </Switch>
 
