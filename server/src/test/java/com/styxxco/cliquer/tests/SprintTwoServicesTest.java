@@ -651,15 +651,15 @@ public class SprintTwoServicesTest {
         groupRepository.save(cliquer);
         
         jordan.addSkill(java.getSkillID());
-        jordan.addSkill(java.getSkillID());
+        jordan.addSkill(vim.getSkillID());
         accountRepository.save(jordan);
 
         shawn.addSkill(java.getSkillID());
-        shawn.addSkill(java.getSkillID());
+        shawn.addSkill(vim.getSkillID());
         accountRepository.save(shawn);
 
         kevin.addSkill(java.getSkillID());
-        kevin.addSkill(java.getSkillID());
+        kevin.addSkill(vim.getSkillID());
         accountRepository.save(kevin);
         
         String result = groupService.initiateRatings(cliquer.getGroupID(), jordan.getAccountID());
