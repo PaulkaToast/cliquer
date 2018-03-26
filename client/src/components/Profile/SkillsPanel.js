@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter,
+        ListGroup, ListGroupItem, Badge } from 'reactstrap'
 
 import '../../css/SkillsPanel.css'
 import SkillsForm from './SkillsForm'
@@ -39,10 +40,17 @@ class SkillsPanel extends Component {
   render() {
     return (
       <div className="SkillsPanel">
+        <ListGroup>
         { this.props.skills && this.props.skills.map((skill, i) => {
-          return <div onClick={() => {this.removeSkill(skill.skillName, i)}}>{skill.skillName} - {skill.skillLevel}</div>
+          return <div >
+          <ListGroupItem className="justify-content-between">
+            {skill.skillName + " "}
+            <Badge pill>{skill.skillLevel} </Badge>
+            <Button className="skill-cancel-button" onClick={() => {this.removeSkill(skill.skillName, i)}} color="link">x</Button>
+          </ListGroupItem> 
+          </div>
         })}
-
+        </ListGroup>
         <Button color="primary" onClick={this.toggle}>Add skills</Button>
         <Modal isOpen={this.state.modal} toggle={this.toggle} className="add-skills-modal">
           <ModalHeader toggle={this.toggle}>Add Skills</ModalHeader>

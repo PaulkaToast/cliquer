@@ -1,68 +1,74 @@
-.Profile .header {
-    padding: 80px; /* some padding */
-    text-align: center; /* center the text */
-    background: #1abc9c; /* green background */
-    color: white; /* white text color */
+.profile-user-flag{
+    padding-left: 5px;
+}
+.profile-tab{
+    padding-left: 10px;
 }
 
-.Profile .header h1 {
-    font-size: 40px;
+.nav-tabs{
+    border-color: #a3a3a3 !important; 
+}
+.nav-link.active{
+    border-color: #a3a3a3 !important; 
+}
+.nav-link{
+    border-color: #a3a3a3 !important; 
 }
 
-.Profile .row { 
-    display: -ms-flexbox; /* IE10 */
-    display: flex;
-    -ms-flex-wrap: wrap; /* IE10 */
-    flex-wrap: wrap;
+.loader,
+.loader:before,
+.loader:after {
+  border-radius: 50%;
+  width: 2.5em;
+  height: 2.5em;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation: load7 1.8s infinite ease-in-out;
+  animation: load7 1.8s infinite ease-in-out;
 }
-
-/* Create two unequal columns that sits next to each other */
-/* Sidebar/left column */
-.Profile .side {
-    flex: 30%; /* Set the width of the sidebar */
-    background-color: #f1f1f1; /* Grey background color */
-    padding: 20px; /* Some padding */
+.loader {
+  color: #524656;
+  font-size: 10px;
+  margin: 80px auto;
+  position: relative;
+  text-indent: -9999em;
+  -webkit-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-animation-delay: -0.16s;
+  animation-delay: -0.16s;
 }
-
-.Profile .footer {
-    
-        padding: 20px;
-        text-align: center;
-        background: #ddd;
+.loader:before,
+.loader:after {
+  content: '';
+  position: absolute;
+  top: 0;
 }
-
-/* Main column */
-.Profile .main { 
-    flex: 70%; /* Set the width of the main content */
-    background-color: white; /* White background color */
-    padding: 20px; /* Some padding */
-
-   
+.loader:before {
+  left: -3.5em;
+  -webkit-animation-delay: -0.32s;
+  animation-delay: -0.32s;
 }
-
-/* Style the top navigation bar */
-.Profile .navbar {
-    overflow: hidden; /* Hide overflow */
-    background-color: #333; /* Dark background color */
+.loader:after {
+  left: 3.5em;
 }
-
-/* Style the navigation bar links */
-.Profile .navbar a {
-    float: left; /* Make sure that the links stay side-by-side */
-    display: block; /* Change the display to block, for responsive reasons (see below) */
-    color: white; /* White text color */
-    text-align: center; /* Center the text */
-    padding: 14px 20px; /* Add some padding */
-    text-decoration: none; /* Remove underline */
+@-webkit-keyframes load7 {
+  0%,
+  80%,
+  100% {
+    box-shadow: 0 2.5em 0 -1.3em;
+  }
+  40% {
+    box-shadow: 0 2.5em 0 0;
+  }
 }
-
-/* Right-aligned link */
-.Profile .navbar a.right {
-    float: right; /* Float a link to the right */
-}
-
-/* Change color on hover/mouse-over */
-.Profile .navbar a:hover {
-    background-color: #ddd; /* Grey background color */
-    color: black; /* Black text color */
+@keyframes load7 {
+  0%,
+  80%,
+  100% {
+    box-shadow: 0 2.5em 0 -1.3em;
+  }
+  40% {
+    box-shadow: 0 2.5em 0 0;
+  }
 }
