@@ -5,6 +5,16 @@
     padding-left: 10px;
 }
 
+.nav-tabs{
+    border-color: #a3a3a3 !important; 
+}
+.nav-link.active{
+    border-color: #a3a3a3 !important; 
+}
+.nav-link{
+    border-color: #a3a3a3 !important; 
+}
+
 .loader,
 .loader:before,
 .loader:after {

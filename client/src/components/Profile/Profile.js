@@ -73,6 +73,14 @@ class Profile extends Component {
               className={classnames({ active: this.state.activeTab === '2' })}
               onClick={() => { this.toggle('2'); }}
             >
+              My Friends
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink
+              className={classnames({ active: this.state.activeTab === '2' })}
+              onClick={() => { this.toggle('3'); }}
+            >
               Notifications
             </NavLink>
           </NavItem>
@@ -96,6 +104,8 @@ class Profile extends Component {
               <SkillsPanel skills={skills}/>
           </TabPane>
           <TabPane tabId="2">
+          </TabPane>
+          <TabPane tabId="3">
           </TabPane>
         </TabContent>
       </div>
