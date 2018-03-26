@@ -99,7 +99,11 @@ public class SprintTwoServicesTest {
         groupService.addSkillReq(hula.getGroupID(), shawn.getAccountID(), "Lifter", 2);
         groupService.addSkillReq(hoops.getGroupID(), shawn.getAccountID(), "Lifter", 6);
 
-        List<Group> groups = groupService.searchByGroupName("Hoops", null);
+        List<Group> groups = groupService.searchByGroupName("hOOps", null);
+        assertEquals(3, groups.size());
+        assertEquals("Hoops", groups.get(0).getGroupName());
+
+        groups = groupService.searchByGroupName("Hoops", null);
         assertEquals(3, groups.size());
         assertEquals("Hoops", groups.get(0).getGroupName());
 
@@ -118,10 +122,16 @@ public class SprintTwoServicesTest {
         assertEquals("Hoops", groups.get(0).getGroupName());
 
         List<Group> first = groupService.searchByLeaderFirstName("Shawn", null);
-        List<Group> second = groupService.searchByLeaderLastName("Montgomery", null);
-        List<Group> third = groupService.searchByLeaderFullName("Shawn", "Montgomery", null);
+        List<Group> second = groupService.searchByLeaderFirstName("sHaWn", null);
+        List<Group> third = groupService.searchByLeaderLastName("Montgomery", null);
+        List<Group> fourth = groupService.searchByLeaderLastName("monTgoMery", null);
+        List<Group> fifth = groupService.searchByLeaderFullName("Shawn", "Montgomery", null);
+        List<Group> sixth = groupService.searchByLeaderFullName("shawN", "montgOMery", null);
         assertEquals(first.size(), second.size());
         assertEquals(first.size(), third.size());
+        assertEquals(first.size(), fourth.size());
+        assertEquals(first.size(), fifth.size());
+        assertEquals(first.size(), sixth.size());
 
         groups = groupService.searchBySettings("montgo38", null);
         assertEquals(1, groups.size());

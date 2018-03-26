@@ -518,7 +518,7 @@ public class GroupServiceImpl implements GroupService {
         List<Group> qualified = new ArrayList<>();
         for(Group group : groups)
         {
-            if(group.getGroupName().equals(groupName))
+            if(group.getGroupName().toLowerCase().equals(groupName.toLowerCase()))
             {
                 qualified.add(group);
             }
@@ -537,7 +537,7 @@ public class GroupServiceImpl implements GroupService {
         for(Group group : groups)
         {
             Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
-            if(leader.getFirstName().equals(firstName))
+            if(leader.getFirstName().toLowerCase().equals(firstName.toLowerCase()))
             {
                 qualified.add(group);
             }
@@ -556,7 +556,7 @@ public class GroupServiceImpl implements GroupService {
         for(Group group : groups)
         {
             Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
-            if(leader.getLastName().equals(lastName))
+            if(leader.getLastName().toLowerCase().equals(lastName.toLowerCase()))
             {
                 qualified.add(group);
             }
@@ -575,7 +575,8 @@ public class GroupServiceImpl implements GroupService {
         for(Group group : groups)
         {
             Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
-            if(leader.getFirstName().equals(firstName) && leader.getLastName().equals(lastName))
+            if(leader.getFirstName().toLowerCase().equals(firstName.toLowerCase()) &&
+                    leader.getLastName().toLowerCase().equals(lastName.toLowerCase()))
             {
                 qualified.add(group);
             }

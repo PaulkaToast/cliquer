@@ -294,7 +294,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<Account> searchByFirstName(String firstName)
     {
-        List<Account> accounts = accountRepository.findAccountsByFirstNameIsLike(firstName);
+        List<Account> accounts = accountRepository.findByFirstNameIgnoreCase(firstName);
         List<Account> masked = new ArrayList<>();
         for(Account account : accounts)
         {
@@ -311,7 +311,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<Account> searchByLastName(String lastName)
     {
-        List<Account> accounts = accountRepository.findByLastName(lastName);
+        List<Account> accounts = accountRepository.findByLastNameIgnoreCase(lastName);
         List<Account> masked = new ArrayList<>();
         for(Account account : accounts)
         {
@@ -328,11 +328,11 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<Account> searchByFullName(String firstName, String lastName)
     {
-        List<Account> accounts = accountRepository.findByFirstName(firstName);
+        List<Account> accounts = accountRepository.findByFirstNameIgnoreCase(firstName);
         List<Account> masked = new ArrayList<>();
         for(Account account : accounts)
         {
-            if(account.getLastName().equals(lastName) && !account.isOptedOut())
+            if(account.getLastName().toLowerCase().equals(lastName.toLowerCase()) && !account.isOptedOut())
             {
                 masked.add(this.maskPublicProfile(account));
             }

@@ -14,8 +14,9 @@ public interface AccountRepository extends MongoRepository<Account, String>
 	Account findByUsername(String username);
 	boolean existsByAccountID(String accountID);
 	Account findByAccountID(String accountID);
-	List<Account> findAccountsByFirstNameIsLike(String firstName);
+	List<Account> findByFirstNameIgnoreCase(String firstName);
 	List<Account> findByFirstName(String firstName);
+	List<Account> findByLastNameIgnoreCase(String firstName);
 	List<Account> findByLastName(String firstName);
 	List<Account> findByReputation(int reputation);
 	List<Account> findBySkillIDs(String skillID);

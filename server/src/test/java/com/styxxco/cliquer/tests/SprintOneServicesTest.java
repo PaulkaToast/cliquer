@@ -160,11 +160,20 @@ public class SprintOneServicesTest {
 		assertEquals(2, search.size());
 		assertEquals("Buckmaster", search.get(0).getLastName()); //Buckmaster since comparator sorts by last name
 
+		search = accountService.searchByFirstName("jordan");
+		assertEquals(2, search.size());
+		assertEquals("Buckmaster", search.get(0).getLastName()); //Buckmaster since comparator sorts by last name
+
 		search = accountService.searchByLastName("Buckmaster");
 		assertEquals(2, search.size());
         assertEquals("Rhys", search.get(1).getFirstName());
 
 		search = accountService.searchByFullName("Jordan", "Buckmaster");
+		assertEquals(1, search.size());
+		assertEquals("Jordan", search.get(0).getFirstName());
+		assertEquals("Buckmaster", search.get(0).getLastName());
+
+		search = accountService.searchByFullName("jOrDan", "bUckMaster");
 		assertEquals(1, search.size());
 		assertEquals("Jordan", search.get(0).getFirstName());
 		assertEquals("Buckmaster", search.get(0).getLastName());
