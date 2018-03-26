@@ -80,11 +80,20 @@ class Profile extends Component {
           </NavItem>
         </Nav>
         <TabContent activeTab={this.state.activeTab}>
-          <TabPane tabId="1">
-          
+          <TabPane className="profile-tab" tabId="1">
+            <hr/>
             <h1>
-              {profile.fullName}<img src={flag} alt=""></img>
+              {profile.fullName}<img className="profile-user-flag" src={flag} alt=""></img>
             </h1>
+            <hr/>
+            <h4>
+              Reputation: {profile.adjustedReputation}
+            </h4>
+            <hr/>
+            <h4>
+              Skills:
+            </h4>
+
             
               <SkillsPanel skills={skills}/>
           </TabPane>
