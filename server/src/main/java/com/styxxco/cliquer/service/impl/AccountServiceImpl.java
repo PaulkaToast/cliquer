@@ -1361,7 +1361,7 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
-        Account ratee = accountRepository.findByUsername(rateeId);
+        Account ratee = accountRepository.findByAccountID(rateeId);
         Map<String, Integer> map = null;
         try {
             map = new TreeMap<>();
