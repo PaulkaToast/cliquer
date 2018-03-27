@@ -92,7 +92,7 @@ class Profile extends Component {
   }
   
   render() {
-    const { user, profile, skills, groups } = this.props
+    const { user, profile, skills, groups, token } = this.props
     const ownerID = this.props.match.params.ownerID
 
     if(!profile || profile.accountID !== ownerID){
@@ -154,6 +154,7 @@ class Profile extends Component {
           <TabPane tabId="2">
           </TabPane>
           <TabPane tabId="3">
+            <NotificationPanel/>
           </TabPane>
         </TabContent>
 

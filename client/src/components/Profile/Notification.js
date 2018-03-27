@@ -45,7 +45,7 @@ class Notification extends Component {
           <div><strong>{/*this.props.friend.name, use redux*/}</strong> has sent you a friend request!</div>
           <ButtonGroup className="buttons">
             <Button color="success" onClick={this.acceptFriendInvite}>Accept</Button>{' '}
-            <Button color="warning" onClick={() => this.props.deleteNotification(i)}>Reject</Button>
+            <Button color="danger" onClick={() => this.props.deleteNotification(i)}>Reject</Button>
           </ButtonGroup>
         </div>
         <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(i)}></i> 

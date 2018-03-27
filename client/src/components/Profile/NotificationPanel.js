@@ -19,12 +19,12 @@ class NotificationPanel extends Component {
   }
 
   render() {
-    const { notifications } = this.props
+    const { messages } = this.props
     return (
       <div className="NotificationPanel">
-        { notifications 
+        { messages 
           && <ul className="notifications">
-              {notifications.map((notification, i) => {
+              {messages.map((notification, i) => {
                 return <Notification
                   notification={notification}
                   i={i}
