@@ -20,6 +20,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -163,22 +164,22 @@ public class SprintTwoServicesTest {
         Message invite = accountService.sendFriendInvite(jordan.getAccountID(), shawn.getAccountID());
         assertEquals(jordan.getAccountID(), invite.getSenderID());
         shawn = accountRepository.findByUsername(shawn.getUsername());
-        assertEquals(invite.getMessageID(), shawn.getMessageIDs().get(0));
+        assertEquals(invite.getType(), (int)shawn.getMessageIDs().get(invite.getMessageID()));
         assertEquals(Types.FRIEND_INVITE, invite.getType());
         String first = invite.getMessageID();
 
         invite = accountService.acceptFriendInvite(shawn.getAccountID(), invite.getMessageID());
         assertEquals(shawn.getAccountID(), invite.getSenderID());
         shawn = accountRepository.findByUsername(shawn.getUsername());
-        assertEquals(jordan.getAccountID(), shawn.getFriendIDs().get(0));
+        assertEquals(jordan.getFullName(), shawn.getFriendIDs().get(jordan.getAccountID()));
         jordan = accountRepository.findByUsername(jordan.getUsername());
-        assertEquals(shawn.getAccountID(), jordan.getFriendIDs().get(0));
+        assertEquals(shawn.getFullName(), jordan.getFriendIDs().get(shawn.getAccountID()));
         assertEquals(0, shawn.getMessageIDs().size());
 
         invite = accountService.sendFriendInvite(jordan.getAccountID(), kevin.getAccountID());
         assertEquals(jordan.getAccountID(), invite.getSenderID());
         kevin = accountRepository.findByUsername(kevin.getUsername());
-        assertEquals(invite.getMessageID(), kevin.getMessageIDs().get(0));
+        assertEquals(invite.getType(), (int)kevin.getMessageIDs().get(invite.getMessageID()));
         assertEquals(Types.FRIEND_INVITE, invite.getType());
         String second = invite.getMessageID();
 
@@ -453,7 +454,7 @@ public class SprintTwoServicesTest {
         assertNull(result);
 
         result = groupService.acceptVoteKick(cliquer.getGroupID(), buckmaster.getAccountID());
-        assertEquals(false, result.getGroupMemberIDs().contains(kevin.getAccountID()));
+        assertEquals(false, result.getGroupMemberIDs().containsKey(kevin.getAccountID()));
         kevin = accountRepository.findByUsername(kevin.getUsername());
         assertEquals(0, kevin.getGroupIDs().size());
 
@@ -467,7 +468,7 @@ public class SprintTwoServicesTest {
         assertNull(result.getKickCandidate());
 
         result = groupService.removeGroupMember(cliquer.getGroupID(), jordan.getAccountID(), rhys.getAccountID());
-        assertEquals(false, result.getGroupMemberIDs().contains(rhys.getAccountID()));
+        assertEquals(false, result.getGroupMemberIDs().containsKey(rhys.getAccountID()));
         rhys = accountRepository.findByUsername(rhys.getUsername());
         assertEquals(0, rhys.getGroupIDs().size());
     }
@@ -492,40 +493,40 @@ public class SprintTwoServicesTest {
 
         cliquer.setReputationReq(0.5);
         cliquer.setProximityReq(30);
-        cliquer.addSkillReq(missReq.getSkillID());
+        cliquer.addSkillReq(missReq);
         jordan.setNewUser(false);
         jordan.setReputation(50);
         jordan.setLatitude(40.0);
         jordan.setLongitude(-80.0);
         jordan.setProximityReq(10);
-        jordan.addSkill(meetReq.getSkillID());
+        jordan.addSkill(meetReq);
 
         // Tests when member tries joining a group they are in
         shawn.setNewUser(false);
         shawn.setLatitude(40.0);
         shawn.setLongitude(-80.0);
-        shawn.addSkill(meetReq.getSkillID());
+        shawn.addSkill(meetReq);
 
         // Tests when joiner is too far away from the group leader
         kevin.setNewUser(false);
         kevin.setLatitude(40.4);
         kevin.setLongitude(-80.8);
         kevin.setReputation(40);
-        kevin.addSkill(meetReq.getSkillID());
+        kevin.addSkill(meetReq);
 
         // Tests when a joiner satisfies all requirements, then tests if joiner lacks reputation
         buckmaster.setNewUser(false);
         buckmaster.setLatitude(40.2);
         buckmaster.setLongitude(-80.4);
         buckmaster.setReputation(40);
-        buckmaster.addSkill(meetReq.getSkillID());
+        buckmaster.addSkill(meetReq);
 
         // Tests when a joiner lacks the skill requirement
         rhys.setNewUser(false);
         rhys.setLatitude(40.0);
         rhys.setLongitude(-80.0);
         rhys.setReputation(35);
-        rhys.addSkill(missReq.getSkillID());
+        rhys.addSkill(missReq);
 
         groupRepository.save(cliquer);
         accountRepository.save(jordan);
@@ -555,7 +556,8 @@ public class SprintTwoServicesTest {
 
         jordan = accountRepository.findByUsername(jordan.getUsername());
         assertEquals(1, jordan.getMessageIDs().size());
-        Message message = messageRepository.findByMessageID(jordan.getMessageIDs().get(0));
+        List<String> messageIDs = new ArrayList<>(jordan.getMessageIDs().keySet());
+        Message message = messageRepository.findByMessageID(messageIDs.get(0));
         assertEquals(buckmaster.getAccountID(), message.getSenderID());
         assertEquals(cliquer.getGroupID(), message.getGroupID());
 
@@ -568,14 +570,15 @@ public class SprintTwoServicesTest {
         assertEquals(0, buckmaster.getMessageIDs().size());
         assertEquals(0, buckmaster.getGroupIDs().size());
 
-        buckmaster.setMessageIDs(new ArrayList<>());
+        buckmaster.setMessageIDs(new TreeMap<>());
         buckmaster.setReputation(40);
         accountRepository.save(buckmaster);
         result = groupService.requestToJoinGroup(cliquer.getGroupID(), buckmaster.getAccountID());
         assertEquals("User Jordan Buckmaster wishes to join your group Cliquer", result.getContent());
 
         jordan = accountRepository.findByUsername(jordan.getUsername());
-        message = messageRepository.findByMessageID(jordan.getMessageIDs().get(0));
+        messageIDs = new ArrayList<>(jordan.getMessageIDs().keySet());
+        message = messageRepository.findByMessageID(messageIDs.get(0));
         result = groupService.acceptJoinRequest(jordan.getAccountID(), message.getMessageID());
         assertEquals("You have been accepted into group Cliquer", result.getContent());
         jordan = accountRepository.findByUsername(jordan.getUsername());
@@ -584,10 +587,10 @@ public class SprintTwoServicesTest {
         buckmaster = accountRepository.findByUsername(buckmaster.getUsername());
         assertEquals(1, buckmaster.getMessageIDs().size());
         assertEquals(1, buckmaster.getGroupIDs().size());
-        assertEquals(cliquer.getGroupID(), buckmaster.getGroupIDs().get(0));
+        assertEquals(cliquer.getGroupName(), buckmaster.getGroupIDs().get(cliquer.getGroupID()));
 
         cliquer = groupRepository.findByGroupID(cliquer.getGroupID());
-        assertEquals(true, cliquer.getGroupMemberIDs().contains(buckmaster.getAccountID()));
+        assertEquals(true, cliquer.getGroupMemberIDs().containsKey(buckmaster.getAccountID()));
     }
 
     /* Back end Unit Test for User Story 30 */
@@ -602,7 +605,7 @@ public class SprintTwoServicesTest {
                 "To create a web app that facilitates the teaming of people who may have never met before",
                 jordan.getAccountID());
 
-        cliquer.addGroupMember(kevin.getAccountID());
+        cliquer.addGroupMember(kevin);
         groupRepository.save(cliquer);
 
         groupService.sendChatMessage(new ChatMessage("Hello", jordan.getUsername(), "Jordan Reed"),cliquer.getGroupID());
@@ -650,20 +653,20 @@ public class SprintTwoServicesTest {
         shawn = accountRepository.findByAccountID(shawn.getAccountID());
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
 
-        cliquer.addSkillReq(java.getSkillID());
-        cliquer.addSkillReq(vim.getSkillID());
+        cliquer.addSkillReq(java);
+        cliquer.addSkillReq(vim);
         groupRepository.save(cliquer);
         
-        jordan.addSkill(java.getSkillID());
-        jordan.addSkill(vim.getSkillID());
+        jordan.addSkill(java);
+        jordan.addSkill(vim);
         accountRepository.save(jordan);
 
-        shawn.addSkill(java.getSkillID());
-        shawn.addSkill(vim.getSkillID());
+        shawn.addSkill(java);
+        shawn.addSkill(vim);
         accountRepository.save(shawn);
 
-        kevin.addSkill(java.getSkillID());
-        kevin.addSkill(vim.getSkillID());
+        kevin.addSkill(java);
+        kevin.addSkill(vim);
         accountRepository.save(kevin);
         
         Message message = groupService.initiateRatings(cliquer.getGroupID(), jordan.getAccountID());
@@ -678,9 +681,9 @@ public class SprintTwoServicesTest {
         Skill newJava = skillRepository.findBySkillNameAndSkillLevel("Java", 5);
         Skill newVim = skillRepository.findBySkillNameAndSkillLevel("VIM", 7);
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
-        assertEquals(true, kevin.getSkillIDs().contains(newJava.getSkillID()));
-        assertEquals(true, kevin.getSkillIDs().contains(newVim.getSkillID()));
-        assertEquals(false, kevin.getSkillIDs().contains(java.getSkillID()));
+        assertEquals(true, kevin.getSkillIDs().containsKey(newJava.getSkillID()));
+        assertEquals(true, kevin.getSkillIDs().containsKey(newVim.getSkillID()));
+        assertEquals(false, kevin.getSkillIDs().containsKey(java.getSkillID()));
 
         form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), kevin.getAccountID());
         assertNotNull(form);
@@ -698,9 +701,9 @@ public class SprintTwoServicesTest {
         newJava = skillRepository.findBySkillNameAndSkillLevel("Java", 6);
         newVim = skillRepository.findBySkillNameAndSkillLevel("VIM", 8);
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
-        assertEquals(true, kevin.getSkillIDs().contains(newJava.getSkillID()));
-        assertEquals(true, kevin.getSkillIDs().contains(newVim.getSkillID()));
-        assertEquals(false, kevin.getSkillIDs().contains(java.getSkillID()));
+        assertEquals(true, kevin.getSkillIDs().containsKey(newJava.getSkillID()));
+        assertEquals(true, kevin.getSkillIDs().containsKey(newVim.getSkillID()));
+        assertEquals(false, kevin.getSkillIDs().containsKey(java.getSkillID()));
 
         form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), jordan.getAccountID());
         assertNotNull(form);
@@ -709,9 +712,9 @@ public class SprintTwoServicesTest {
         assertNotNull(result);
         newJava = skillRepository.findBySkillNameAndSkillLevel("Java", 8);
         jordan = accountRepository.findByAccountID(jordan.getAccountID());
-        assertEquals(true, jordan.getSkillIDs().contains(newJava.getSkillID()));
-        assertEquals(true, jordan.getSkillIDs().contains(vim.getSkillID()));
-        assertEquals(false, jordan.getSkillIDs().contains(java.getSkillID()));
+        assertEquals(true, jordan.getSkillIDs().containsKey(newJava.getSkillID()));
+        assertEquals(true, jordan.getSkillIDs().containsKey(vim.getSkillID()));
+        assertEquals(false, jordan.getSkillIDs().containsKey(java.getSkillID()));
     }
 
     /* Back end Unit Test for User Story 33 */
