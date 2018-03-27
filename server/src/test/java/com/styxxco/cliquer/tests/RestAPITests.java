@@ -63,4 +63,14 @@ public class RestAPITests {
         result = mockMvc.perform(badReq).andReturn();
         assertEquals(400, result.getResponse().getStatus());
     }
+
+    @Test
+    public void getSkillList() throws Exception {
+        MockHttpServletRequestBuilder goodReq = MockMvcRequestBuilders
+                .get("/getSkillList");
+        MvcResult result = mockMvc.perform(goodReq).andReturn();
+        assertEquals(200, result.getResponse().getStatus());
+    }
+
+
 }

@@ -150,7 +150,7 @@ public class SprintTwoServicesTest {
         assertEquals("Hoops", groups.get(0).getGroupName());
 
         groups = groupService.searchBySettings("montgo38", null);
-        assertEquals(0, groups.size());
+        assertEquals(1, groups.size());
     }
 
     /* Back end Unit Test for User Story 13 */

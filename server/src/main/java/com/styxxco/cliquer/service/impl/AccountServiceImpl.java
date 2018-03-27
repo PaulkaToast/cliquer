@@ -174,7 +174,7 @@ public class AccountServiceImpl implements AccountService {
     public Account getProfile(String username, String userid, String type) {
         Account user = accountRepository.findByUsername(username);
         if (username != null) {
-            user.setRank(this.getReputationRanking(user.getUsername()));
+            //user.setRank(this.getReputationRanking(user.getUsername()));
             switch (type) {
                 case "user":
                     user = getUserProfile(username);
@@ -189,7 +189,7 @@ public class AccountServiceImpl implements AccountService {
         } else {
             Account account = accountRepository.findByAccountID(userid);
             if (userid != null) {
-                account.setRank(this.getReputationRanking(account.getUsername()));
+                //account.setRank(this.getReputationRanking(account.getUsername()));
                 if (account != null) {
                     String name = account.getUsername();
                     switch (type) {
@@ -1350,6 +1350,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account rateUser(String userId, String rateeId, String groupId, String json, boolean endorse) {
+        System.out.println(json);
         if(!accountRepository.existsByAccountID(userId))
         {
             log.info("User " + userId + " not found");
@@ -1377,7 +1378,9 @@ public class AccountServiceImpl implements AccountService {
             log.info("Map is null");
             return null;
         }
-        groupService.rateGroupMember(groupId, userId, rateeId, endorse, map);
+        System.out.println("AT THE END");
+        String s = groupService.rateGroupMember(groupId, userId, rateeId, endorse, map);
+        System.out.println(s);
         return ratee;
     }
 }

@@ -704,10 +704,10 @@ public class GroupServiceImpl implements GroupService {
             log.info("User " + accountID + " is already a member of group " + groupID);
             return false;
         }
-        if(group.getReputationReq()*leader.getReputation() > user.getReputation() || user.getReputationReq() * user.getReputation() > leader.getReputation())
-        {
-            return false;
-        }
+//        if(group.getReputationReq()*leader.getReputation() > user.getReputation() || user.getReputationReq() * user.getReputation() > leader.getReputation())
+//        {
+//            return false;
+//        }
 //        if(user.distanceTo(leader.getLatitude(), leader.getLongitude()) > group.getProximityReq())
 //        {
 //            return false;
@@ -722,8 +722,9 @@ public class GroupServiceImpl implements GroupService {
                 Skill skill = skillRepository.findBySkillID(skillID);
                 if(skill.getSkillName().equals(skillReq.getSkillName()))
                 {
-                    if(skill.getSkillLevel() > skillReq.getSkillLevel())
+                    if(skill.getSkillLevel() >= skillReq.getSkillLevel())
                     {
+                        System.out.println("metReq true");
                         metReq = true;
                     }
                     break;
@@ -1000,6 +1001,7 @@ public class GroupServiceImpl implements GroupService {
             reputation = Math.min(reputation, 100);
             member.setReputation(reputation);
         }
+        member.setRank(accountService.getReputationRanking(member.getUsername()));
         accountRepository.save(member);
         groupRepository.save(group);
         return "Success";

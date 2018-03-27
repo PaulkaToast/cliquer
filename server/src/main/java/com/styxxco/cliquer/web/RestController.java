@@ -237,7 +237,6 @@ public class RestController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    // TODO: handle notifications or use websockets
     @RequestMapping(value = "/api/handleNotification", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> handleNotification(@RequestParam(value = "userId") String userId,
                                                               @RequestParam(value = "messageId") String messageId,
@@ -257,7 +256,4 @@ public class RestController {
         }
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
-
-    // TODO: reputationRank endpoint
-
 }
