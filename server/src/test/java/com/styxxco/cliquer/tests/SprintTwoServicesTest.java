@@ -684,8 +684,8 @@ public class SprintTwoServicesTest {
 
         Map<String, Integer> form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), kevin.getAccountID());
         assertNotNull(form);
-        form.replace(java.getSkillID(), 5);
-        form.replace(vim.getSkillID(), 7);
+        form.replace("Java", 5);
+        form.replace("VIM", 7);
         String result = groupService.rateGroupMember(cliquer.getGroupID(), shawn.getAccountID(), kevin.getAccountID(), false, form);
         assertNotNull(result);
         Skill newJava = skillRepository.findBySkillNameAndSkillLevel("Java", 5);
@@ -697,15 +697,15 @@ public class SprintTwoServicesTest {
 
         form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), kevin.getAccountID());
         assertNotNull(form);
-        form.replace(newJava.getSkillID(), 5);
-        form.replace(newVim.getSkillID(), 7);
+        form.replace("Java", 5);
+        form.replace("VIM", 7);
         result = groupService.rateGroupMember(cliquer.getGroupID(), shawn.getAccountID(), kevin.getAccountID(), false, form);
         assertNull(result);
 
         form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), kevin.getAccountID());
         assertNotNull(form);
-        form.replace(newJava.getSkillID(), 7);
-        form.replace(newVim.getSkillID(), 9);
+        form.replace("Java", 7);
+        form.replace("VIM", 9);
         result = groupService.rateGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID(), false, form);
         assertNotNull(result);
         newJava = skillRepository.findBySkillNameAndSkillLevel("Java", 6);
@@ -717,7 +717,7 @@ public class SprintTwoServicesTest {
 
         form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), jordan.getAccountID());
         assertNotNull(form);
-        form.replace(java.getSkillID(), 8);
+        form.replace("Java", 8);
         result = groupService.rateGroupMember(cliquer.getGroupID(), shawn.getAccountID(), jordan.getAccountID(), false, form);
         assertNotNull(result);
         newJava = skillRepository.findBySkillNameAndSkillLevel("Java", 8);
