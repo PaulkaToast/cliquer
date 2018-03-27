@@ -14,7 +14,7 @@ import Profile from './Profile/Profile'
 import Settings from './Settings'
 import SearchResults from './SearchResults'
 import url from '../server'
-import { loadNotifications, handleNotifications } from '../redux/actions'
+import { loadNotifications, handleNotifications, deleteNotification} from '../redux/actions'
 
 
 class Main extends Component {
@@ -35,7 +35,8 @@ class Main extends Component {
   }
 
   handleNotification = (data) => {
-    if(data && data[0] && !this.props.notifications) {
+    console.log('data', data)
+    if(data && !data.senderID && !this.props.notifications) {
       this.props.loadNotifications(data)
     } else if(data) {
       switch (data.type) {
@@ -113,10 +114,6 @@ class Main extends Component {
             title: 'Rate request',
             message: data.content,
             level: 'success',
-            action: {
-              label: 'Rate!',
-              callback: () => this.rate,
-            }
           })
           break
         default:
@@ -130,16 +127,17 @@ class Main extends Component {
 
   }
 
-  showWarning = () => {
-
-  }
-
   acceptNotification = (messageID) => {
     this.props.handleNotification(`${url}/api/handleNotification?userId=${this.props.accountID}&messageId=${messageID}&accept=true`, { 'X-Authorization-Firebase': this.props.token })
   }
 
   rejectNotification = (messageID) => {
     this.props.handleNotification(`${url}/api/handleNotification?userId=${this.props.accountID}&messageId=${messageID}&accept=false`, { 'X-Authorization-Firebase': this.props.token })
+  }
+
+  deleteNotification = (messageID) => {
+    this.props.deleteNotification(messageID) 
+    this.acceptNotification(messageID)
   }
 
   inviteToGroup = (groupID, accountID) => {
@@ -150,12 +148,14 @@ class Main extends Component {
     this.clientRef.sendMessage(`/app/requestFriend/${this.props.accountID}/${friendID}`)
   }
 
-  requestToJoin = (groupID) => {
-
+  requestToJoin = (groupID, ownerID) => {
+    console.log('groupID', groupID)
+    console.log('ownerID', ownerID)
+    this.clientRef.sendMessage(`/app/requestToJoin/${this.props.accountID}/${ownerID}/${groupID}`)
   }
 
-  allowRating = (groupID, accountID) => {
-    
+  allowRating = (groupID) => {
+   this.clientRef.sendMessage(`/app/${this.props.accountID}/${groupID}/rate`) 
   }
 
   onWebsocketConnect = () => {
@@ -186,9 +186,9 @@ class Main extends Component {
         <Navbar {...this.props} />
         <Switch>
             <Route path="/create" render={(navProps) => <CreateGroup {...navProps} />}/>
-            <Route path="/groups" render={(navProps) => <Groups {...navProps} {...this.props} allowRating={this.allowRating} />}/>
-            <Route path="/public" render={(navProps) => <PublicGroups {...navProps} accountID={this.props.accountID}/>}/>
-            <Route path="/profile/:ownerID" render={(navProps) => <Profile {...navProps} sendFriendRequest={this.sendFriendRequest} inviteToGroup={this.inviteToGroup} />}/>
+            <Route path="/groups" render={(navProps) => <Groups {...navProps} {...this.props} allowRating={this.allowRating} handleNotification={this.handleNotification}/>}/>
+            <Route path="/public" render={(navProps) => <PublicGroups {...navProps} accountID={this.props.accountID} requestToJoin={this.requestToJoin} />}/>
+            <Route path="/profile/:ownerID" render={(navProps) => <Profile {...navProps} sendFriendRequest={this.sendFriendRequest} deleteNotification={this.deleteNotification} inviteToGroup={this.inviteToGroup} />}/>
             <Route path="/settings" render={(navProps) => <Settings {...navProps} />}/>
             <Route path="/search/:category/:query" render={(navProps) => <SearchResults {...navProps} sendFriendRequest={this.sendFriendRequest} goToProfile={this.props.goToProfile}/>}/>
             <Route path='/' render={(navProps) => <Redirect to="/groups" />}/>
@@ -215,6 +215,7 @@ const mapDispatchToProps = (dispatch) => {
 	return {
     loadNotifications: (notifications) => dispatch(loadNotifications(notifications)),
     handleNotification: (url, headers) => dispatch(handleNotifications(url, headers)),
+    deleteNotification: (messageID) => dispatch(deleteNotification(messageID)),
 	}
 }
 

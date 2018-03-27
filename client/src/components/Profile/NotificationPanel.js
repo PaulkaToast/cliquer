@@ -8,28 +8,20 @@ import url from '../../server.js'
 
 class NotificationPanel extends Component {
 
-  deleteNotification = (i) => {
-    //redux call for delete notification
-  }
-
-  componentWillReceiveProps = (nextProps) => {
-    if(nextProps.user && nextProps.user.uid && nextProps.token) {
-      this.props.getMessages(`${url}/api/getMessages?username=${this.props.user.uid}`, { 'X-Authorization-Firebase': this.props.token})
-    }
-  }
 
   render() {
-    const { messages } = this.props
+    const { notifications } = this.props
+    console.log(notifications)
     return (
       <div className="NotificationPanel">
-        { messages 
+        { notifications 
           && <ul className="notifications">
-              {messages.map((notification, i) => {
+              {Object.keys(notifications).map((key, i) => {
                 return <Notification
-                  notification={notification}
+                  notification={notifications[key]}
                   i={i}
-                  deleteNotification={this.deleteNotification}
-                  key={notification.messageID}
+                  deleteNotification={this.props.deleteNotification}
+                  key={notifications[key].messageID}
                 />
               })}
             </ul>
@@ -42,7 +34,7 @@ class NotificationPanel extends Component {
 const mapStateToProps = (state) => {
 	return {
     user: state.user.data,
-    messages: state.messages ? state.messages.data : [],
+    notifications: state.messages ? state.messages.data : null,
     token: state.auth.token
 	}
 }

@@ -152,8 +152,7 @@ function groups(state = {}, action) {
         case 'KICK_DATA_SUCCESS':
             groupsCopy = state.getGroupsData ? {...state.getGroupsData} : {}
             if(groupsCopy[action.extra.gid]) {
-                const index = groupsCopy[action.extra.gid].groupMemberIDs.indexOf(action.extra.memberID)
-                groupsCopy[action.extra.gid].groupMemberIDs.splice(index, 1)
+                delete groupsCopy[action.extra.gid].groupMemberIDs[action.extra.memberID]
             }
             return Object.assign({}, state, {
                 kickData: action.data,
@@ -162,6 +161,30 @@ function groups(state = {}, action) {
         case 'KICK_IS_LOADING':
             return Object.assign({}, state, {
                 kickIsLoading: action.isLoading,
+            })
+        case 'GET_RATE_FORM_HAS_ERROR':
+            return Object.assign({}, state, {
+                getRateFormHasError: action.hasError,
+            })
+        case 'GET_RATE_FORM_DATA_SUCCESS':
+            return Object.assign({}, state, {
+                getRateFormData: action.data,
+            })
+        case 'GET_RATE_FORM_IS_LOADING':
+            return Object.assign({}, state, {
+                getRateFormIsLoading: action.isLoading,
+            })
+        case 'POST_RATE_FORM_HAS_ERROR':
+            return Object.assign({}, state, {
+                postRateFormHasError: action.hasError,
+            })
+        case 'POST_RATE_FORM_DATA_SUCCESS':
+            return Object.assign({}, state, {
+                postRateFormData: action.data,
+            })
+        case 'POST_RATE_FORM_IS_LOADING':
+            return Object.assign({}, state, {
+                postRateFormIsLoading: action.isLoading,
             })
         default:
             return state

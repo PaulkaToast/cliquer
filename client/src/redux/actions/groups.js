@@ -282,3 +282,53 @@ export const kick = genericDispatch(
     kickHasError, kickIsLoading, kickDataSuccess, 'POST'
 )
 
+export function getRateFormHasError(hasError) {
+    return {
+        type: 'GET_RATE_FORM_ERROR',
+        hasError
+    }  
+}
+
+export function getRateFormIsLoading(isLoading) {
+    return {
+        type: 'GET_RATE_FORM_IS_LOADING',
+        isLoading
+    }
+}
+
+export function getRateFormDataSuccess(data) {
+    return {
+        type: 'GET_RATE_FORM_DATA_SUCCESS',
+        data
+    }
+}
+
+export const getRateForm = genericDispatch(
+    getRateFormHasError, getRateFormIsLoading, getRateFormDataSuccess, 'GET'
+)
+
+export function postRateFormHasError(hasError) {
+    return {
+        type: 'POST_RATE_FORM_ERROR',
+        hasError
+    }  
+}
+
+export function postRateFormIsLoading(isLoading) {
+    return {
+        type: 'POST_RATE_FORM_IS_LOADING',
+        isLoading
+    }
+}
+
+export function postRateFormDataSuccess(data) {
+    return {
+        type: 'POST_RATE_FORM_DATA_SUCCESS',
+        data
+    }
+}
+
+export const postRateForm = genericDispatch(
+    postRateFormHasError, postRateFormIsLoading, postRateFormDataSuccess, 'POST'
+)
+

@@ -68,8 +68,8 @@ class App extends Component {
     return false 
   }
 
-  goToProfile = (ev, memberID, button) => {
-    if(ev.target !== button) {
+  goToProfile = (ev, memberID, button1, button2) => {
+    if(ev.target !== button1 && ev.target !== button2) {
       history.push(`/profile/${memberID}`)
     }
   }

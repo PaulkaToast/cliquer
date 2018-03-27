@@ -32,6 +32,13 @@ export const getMessages = genericDispatch(
     getMessagesHasError, getMessagesIsLoading, getMessagesDataSuccess, 'GET'
 )
 
+export function deleteNotification(messageID) {
+    return {
+        type: 'DELETE_NOTIFICATION',
+        messageID
+    }
+}
+
 export function handleNotificationsHasError(hasError) {
     return {
         type: 'HANDLE_NOTIFICATIONS_HAS_ERROR',

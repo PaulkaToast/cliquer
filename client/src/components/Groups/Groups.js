@@ -17,7 +17,7 @@ import GroupSettings from './GroupSettings'
 import SkillsForm from '../Profile/SkillsForm'
 import { getGroups, setCurrentGroup,
          leaveGroup, deleteGroup, clearNewSkills, setGroupSettings, 
-         getProfile, kick} from '../../redux/actions'
+         getProfile, kick, getRateForm, postRateForm } from '../../redux/actions'
 import url from '../../server'
 
 class Groups extends Component {
@@ -29,6 +29,8 @@ class Groups extends Component {
       membersPopOver: false,
       settingsPopOver: false,
       modal: false,
+      modalR: false,
+      memberID: '',
     }
   }
 
@@ -54,6 +56,10 @@ class Groups extends Component {
     }
   }
 
+  toggleR = () => {
+    this.setState({ modalR: !this.state.modalR })
+  }
+
   toggleM = () => {
     this.setState({
       membersPopOver: !this.state.membersPopOver
@@ -68,6 +74,7 @@ class Groups extends Component {
 
   updateSettings = (ev) => {
     //TODO: Fix skill list default values, fix public checkbox default value
+    this.toggleS() 
     if(ev.preventDefault) ev.preventDefault()
     const skillsReq = this.props.newSkills
     const groupName = ev.target.name.value
@@ -90,6 +97,31 @@ class Groups extends Component {
 
   isOwner = (group) => {
     return group && this.props.accountID === group.groupLeaderID
+  }
+
+  canRate = (groupID) => {
+    return true
+  }
+
+  getRateForm = (group, memberID) => {
+    this.toggleM()
+    this.props.getRateForm(`${url}/api/getRateForm?userId=${this.props.accountID}&rateeId=${memberID}&groupId=${group.groupID}`, { 'X-Authorization-Firebase': this.props.token})
+    this.toggleR()
+    this.setState({ memberID })
+  }
+
+  sendRating = (ev) => {
+    if(ev.preventDefault) ev.preventDefault()
+    const length = this.props.rateForm ? Object.keys(this.props.rateForm).length : 0
+    const endorse = ev.target.endorse.checked
+    let skills = {}
+    Object.keys(this.props.rateForm).map((key, i) => {
+      skills[key] = ev.target[`skill${i}`].value
+    })
+    
+    this.props.postRateForm(`${url}/api/rateUser?userId=${this.props.accountID}&rateeId=${this.state.memberID}&groupId=${this.props.currentGroup.groupID}&endorse=${endorse}`, { 'X-Authorization-Firebase': this.props.token}, JSON.stringify(skills))
+    this.setState({ memberID: '' })
+    this.toggleR()
   }
 
   kickUser = (group, memberID) => {
@@ -120,14 +152,19 @@ class Groups extends Component {
   renderMemberList = (group) => {
     return (
       <ListGroup>
-          {this.props.currentGroup && this.props.currentGroup.members
+          {this.props.currentGroup
           && Object.keys(this.props.currentGroup.groupMemberIDs).map((memberID, i) => {
-            return (
-              <ListGroupItem onClick={(ev) => this.props.goToProfile(ev, memberID, document.querySelector('.kick-button'))} key={memberID} className="d-flex justify-content-between align-items-center" action> 
-                {this.props.currentGroup.groupMemberIDs[memberID]}
-                {this.isOwner(this.props.currentGroup) && <Button type="button" className="kick-button" size="lg" onClick={() => this.kickUser(this.props.currentGroup, memberID)}>Kick</Button>}
-              </ListGroupItem>
-            )
+            if(memberID !== this.props.accountID) {
+              return ( 
+                <ListGroupItem onClick={(ev) => this.props.goToProfile(ev, memberID, document.querySelector('.kick-button'), document.querySelector('.rate-button'))} key={memberID} className="d-flex justify-content-between align-items-center" action> 
+                  {this.props.currentGroup.groupMemberIDs[memberID]}
+                  {this.isOwner(this.props.currentGroup) && <Button type="button" className="kick-button" size="lg" onClick={() => this.kickUser(this.props.currentGroup, memberID)}>Kick</Button>}
+                  {/*TODO: implement haveRated, check if user has already rated other user*/}
+                  {this.canRate(this.props.currentGroup.groupID) && <Button type="button" className="rate-button" size="lg" onClick={() => this.getRateForm(this.props.currentGroup, memberID)}>Rate</Button>}
+                </ListGroupItem>
+              )
+            }
+            return 
           })}
       </ListGroup>
     )
@@ -157,6 +194,7 @@ class Groups extends Component {
     const reputation = this.props.profile ? this.props.profile.reputation : null
     const skills = this.props.currentGroup ? this.props.currentGroup.skillsReq : null
     const proximity = this.props.currentGroup ? this.props.currentGroup.proximityReq : null
+    const rateForm = this.props.rateForm
 
     return (
         <Container fluid className="Groups h-100">
@@ -181,7 +219,7 @@ class Groups extends Component {
             {this.renderGroupsList()}
           </Col>
           <Col xs="9">
-            <Chat group={this.props.currentGroup}/>
+            <Chat group={this.props.currentGroup} handleNotification={this.props.handleNotification}/>
           </Col>
         </Row>
         { this.props.currentGroup &&
@@ -196,7 +234,7 @@ class Groups extends Component {
           <Popover placement="left" isOpen={this.state.settingsPopOver} target="PopoverS" toggle={this.toggleS}>
               <PopoverHeader>Settings</PopoverHeader>
               <PopoverBody>
-                {this.isOwner(this.props.currentGroup) && <Button type="button" size="lg" onClick={() => this.props.allowRating(this.props.currentGroup)}>Allow Rating</Button>}
+                {this.isOwner(this.props.currentGroup) && <Button type="button" size="lg" onClick={() => this.props.allowRating(this.props.currentGroup.groupID)}>Allow Rating</Button>}
                 {this.isOwner(this.props.currentGroup) && <Button type="button" size="lg" onClick={this.toggle}>Update Settings</Button>}
                 <Button type="button" size="lg" onClick={this.leaveGroup}>Leave Group</Button>
                 {this.isOwner(this.props.currentGroup) && <Button type="button" size="lg" onClick={this.disbandGroup}>Disband Group</Button>}
@@ -243,6 +281,32 @@ class Groups extends Component {
             <Button color="secondary" onClick={this.toggle}>Cancel</Button>
           </ModalFooter>
         </Modal>
+
+        {/* TODO: add name to modal */}
+        <Modal isOpen={this.state.modalR} toggle={this.toggleR} className="update-settings-modal">
+          <ModalHeader toggle={this.toggleR}>Rate User</ModalHeader>
+          <ModalBody>
+            <Form className="rate-group-form" id="rate-form" onSubmit={this.sendRating}>
+              <FormGroup>
+                <Label check>
+                  <Input type="checkbox" name="endorse"/>{' '}Boost Reputation?
+                </Label>
+              </FormGroup>
+              {this.props.rateForm && Object.keys(this.props.rateForm).map((key, i) => {
+                return (
+                  <FormGroup key={key} className="required">
+                    <Label for="reputation">{key}</Label>
+                    <Input type="number" name={`skill${i}`} id="repuation" min={0} max={10} defaultValue={0}/>
+                  </FormGroup>
+                )
+              })}
+            </Form>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="primary" type="button" onClick={() => this.sendRating({ target: document.querySelector('#rate-form')})}>Submit</Button>{' '}
+            <Button color="secondary" onClick={this.toggleR}>Cancel</Button>
+          </ModalFooter>
+        </Modal>
       </Container>
     )
   }
@@ -258,6 +322,7 @@ const mapStateToProps = (state) => {
     profileIsLoading: state.profile && state.profile.getIsLoading ? state.profile.getIsLoading : null,
     profile: state.profile && state.profile.getData ? state.profile.getData : null,
     accountID: state.user ? state.user.accountID : null,
+    rateForm: state.groups ? state.groups.getRateFormData : null,
   }
 }
 
@@ -271,6 +336,8 @@ const mapDispatchToProps = (dispatch) => {
     setSettings: (url, header, body) => dispatch(setGroupSettings(url, header, body)),
     getProfile: (url, headers) => dispatch(getProfile(url, headers)),
     kick: (url, headers, extra) => dispatch(kick(url, headers, null, extra)),
+    getRateForm: (url, headers) => dispatch(getRateForm(url, headers)),
+    postRateForm: (url, headers, body) => dispatch(postRateForm(url, headers, body)),
   }
 }
 
