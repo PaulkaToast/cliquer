@@ -13,6 +13,10 @@ function messages(state = {}, action) {
             return Object.assign({}, state, {
                 getMessagesIsLoading: action.isLoading,
             })
+        case 'LOAD_NOTIFICATIONS': 
+            return Object.assign({}, state, {
+                data: action.notifications
+            })
         default:
             return state
     }

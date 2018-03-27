@@ -93,7 +93,7 @@ class Chat extends Component {
 
   getWebsocket() {
     if (this.props.group) {
-      return <SockJsClient url={`${url}/sockJS`} topics={['/group/'+ this.props.group.groupID + '/message', '/group/' + this.props.user.uid + '/' + this.props.group.groupID]}
+      return <SockJsClient url={`${url}/sockJS`} topics={['/group/'+ this.props.group.groupID, '/group/' + this.props.user.uid + '/' + this.props.group.groupID]}
           onMessage={this.handleMessage.bind(this)}
           onConnect={this.onWebsocketConnect.bind(this)}
           ref={ (client) => { this.clientRef = client }} 

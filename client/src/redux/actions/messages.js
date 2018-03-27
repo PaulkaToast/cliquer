@@ -21,6 +21,13 @@ export function getMessagesDataSuccess(data) {
     }
 }
 
+export function loadNotifications(notifications) {
+    return {
+        type: 'LOAD_NOTIFICATIONS',
+        notifications
+    }
+}
+
 export const getMessages = genericDispatch(
     getMessagesHasError, getMessagesIsLoading, getMessagesDataSuccess, 'GET'
 )

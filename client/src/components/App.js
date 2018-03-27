@@ -74,10 +74,6 @@ class App extends Component {
     }
   }
 
-  sendFriendRequest = (user) => {
-    //TODO: API call for friend request
-  }
-
   render() {
     return (
       <div className="App h-100">
@@ -97,7 +93,6 @@ class App extends Component {
             ? <Main 
                 {...this.props}
                 logOut={this.logOut}
-                sendFriendRequest={this.sendFriendRequest}
                 allowHTML={false}
                 accountID={this.props.accountID}
                 goToProfile={this.goToProfile}

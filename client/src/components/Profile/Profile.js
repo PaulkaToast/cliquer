@@ -53,9 +53,6 @@ class Profile extends Component {
     return accountID === this.props.accountID || !this.props.accountID
   } 
 
-  inviteToGroup = (accountID) => {
-
-  }
 
   toggle = () => {
     if(this.state.modal) {
@@ -74,7 +71,7 @@ class Profile extends Component {
         {groups && Object.keys(groups).length > 0
         && Object.keys(groups).map((gid, i) => {
           return (<ListGroupItem>
-            {groups[gid].groupName} <Button type="button" size="lg" onClick={() => this.inviteToGroup(gid, ownerID)}>Invite</Button>
+            {groups[gid].groupName} <Button type="button" size="lg" onClick={() => this.props.inviteToGroup(gid, ownerID)}>Invite</Button>
           </ListGroupItem>)
         })}
       </ListGroup>
@@ -116,7 +113,8 @@ const mapStateToProps = (state) => {
     postData: state.skills && state.skills.postData ? state.skills.postData : null,
     accountID: state.user.accountID,
     groups: state.groups ? state.groups.getGroupsData : [],
-    token: state.auth.token
+    token: state.auth.token,
+    notifications: state.messages.data
   }
 }
 

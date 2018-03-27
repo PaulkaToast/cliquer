@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Switch, Route, Redirect } from 'react-router'
 import NotificationSystem from 'react-notification-system'
-import { Button, ButtonGroup } from 'reactstrap'
+import { Button, ButtonGroup, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import SockJsClient from 'react-stomp'
 import { connect } from 'react-redux'
 
@@ -14,9 +14,19 @@ import Profile from './Profile/Profile'
 import Settings from './Settings'
 import SearchResults from './SearchResults'
 import url from '../server'
+import { loadNotifications, getGroups } from '../redux/actions'
 
 
 class Main extends Component {
+
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      modal: false,
+      groupID: '',
+    }
+  }
 
   _notificationSystem = null
 
@@ -24,14 +34,16 @@ class Main extends Component {
     this._notificationSystem = this.refs.notificationSystem
   }
 
-  handleNotification = (notification) => {
-    if(notification) {
-      switch (notification.type) {
+  handleNotification = (data) => {
+    if(data && data[0] && !this.props.notifications) {
+      this.props.loadNotifications(data)
+    } else if(data) {
+      switch (data.type) {
         case 0:
           // Group invite
           this._notificationSystem.addNotification({
             title: 'Group Invite',
-            message: 'You\'ve been invited to [GROUP NAME]',
+            message: data.content,
             level: 'success',
             autoDismiss: 8,
             children: (
@@ -46,7 +58,7 @@ class Main extends Component {
           // Friend invite
           this._notificationSystem.addNotification({
             title: 'Friend Invite',
-            message: '[USERNAME] has send you a friend request!',
+            message: data.content,
             level: 'success',
             autoDismiss: 8,
             children: (
@@ -61,7 +73,7 @@ class Main extends Component {
           // Mod Warning
           this._notificationSystem.addNotification({
             title: 'Warning',
-            message: 'You have received a warning from a moderator!',
+            message: data.content,
             level: 'warning',
             action: {
               label: 'View Warning',
@@ -73,7 +85,7 @@ class Main extends Component {
           // Kick Notification
           this._notificationSystem.addNotification({
             title: 'Kick',
-            message: 'You have been kicked from [GROUP NAME]',
+            message: data.content,
             level: 'error',
           })
           break
@@ -81,7 +93,7 @@ class Main extends Component {
           // Join Request
           this._notificationSystem.addNotification({
             title: 'Join request',
-            message: '[NAME] has requested to join [GROUP NAME].',
+            message: data.content,
             level: 'success',
             action: {
               label: 'Allow',
@@ -93,11 +105,11 @@ class Main extends Component {
           // Rate request
           this._notificationSystem.addNotification({
             title: 'Rate request',
-            message: '[OWNER NAME] has requested you rate members of [GROUP NAME].',
+            message: data.content,
             level: 'success',
             action: {
               label: 'Rate!',
-              callback: this.rate
+              callback: () => this.rate,
             }
           })
           break
@@ -109,54 +121,61 @@ class Main extends Component {
   }
 
   rate = () => {
-    //TODO: make redux actions for these or find better place to put these functions
-    console.log('rate clicked')
+
   }
 
   showWarning = () => {
-    console.log('warning clicked')
+
   }
 
   acceptFriendRequest = () => {
-    console.log('request accepted')
+  
   }
 
   rejectFriendRequest = () => {
-    console.log('request rejected')
+
   }
 
   joinGroup = () => {
-    console.log('joined group')
+
   }
 
   ignoreGroup = () => {
-    console.log('ignored group')
+
+  }
+
+  inviteToGroup = (groupID, accountID) => {
+    this.clientRef.sendMessage(`/app/inviteToGroup/${this.props.accountID}/${accountID}/${groupID}`)
+  }
+
+  sendFriendRequest = (friendID) => {
+    this.clientRef.sendMessage(`/app/requestFriend/${this.props.accountID}/${friendID}`)
+  }
+
+  allowRating = (groupID, accountID) => {
+    
   }
 
   onWebsocketConnect = () => {
-    if (this.props.group) {
-      this.clientRef.sendMessage('/app/'+ this.props.user.uid + '/' + this.props.group.groupID +'/messageHistory', "");
-    }
-  }
-
-  handleMessage = (data) => {
-    //if data is an array
-    console.log(data)
+    this.clientRef.sendMessage(`/app/${this.props.accountID}/allMessages`, "");
   }
 
   getWebsocket = () => {
-    if (this.props.group) {
+    if(this.props.accountID) {
       return <SockJsClient url={`${url}/sockJS`} topics={[`/notification/${this.props.accountID}`]}
-          onMessage={this.handleMessage}
+          onMessage={this.handleNotification}
           onConnect={this.onWebsocketConnect}
           ref={ (client) => { this.clientRef = client }} 
           subscribeHeaders={{ 'X-Authorization-Firebase': this.props.token }}
           headers={{ 'X-Authorization-Firebase': this.props.token }}
           debug
         />
-    } 
+    }
+    return 
+  }
 
-    return
+  renderMemberList = () => {
+
   }
 
   render() {
@@ -165,15 +184,14 @@ class Main extends Component {
         <Navbar {...this.props} />
         <Switch>
             <Route path="/create" render={(navProps) => <CreateGroup {...navProps} />}/>
-            <Route path="/groups" render={(navProps) => <Groups {...navProps} {...this.props} />}/>
+            <Route path="/groups" render={(navProps) => <Groups {...navProps} {...this.props} allowRating={this.allowRating} />}/>
             <Route path="/public" render={(navProps) => <PublicGroups {...navProps} />}/>
-            <Route path="/profile/:ownerID" render={(navProps) => <Profile {...navProps} sendFriendRequest={this.props.sendFriendRequest} />}/>
+            <Route path="/profile/:ownerID" render={(navProps) => <Profile {...navProps} sendFriendRequest={this.sendFriendRequest} inviteToGroup={this.inviteToGroup} />}/>
             <Route path="/settings" render={(navProps) => <Settings {...navProps} />}/>
-            <Route path="/search/:category/:query" render={(navProps) => <SearchResults {...navProps} sendFriendRequest={this.props.sendFriendRequest} goToProfile={this.props.goToProfile}/>}/>
+            <Route path="/search/:category/:query" render={(navProps) => <SearchResults {...navProps} sendFriendRequest={this.sendFriendRequest} goToProfile={this.props.goToProfile}/>}/>
             <Route path='/' render={(navProps) => <Redirect to="/groups" />}/>
         </Switch>
-
-        {/*TODO: hook up Websocket for notifications*/}
+        
         {this.getWebsocket()}
         <NotificationSystem ref="notificationSystem" allowHTML={this.props.allowHTML} />
       </div>
@@ -186,12 +204,15 @@ const mapStateToProps = (state) => {
     user: state.user.data,
     token: state.auth.token,
     accountID: state.user.accountID,
+    notifications: state.messages.data,
+    groups: state.groups ? state.groups.getGroupsData : [],
 	}
 }
 
 const mapDispatchToProps = (dispatch) => {
 	return {
-
+    loadNotifications: (notifications) => dispatch(loadNotifications(notifications)),
+    getGroups: (url, headers) => dispatch(getGroups(url, headers)),
 	}
 }
 
