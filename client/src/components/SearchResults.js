@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import '../css/SearchResults.css'
 import { search } from '../redux/actions'
 import url from '../server'
+import nFlag from '../img/newUser.png'
 
 class SearchResults extends Component {
 
@@ -42,11 +43,12 @@ class SearchResults extends Component {
   }
 
   renderUserPreview = (user, i) => {
+    let flag = user.newUser ? nFlag : "";
     return (
       <div className="search-result" onClick={(ev) => this.props.goToProfile(ev, user.accountID, document.querySelector('.friend-request'))} key={user.accountID}>
         <div className="right-content">
           <div className="right-top-content">
-            <div className="search-name">{user.fullName}</div>
+            <div className="search-name">{user.fullName}<img className="profile-user-flag" src={flag} alt=""></img></div>
             <div className="search-reputation">{user.reputation}</div>
           </div>
         </div>
