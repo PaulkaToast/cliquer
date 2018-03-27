@@ -188,7 +188,7 @@ class Main extends Component {
             <Route path="/create" render={(navProps) => <CreateGroup {...navProps} />}/>
             <Route path="/groups" render={(navProps) => <Groups {...navProps} {...this.props} allowRating={this.allowRating} />}/>
             <Route path="/public" render={(navProps) => <PublicGroups {...navProps} accountID={this.props.accountID}/>}/>
-            <Route path="/profile/:ownerID" render={(navProps) => <Profile {...navProps} sendFriendRequest={this.sendFriendRequest} inviteToGroup={this.inviteToGroup} />}/>
+            <Route path="/profile/:ownerID" render={(navProps) => <Profile {...navProps} sendFriendRequest={this.sendFriendRequest} inviteToGroup={this.inviteToGroup} goToProfile={this.props.goToProfile} />}/>
             <Route path="/settings" render={(navProps) => <Settings {...navProps} />}/>
             <Route path="/search/:category/:query" render={(navProps) => <SearchResults {...navProps} sendFriendRequest={this.sendFriendRequest} goToProfile={this.props.goToProfile}/>}/>
             <Route path='/' render={(navProps) => <Redirect to="/groups" />}/>
