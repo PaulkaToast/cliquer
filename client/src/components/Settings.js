@@ -39,7 +39,6 @@ class Settings extends Component {
   }
 
   handleSubmit = (ev) => {
-    console.log(ev)
     ev.preventDefault()
     const isPublic = ev.currentTarget.isPublic.checked
     const isOptedOut = ev.currentTarget.optOut.checked

@@ -22,5 +22,6 @@ export { getGroupsHasError, getGroupsIsLoading, getGroupsDataSuccess, getGroups,
 export { addFriendHasError, addFriendIsLoading, addFriendDataSuccess, addFriend,
          removeFriendHasError, removeFriendIsLoading, removeFriendDataSuccess, removeFriend,
          requestFriendHasError, requestFriendIsLoading, requestFriendDataSuccess, requestFriend, } from './friends'
-export { getMessagesHasError, getMessagesIsLoading, getMessagesDataSuccess, getMessages, loadNotifications } from './messages'
+export { getMessagesHasError, getMessagesIsLoading, getMessagesDataSuccess, getMessages, loadNotifications,
+         handleNotificationsHasError, handleNotificationsIsLoading, handleNotificationsDataSuccess, handleNotifications } from './messages'
 export { searchHasError, searchIsLoading, searchDataSuccess, search } from './search'
