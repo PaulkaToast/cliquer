@@ -152,6 +152,16 @@ class Profile extends Component {
               <SkillsPanel skills={skills} isOwner={this.isOwner(ownerID)}/>
           </TabPane>
           <TabPane tabId="2">
+            <h4>
+              Friends:
+            </h4>
+            <ListGroup>
+            {Object.keys(this.props.profile.friendIDs).map((key) =>
+            { return <ListGroupItem onClick={() => this.props.goToProfile(key)} key={key}>
+            {profile.friendIDs[key]}
+            <Button className="friend-cancel-button" onClick={() => {}} color="link">x</Button>
+            </ListGroupItem>})}
+            </ListGroup>
           </TabPane>
           <TabPane tabId="3">
             <NotificationPanel/>
