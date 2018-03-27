@@ -1001,7 +1001,6 @@ public class GroupServiceImpl implements GroupService {
             reputation = Math.min(reputation, 100);
             member.setReputation(reputation);
         }
-        member.setRank(accountService.getReputationRanking(member.getUsername()));
         accountRepository.save(member);
         groupRepository.save(group);
         return "Success";

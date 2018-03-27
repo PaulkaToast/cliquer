@@ -1380,6 +1380,7 @@ public class AccountServiceImpl implements AccountService {
         }
         System.out.println("AT THE END");
         String s = groupService.rateGroupMember(groupId, userId, rateeId, endorse, map);
+        ratee.setRank(getReputationRanking(ratee.getUsername()));
         System.out.println(s);
         return ratee;
     }
