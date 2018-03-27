@@ -44,12 +44,12 @@ public class Group extends Searchable {
 	@JsonIgnore
 	private List<ChatMessage> chatHistory;
 
-	public Group(@NonNull String groupName, String groupPurpose, Account groupLeader) {
+	public Group(@NonNull String groupName, String groupPurpose, String groupLeaderID, String groupLeaderName) {
 		this.groupID = new ObjectId().toString();
 		this.groupName = groupName;
 		this.groupPurpose = groupPurpose;
-		this.groupLeaderID = groupLeader.getAccountID();
-		this.groupLeaderName = groupLeader.getFullName();
+		this.groupLeaderID = groupLeaderID;
+		this.groupLeaderName = groupLeaderName;
 
 		this.groupPic = null;
 		this.skillReqs = new TreeMap<>();
@@ -57,7 +57,7 @@ public class Group extends Searchable {
 		this.reputationReq = 0.0;
 		this.proximityReq = 100;
 		this.groupMemberIDs = new TreeMap<>();
-		this.groupMemberIDs.put(groupLeader.getAccountID(), groupLeader.getFullName());
+		this.groupMemberIDs.put(groupLeaderID, groupLeaderName);
 
 		this.kickCandidate = null;
 		this.kickVotes = new ArrayList<>();

@@ -55,7 +55,7 @@ public class GroupServiceImpl implements GroupService {
             return null;
         }
         Account user = accountRepository.findByAccountID(groupLeaderID);
-        Group group = new Group(groupName, groupPurpose, user);
+        Group group = new Group(groupName, groupPurpose, user.getAccountID(), user.getFullName());
         this.groupRepository.save(group);
         user.addGroup(group);
         this.accountRepository.save(user);
