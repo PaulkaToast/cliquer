@@ -18,10 +18,12 @@ export { getGroupsHasError, getGroupsIsLoading, getGroupsDataSuccess, getGroups,
          postChatMessageHasError, postChatMessageIsLoading, postChatMessageDataSuccess, postChatMessage,
          updateChatLog, setCurrentGroup, addCurrentGroupMember, removeCurrentGroupMember,
          setGroupSettingsHasError, setGroupSettingsIsLoading, setGroupSettingsDataSuccess, setGroupSettings,
-         kickHasError, kickIsLoading, kickDataSuccess, kick } from './groups'
+         kickHasError, kickIsLoading, kickDataSuccess, kick,
+         getRateFormHasError, getRateFormIsLoading, getRateFormDataSuccess, getRateForm,
+         postRateFormHasError, postRateFormIsLoading, postRateFormDataSuccess, postRateForm,} from './groups'
 export { addFriendHasError, addFriendIsLoading, addFriendDataSuccess, addFriend,
          removeFriendHasError, removeFriendIsLoading, removeFriendDataSuccess, removeFriend,
          requestFriendHasError, requestFriendIsLoading, requestFriendDataSuccess, requestFriend, } from './friends'
 export { getMessagesHasError, getMessagesIsLoading, getMessagesDataSuccess, getMessages, loadNotifications,
-         handleNotificationsHasError, handleNotificationsIsLoading, handleNotificationsDataSuccess, handleNotifications } from './messages'
+         handleNotificationsHasError, handleNotificationsIsLoading, handleNotificationsDataSuccess, handleNotifications, deleteNotification } from './messages'
 export { searchHasError, searchIsLoading, searchDataSuccess, search } from './search'

@@ -29,6 +29,14 @@ function messages(state = {}, action) {
             return Object.assign({}, state, {
                 handleNotificationsIsLoading: action.isLoading,
             })
+        case 'DELETE_NOTIFICATION': 
+            let messagesCopy = state.data ? {...state.data} : null
+            if(messagesCopy) {
+                delete messagesCopy[action.messageID]
+            }
+            return Object.assign({}, state, {
+                data: messagesCopy
+            })
         default:
             return state
     }

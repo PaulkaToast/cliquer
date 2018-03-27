@@ -91,35 +91,16 @@ class Notification extends Component {
     )
   }
 
-  renderBasicNotification = (notification, i) => {
-    //Sprint 2 or 3
+  render() {
+    const { notification } = this.props
     return (
       <div className="Notification">
-        <div className="notification-icon">ICON</div>
         <div className="notification-info">
-      
+         {notification.content}
         </div>
-        <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(i)}></i> 
+        <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(notification.messageID)}></i> 
       </div>
     )
-  }
-
-  render() {
-    const { notification, i } = this.props
-    switch(notification.type) {
-      case 0:
-          return this.renderGroupInvite(notification, i)
-      case 1:
-          return this.renderFriendInvite(notification, i)
-      case 2:
-          return this.renderModWarning(notification, i)
-      case 3: 
-          return this.renderKickNotification(notification, i)
-      case 4:
-          return this.renderRateRequest(notification, i)
-      default:
-          return this.renderBasicNotification(notification, i)
-    }
   }
 }
 

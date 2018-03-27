@@ -97,7 +97,7 @@ class Profile extends Component {
 
     if(!profile || profile.accountID !== ownerID){
       return (
-        <div class="loader">Loading...</div>
+        <div className="loader">Loading...</div>
       )
     }
 
@@ -164,7 +164,7 @@ class Profile extends Component {
             </ListGroup>
           </TabPane>
           <TabPane tabId="3">
-            <NotificationPanel/>
+            <NotificationPanel deleteNotification={this.props.deleteNotification} />
           </TabPane>
         </TabContent>
 

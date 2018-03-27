@@ -58,17 +58,22 @@ class Chat extends Component {
   }
 
   handleMessage = (data) => {
-    //if data is an array
-    if (data[0]){
-      this.state.messages = data.map( (m) => {
-        return {sender: m.senderName, message: m.content, id: m.senderId}
-      })
-      this.setState(this.state)
+    //if data is an array.
+    console.log(data)
+    if(data.type) {
+      this.props.handleNotification(data)
     } else {
-      this.state.messages.push({
-        sender: data.senderName, message: data.content, id: data.senderId
-      })
-      this.setState(this.state)
+      if (data[0]){
+        this.state.messages = data.map( (m) => {
+          return {sender: m.senderName, message: m.content, id: m.senderId}
+        })
+        this.setState(this.state)
+      } else {
+        this.state.messages.push({
+          sender: data.senderName, message: data.content, id: data.senderId
+        })
+        this.setState(this.state)
+      }
     }
   }
 

@@ -9,7 +9,6 @@ class Group extends Component {
     return (
         <ListGroupItem onClick={() => this.props.changeGroup(this.props.group.groupID)} className="group-item d-flex justify-content-between align-items-center" action> 
           {this.props.group.groupName}
-          <Badge color="primary" pill>14</Badge>
         </ListGroupItem>
     )
   }

@@ -36,7 +36,7 @@ class SearchResults extends Component {
             <div className="search-bio">{group.groupPurpose ? group.groupPurpose : 'This group has no purpose.'}</div>
           </div>
         </div>
-        <Button color="success" className="friend-request" onClick={() => this.props.requestToJoin(group.groupID)}>Request to Join</Button>
+        <Button color="success" className="friend-request" onClick={() => this.props.requestToJoin(group.groupID, group.groupLeaderID)}>Request to Join</Button>
       </div>
     )
   }
