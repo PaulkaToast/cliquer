@@ -15,9 +15,9 @@ import Chat from './Chat'
 import GroupMembers from './GroupMembers'
 import GroupSettings from './GroupSettings'
 import SkillsForm from '../Profile/SkillsForm'
-import { getGroups, setCurrentGroup, addCurrentGroupMember, 
+import { getGroups, setCurrentGroup,
          leaveGroup, deleteGroup, clearNewSkills, setGroupSettings, 
-         getProfile, kick, removeCurrentGroupMember} from '../../redux/actions'
+         getProfile, kick} from '../../redux/actions'
 import url from '../../server'
 
 class Groups extends Component {
@@ -29,7 +29,6 @@ class Groups extends Component {
       membersPopOver: false,
       settingsPopOver: false,
       modal: false,
-      userObjectID: '',
     }
   }
 
@@ -40,21 +39,9 @@ class Groups extends Component {
         this.props.setGroup(nextProps.groups[groupID])
       }
     }
-    if(nextProps.user && nextProps.token && nextProps.user.uid) {
-      if(!nextProps.groups) {
+
+    if(nextProps.user && nextProps.token && nextProps.user.uid && !nextProps.groups) {
         this.props.getGroups(`${url}/api/getUserGroups?username=${nextProps.user.uid}`, { 'X-Authorization-Firebase': nextProps.token })
-      }
-      if(!nextProps.profile && !nextProps.profileIsLoading) {
-        this.props.getProfile(`${url}/api/getProfile?username=${nextProps.user.uid}&type=user`, { 'X-Authorization-Firebase': nextProps.token})
-      } else if(nextProps.profile) {
-        if(nextProps.profile.username === nextProps.user.uid) {
-          this.setState({ userObjectID: nextProps.profile.accountID })
-        } else if(this.props.profile && nextProps.profile.accountID !== this.props.profile.accountID) {
-          if(!this.props.currentGroup.members || (this.props.currentGroup.members && !this.props.currentGroup.members[nextProps.profile.accountID])) {
-            this.props.addMember(nextProps.profile)
-          }
-        }
-      } 
     }
   }
 
@@ -102,18 +89,11 @@ class Groups extends Component {
   }
 
   isOwner = (group) => {
-    return this.props.user && group && this.props.user.uid === group.ownerUID
-  }
-
-  allowUserRating = (group) => {
-    if(this.isOwner(group)) {
-      //TODO: REDUX action to change groups.rating to true, sprint 2
-    }
+    return group && this.props.accountID === group.groupLeaderID
   }
 
   kickUser = (group, memberID) => {
     this.toggleM()
-    this.props.removeMember(memberID)
     this.props.kick(`${url}/api/kick?userId=${this.props.accountID}&kickedId=${memberID}&groupId=${group.groupID}`, { 'X-Authorization-Firebase': this.props.token}, { gid: group.groupID, memberID})
   }
 
@@ -125,9 +105,6 @@ class Groups extends Component {
   changeGroup = (groupID) => {
     this.props.setGroup(this.props.groups[groupID])
     history.push(`/groups/${groupID}`)
-    this.props.groups[groupID].groupMemberIDs.forEach((memberID) => {
-      this.props.getProfile(`${url}/api/getProfile?userId=${memberID}&type=member`, { 'X-Authorization-Firebase': this.props.token})
-    })
   }
 
   disbandGroup = () => {
@@ -144,10 +121,10 @@ class Groups extends Component {
     return (
       <ListGroup>
           {this.props.currentGroup && this.props.currentGroup.members
-          && Object.keys(this.props.currentGroup.members).map((memberID, i) => {
+          && Object.keys(this.props.currentGroup.groupMemberIDs).map((memberID, i) => {
             return (
               <ListGroupItem onClick={(ev) => this.props.goToProfile(ev, memberID, document.querySelector('.kick-button'))} key={memberID} className="d-flex justify-content-between align-items-center" action> 
-                {this.props.currentGroup.members[memberID].fullName}
+                {this.props.currentGroup.groupMemberIDs[memberID]}
                 {this.isOwner(this.props.currentGroup) && <Button type="button" className="kick-button" size="lg" onClick={() => this.kickUser(this.props.currentGroup, memberID)}>Kick</Button>}
               </ListGroupItem>
             )
@@ -219,7 +196,7 @@ class Groups extends Component {
           <Popover placement="left" isOpen={this.state.settingsPopOver} target="PopoverS" toggle={this.toggleS}>
               <PopoverHeader>Settings</PopoverHeader>
               <PopoverBody>
-                {this.isOwner(this.props.currentGroup) && <Button type="button" size="lg" onClick={() => this.allowUserRating(this.props.currentGroup)}>Allow Rating</Button>}
+                {this.isOwner(this.props.currentGroup) && <Button type="button" size="lg" onClick={() => this.props.allowRating(this.props.currentGroup)}>Allow Rating</Button>}
                 {this.isOwner(this.props.currentGroup) && <Button type="button" size="lg" onClick={this.toggle}>Update Settings</Button>}
                 <Button type="button" size="lg" onClick={this.leaveGroup}>Leave Group</Button>
                 {this.isOwner(this.props.currentGroup) && <Button type="button" size="lg" onClick={this.disbandGroup}>Disband Group</Button>}
@@ -293,9 +270,7 @@ const mapDispatchToProps = (dispatch) => {
     deleteGroup: (url, header, body, gid) => dispatch(deleteGroup(url, header, body, gid)),
     setSettings: (url, header, body) => dispatch(setGroupSettings(url, header, body)),
     getProfile: (url, headers) => dispatch(getProfile(url, headers)),
-    addMember: (member) => dispatch(addCurrentGroupMember(member)),
     kick: (url, headers, extra) => dispatch(kick(url, headers, null, extra)),
-    removeMember: (memberID) => dispatch(removeCurrentGroupMember(memberID)),
   }
 }
 

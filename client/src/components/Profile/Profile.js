@@ -45,7 +45,7 @@ class Profile extends Component {
 
       // Get skills data
       if(this.props.postData !== props.postData || (!props.skills && !props.skillsIsLoading)) {
-        this.props.getSkills(`${url}/api/getSkills?username=${props.uid}`, { 'X-Authorization-Firebase': props.token})
+        this.props.getSkills(`${url}/api/getSkills?userId=${ownerID}`, { 'X-Authorization-Firebase': props.token})
       }
 
       // Get groups

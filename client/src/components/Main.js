@@ -14,7 +14,7 @@ import Profile from './Profile/Profile'
 import Settings from './Settings'
 import SearchResults from './SearchResults'
 import url from '../server'
-import { loadNotifications, getGroups } from '../redux/actions'
+import { loadNotifications, handleNotifications } from '../redux/actions'
 
 
 class Main extends Component {
@@ -48,8 +48,8 @@ class Main extends Component {
             autoDismiss: 8,
             children: (
               <ButtonGroup>
-                <Button color="success" onClick={this.joinGroup}>Join</Button>
-                <Button color="danger" onClick={this.ignoreGroup}>Ignore</Button>
+                <Button color="success" onClick={() => this.acceptNotification(data.messageID)}>Join</Button>
+                <Button color="danger" onClick={() => this.rejectNotification(data.messageID)}>Ignore</Button>
               </ButtonGroup>
             )
           })
@@ -63,8 +63,8 @@ class Main extends Component {
             autoDismiss: 8,
             children: (
               <ButtonGroup>
-                <Button color="success" onClick={this.acceptFriendRequest}>Accept</Button>
-                <Button color="danger" onClick={this.rejectFriendRequest}>Reject</Button>
+                <Button color="success" onClick={() => this.acceptNotification(data.messageID)}>Accept</Button>
+                <Button color="danger" onClick={() => this.rejectNotification(data.messageID)}>Reject</Button>
               </ButtonGroup>
             )
           })
@@ -87,18 +87,24 @@ class Main extends Component {
             title: 'Kick',
             message: data.content,
             level: 'error',
+            action: {
+              label: 'OK',
+              callback: () => this.acceptNotification(data.messageID)
+            }
           })
           break
         case 4:
           // Join Request
           this._notificationSystem.addNotification({
-            title: 'Join request',
+            title: 'Join Request',
             message: data.content,
             level: 'success',
-            action: {
-              label: 'Allow',
-              callback: this.joinGroup
-            }
+            children: (
+              <ButtonGroup>
+                <Button color="success" onClick={() => this.acceptNotification(data.messageID)}>Accept</Button>
+                <Button color="danger" onClick={() => this.rejectNotification(data.messageID)}>Reject</Button>
+              </ButtonGroup>
+            )
           })
           break
         case 5:
@@ -128,20 +134,12 @@ class Main extends Component {
 
   }
 
-  acceptFriendRequest = () => {
-  
+  acceptNotification = (messageID) => {
+    this.props.handleNotification(`${url}/api/handleNotification?userId=${this.props.accountID}&messageId=${messageID}&accept=true`, { 'X-Authorization-Firebase': this.props.token })
   }
 
-  rejectFriendRequest = () => {
-
-  }
-
-  joinGroup = () => {
-
-  }
-
-  ignoreGroup = () => {
-
+  rejectNotification = (messageID) => {
+    this.props.handleNotification(`${url}/api/handleNotification?userId=${this.props.accountID}&messageId=${messageID}&accept=false`, { 'X-Authorization-Firebase': this.props.token })
   }
 
   inviteToGroup = (groupID, accountID) => {
@@ -150,6 +148,10 @@ class Main extends Component {
 
   sendFriendRequest = (friendID) => {
     this.clientRef.sendMessage(`/app/requestFriend/${this.props.accountID}/${friendID}`)
+  }
+
+  requestToJoin = (groupID) => {
+
   }
 
   allowRating = (groupID, accountID) => {
@@ -185,7 +187,7 @@ class Main extends Component {
         <Switch>
             <Route path="/create" render={(navProps) => <CreateGroup {...navProps} />}/>
             <Route path="/groups" render={(navProps) => <Groups {...navProps} {...this.props} allowRating={this.allowRating} />}/>
-            <Route path="/public" render={(navProps) => <PublicGroups {...navProps} />}/>
+            <Route path="/public" render={(navProps) => <PublicGroups {...navProps} accountID={this.props.accountID}/>}/>
             <Route path="/profile/:ownerID" render={(navProps) => <Profile {...navProps} sendFriendRequest={this.sendFriendRequest} inviteToGroup={this.inviteToGroup} />}/>
             <Route path="/settings" render={(navProps) => <Settings {...navProps} />}/>
             <Route path="/search/:category/:query" render={(navProps) => <SearchResults {...navProps} sendFriendRequest={this.sendFriendRequest} goToProfile={this.props.goToProfile}/>}/>
@@ -212,7 +214,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
 	return {
     loadNotifications: (notifications) => dispatch(loadNotifications(notifications)),
-    getGroups: (url, headers) => dispatch(getGroups(url, headers)),
+    handleNotification: (url, headers) => dispatch(handleNotifications(url, headers)),
 	}
 }
 

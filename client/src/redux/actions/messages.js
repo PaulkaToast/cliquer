@@ -31,3 +31,28 @@ export function loadNotifications(notifications) {
 export const getMessages = genericDispatch(
     getMessagesHasError, getMessagesIsLoading, getMessagesDataSuccess, 'GET'
 )
+
+export function handleNotificationsHasError(hasError) {
+    return {
+        type: 'HANDLE_NOTIFICATIONS_HAS_ERROR',
+        hasError
+    }
+}
+
+export function handleNotificationsIsLoading(isLoading) {
+    return {
+        type: 'HANDLE_NOTIFICATIONS_IS_LOADING',
+        isLoading
+    }
+}
+
+export function handleNotificationsDataSuccess(data) {
+    return {
+        type: 'HANDLE_NOTIFICATIONS_DATA_SUCCESS',
+        data
+    }
+}
+
+export const handleNotifications = genericDispatch(
+    handleNotificationsHasError, handleNotificationsIsLoading, handleNotificationsDataSuccess, 'POST'
+)

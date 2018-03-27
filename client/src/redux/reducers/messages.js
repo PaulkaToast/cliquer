@@ -17,6 +17,18 @@ function messages(state = {}, action) {
             return Object.assign({}, state, {
                 data: action.notifications
             })
+        case 'HANDLE_NOTIFICATIONS_HAS_ERROR':
+            return Object.assign({}, state, {
+                handleNotificationsHasError: action.hasError,
+            })
+        case 'HANDLE_NOTIFICATIONS_DATA_SUCCESS':
+            return Object.assign({}, state, {
+                handleNotificationsData: action.data,
+            })
+        case 'HANDLE_NOTIFICATIONS_IS_LOADING':
+            return Object.assign({}, state, {
+                handleNotificationsIsLoading: action.isLoading,
+            })
         default:
             return state
     }

@@ -9,33 +9,45 @@ import url from '../server'
 class SearchResults extends Component {
 
   componentDidMount = () => {
-    const { query, category } = this.props.match.params
-
-    if(query && category && this.props.token && !this.props.results) {
+    const { query, category } = this.props.match ? this.props.match.params : this.props
+    if(query && category) {
       this.props.search(`${url}/api/search?query=${query}&type=${category}`, { 'X-Authorization-Firebase': this.props.token})
     }
   }
 
   componentWillReceiveProps = (nextProps) => {
-    const { query, category } = nextProps.match.params
+    const { query, category } = nextProps.match ? nextProps.match.params : nextProps
+    const oldQuery = this.props.match ? this.props.match.params.query : this.props.query
 
-    if(query && category && nextProps.token && !nextProps.results) {
+    if(category && oldQuery !== query) {
       this.props.search(`${url}/api/search?query=${query}&type=${category}`, { 'X-Authorization-Firebase': nextProps.token})
     }
   }
 
   renderGroupPreview = (group, i) => {
-
+    return (
+      <div className="search-result" key={group.groupID}>
+        <div className="right-content">
+          <div className="right-top-content">
+            <div className="search-name">{group.groupName}</div>
+            <div className="search-reputation">{}</div>
+          </div>
+          <div className="right-bottom-content">
+            <div className="search-bio">{group.groupPurpose ? group.groupPurpose : 'This group has no purpose.'}</div>
+          </div>
+        </div>
+        <Button color="success" className="friend-request" onClick={() => this.props.requestToJoin(group.groupID)}>Request to Join</Button>
+      </div>
+    )
   }
 
   renderUserPreview = (user, i) => {
-    //may need to change button function to be a prop later (to allow reusing for group member searching)
     return (
-      <div className="user-result" onClick={(ev) => this.props.goToProfile(ev, user.accountID, document.querySelector('.friend-request'))} key={user.accountID}>
+      <div className="search-result" onClick={(ev) => this.props.goToProfile(ev, user.accountID, document.querySelector('.friend-request'))} key={user.accountID}>
         <div className="right-content">
           <div className="right-top-content">
-            <div className="user-name">{user.fullName}</div>
-            <div className="user-reputation">{user.reputation}</div>
+            <div className="search-name">{user.fullName}</div>
+            <div className="search-reputation">{user.reputation}</div>
           </div>
         </div>
         <Button color="success" className="friend-request" onClick={() => this.props.sendFriendRequest(user.accountID)}>Send Friend Request</Button>
@@ -68,10 +80,10 @@ class SearchResults extends Component {
   }
 
   render() {
-    const { category } = this.props.match.params
+    const { category } = this.props.match ? this.props.match.params : this.props
     return (
       <div className="SearchResults">
-        { category === 'group'
+        { category === 'group' || category === 'isPublic'
           ? this.renderResults(this.renderGroupPreview) 
           : this.renderResults(this.renderUserPreview)
         }
@@ -85,6 +97,7 @@ const mapStateToProps = (state) => {
     user: state.user.data,
     token: state.auth.token,
     results: state.search && state.search.data ? state.search.data : null,
+    accountID: state.user.accountID,
 	}
 }
 

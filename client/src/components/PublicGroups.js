@@ -2,13 +2,9 @@ import React, { Component } from 'react'
 import { Alert, Badge, Button, InputGroupAddon, Input, 
   InputGroup, Navbar, NavbarToggler, Collapse, NavItem, Nav,
 NavbarBrand} from 'reactstrap'
-import '../css/PublicGroups.css'
 
-/*const PublicGroup = ({groupName, groupPurpose, skillsReq, reputationReq}) => {
-  if (!groupName) return <div></div>;
-  return (
-    
-};*/
+import '../css/PublicGroups.css'
+import SearchResults from './SearchResults'
 
 class PublicGroups extends Component {
   constructor(props) {
@@ -19,43 +15,10 @@ class PublicGroups extends Component {
       maxDistance: 50,
       prefSkills: [],
       minRep: 0,
-      results: [
-        { groupName: "Hoops",
-          groupPurpose: "To play basketball",
-          skillsReq: ["sports", "basketball"],
-          reputationReq: 0
-        },
-        { groupName: "Styxx",
-          groupPurpose: "To make an app",
-          skillsReq: ["Coding"],
-          reputationReq: 10
-        },
-        { groupName: "Cliquer",
-          groupPurpose: "To create a web app that facilitates the teaming of people who may have never met before",
-          skillsReq: ["C++, Java, teamwork"],
-          reputationReq: 50
-        },
-        { groupName: "Poop",
-          groupPurpose: "No skills required",
-          skillsReq: [],
-          reputationReq: 2
-        },
-        { groupName: "The Incredibles",
-          groupPurpose: "Hang on Honey!",
-          skillsReq: ["SuperPowers"],
-          reputationReq: 100
-        },
-        { groupName: "Nap Club",
-          groupPurpose: "ZZZZZzzzzzzzzzzzzzzzzzzz",
-          skilsReq: ["Sound Sleeper", "Alarm Snoozer", "Day Dreamer", "Tired"],
-          reputationReq: 0
-        }
-      ]
     }
-    this.toggle = this.toggle.bind(this);
   }
 
-  toggle() {
+  toggle = () => {
     this.setState({ isOpen: !this.state.isOpen });
   }
 
@@ -105,7 +68,7 @@ class PublicGroups extends Component {
         </form>
         </Collapse>
         </Navbar>
-
+        <SearchResults category={'isPublic'} query={this.props.accountID} />
       </div>
     )
   }
