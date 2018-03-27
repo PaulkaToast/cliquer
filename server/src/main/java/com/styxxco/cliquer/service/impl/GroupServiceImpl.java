@@ -55,9 +55,9 @@ public class GroupServiceImpl implements GroupService {
             return null;
         }
         Account user = accountRepository.findByAccountID(groupLeaderID);
-        Group group = new Group(groupName, groupPurpose, groupLeaderID);
+        Group group = new Group(groupName, groupPurpose, user.getAccountID(), user.getFullName());
         this.groupRepository.save(group);
-        user.addGroup(group.getGroupID());
+        user.addGroup(group);
         this.accountRepository.save(user);
         return group;
     }
@@ -76,7 +76,7 @@ public class GroupServiceImpl implements GroupService {
             log.info("User " + groupLeaderID + " is not the leader of group " + groupID);
             return null;
         }
-        for(String accountID : group.getGroupMemberIDs())
+        for(String accountID : group.getGroupMemberIDs().keySet())
         {
             Account account = accountRepository.findByAccountID(accountID);
             account.removeGroup(groupID);
@@ -101,7 +101,7 @@ public class GroupServiceImpl implements GroupService {
             return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
-        for(String id : group.getGroupMemberIDs())
+        for(String id : group.getGroupMemberIDs().keySet())
         {
             if(id.equals(accountID))
             {
@@ -209,10 +209,10 @@ public class GroupServiceImpl implements GroupService {
             log.info("User " + accountID + " is already in group " + groupID);
             return null;
         }
-        group.addGroupMember(accountID);
-        groupRepository.save(group);
         Account member = accountRepository.findByAccountID(accountID);
-        member.addGroup(groupID);
+        group.addGroupMember(member);
+        groupRepository.save(group);
+        member.addGroup(group);
         accountRepository.save(member);
         return group;
     }
@@ -429,7 +429,7 @@ public class GroupServiceImpl implements GroupService {
         for(Group group : groups)
         {
             boolean exit = false;
-            for(String member : group.getGroupMemberIDs())
+            for(String member : group.getGroupMemberIDs().keySet())
             {
                 if(member.equals(user.getAccountID()))
                 {
@@ -587,7 +587,7 @@ public class GroupServiceImpl implements GroupService {
         }
         Group group = groupRepository.findByGroupID(groupID);
         List<Skill> skills = new ArrayList<>();
-        for(String skillID : group.getSkillReqs())
+        for(String skillID : group.getSkillReqs().keySet())
         {
             Skill skill = skillRepository.findBySkillID(skillID);
             skills.add(skill);
@@ -646,7 +646,7 @@ public class GroupServiceImpl implements GroupService {
         }
         Skill skill = new Skill(skillName, skillLevel);
         skillRepository.save(skill);
-        group.addSkillReq(skill.getSkillID());
+        group.addSkillReq(skill);
         groupRepository.save(group);
         return group;
     }
@@ -707,11 +707,11 @@ public class GroupServiceImpl implements GroupService {
             return false;
         }
         boolean metReq = true;
-        for(String skillReqID : group.getSkillReqs())
+        for(String skillReqID : group.getSkillReqs().keySet())
         {
             metReq = false;
             Skill skillReq = skillRepository.findBySkillID(skillReqID);
-            for(String skillID : user.getSkillIDs())
+            for(String skillID : user.getSkillIDs().keySet())
             {
                 Skill skill = skillRepository.findBySkillID(skillID);
                 if(skill.getSkillName().equals(skillReq.getSkillName()))
@@ -746,7 +746,7 @@ public class GroupServiceImpl implements GroupService {
                 Message.Types.JOIN_REQUEST);
         joinRequest.setGroupID(groupID);
         messageRepository.save(joinRequest);
-        leader.addMessage(joinRequest.getMessageID());
+        leader.addMessage(joinRequest);
         accountRepository.save(leader);
         return joinRequest;
     }
@@ -781,14 +781,14 @@ public class GroupServiceImpl implements GroupService {
         }
         Group group = groupRepository.findByGroupID(request.getGroupID());
         Account sender = accountRepository.findByAccountID(request.getSenderID());
-        group.addGroupMember(request.getSenderID());
+        group.addGroupMember(sender);
         groupRepository.save(group);
         Message acceptance = new Message(groupLeaderID,
                 "You have been accepted into group " + group.getGroupName(),
                 Message.Types.GROUP_ACCEPTED);
         messageRepository.save(acceptance);
-        sender.addMessage(acceptance.getMessageID());
-        sender.addGroup(group.getGroupID());
+        sender.addMessage(acceptance);
+        sender.addGroup(group);
         accountRepository.save(sender);
         return acceptance;
     }
@@ -838,7 +838,7 @@ public class GroupServiceImpl implements GroupService {
         Account receiver = accountRepository.findByAccountID(receiverID);
         Message message = new Message(groupID, content, type);
         messageRepository.save(message);
-        receiver.addMessage(message.getMessageID());
+        receiver.addMessage(message);
         accountRepository.save(receiver);
         return message;
     }
@@ -857,7 +857,7 @@ public class GroupServiceImpl implements GroupService {
             log.info("No accountID found for User: " + msg.getSenderId());
             return;
         }
-        if(!group.getGroupMemberIDs().contains(a.getAccountID()))
+        if(!group.hasGroupMember(a.getAccountID()))
         {
             log.info("User " + msg.getSenderId() + " is not in the group " + groupID);
             return;
@@ -890,14 +890,14 @@ public class GroupServiceImpl implements GroupService {
         Message message = new Message(groupLeaderID, "You can now rate your fellow members in group " + group.getGroupName() + "!", Message.Types.RATE_REQUEST);
         message.setGroupID(groupID);
         messageRepository.save(message);
-        for(String accountID : group.getGroupMemberIDs())
+        for(String accountID : group.getGroupMemberIDs().keySet())
         {
             if(accountID.equals(groupLeaderID))
             {
                 continue;
             }
             Account member = accountRepository.findByAccountID(accountID);
-            member.addMessage(message.getMessageID());
+            member.addMessage(message);
             accountRepository.save(member);
         }
         groupRepository.save(group);
@@ -913,16 +913,16 @@ public class GroupServiceImpl implements GroupService {
             return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
-        if(!group.getGroupMemberIDs().contains(rateeID))
+        if(!group.hasGroupMember(rateeID))
         {
             log.info("User " + rateeID + " is not in group " + groupID);
             return null;
         }
         Account member = accountRepository.findByAccountID(rateeID);
         Map<String, Integer> form = new TreeMap<>();
-        for(String skillID : group.getSkillReqs())
+        for(String skillID : group.getSkillReqs().keySet())
         {
-            for(String id : member.getSkillIDs())
+            for(String id : member.getSkillIDs().keySet())
             {
                 String skillReq = skillRepository.findBySkillID(skillID).getSkillName();
                 String skillName = skillRepository.findBySkillID(id).getSkillName();
@@ -945,12 +945,12 @@ public class GroupServiceImpl implements GroupService {
             return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
-        if(!group.getGroupMemberIDs().contains(raterID))
+        if(!group.hasGroupMember(raterID))
         {
             log.info("User " + raterID + " is not in group " + groupID);
             return null;
         }
-        if(!group.getGroupMemberIDs().contains(rateeID))
+        if(!group.hasGroupMember(rateeID))
         {
             log.info("User " + raterID + " is not in group " + groupID);
             return null;
@@ -975,7 +975,7 @@ public class GroupServiceImpl implements GroupService {
         for(Map.Entry<String, Integer> entry : updatedSkills.entrySet())
         {
             Skill skill = skillRepository.findBySkillNameAndSkillLevel(entry.getKey(), entry.getValue());
-            member.addSkill(skill.getSkillID());
+            member.addSkill(skill);
         }
         if(endorse)
         {

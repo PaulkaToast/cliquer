@@ -3,8 +3,6 @@ package com.styxxco.cliquer.service.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.domain.Group;
 import com.styxxco.cliquer.domain.Skill;
@@ -31,8 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.styxxco.cliquer.domain.Message.Types.FRIEND_INVITE;
 
 @Log4j
 @Service(value = AccountServiceImpl.NAME)
@@ -104,13 +100,15 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Account user = accountRepository.findByUsername(username);
-        for(String groupID : user.getGroupIDs())
+        for(String groupID : user.getGroupIDs().keySet())
         {
             Group group = groupRepository.findByGroupID(groupID);
             group.removeGroupMember(user.getAccountID());
             if(group.getGroupLeaderID().equals(user.getAccountID()))
             {
-                group.setGroupLeaderID(group.getGroupMemberIDs().get(0));
+                List<String> memberIDs = new ArrayList<>(group.getGroupMemberIDs().keySet());
+                group.setGroupLeaderID(memberIDs.get(0));
+                group.setGroupLeaderName(group.getGroupMemberIDs().get(memberIDs.get(0)));
             }
             groupRepository.save(group);
         }
@@ -531,7 +529,7 @@ public class AccountServiceImpl implements AccountService {
         }
         Account user = accountRepository.findByUsername(username);
         List<Skill> skills = new ArrayList<>();
-        for(String skillID : user.getSkillIDs())
+        for(String skillID : user.getSkillIDs().keySet())
         {
             Skill skill = skillRepository.findBySkillID(skillID);
             skills.add(skill);
@@ -548,7 +546,7 @@ public class AccountServiceImpl implements AccountService {
         }
         Account user = accountRepository.findByUsername(username);
         List<Group> groups = new ArrayList<>();
-        for (String groupID: user.getGroupIDs()) {
+        for (String groupID: user.getGroupIDs().keySet()) {
             Group group = groupRepository.findByGroupID(groupID);
             groups.add(group);
         }
@@ -623,7 +621,7 @@ public class AccountServiceImpl implements AccountService {
                 account.removeSkill(curr.getSkillID());
             }
         }
-        account.addSkill(skill.getSkillID());
+        account.addSkill(skill);
         accountRepository.save(account);
         return skill;
     }
@@ -658,7 +656,7 @@ public class AccountServiceImpl implements AccountService {
         }
         Account user = accountRepository.findByAccountID(userId);
         List<Message> messages = new ArrayList<>();
-        for(String id : user.getMessageIDs())
+        for(String id : user.getMessageIDs().keySet())
         {
             Message message = messageRepository.findByMessageID(id);
             if(!message.isRead())
@@ -718,7 +716,7 @@ public class AccountServiceImpl implements AccountService {
         Account receiver = accountRepository.findByAccountID(receiverID);
         Message message = new Message(sender.getAccountID(), content, type);
         messageRepository.save(message);
-        receiver.addMessage(message.getMessageID());
+        receiver.addMessage(message);
         accountRepository.save(receiver);
         return message;
     }
@@ -760,13 +758,12 @@ public class AccountServiceImpl implements AccountService {
                 String key = k.toString();
                 if (key.contentEquals("skillsReq")) {
                     JSONArray skills = obj.getJSONArray("skillsReq");
-                    List<String> list = new ArrayList<>();
                     for (int i = 0; i < skills.length(); i++) {
                         if (skillRepository.existsBySkillName(skills.getString(i))) {
-                            list.add(skillRepository.findBySkillNameAndSkillLevel(skills.getString(i), 0).getSkillID());
+                            Skill skill = skillRepository.findBySkillNameAndSkillLevel(skills.getString(i), 0);
+                            group.addSkillReq(skill);
                         }
                     }
-                    group.setSkillReqs(list);
                     groupRepository.save(group);
                 }
                 groupService.updateGroupSettings(group.getGroupID(), group.getGroupLeaderID(), key, obj.get(key).toString());
@@ -818,24 +815,25 @@ public class AccountServiceImpl implements AccountService {
             log.info("User " + username + " is not in group " + groupID);
             return null;
         }
+        group.removeGroupMember(user.getAccountID());
+        user.removeGroup(groupID);
         if(group.getGroupLeaderID().equals(user.getAccountID()))
         {
             if(group.getGroupMemberIDs().size() == 1)
             {
-                user.removeGroup(groupID);
                 groupRepository.delete(group);
                 accountRepository.save(user);
                 return user;
             }
             else
             {
-                group.setGroupLeaderID(group.getGroupMemberIDs().get(0));
+                List<String> memberIDs = new ArrayList<>(group.getGroupMemberIDs().keySet());
+                group.setGroupLeaderID(memberIDs.get(0));
+                group.setGroupLeaderName(group.getGroupMemberIDs().get(memberIDs.get(0)));
             }
 
         }
-        group.removeGroupMember(user.getAccountID());
         groupRepository.save(group);
-        user.removeGroup(groupID);
         accountRepository.save(user);
         return user;
 
@@ -897,8 +895,7 @@ public class AccountServiceImpl implements AccountService {
         Account user = accountRepository.findByAccountID(userId);
         Account friend = accountRepository.findByAccountID(friendId);
         Group group = groupRepository.findByGroupID(groupID);
-        Message message = sendMessage(user.getAccountID(), friend.getAccountID(), user.getFullName() + " has invited you to join " + group.getGroupName(), Types.GROUP_INVITE);
-        return message;
+        return sendMessage(user.getAccountID(), friend.getAccountID(), user.getFullName() + " has invited you to join " + group.getGroupName(), Types.GROUP_INVITE);
     }
 
     @Override
@@ -922,7 +919,7 @@ public class AccountServiceImpl implements AccountService {
         if (group == null) {
             return null;
         }
-        if (group.getGroupMemberIDs().contains(kickedId)) {
+        if (group.hasGroupMember(kickedId)) {
             return null;
         }
         sendMessage(userId, kickedId, "You have been kicked from " + group.getGroupName(), Types.KICK_NOTIFICATION);
@@ -979,8 +976,7 @@ public class AccountServiceImpl implements AccountService {
             log.info("User " + userId + " is already friends with " + receiverId);
             return null;
         }
-        Message message = sendMessage(userId, receiverId, user.getFullName() + " wants to add you as a friend! Do you accept the friend invite?", Types.FRIEND_INVITE);
-        return message;
+        return sendMessage(userId, receiverId, user.getFullName() + " wants to add you as a friend! Do you accept the friend invite?", Types.FRIEND_INVITE);
     }
 
     @Override
@@ -1041,8 +1037,8 @@ public class AccountServiceImpl implements AccountService {
         }
         Account user = accountRepository.findByAccountID(userId);
         Account friend = accountRepository.findByAccountID(friendID);
-        user.addFriend(friend.getAccountID());
-        friend.addFriend(user.getAccountID());
+        user.addFriend(friend);
+        friend.addFriend(user);
         accountRepository.save(user);
         accountRepository.save(friend);
         return friend;
@@ -1149,13 +1145,12 @@ public class AccountServiceImpl implements AccountService {
                 String key = k.toString();
                 if (key.contentEquals("skillsReq")) {
                     JSONArray skills = obj.getJSONArray("skillsReq");
-                    List<String> list = new ArrayList<>();
                     for (int i = 0; i < skills.length(); i++) {
                         if (skillRepository.existsBySkillName(skills.getString(i))) {
-                            list.add(skillRepository.findBySkillNameAndSkillLevel(skills.getString(i), 0).getSkillID());
+                            Skill skill = skillRepository.findBySkillNameAndSkillLevel(skills.getString(i), 0);
+                            group.addSkillReq(skill);
                         }
                     }
-                    group.setSkillReqs(list);
                     groupRepository.save(group);
                 }
                 groupService.updateGroupSettings(groupId, user.getAccountID(), key, obj.get(key).toString());
@@ -1174,7 +1169,6 @@ public class AccountServiceImpl implements AccountService {
             log.info("User " + username + " not found");
             return null;
         }
-        Account user = accountRepository.findByUsername(username);
         if(!accountRepository.existsByUsername(friend)) {
             log.info("User " + friend + " not found");
             return null;
@@ -1188,7 +1182,7 @@ public class AccountServiceImpl implements AccountService {
                 if (key.contentEquals("skillsRank")) {
                     JSONArray skills = obj.getJSONArray("skillsRank");
                     List<String> currSkillsString = new ArrayList<>();
-                    List<String> currSkillsIds = other.getSkillIDs();
+                    Set<String> currSkillsIds = other.getSkillIDs().keySet();
                     for (String id: currSkillsIds) {
                         currSkillsString.add(skillRepository.findBySkillID(id).getSkillName());
                     }
