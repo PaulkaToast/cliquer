@@ -74,7 +74,7 @@ public class Account extends Searchable implements UserDetails {
     private Map<String, String> skillIDs;
 	@JsonIgnore
     private Map<String, String> groupIDs;
-	// TODO: make map with names
+
     private Map<String, String> friendIDs;
 	@JsonIgnore
     private Map<String, Integer> messageIDs;
@@ -83,9 +83,6 @@ public class Account extends Searchable implements UserDetails {
 	private Map<String, Integer> numRatings;		/* Mapping for number of times each skill has been rated */
 	@JsonIgnore
 	private Map<String, Integer> totalRating;		/* Mapping for cumulative value of ratings for each skill */
-
-	@JacksonInject
-	private double rank;
 
     public Account() {
     	this.accountID = new ObjectId().toString();

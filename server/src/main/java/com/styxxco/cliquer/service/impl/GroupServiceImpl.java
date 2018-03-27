@@ -434,6 +434,7 @@ public class GroupServiceImpl implements GroupService {
                 if(member.equals(user.getAccountID()))
                 {
                     exit = true;
+                    break;
                 }
             }
             if(exit)
@@ -450,7 +451,7 @@ public class GroupServiceImpl implements GroupService {
             {
                 continue;
             }
-            else if(group.getReputationReq()*leader.getReputation() < user.getReputationReq()*user.getReputation())
+            else if(group.getReputationReq()*leader.getReputation() > user.getReputation() || user.getReputationReq() * user.getReputation() > leader.getReputation())
             {
                 continue;
             }

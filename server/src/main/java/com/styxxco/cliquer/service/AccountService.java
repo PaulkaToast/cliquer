@@ -40,12 +40,12 @@ public interface AccountService extends UserDetailsService {
     List<Account> searchBySkill(String skillName);
     Account searchByUsername(String username);
     List<Group> searchByGroupName(String groupName);
-    List<Group> searchByGroupPublic(boolean isPublic);
+    List<Group> searchByGroupPublic(String userId);
 
     /* Skill centered services */
     Skill addSkillToDatabase(String skillName);
     List<Skill> getAllValidSkills();
-    List<Skill> getAllUserSkills(String username);
+    List<Skill> getAllUserSkills(String userId);
     List<Group> getAllUserGroups(String username);
     Skill getSkill(String username, String skillName);
 
