@@ -691,7 +691,7 @@ public class AccountServiceImpl implements AccountService {
             {
                 messages.add(message);
                 //message.setRead(true);
-                messageRepository.save(message);
+                //messageRepository.save(message);
             }
         }
         return messages;
@@ -770,7 +770,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public String deleteMessage(String userId, String messageID)
+    public Message deleteMessage(String userId, String messageID)
     {
         if(!accountRepository.existsByAccountID(userId))
         {
@@ -783,9 +783,11 @@ public class AccountServiceImpl implements AccountService {
             log.info("User " + userId + " did not receive message " + messageID);
             return null;
         }
-        user.removeMessage(messageID);
+        Message message = messageRepository.findByMessageID(messageID);
+        user.removeMessage(message.getMessageID());
         accountRepository.save(user);
-        return "Success";
+        messageRepository.delete(message.getMessageID());
+        return message;
     }
 
     @Override
@@ -862,12 +864,11 @@ public class AccountServiceImpl implements AccountService {
             log.info("User " + username + " is not in group " + groupID);
             return null;
         }
-        group.removeGroupMember(user.getAccountID());
-        user.removeGroup(groupID);
         if(group.getGroupLeaderID().equals(user.getAccountID()))
         {
             if(group.getGroupMemberIDs().size() == 1)
             {
+                user.removeGroup(groupID);
                 groupRepository.delete(group);
                 accountRepository.save(user);
                 return user;
@@ -880,6 +881,8 @@ public class AccountServiceImpl implements AccountService {
             }
 
         }
+        user.removeGroup(groupID);
+        group.removeGroupMember(user.getAccountID());
         groupRepository.save(group);
         accountRepository.save(user);
         return user;
@@ -900,6 +903,7 @@ public class AccountServiceImpl implements AccountService {
         Message message = messageRepository.findByMessageID(messageId);
         System.out.println("MESSAGE: " + message.getContent() + "[" + message.getType() + "]");
         switch(message.getType()) {
+            /* RATE_REQUEST HANDLED ELSEWHERE */
             case Types.GROUP_INVITE:
                 if (accept) {
                     Message accepted = acceptGroupInvite(userId, messageId);
@@ -917,12 +921,17 @@ public class AccountServiceImpl implements AccountService {
             case Types.MOD_FLAG:
                 break;
             case Types.JOIN_REQUEST:
-                break;
-            case Types.RATE_REQUEST:
+                if (accept) {
+                    Message accepted = acceptJoinRequest(userId, messageId);
+                } else {
+                    Message sameAsSent = rejectJoinRequest(userId, messageId);
+                }
                 break;
             case Types.GROUP_ACCEPTED:
+                deleteMessage(userId, messageId);
                 break;
             case Types.FRIEND_ACCEPTED:
+                deleteMessage(userId, messageId);
                 break;
         }
     }
@@ -979,11 +988,11 @@ public class AccountServiceImpl implements AccountService {
         Account user = accountRepository.findByAccountID(userId);
         Account friend = accountRepository.findByAccountID(friendId);
         Group group = groupRepository.findByGroupID(groupID);
-        return sendMessage(user.getAccountID(), friend.getAccountID(), user.getFullName() + " has invited you to join " + group.getGroupName(), Types.GROUP_INVITE);
+        return groupService.sendMessage(group.getGroupID(), user.getAccountID(), friend.getAccountID(), user.getFullName() + " has invited you to join " + group.getGroupName(), Types.GROUP_INVITE);
     }
 
     @Override
-    public Account kickMember(String userId, String kickedId, String groupID) {
+    public Message kickMember(String userId, String kickedId, String groupID) {
         if(!accountRepository.existsByAccountID(userId))
         {
             log.info("User " + userId + " not found");
@@ -1006,8 +1015,8 @@ public class AccountServiceImpl implements AccountService {
         if (group.hasGroupMember(kickedId)) {
             return null;
         }
-        sendMessage(userId, kickedId, "You have been kicked from " + group.getGroupName(), Types.KICK_NOTIFICATION);
-        return accountRepository.findByAccountID(kickedId);
+        Message message = sendMessage(userId, kickedId, "You have been kicked from " + group.getGroupName(), Types.KICK_NOTIFICATION);
+        return message;
     }
 
     @Override
@@ -1085,6 +1094,50 @@ public class AccountServiceImpl implements AccountService {
         messageRepository.delete(invite);
         messageRepository.save(accept);
         return accept;
+    }
+
+    @Override
+    public Message acceptJoinRequest(String userId, String inviteId) {
+        if(!accountRepository.existsByAccountID(userId))
+        {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if(!user.hasMessage(inviteId))
+        {
+            log.info("User " + userId + " did not receive message " + inviteId);
+            return null;
+        }
+        Message invite = messageRepository.findByMessageID(inviteId);
+        if (!groupRepository.existsByGroupID(invite.getGroupID())) {
+            log.info("Could not find group within message");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(invite.getGroupID());
+        return groupService.acceptJoinRequest(userId, inviteId);
+    }
+
+    @Override
+    public Message rejectJoinRequest(String userId, String inviteId) {
+        if(!accountRepository.existsByAccountID(userId))
+        {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if(!user.hasMessage(inviteId))
+        {
+            log.info("User " + userId + " did not receive message " + inviteId);
+            return null;
+        }
+        Message invite = messageRepository.findByMessageID(inviteId);
+        if (!groupRepository.existsByGroupID(invite.getGroupID())) {
+            log.info("Could not find group within message");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(invite.getGroupID());
+        return groupService.denyJoinRequest(userId, inviteId);
     }
 
     @Override
@@ -1297,51 +1350,37 @@ public class AccountServiceImpl implements AccountService {
         return group;
     }
 
-    @Deprecated
     @Override
-    public Account rateUser(String username, String friend, String json) {
-        if(!accountRepository.existsByUsername(username))
+    public Account rateUser(String userId, String rateeId, String groupId, String json, boolean endorse) {
+        if(!accountRepository.existsByAccountID(userId))
         {
-            log.info("User " + username + " not found");
+            log.info("User " + userId + " not found");
             return null;
         }
-        if(!accountRepository.existsByUsername(friend)) {
-            log.info("User " + friend + " not found");
+        if(!accountRepository.existsByAccountID(rateeId)) {
+            log.info("User " + rateeId + " not found");
             return null;
         }
-        Account other = accountRepository.findByUsername(friend);
-
+        Account user = accountRepository.findByAccountID(userId);
+        Account ratee = accountRepository.findByUsername(rateeId);
+        Map<String, Integer> map = null;
         try {
+            map = new TreeMap<>();
             JSONObject obj = new JSONObject(json);
             for (Object k: obj.keySet()) {
                 String key = k.toString();
-                if (key.contentEquals("skillsRank")) {
-                    JSONArray skills = obj.getJSONArray("skillsRank");
-                    List<String> currSkillsString = new ArrayList<>();
-                    Set<String> currSkillsIds = other.getSkillIDs().keySet();
-                    for (String id: currSkillsIds) {
-                        currSkillsString.add(skillRepository.findBySkillID(id).getSkillName());
-                    }
-                    for (int i = 0; i < skills.length(); i++) {
-                        JSONObject skill = skills.getJSONObject(i);
-                        String skillName = skill.getString("skillName");
-                        int add = skill.getInt("skillLevel");
-                        if (skillRepository.existsBySkillName(skillName)) {
-                            if (currSkillsString.contains(skillName)) {
-                                int change = getSkill(other.getUsername(), skillName).getSkillLevel() + add;
-                                addSkill(other, skillName, change + "");
-                            }
-                        }
-                    }
-                } else if (key.contentEquals("reputation")) {
-                    other.setReputation(other.getReputation() + obj.getInt("reputation"));
-                }
-                accountRepository.save(other);
+                Integer level = Integer.parseInt(obj.getString(key));
+                map.put(key, level);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return other;
+        if (map == null) {
+            log.info("Map is null");
+            return null;
+        }
+        groupService.rateGroupMember(groupId, userId, rateeId, endorse, map);
+        return ratee;
     }
 }
 

@@ -54,7 +54,6 @@ public class RestController {
     public @ResponseBody ResponseEntity<?> getUserProfile(@RequestParam(value = "username", required = false) String username,
                                      @RequestParam(value = "userId", required = false) String userId,
                                      @RequestParam(value = "type") String type) {
-
         Account user = accountService.getProfile(username, userId, type);
         if (user == null) {
             return new ResponseEntity<>("Could not fetch profile with the query", HttpStatus.BAD_REQUEST);
@@ -146,11 +145,11 @@ public class RestController {
     public @ResponseBody ResponseEntity<?> kick(@RequestParam(value = "userId") String userId,
                      @RequestParam(value = "kickedId") String kickedId,
                      @RequestParam(value = "groupId") String groupId) {
-        Account user = accountService.kickMember(userId, kickedId, groupId);
-        if (user == null) {
+        Message message = accountService.kickMember(userId, kickedId, groupId);
+        if (message == null) {
             return new ResponseEntity<>("Could not kick member from group", HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/getUserGroups", method = RequestMethod.GET)
@@ -204,10 +203,12 @@ public class RestController {
     }
 
     @RequestMapping(value = "/api/rateUser", method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<?> rateUser(@RequestParam(value = "username") String username,
-                                                    @RequestParam(value = "friend") String friend,
+    public @ResponseBody ResponseEntity<?> rateUser(@RequestParam(value = "userId") String userId,
+                                                    @RequestParam(value = "rateeId") String rateeId,
+                                                    @RequestParam(value = "groupId") String groupId,
+                                                    @RequestParam(value = "endorse", required = false, defaultValue = "false") boolean endorse,
                                                     @RequestBody String json) {
-        Account user = accountService.rateUser(username, friend, json);
+        Account user = accountService.rateUser(userId, rateeId, groupId, json, endorse);
         if (user == null) {
             return new ResponseEntity<>("Could not rate user", HttpStatus.BAD_REQUEST);
         }
