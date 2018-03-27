@@ -60,6 +60,7 @@ public interface AccountService extends UserDetailsService {
     Account addToGroup(String username, String groupID);
     Account leaveGroup(String username, String groupID);
     Message inviteToGroup(String username, String friend, String groupID);
+    Message requestToGroup(String userId, String leaderId, String groupId);
     Account kickMember(String userId, String kickedId, String groupID);
 
     /* Friend invite services */

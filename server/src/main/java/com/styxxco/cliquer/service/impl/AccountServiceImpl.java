@@ -876,6 +876,33 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Message requestToGroup(String userId, String leaderId, String groupId) {
+        if(!accountRepository.existsByAccountID(userId))
+        {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        if(!accountRepository.existsByAccountID(leaderId))
+        {
+            log.info("User " + leaderId + " not found");
+            return null;
+        }
+        if(!groupRepository.existsByGroupID(groupId))
+        {
+            log.info("Group " + groupId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        Account leader = accountRepository.findByAccountID(leaderId);
+        Group group = groupRepository.findByGroupID(groupId);
+        if (!group.getGroupLeaderID().contentEquals(leader.getAccountID())) {
+            log.info(leaderId + " is not leader of group " + groupId);
+            return null;
+        }
+        return groupService.requestToJoinGroup(groupId, userId);
+    }
+
+    @Override
     public Message inviteToGroup(String userId, String friendId, String groupID) {
         if(!accountRepository.existsByAccountID(userId))
         {
