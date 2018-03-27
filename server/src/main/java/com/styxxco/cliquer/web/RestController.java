@@ -1,5 +1,8 @@
 package com.styxxco.cliquer.web;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.InjectableValues;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.Http;
 import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.security.FirebaseFilter;
@@ -7,6 +10,7 @@ import lombok.extern.log4j.Log4j;
 import org.bson.types.ObjectId;
 import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.FirebaseService;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,6 +21,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -54,6 +59,17 @@ public class RestController {
         if (user == null) {
             return new ResponseEntity<>("Could not fetch profile with the query", HttpStatus.BAD_REQUEST);
         }
+//        InjectableValues inject = new InjectableValues.Std().addValue(double.class, 3.0);
+//        try {
+//            String json = new ObjectMapper().writeValueAsString(user);
+//            System.out.println(json);
+//            Account user2 = new ObjectMapper().reader(inject).forType(Account.class).readValue(json);
+//            return new ResponseEntity<>(user2, HttpStatus.OK);
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -233,8 +249,10 @@ public class RestController {
     // TODO: handle notifications or use websockets
     @RequestMapping(value = "/api/handleNotification", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> handleNotification(@RequestParam(value = "userId") String userId,
-                                                              @RequestParam(value = "messageId") String messageId) {
-        return null;
+                                                              @RequestParam(value = "messageId") String messageId,
+                                                              @RequestParam(value = "accept", required = false, defaultValue = "true") boolean accept) {
+        accountService.handleNotifications(userId, messageId, accept);
+        return new ResponseEntity<>("{\"status\": \"cool\"}", HttpStatus.OK);
     }
 
     // TODO: reputationRank endpoint

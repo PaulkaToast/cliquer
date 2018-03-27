@@ -1,9 +1,12 @@
 
 package com.styxxco.cliquer.domain;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.styxxco.cliquer.service.AccountService;
 import lombok.*;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Id;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -80,6 +83,9 @@ public class Account extends Searchable implements UserDetails {
 	private Map<String, Integer> numRatings;		/* Mapping for number of times each skill has been rated */
 	@JsonIgnore
 	private Map<String, Integer> totalRating;		/* Mapping for cumulative value of ratings for each skill */
+
+	@JacksonInject
+	private double rank;
 
     public Account() {
     	this.accountID = new ObjectId().toString();

@@ -774,7 +774,6 @@ public class AccountServiceImpl implements AccountService {
         return group;
     }
 
-    /* TODO: Ensure user fits requirements @Shawn @SprintTwo */
     @Override
     public Account addToGroup(String username, String groupID) {
         if(!accountRepository.existsByUsername(username))
@@ -840,7 +839,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void handleNotifications(String userId, String messageId) {
+    public void handleNotifications(String userId, String messageId, boolean accept) {
         if(!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return;// null;
@@ -851,11 +850,21 @@ public class AccountServiceImpl implements AccountService {
             return;// null;
         }
         Message message = messageRepository.findByMessageID(messageId);
+        System.out.println("MESSAGE: " + message.getContent() + "[" + message.getType() + "]");
         switch(message.getType()) {
             case Types.GROUP_INVITE:
+                if (accept) {
+                    Message accepted = acceptGroupInvite(userId, messageId);
+                } else {
+                    Message sameAsSent = rejectGroupInvite(userId, messageId);
+                }
                 break;
             case Types.FRIEND_INVITE:
-                Message accepted = acceptFriendInvite(userId, messageId);
+                if (accept) {
+                    Message accepted = acceptFriendInvite(userId, messageId);
+                } else {
+                    Message sameAsSent = rejectFriendInvite(userId, messageId);
+                }
                 break;
             case Types.MOD_FLAG:
                 break;
@@ -866,6 +875,7 @@ public class AccountServiceImpl implements AccountService {
             case Types.GROUP_ACCEPTED:
                 break;
             case Types.FRIEND_ACCEPTED:
+
                 break;
         }
     }
@@ -1024,9 +1034,61 @@ public class AccountServiceImpl implements AccountService {
         user.removeMessage(inviteID);
         accountRepository.save(user);
         this.addFriend(userId, invite.getSenderID());
-        Message accept = sendMessage(userId, invite.getSenderID(),user.getUsername() + " added you as a friend!", Types.FRIEND_ACCEPTED);
+        Message accept = sendMessage(userId, invite.getSenderID(),user.getFullName() + " added you as a friend!", Types.FRIEND_ACCEPTED);
         messageRepository.delete(invite);
+        messageRepository.save(accept);
         return accept;
+    }
+
+    @Override
+    public Message acceptGroupInvite(String userId, String inviteId) {
+        if(!accountRepository.existsByAccountID(userId))
+        {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if(!user.hasMessage(inviteId))
+        {
+            log.info("User " + userId + " did not receive message " + inviteId);
+            return null;
+        }
+        Message invite = messageRepository.findByMessageID(inviteId);
+        user.removeMessage(inviteId);
+        accountRepository.save(user);
+        if (!groupRepository.existsByGroupID(invite.getGroupID())) {
+            log.info("Group " + invite.getGroupID() + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(invite.getGroupID());
+        Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
+        addToGroup(userId, group.getGroupID());
+        Message message = sendMessage(userId, leader.getAccountID(), user.getFullName() + " has joined " + group.getGroupName(), Types.GROUP_ACCEPTED);
+        leader.addMessage(message.getMessageID());
+        accountRepository.save(leader);
+        messageRepository.delete(inviteId);
+        messageRepository.save(message);
+        return message;
+    }
+
+    @Override
+    public Message rejectGroupInvite(String userId, String inviteId) {
+        if(!accountRepository.existsByAccountID(userId))
+        {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if(!user.hasMessage(inviteId))
+        {
+            log.info("User " + userId + " did not receive message " + inviteId);
+            return null;
+        }
+        Message invite = messageRepository.findByMessageID(inviteId);
+        user.removeMessage(inviteId);
+        messageRepository.delete(inviteId);
+        accountRepository.save(user);
+        return invite;
     }
 
     @Override

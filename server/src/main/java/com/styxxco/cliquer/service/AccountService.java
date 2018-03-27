@@ -60,6 +60,8 @@ public interface AccountService extends UserDetailsService {
     Account addToGroup(String username, String groupID);
     Account leaveGroup(String username, String groupID);
     Message inviteToGroup(String username, String friend, String groupID);
+    Message acceptGroupInvite(String userId, String inviteId);
+    Message rejectGroupInvite(String userId, String inviteId);
     Message requestToGroup(String userId, String leaderId, String groupId);
     Account kickMember(String userId, String kickedId, String groupID);
 
@@ -79,5 +81,5 @@ public interface AccountService extends UserDetailsService {
     String checkNewUserFlag(String username);
     List<Account> moveSuggestedToTop(List<Account> accounts, int reputation, boolean includeWeights);
     double getReputationRanking(String username);
-    void handleNotifications(String userId, String messageId);
+    void handleNotifications(String userId, String messageId, boolean accept);
 }
