@@ -524,15 +524,13 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Skill addSkillToDatabase(String skillName)
     {
-        if(skillRepository.existsBySkillName(skillName))
+        for(int i = 0; i <= 10; i++)
         {
-            log.info("Skill " + skillName + " is already in database");
-            return null;
-        }
-        for(int i = 0; i <= 10; i ++)
-        {
-            Skill skill = new Skill(skillName, i);
-            skillRepository.save(skill);
+            if(!skillRepository.existsBySkillNameAndSkillLevel(skillName, i))
+            {
+                Skill skill = new Skill(skillName, i);
+                skillRepository.save(skill);
+            }
         }
         return skillRepository.findBySkillNameAndSkillLevel(skillName, 0);
     }
