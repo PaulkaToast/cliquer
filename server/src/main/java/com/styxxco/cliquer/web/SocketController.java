@@ -49,7 +49,8 @@ public class SocketController {
 
     @MessageMapping("/{username}/{groupId}/messageHistory")
     @SendTo("/group/{username}/{groupId}")
-    public List<ChatMessage> messageHistory(@DestinationVariable String groupId, @DestinationVariable String username) {
+    public List<ChatMessage> messageHistory(@DestinationVariable String groupId,
+                                            @DestinationVariable String username) {
         Account a = accountService.getUserProfile(username);
         if (a == null) {
             log.info("Account ID not found for User: " + username);
@@ -62,8 +63,8 @@ public class SocketController {
 
     @MessageMapping("/{userId}/{groupId}/rate")
     @SendTo("/group/{groupId}")
-    public Message requestRate(@DestinationVariable String userId,
-                               @DestinationVariable String groupId) {
+    public Message requestRate(@DestinationVariable String groupId,
+                               @DestinationVariable String userId) {
         Message message = accountService.requestRating(userId, groupId);
         if (message == null) {
             log.info("Could not send rate request for group " + groupId);
@@ -73,9 +74,9 @@ public class SocketController {
 
     @MessageMapping("/inviteToGroup/{userId}/{friendId}/{groupId}")
     @SendTo("/notification/{friendId}")
-    public Message inviteToGroup(@DestinationVariable String userId,
-                                 @DestinationVariable String friendId,
-                                 @DestinationVariable String groupId) {
+    public Message inviteToGroup(@DestinationVariable String friendId,
+                                 String userId,
+                                 String groupId) {
         Message invite = accountService.inviteToGroup(userId, friendId, groupId);
         if (invite == null) {
             log.info("Could not invite user " + friendId + " to group " + groupId);
@@ -83,17 +84,22 @@ public class SocketController {
         return invite;
     }
 
-    @MessageMapping("/requestToGroup/{userId}/{groupId}")
+    @MessageMapping("/requestToGroup/{userId}/{leaderId}{groupId}")
     @SendTo("/notification/{leaderId}")
-    public Message requestToGroup(@DestinationVariable String userId,
-                                  @DestinationVariable String groupId) {
-        return null;
+    public Message requestToGroup(@DestinationVariable String leaderId,
+                                  String userId,
+                                  String groupId) {
+        Message message = accountService.requestToGroup(userId, leaderId, groupId);
+        if (message == null) {
+            log.info("Could not send request to group " + groupId);
+        }
+        return message;
     }
 
     @MessageMapping("requestFriend/{userId}/{friendId}")
     @SendTo("/notification/{friendId}")
-    public Message requestFriend(@DestinationVariable String userId,
-                                       @DestinationVariable String friendId) {
+    public Message requestFriend(@DestinationVariable String friendId,
+                                 String userId) {
         Message invite = accountService.sendFriendInvite(userId, friendId);
         if (invite == null) {
             log.info("Could not send a friend request to " + friendId);
