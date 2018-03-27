@@ -16,6 +16,8 @@ import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Log4j
 @Controller
@@ -84,11 +86,13 @@ public class SocketController {
         return invite;
     }
 
-    @MessageMapping("/requestToJoin/{userId}/{leaderId}{groupId}")
+    @MessageMapping("/requestToJoin/{userId}/{leaderId}/{groupId}")
     @SendTo("/notification/{leaderId}")
-    public Message requestToGroup(@DestinationVariable String leaderId,
-                                  @DestinationVariable String userId,
+    public Message requestToJoin(
+            @DestinationVariable String userId,
+            @DestinationVariable String leaderId,
                                   @DestinationVariable String groupId) {
+        System.out.println("REQUEST TO JOIN");
         Message message = accountService.requestToGroup(userId, leaderId, groupId);
         if (message == null) {
             log.info("Could not send request to group " + groupId);
@@ -109,11 +113,13 @@ public class SocketController {
 
     @MessageMapping("/{userId}/allMessages")
     @SendTo("/notification/{userId}")
-    public List<Message> getAllMessages(@DestinationVariable String userId) {
+    public Map<String, Message> getAllMessages(@DestinationVariable String userId) {
         List<Message> list = accountService.getNewMessages(userId);
         if (list == null) {
             log.info("Could not get notifications for user " + userId);
+            return null;
         }
-        return list;
+        Map<String, Message> map = list.stream().collect(Collectors.toMap(Message::getMessageID, _it -> _it));
+        return map;
     }
 }

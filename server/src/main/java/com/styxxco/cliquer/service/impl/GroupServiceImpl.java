@@ -428,11 +428,13 @@ public class GroupServiceImpl implements GroupService {
         List<Group> qualified = new ArrayList<>();
         for(Group group : groups)
         {
+            System.out.println(group.getGroupName());
             boolean exit = false;
             for(String member : group.getGroupMemberIDs().keySet())
             {
                 if(member.equals(user.getAccountID()))
                 {
+                    System.out.println("is member");
                     exit = true;
                     break;
                 }
@@ -443,6 +445,7 @@ public class GroupServiceImpl implements GroupService {
             }
             else if(!group.isPublic())
             {
+                System.out.println("is not public");
                 continue;
             }
             Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
@@ -453,12 +456,14 @@ public class GroupServiceImpl implements GroupService {
             }
             else if(group.getReputationReq()*leader.getReputation() > user.getReputation() || user.getReputationReq() * user.getReputation() > leader.getReputation())
             {
+                System.out.println("reputation issue");
                 continue;
             }
-            else if(user.distanceTo(leader.getLatitude(), leader.getLongitude()) > user.getProximityReq())
-            {
-                continue;
-            }
+//            else if(user.distanceTo(leader.getLatitude(), leader.getLongitude()) > user.getProximityReq())
+//            {
+//                System.out.println("proximity issue");
+//                continue;
+//            }
             qualified.add(group);
         }
         Comparator<Group> byGroupName = Comparator.comparing(Group::getGroupName);
@@ -699,14 +704,14 @@ public class GroupServiceImpl implements GroupService {
             log.info("User " + accountID + " is already a member of group " + groupID);
             return false;
         }
-        if(user.getAdjustedReputation() < group.getReputationReq() * leader.getReputation())
+        if(group.getReputationReq()*leader.getReputation() > user.getReputation() || user.getReputationReq() * user.getReputation() > leader.getReputation())
         {
             return false;
         }
-        if(user.distanceTo(leader.getLatitude(), leader.getLongitude()) > group.getProximityReq())
-        {
-            return false;
-        }
+//        if(user.distanceTo(leader.getLatitude(), leader.getLongitude()) > group.getProximityReq())
+//        {
+//            return false;
+//        }
         boolean metReq = true;
         for(String skillReqID : group.getSkillReqs().keySet())
         {
@@ -737,6 +742,7 @@ public class GroupServiceImpl implements GroupService {
     {
         if(!this.meetsGroupRequirements(groupID, accountID))
         {
+            System.out.println("Does not meet requirements");
             return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
@@ -837,7 +843,8 @@ public class GroupServiceImpl implements GroupService {
             return null;
         }
         Account receiver = accountRepository.findByAccountID(receiverID);
-        Message message = new Message(groupID, content, type);
+        Message message = new Message(senderID, content, type);
+        message.setGroupID(group.getGroupID());
         messageRepository.save(message);
         receiver.addMessage(message);
         accountRepository.save(receiver);
@@ -929,7 +936,7 @@ public class GroupServiceImpl implements GroupService {
                 String skillName = skillRepository.findBySkillID(id).getSkillName();
                 if(skillReq.equals(skillName))
                 {
-                    form.put(id, 0);
+                    form.put(skillName, 0);
                     break;
                 }
             }
@@ -938,7 +945,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public String rateGroupMember(String groupID, String raterID, String rateeID,boolean endorse, Map<String, Integer> skillRatings)
+    public String rateGroupMember(String groupID, String raterID, String rateeID, boolean endorse, Map<String, Integer> skillRatings)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -964,12 +971,19 @@ public class GroupServiceImpl implements GroupService {
         Account member = accountRepository.findByAccountID(rateeID);
         List<Skill> skills = new ArrayList<>();
         List<Integer> ratings = new ArrayList<>();
-        for(String skillID : skillRatings.keySet())
+        for(String skillName : skillRatings.keySet())
         {
-            if(skillRatings.get(skillID) > 0 && skillRatings.get(skillID) <= 10)
+            if(skillRatings.get(skillName) > 0 && skillRatings.get(skillName) <= 10)
             {
-                skills.add(skillRepository.findBySkillID(skillID));
-                ratings.add(skillRatings.get(skillID));
+                for(Map.Entry<String, String> entry : member.getSkillIDs().entrySet())
+                {
+                    if(entry.getValue().equals(skillName))
+                    {
+                        skills.add(skillRepository.findBySkillID(entry.getKey()));
+                        ratings.add(skillRatings.get(skillName));
+                        break;
+                    }
+                }
             }
         }
         Map<String, Integer> updatedSkills = member.addSkillRatings(skills, ratings);

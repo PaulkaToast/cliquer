@@ -14,6 +14,9 @@
 .nav-link{
     border-color: #a3a3a3 !important; 
 }
+.friend-cancel-button{
+    float: right;
+}
 
 .loader,
 .loader:before,
