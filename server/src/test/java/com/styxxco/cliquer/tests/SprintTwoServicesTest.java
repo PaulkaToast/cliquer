@@ -689,11 +689,8 @@ public class SprintTwoServicesTest {
         String result = groupService.rateGroupMember(cliquer.getGroupID(), shawn.getAccountID(), kevin.getAccountID(), false, form);
         assertNotNull(result);
         Skill newJava = skillRepository.findBySkillNameAndSkillLevel("Java", 5);
-        assertNotNull(newJava.getSkillID());
         Skill newVim = skillRepository.findBySkillNameAndSkillLevel("VIM", 7);
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
-        assertEquals(2, kevin.getSkillIDs().keySet().size());
-        assertEquals("Java", kevin.getSkillIDs().get(newJava.getSkillID()));
         assertEquals(true, kevin.getSkillIDs().containsKey(newJava.getSkillID()));
         assertEquals(true, kevin.getSkillIDs().containsKey(newVim.getSkillID()));
         assertEquals(false, kevin.getSkillIDs().containsKey(java.getSkillID()));

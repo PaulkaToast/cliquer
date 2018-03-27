@@ -966,11 +966,17 @@ public class GroupServiceImpl implements GroupService {
         List<Integer> ratings = new ArrayList<>();
         for(String skillName : skillRatings.keySet())
         {
-
             if(skillRatings.get(skillName) > 0 && skillRatings.get(skillName) <= 10)
             {
-                skills.add(skillRepository.findBySkillNameAndSkillLevel(skillName, skillRatings.get(skillName)));
-                ratings.add(skillRatings.get(skillName));
+                for(Map.Entry<String, String> entry : member.getSkillIDs().entrySet())
+                {
+                    if(entry.getValue().equals(skillName))
+                    {
+                        skills.add(skillRepository.findBySkillID(entry.getKey()));
+                        ratings.add(skillRatings.get(skillName));
+                        break;
+                    }
+                }
             }
         }
         Map<String, Integer> updatedSkills = member.addSkillRatings(skills, ratings);
