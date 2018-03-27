@@ -156,7 +156,7 @@ class Profile extends Component {
               Friends:
             </h4>
             <ListGroup>
-            {Object.keys(this.props.profile.friendIDs).map((key) =>
+            {this.props.profile && this.props.profile.friendIDs && Object.keys(this.props.profile.friendIDs).map((key) =>
             { return <ListGroupItem onClick={() => this.props.goToProfile(key)} key={key}>
             {profile.friendIDs[key]}
             <Button className="friend-cancel-button" onClick={() => {}} color="link">x</Button>
