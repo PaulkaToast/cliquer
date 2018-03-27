@@ -138,7 +138,7 @@ class Profile extends Component {
             </h1>
             <hr/>
             <h4>
-              Reputation: {profile.adjustedReputation}
+              Reputation: {profile.reputation}
             </h4>
             <hr/>
             
@@ -149,7 +149,7 @@ class Profile extends Component {
             <h4>
               Skills:
             </h4>
-              <SkillsPanel skills={skills}/>
+              <SkillsPanel skills={skills} isOwner={this.isOwner(ownerID)}/>
           </TabPane>
           <TabPane tabId="2">
           </TabPane>
