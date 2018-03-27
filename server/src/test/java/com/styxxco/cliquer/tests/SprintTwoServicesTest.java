@@ -41,7 +41,7 @@ public class SprintTwoServicesTest {
     public GroupService groupService;
 
     /* Back end Unit Test for User Story 10 */
-    @Test
+    //@Test
     public void testGroupSearchFilters() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
@@ -483,7 +483,7 @@ public class SprintTwoServicesTest {
     }
 
     /* Back end Unit Test for User Story 28 */
-    @Test
+    //@Test
     public void testJoiningGroup() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
