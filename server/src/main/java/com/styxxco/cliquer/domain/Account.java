@@ -68,13 +68,14 @@ public class Account extends Searchable implements UserDetails {
 	@JsonIgnore
     private List<Role> authorities;
 	@JsonIgnore
-    private List<String> skillIDs;
+    private Map<String, String> skillIDs;
 	@JsonIgnore
-    private List<String> groupIDs;
+    private Map<String, String> groupIDs;
 	// TODO: make map with names
-    private List<String> friendIDs;
+    private Map<String, String> friendIDs;
 	@JsonIgnore
-    private List<String> messageIDs;
+    private Map<String, Integer> messageIDs;
+
 	@JsonIgnore
 	private Map<String, Integer> numRatings;		/* Mapping for number of times each skill has been rated */
 	@JsonIgnore
@@ -101,10 +102,10 @@ public class Account extends Searchable implements UserDetails {
 		this.reputation = 1;
 		this.latitude = 360.00;
 		this.longitude = 360.00;
-		this.skillIDs = new ArrayList<>();
-		this.groupIDs = new ArrayList<>();
-		this.friendIDs = new ArrayList<>();
-		this.messageIDs = new ArrayList<>();
+		this.skillIDs = new TreeMap<>();
+		this.groupIDs = new TreeMap<>();
+		this.friendIDs = new TreeMap<>();
+		this.messageIDs = new TreeMap<>();
 		this.accountLocked = false;
 		this.accountExpired = false;
 		this.accountEnabled = true;
@@ -142,9 +143,9 @@ public class Account extends Searchable implements UserDetails {
 		return this.reputation;
 	}
 
-	public void addSkill(String skillID)
+	public void addSkill(Skill skill)
 	{
-		this.skillIDs.add(skillID);
+		this.skillIDs.put(skill.getSkillID(), skill.getSkillName());
 	}
 
 	public void removeSkill(String skillID)
@@ -152,14 +153,14 @@ public class Account extends Searchable implements UserDetails {
 		this.skillIDs.remove(skillID);
 	}
 
-	public void addMessage(String messageID)
+	public void addMessage(Message message)
 	{
-		this.messageIDs.add(messageID);
+		this.messageIDs.put(message.getMessageID(), message.getType());
 	}
 
 	public boolean hasMessage(String messageID)
 	{
-		return this.messageIDs.contains(messageID);
+		return this.messageIDs.containsKey(messageID);
 	}
 
 	public void removeMessage(String messageID)
@@ -167,9 +168,9 @@ public class Account extends Searchable implements UserDetails {
 		this.messageIDs.remove(messageID);
 	}
 
-	public void addGroup(String groupID)
+	public void addGroup(Group group)
 	{
-		this.groupIDs.add(groupID);
+		this.groupIDs.put(group.getGroupID(), group.getGroupName());
 	}
 
 	public void removeGroup(String groupID)
@@ -177,13 +178,13 @@ public class Account extends Searchable implements UserDetails {
 		this.groupIDs.remove(groupID);
 	}
 
-	public void addFriend(String friendID) {
-    	this.friendIDs.add(friendID);
+	public void addFriend(Account friend) {
+    	this.friendIDs.put(friend.getAccountID(), friend.getFullName());
 	}
 
 	public boolean hasFriend(String friendID)
 	{
-		return this.friendIDs.contains(friendID);
+		return this.friendIDs.containsKey(friendID);
 	}
 
 	public void removeFriend(String friendID) {

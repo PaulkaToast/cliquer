@@ -24,15 +24,16 @@ public class Group extends Searchable {
     private String groupPurpose;
     private byte[] groupPic;
 
-	private List<String> skillReqs;
+	private Map<String, String> skillReqs;
     private boolean isPublic;
     private double reputationReq;			/* Fraction of leader's reputation */
     private int proximityReq;
 
     private String groupLeaderID;
+    private String groupLeaderName;
 
     // TODO: map to names
-	private List<String> groupMemberIDs;	/* Account ID of the group members */
+	private Map<String, String> groupMemberIDs;	/* Account ID of the group members */
 
 	private String kickCandidate;
 	private List<String> kickVotes;
@@ -43,19 +44,20 @@ public class Group extends Searchable {
 	@JsonIgnore
 	private List<ChatMessage> chatHistory;
 
-	public Group(@NonNull String groupName, String groupPurpose, String groupLeaderID) {
+	public Group(@NonNull String groupName, String groupPurpose, String groupLeaderID, String groupLeaderName) {
 		this.groupID = new ObjectId().toString();
 		this.groupName = groupName;
 		this.groupPurpose = groupPurpose;
 		this.groupLeaderID = groupLeaderID;
+		this.groupLeaderName = groupLeaderName;
 
 		this.groupPic = null;
-		this.skillReqs = new ArrayList<>();
+		this.skillReqs = new TreeMap<>();
 		this.isPublic = false;
 		this.reputationReq = 0.0;
 		this.proximityReq = 100;
-		this.groupMemberIDs = new ArrayList<>();
-		this.groupMemberIDs.add(groupLeaderID);
+		this.groupMemberIDs = new TreeMap<>();
+		this.groupMemberIDs.put(groupLeaderID, groupLeaderName);
 
 		this.kickCandidate = null;
 		this.kickVotes = new ArrayList<>();
@@ -80,9 +82,9 @@ public class Group extends Searchable {
         return kickVotes.contains(accountID);
     }
 
-	public void addSkillReq(String skillID)
+	public void addSkillReq(Skill skill)
 	{
-		skillReqs.add(skillID);
+		skillReqs.put(skill.getSkillID(), skill.getSkillName());
 	}
 
 	public void removeSkillReq(String skillID)
@@ -90,9 +92,9 @@ public class Group extends Searchable {
 		skillReqs.remove(skillID);
 	}
 
-	public void addGroupMember(String accountID)
+	public void addGroupMember(Account account)
 	{
-		groupMemberIDs.add(accountID);
+		groupMemberIDs.put(account.getAccountID(), account.getFullName());
 	}
 
 	public void removeGroupMember(String accountID)
@@ -102,7 +104,7 @@ public class Group extends Searchable {
 
 	public boolean hasGroupMember(String accountID)
 	{
-		return groupMemberIDs.contains(accountID);
+		return groupMemberIDs.containsKey(accountID);
 	}
 
 	/*
@@ -122,10 +124,10 @@ public class Group extends Searchable {
 			return false;
 		}
 		ratingsToGive = new TreeMap<>();
-		for(String accountID : groupMemberIDs)
+		for(String accountID : groupMemberIDs.keySet())
 		{
 			List<String> members = new ArrayList<>();
-			for(String memberID : groupMemberIDs)
+			for(String memberID : groupMemberIDs.keySet())
 			{
 				if(!memberID.equals(accountID))
 				{

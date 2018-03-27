@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
@@ -77,14 +78,14 @@ public class SprintOneServicesTest {
 		assertEquals("Montgomery", shawn.getLastName());
 
 		jordan.setPublic(true);
-		String test = new ObjectId().toString();
+		Skill test = new Skill("Test1", 5);
 		jordan.addSkill(test);
 		accountRepository.save(jordan);
 		retrieve = accountService.getPublicProfile(jordan.getUsername());
-		assertEquals(test, retrieve.getSkillIDs().get(0));
+		assertEquals("Test1", retrieve.getSkillIDs().get(test.getSkillID()));
 
 		shawn.setPublic(false);
-		test = new ObjectId().toString();
+		test = new Skill("Test2", 7);
 		shawn.addSkill(test);
 		accountRepository.save(shawn);
 		retrieve = accountService.getPublicProfile(shawn.getUsername());
@@ -204,7 +205,7 @@ public class SprintOneServicesTest {
 				"Cliquer",
 				"To create a web app that facilitates the teaming of people who may have never met before",
 				jordan.getAccountID());
-		cliquer.addGroupMember(shawn.getAccountID());
+		cliquer.addGroupMember(shawn);
 		groupRepository.save(cliquer);
 
 		Group retrieve = groupService.getUserGroup(cliquer.getGroupID(), shawn.getAccountID());
@@ -267,7 +268,7 @@ public class SprintOneServicesTest {
 				"Cliquer",
 				"To create a web app that facilitates the teaming of people who may have never met before",
 				jordan.getAccountID());
-		cliquer.addGroupMember(shawn.getAccountID());
+		cliquer.addGroupMember(shawn);
 		groupRepository.save(cliquer);
 
 		Group modify = groupService.updateGroupSettings(cliquer.getGroupID(), shawn.getAccountID(), "reputationReq", "0.6");
@@ -293,13 +294,15 @@ public class SprintOneServicesTest {
 		assertNull(skill);
 
 		modify = groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID());
-		Account account = accountService.getMemberProfile(accountRepository.findByAccountID(modify.getGroupMemberIDs().get(2)).getUsername());
+		List<String> memberIDs = new ArrayList<>(modify.getGroupMemberIDs().keySet());
+		Account account = accountService.getMemberProfile(accountRepository.findByAccountID(memberIDs.get(2)).getUsername());
 		assertEquals("Kevin", account.getFirstName());
 		assertEquals(3, modify.getGroupMemberIDs().size());
-		assertEquals(cliquer.getGroupID(), account.getGroupIDs().get(0));
+		assertEquals(cliquer.getGroupName(), account.getGroupIDs().get(cliquer.getGroupID()));
 
 		modify = groupService.removeGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID());
-		account = accountService.getMemberProfile(accountRepository.findByAccountID(modify.getGroupMemberIDs().get(1)).getUsername());
+		memberIDs = new ArrayList<>(modify.getGroupMemberIDs().keySet());
+		account = accountService.getMemberProfile(accountRepository.findByAccountID(memberIDs.get(1)).getUsername());
 		assertEquals("Nagar", account.getLastName());
 		assertEquals(2, modify.getGroupMemberIDs().size());
 		account = accountService.getUserProfile(shawn.getUsername());
@@ -308,7 +311,8 @@ public class SprintOneServicesTest {
 		account = accountService.leaveGroup(kevin.getUsername(), cliquer.getGroupID());
 		assertEquals(0, account.getGroupIDs().size());
 		retrieve = groupService.getUserGroup(cliquer.getGroupID(), jordan.getAccountID());
-		account = accountService.getMemberProfile(accountRepository.findByAccountID(retrieve.getGroupMemberIDs().get(0)).getUsername());
+		memberIDs = new ArrayList<>(modify.getGroupMemberIDs().keySet());
+		account = accountService.getMemberProfile(accountRepository.findByAccountID(memberIDs.get(0)).getUsername());
 		assertEquals("Jordan", account.getFirstName());
 		assertEquals(1, retrieve.getGroupMemberIDs().size());
 	}
