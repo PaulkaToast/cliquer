@@ -753,7 +753,7 @@ public class SprintTwoServicesTest {
         String result = groupService.rateGroupMember(cliquer.getGroupID(), shawn.getAccountID(), kevin.getAccountID(), true, form);
         assertNotNull(result);
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
-        assertEquals(8, kevin.getReputation());
+        assertEquals(9, kevin.getReputation());
 
         form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), kevin.getAccountID());
         assertNotNull(form);
@@ -765,7 +765,7 @@ public class SprintTwoServicesTest {
         result = groupService.rateGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID(), true, form);
         assertNotNull(result);
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
-        assertEquals(12, kevin.getReputation());
+        assertEquals(13, kevin.getReputation());
 
         form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), jordan.getAccountID());
         assertNotNull(form);
