@@ -1,5 +1,6 @@
 export { logIn, logOut, registerHasError, registerIsLoading, registerSuccess, registerUser, setToken } from './auth'
-export { updateUserData, addSkills, addNewSkill, deleteNewSkill, clearNewSkills, setLocation, setNewSkills } from './user'
+export { updateUserData, addSkills, addNewSkill, deleteNewSkill, clearNewSkills, setLocation, setNewSkills,
+         addObjectID } from './user'
 export { postSkillsHasError, postSkillsIsLoading, postSkillsDataSuccess, postSkills,
          getSkillsHasError, getSkillsIsLoading, getSkillsDataSuccess, getSkills,
          removeSkillHasError, removeSkillIsLoading, removeSkillDataSuccess, removeSkill,
@@ -15,9 +16,11 @@ export { getGroupsHasError, getGroupsIsLoading, getGroupsDataSuccess, getGroups,
          createGroupHasError, createGroupIsLoading, createGroupDataSuccess, createGroup,
          getChatLogHasError, getChatLogIsLoading, getChatLogDataSuccess, getChatLog,
          postChatMessageHasError, postChatMessageIsLoading, postChatMessageDataSuccess, postChatMessage,
-         updateChatLog, setCurrentGroup,
-         setGroupSettingsHasError, setGroupSettingsIsLoading, setGroupSettingsDataSuccess, setGroupSettings,} from './groups'
+         updateChatLog, setCurrentGroup, addCurrentGroupMember, removeCurrentGroupMember,
+         setGroupSettingsHasError, setGroupSettingsIsLoading, setGroupSettingsDataSuccess, setGroupSettings,
+         kickHasError, kickIsLoading, kickDataSuccess, kick } from './groups'
 export { addFriendHasError, addFriendIsLoading, addFriendDataSuccess, addFriend,
-         removeFriendHasError, removeFriendIsLoading, removeFriendDataSuccess, removeFriend } from './friends'
-export { getMessagesHasError, getMessagesIsLoading, getMessagesDataSuccess, getMessages } from './messages'
+         removeFriendHasError, removeFriendIsLoading, removeFriendDataSuccess, removeFriend,
+         requestFriendHasError, requestFriendIsLoading, requestFriendDataSuccess, requestFriend, } from './friends'
+export { getMessagesHasError, getMessagesIsLoading, getMessagesDataSuccess, getMessages, loadNotifications } from './messages'
 export { searchHasError, searchIsLoading, searchDataSuccess, search } from './search'

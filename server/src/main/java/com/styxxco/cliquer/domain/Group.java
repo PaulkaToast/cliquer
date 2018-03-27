@@ -31,6 +31,7 @@ public class Group extends Searchable {
 
     private String groupLeaderID;
 
+    // TODO: map to names
 	private List<String> groupMemberIDs;	/* Account ID of the group members */
 
 	private String kickCandidate;
@@ -139,7 +140,11 @@ public class Group extends Searchable {
 
 	public boolean canGiveRating(String raterID, String rateeID)
 	{
-		return ratingsToGive.get(raterID).remove(rateeID);
+		List<String> toGive = ratingsToGive.get(raterID);
+		if (toGive != null) {
+            return ratingsToGive.get(raterID).remove(rateeID);
+        }
+        return false;
 	}
 
 }

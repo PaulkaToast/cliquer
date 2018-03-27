@@ -7,12 +7,10 @@ class Group extends Component {
   render() {
     const { group } = this.props
     return (
-        <NavLink to={`/groups/${this.props.group.gid}`}>
-          <ListGroupItem className="d-flex justify-content-between align-items-center" action> 
-            {this.props.group.groupName}
-            <Badge color="primary" pill>14</Badge>
-          </ListGroupItem>
-        </NavLink>
+        <ListGroupItem onClick={() => this.props.changeGroup(this.props.group.groupID)} className="group-item d-flex justify-content-between align-items-center" action> 
+          {this.props.group.groupName}
+          <Badge color="primary" pill>14</Badge>
+        </ListGroupItem>
     )
   }
 }

@@ -24,6 +24,18 @@ function friends(state = {}, action) {
             return Object.assign({}, state, {
                 removeFriendIsLoading: action.isLoading,
             })
+        case 'REQUEST_FRIEND_HAS_ERROR':
+            return Object.assign({}, state, {
+                requestFriendHasError: action.hasError,
+            })
+        case 'REQUEST_FRIEND_DATA_SUCCESS':
+            return Object.assign({}, state, {
+                requestFriendData: action.data,
+            })
+        case 'REQUEST_FRIEND_IS_LOADING':
+            return Object.assign({}, state, {
+                requestFriendIsLoading: action.isLoading,
+            })
         default:
             return state
     }

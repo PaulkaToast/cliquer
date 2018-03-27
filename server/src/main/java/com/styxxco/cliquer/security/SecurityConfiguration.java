@@ -117,8 +117,8 @@ public class SecurityConfiguration {
 
         @Override
         public void configureMessageBroker(MessageBrokerRegistry config) {
-            config.enableSimpleBroker("/group");
-            config.setApplicationDestinationPrefixes("/chat");
+            config.enableSimpleBroker("/group", "/notification");
+            config.setApplicationDestinationPrefixes("/app");
         }
 
         @Override

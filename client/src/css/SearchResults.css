@@ -23,6 +23,7 @@
     border: 1px solid #A3A3A3;
     padding: 0.5rem;
     margin-top: 1rem; 
+    cursor: pointer;
 }
 
 .SearchResults ul .user-result .left-content {
@@ -57,7 +58,7 @@
     justify-content: space-between;
 }
 
-.SearchResults ul .user-result .request {
+.SearchResults ul .user-result .friend-request {
     margin-left: 1rem;
     
 }

@@ -51,7 +51,7 @@ class NavigationBar extends Component {
   }
 
   render() {
-    const { user } = this.props
+    const { accountID } = this.props
     return (
       <div className="Navbar">
         <Navbar color="primary" dark expand="md">
@@ -69,7 +69,7 @@ class NavigationBar extends Component {
               <NavLink href="/public">Public Groups</NavLink>
             </NavItem> 
             <NavItem>
-              <NavLink href={`/profile/${user ? user.uid : ''}`}>Profile</NavLink>
+              <NavLink href={`/profile/${accountID ? accountID : ''}`}>Profile</NavLink>
             </NavItem>
             <NavItem>
               <NavLink href="/settings">Settings</NavLink>

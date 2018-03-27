@@ -49,3 +49,28 @@ export function removeFriendDataSuccess(data) {
 export const removeFriend = genericDispatch(
     removeFriendHasError, removeFriendIsLoading, removeFriendDataSuccess, 'POST'
 )
+
+export function requestFriendHasError(hasError) {
+    return {
+        type: 'REQUEST_FRIEND_HAS_ERROR',
+        hasError
+    }
+}
+
+export function requestFriendIsLoading(isLoading) {
+    return {
+        type: 'REQUEST_FRIEND_IS_LOADING',
+        isLoading
+    }
+}
+
+export function requestFriendDataSuccess(data) {
+    return {
+        type: 'REQUEST_FRIEND_DATA_SUCCESS',
+        data
+    }
+}
+
+export const requestFriend = genericDispatch(
+    requestFriendHasError, requestFriendIsLoading, requestFriendDataSuccess, 'POST'
+)

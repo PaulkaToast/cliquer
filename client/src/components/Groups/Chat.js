@@ -5,7 +5,7 @@ import SockJsClient from 'react-stomp'
 
 import '../../css/Chat.css'
 import { getChatLog, postChatMessage, updateChatLog } from '../../redux/actions'
-import url from '../../server.js'
+import url from '../../server'
 
 const Message = ({message, sender, align}) => {
   if (!message) return <div></div>;
@@ -36,15 +36,10 @@ class Chat extends Component {
   }
 
   componentWillReceiveProps = (nextProps) => {
-    if(nextProps.user && nextProps.token && nextProps.user.uid && !nextProps.group) {
-      //TODO: Add URL to link up with backend
-      //TODO: prevent unnecessary calling
-      this.props.getLog(``, { 'X-Authorization-Firebase': nextProps.token})
-    }
     if(nextProps.group != this.props.group){
       this.state.messages = [];
       this.setState(this.state);
-      setTimeout(() => this.onWebsocketConnect(),1)
+      setTimeout(() => this.onWebsocketConnect(), 1)
     }
   }
 
@@ -57,7 +52,7 @@ class Chat extends Component {
       senderId: this.props.user.uid,
       content: this.state.msgInput,
     }
-    this.clientRef.sendMessage('/chat/'+  this.props.group.groupID +'/sendMessage', JSON.stringify(msg));
+    this.clientRef.sendMessage('/app/'+  this.props.group.groupID +'/sendMessage', JSON.stringify(msg));
     this.state.msgInput = "";
     event.target.reset();
   }
@@ -77,14 +72,6 @@ class Chat extends Component {
     }
   }
 
-  handleSubmit = (ev) => {
-    ev.preventDefault()
-    //TODO: verify message object structure, add URL to postmessage
-    const message = { message: ev.target.message, owner: this.props.user.uid }
-    this.props.updateLog(message)
-    this.props.postMessage(``, { 'X-Authorization-Firebase': this.props.token})
-  }
-
   scrollToBottom = () => {
     this.messagesEnd.scrollIntoView({ behavior: "smooth" });
   }
@@ -100,19 +87,18 @@ class Chat extends Component {
 
   onWebsocketConnect() {
     if (this.props.group) {
-      this.clientRef.sendMessage('/chat/'+ this.props.user.uid + '/' + this.props.group.groupID +'/messageHistory', "");
+      this.clientRef.sendMessage('/app/'+ this.props.user.uid + '/' + this.props.group.groupID +'/messageHistory', "");
     }
   }
 
   getWebsocket() {
     if (this.props.group) {
-      return <SockJsClient url={`${url}/sockJS`} topics={['/group/'+ this.props.group.groupID + '/message', '/group/' + this.props.user.uid + '/' + this.props.group.groupID]}
+      return <SockJsClient url={`${url}/sockJS`} topics={['/group/'+ this.props.group.groupID, '/group/' + this.props.user.uid + '/' + this.props.group.groupID]}
           onMessage={this.handleMessage.bind(this)}
           onConnect={this.onWebsocketConnect.bind(this)}
           ref={ (client) => { this.clientRef = client }} 
           subscribeHeaders={{ 'X-Authorization-Firebase': this.props.token }}
           headers={{ 'X-Authorization-Firebase': this.props.token }}
-          debug
         />
     } else {
       return;

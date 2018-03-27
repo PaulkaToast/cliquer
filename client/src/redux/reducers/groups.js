@@ -1,5 +1,6 @@
 function groups(state = {}, action) {
     let groupsCopy
+    let members
     switch(action.type) {
         case 'GET_GROUPS_HAS_ERROR':
             return Object.assign({}, state, {
@@ -83,6 +84,22 @@ function groups(state = {}, action) {
             return Object.assign({}, state, {
                 currentGroup: action.group,
             })
+        case 'ADD_CURRENT_GROUP_MEMBER':
+            members = state.currentGroup && state.currentGroup.members ? {...state.currentGroup.members} : {}
+            members[action.member.accountID] = action.member
+            return Object.assign({}, state, {
+                currentGroup: Object.assign({}, state.currentGroup, {
+                    members
+                })
+            })
+        case 'REMOVE_CURRENT_GROUP_MEMBER':
+            members = state.currentGroup && state.currentGroup.members ? {...state.currentGroup.members} : {}
+            if(members[action.memberID]) delete members[action.memberID]
+            return Object.assign({}, state, {
+                currentGroup: Object.assign({}, state.currentGroup, {
+                    members
+                })
+            })
         case 'UPDATE_CHAT_LOG':
             const messages = state.currentGroup && state.currentGroup.messages ? [...state.currentGroup.messages, action.message] : [action.message]
             return Object.assign({}, state, {
@@ -95,7 +112,6 @@ function groups(state = {}, action) {
                 getChatLogHasError: action.hasError,
             })
         case 'GET_CHAT_LOG_DATA_SUCCESS':
-            //TODO: make sure backend is returning messages in right format (array of objects, preferably)
             return Object.assign({}, state, {
                 currentGroup: Object.assign({}, state.currentGroup, {
                     messages: action.data
@@ -128,6 +144,24 @@ function groups(state = {}, action) {
         case 'SET_GROUP_SETTINGS_IS_LOADING':
             return Object.assign({}, state, {
                 setGroupSettingsIsLoading: action.isLoading,
+            })
+        case 'KICK_HAS_ERROR':
+            return Object.assign({}, state, {
+                kickHasError: action.hasError,
+            })
+        case 'KICK_DATA_SUCCESS':
+            groupsCopy = state.getGroupsData ? {...state.getGroupsData} : {}
+            if(groupsCopy[action.extra.gid]) {
+                const index = groupsCopy[action.extra.gid].groupMemberIDs.indexOf(action.extra.memberID)
+                groupsCopy[action.extra.gid].groupMemberIDs.splice(index, 1)
+            }
+            return Object.assign({}, state, {
+                kickData: action.data,
+                getGroupsData: groupsCopy
+            })
+        case 'KICK_IS_LOADING':
+            return Object.assign({}, state, {
+                kickIsLoading: action.isLoading,
             })
         default:
             return state

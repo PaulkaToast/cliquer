@@ -7,38 +7,38 @@ import { search } from '../redux/actions'
 import url from '../server'
 
 class SearchResults extends Component {
+
+  componentDidMount = () => {
+    const { query, category } = this.props.match.params
+
+    if(query && category && this.props.token && !this.props.results) {
+      this.props.search(`${url}/api/search?query=${query}&type=${category}`, { 'X-Authorization-Firebase': this.props.token})
+    }
+  }
+
   componentWillReceiveProps = (nextProps) => {
-    console.log(nextProps)
     const { query, category } = nextProps.match.params
-    //API call for searching goes here, redux
-    console.log(query)
-    console.log(category)
-    if(query && category && nextProps.token) {
+
+    if(query && category && nextProps.token && !nextProps.results) {
       this.props.search(`${url}/api/search?query=${query}&type=${category}`, { 'X-Authorization-Firebase': nextProps.token})
     }
   }
 
   renderGroupPreview = (group, i) => {
-    //Sprint 2 or 3
+
   }
 
   renderUserPreview = (user, i) => {
     //may need to change button function to be a prop later (to allow reusing for group member searching)
     return (
-      <div className="user-result" key={i}>
-        <div className="left-content">
-          <div className="user-icon">ICON</div>
-        </div>
+      <div className="user-result" onClick={(ev) => this.props.goToProfile(ev, user.accountID, document.querySelector('.friend-request'))} key={user.accountID}>
         <div className="right-content">
           <div className="right-top-content">
-            <div className="user-name">{user.name}</div>
+            <div className="user-name">{user.fullName}</div>
             <div className="user-reputation">{user.reputation}</div>
           </div>
-          <div className="right-bottom-content">
-            <div className="user-bio">{user.bio ? user.bio : 'This user has no bio.'}</div>
-          </div>
         </div>
-        <Button color="success" className="request" onClick={() => this.props.sendFriendRequest(user)}>Send Friend Request</Button>
+        <Button color="success" className="friend-request" onClick={() => this.props.sendFriendRequest(user.accountID)}>Send Friend Request</Button>
       </div>
     )
   }
@@ -49,16 +49,16 @@ class SearchResults extends Component {
       return (
         <div className="list-container">
           <ul className="results-list">
-            {results.map((result, i) => {
+            {Object.keys(results).map((key, i) => {
               if(i % 2 === 0) {
-               return renderResult(result, i)
+               return renderResult(results[key], i)
               }
             })}
           </ul>
           <ul className="results-list">
-            {results.map((result, i) => {
+            {Object.keys(results).map((key, i) => {
               if(i % 2 === 1) {
-                return renderResult(result, i)
+                return renderResult(results[key], i)
               } 
             })}
           </ul>
@@ -84,6 +84,7 @@ const mapStateToProps = (state) => {
 	return {
     user: state.user.data,
     token: state.auth.token,
+    results: state.search && state.search.data ? state.search.data : null,
 	}
 }
 

@@ -319,18 +319,18 @@ public class SprintOneServicesTest {
 		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
 		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 
-		accountService.sendMessage("reed226", shawn.getAccountID(), "Be my friend?", 1);
-		accountService.sendMessage("reed226", shawn.getAccountID(), "Please be my friend?", 1);
+		accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Be my friend?", 1);
+		accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Please be my friend?", 1);
 
-		List<Message> newMessages = accountService.getNewMessages("montgo38");
+		List<Message> newMessages = accountService.getNewMessages(shawn.getAccountID());
 		assertEquals(2, newMessages.size());
 		assertEquals(1, newMessages.get(0).getType());
 
-		accountService.sendMessage("reed226", shawn.getAccountID(), "Pretty please be my friend?", 1);
+		accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Pretty please be my friend?", 1);
 
-		newMessages = accountService.getNewMessages("montgo38");
-		assertEquals(1, newMessages.size());
-		assertEquals("Pretty please be my friend?", newMessages.get(0).getContent());
+		newMessages = accountService.getNewMessages(shawn.getAccountID());
+		assertEquals(3, newMessages.size());
+		assertEquals("Pretty please be my friend?", newMessages.get(2).getContent());
 	}
 
 	@Test

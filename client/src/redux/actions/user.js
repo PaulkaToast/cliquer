@@ -45,3 +45,10 @@ export function setLocation(position) {
         position
     }
 }
+
+export function addObjectID(id) {
+    return {
+        type: 'ADD_OBJECT_ID',
+        id
+    }
+}

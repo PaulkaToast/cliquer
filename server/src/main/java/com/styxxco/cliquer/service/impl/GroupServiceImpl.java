@@ -150,12 +150,10 @@ public class GroupServiceImpl implements GroupService {
             case "isPublic" : group.setPublic(Boolean.parseBoolean(value)); break;
             case "reputationReq" :
                 double repReq;
-                try
-                {
+                try {
                     repReq = Double.parseDouble(value);
                 }
-                catch(NumberFormatException e)
-                {
+                catch(NumberFormatException e) {
                     log.info("Invalid reputation requirement");
                     return null;
                 }
@@ -246,11 +244,6 @@ public class GroupServiceImpl implements GroupService {
         group.removeGroupMember(accountID);
         groupRepository.save(group);
         Account member = accountRepository.findByAccountID(accountID);
-        Message notification = new Message(groupID,
-                "You have been removed from the group " + group.getGroupName(),
-                Message.Types.GROUP_NOTIFICATION);
-        messageRepository.save(notification);
-        member.addMessage(notification.getMessageID());
         member.removeGroup(groupID);
         accountRepository.save(member);
         return group;
@@ -792,7 +785,7 @@ public class GroupServiceImpl implements GroupService {
         groupRepository.save(group);
         Message acceptance = new Message(groupLeaderID,
                 "You have been accepted into group " + group.getGroupName(),
-                Message.Types.PROFILE_NOTIFICATION);
+                Message.Types.GROUP_ACCEPTED);
         messageRepository.save(acceptance);
         sender.addMessage(acceptance.getMessageID());
         sender.addGroup(group.getGroupID());
@@ -815,28 +808,17 @@ public class GroupServiceImpl implements GroupService {
             return null;
         }
         Message request = messageRepository.findByMessageID(messageID);
-        messageRepository.delete(request);
-        leader.removeMessage(messageID);
-        accountRepository.save(leader);
-        if(!accountRepository.existsByAccountID(request.getSenderID()))
-        {
+        if (!accountRepository.existsByAccountID(request.getSenderID())) {
             log.info("User " + request.getSenderID() + " not found");
             return null;
         }
-        if(!groupRepository.existsByGroupID(request.getGroupID()))
-        {
-            log.info("Group " + request.getGroupID() + " not found");
-            return null;
-        }
-        Group group = groupRepository.findByGroupID(request.getGroupID());
         Account sender = accountRepository.findByAccountID(request.getSenderID());
-        Message denial = new Message(groupLeaderID,
-                "You have been rejected from joining group " + group.getGroupName(),
-                Message.Types.PROFILE_NOTIFICATION);
-        messageRepository.save(denial);
-        sender.addMessage(denial.getMessageID());
+        sender.removeMessage(messageID);
+        messageRepository.delete(request);
+        leader.removeMessage(messageID);
+        accountRepository.save(leader);
         accountRepository.save(sender);
-        return denial;
+        return request;
     }
 
     @Override
@@ -885,8 +867,9 @@ public class GroupServiceImpl implements GroupService {
         groupRepository.save(group);
     }
 
+    /* TODO: There is only one message for WebSockets to work properly */
     @Override
-    public String initiateRatings(String groupID, String groupLeaderID)
+    public Message initiateRatings(String groupID, String groupLeaderID)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -904,23 +887,20 @@ public class GroupServiceImpl implements GroupService {
             log.info("Group " + groupID + " has maxed out the limit for group ratings");
             return null;
         }
+        Message message = new Message(groupLeaderID, "You can now rate your fellow members in group " + group.getGroupName() + "!", Message.Types.RATE_REQUEST);
+        message.setGroupID(groupID);
+        messageRepository.save(message);
         for(String accountID : group.getGroupMemberIDs())
         {
             if(accountID.equals(groupLeaderID))
             {
                 continue;
             }
-            Message message = new Message(groupLeaderID,
-                    "You can now rate your fellow members in group " + group.getGroupName() + "!",
-                    Message.Types.GROUP_NOTIFICATION);
-            message.setGroupID(groupID);
-            messageRepository.save(message);
             Account member = accountRepository.findByAccountID(accountID);
             member.addMessage(message.getMessageID());
             accountRepository.save(member);
         }
-        groupRepository.save(group);
-        return "Success";
+        return message;
     }
 
     @Override

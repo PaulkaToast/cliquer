@@ -159,6 +159,19 @@ export function setCurrentGroup(group) {
     }
 }
 
+export function addCurrentGroupMember(member) {
+    return {
+        type: 'ADD_CURRENT_GROUP_MEMBER',
+        member
+    }
+}
+
+export function removeCurrentGroupMember(memberID) {
+    return {
+        type: 'REMOVE_CURRENT_GROUP_MEMBER',
+        memberID
+    }
+}
 
 export function updateChatLog(message) {
     return {
@@ -240,5 +253,32 @@ export function setGroupSettingsDataSuccess(data) {
 
 export const setGroupSettings = genericDispatch(
     setGroupSettingsHasError, setGroupSettingsIsLoading, setGroupSettingsDataSuccess, 'POST'
+)
+
+export function kickHasError(hasError) {
+    return {
+        type: 'KICK_HAS_ERROR',
+        hasError
+    }  
+}
+
+export function kickIsLoading(isLoading) {
+    return {
+        type: 'KICK_IS_LOADING',
+        isLoading
+    }
+}
+
+export function kickDataSuccess(data, extra) {
+    //TODO: fick visual issue with member still displaying
+    return {
+        type: 'KICK_DATA_SUCCESS',
+        data,
+        extra
+    }
+}
+
+export const kick = genericDispatch(
+    kickHasError, kickIsLoading, kickDataSuccess, 'POST'
 )
 
