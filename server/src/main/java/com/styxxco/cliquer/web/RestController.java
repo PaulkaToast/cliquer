@@ -156,6 +156,7 @@ public class RestController {
     @RequestMapping(value = "/api/getUserGroups", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<?> getUserGroups(@RequestParam(value = "username") String username) {
         List<Group> groups = accountService.getAllUserGroups(username);
+        System.out.println(groups);
         if (groups == null) {
             return new ResponseEntity<>("Could not find groups", HttpStatus.BAD_REQUEST);
         }
@@ -242,6 +243,18 @@ public class RestController {
                                                               @RequestParam(value = "accept", required = false, defaultValue = "true") boolean accept) {
         accountService.handleNotifications(userId, messageId, accept);
         return new ResponseEntity<>("{\"status\": \"cool\"}", HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/getRateForm", method = RequestMethod.GET)
+    public @ResponseBody ResponseEntity<?> getRateForm(@RequestParam(value = "userId") String userId,
+                                                      @RequestParam(value = "rateeId") String rateeId,
+                                                      @RequestParam(value = "groupId") String groupId) {
+        Map<String, Integer> map = accountService.getRateForm(userId, rateeId, groupId);
+        if (map == null) {
+            log.info("Could not get rate form correctly");
+            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
     // TODO: reputationRank endpoint

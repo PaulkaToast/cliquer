@@ -929,7 +929,7 @@ public class GroupServiceImpl implements GroupService {
                 String skillName = skillRepository.findBySkillID(id).getSkillName();
                 if(skillReq.equals(skillName))
                 {
-                    form.put(id, 0);
+                    form.put(skillName, 0);
                     break;
                 }
             }
@@ -964,12 +964,13 @@ public class GroupServiceImpl implements GroupService {
         Account member = accountRepository.findByAccountID(rateeID);
         List<Skill> skills = new ArrayList<>();
         List<Integer> ratings = new ArrayList<>();
-        for(String skillID : skillRatings.keySet())
+        for(String skillName : skillRatings.keySet())
         {
-            if(skillRatings.get(skillID) > 0 && skillRatings.get(skillID) <= 10)
+
+            if(skillRatings.get(skillName) > 0 && skillRatings.get(skillName) <= 10)
             {
-                skills.add(skillRepository.findBySkillID(skillID));
-                ratings.add(skillRatings.get(skillID));
+                skills.add(skillRepository.findBySkillNameAndSkillLevel(skillName, skillRatings.get(skillName)));
+                ratings.add(skillRatings.get(skillName));
             }
         }
         Map<String, Integer> updatedSkills = member.addSkillRatings(skills, ratings);

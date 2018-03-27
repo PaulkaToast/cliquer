@@ -68,6 +68,7 @@ public class Account extends Searchable implements UserDetails {
 	private double latitude;
 	private double longitude;
 	private int reputation;
+	private double rank;
 	@JsonIgnore
     private List<Role> authorities;
 	@JsonIgnore
@@ -103,6 +104,7 @@ public class Account extends Searchable implements UserDetails {
 		this.loggedInTime = 0;
 		this.intervalTimer = LocalTime.now();
 		this.reputation = 1;
+		this.rank = 0;
 		this.latitude = 360.00;
 		this.longitude = 360.00;
 		this.skillIDs = new TreeMap<>();

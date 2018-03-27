@@ -172,8 +172,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account getProfile(String username, String userid, String type) {
-        Account user = null;
+        Account user = accountRepository.findByUsername(username);
         if (username != null) {
+            user.setRank(this.getReputationRanking(user.getUsername()));
             switch (type) {
                 case "user":
                     user = getUserProfile(username);
@@ -185,20 +186,23 @@ public class AccountServiceImpl implements AccountService {
                     user = getPublicProfile(username);
                     break;
             }
-        } else if (userid != null) {
+        } else {
             Account account = accountRepository.findByAccountID(userid);
-            if (account != null) {
-                String name = account.getUsername();
-                switch (type) {
-                    case "user":
-                        user = getUserProfile(name);
-                        break;
-                    case "member":
-                        user = getMemberProfile(name);
-                        break;
-                    case "public":
-                        user = getPublicProfile(name);
-                        break;
+            if (userid != null) {
+                account.setRank(this.getReputationRanking(account.getUsername()));
+                if (account != null) {
+                    String name = account.getUsername();
+                    switch (type) {
+                        case "user":
+                            user = getUserProfile(name);
+                            break;
+                        case "member":
+                            user = getMemberProfile(name);
+                            break;
+                        case "public":
+                            user = getPublicProfile(name);
+                            break;
+                    }
                 }
             }
         }
@@ -525,18 +529,19 @@ public class AccountServiceImpl implements AccountService {
             log.info("Skill " + skillName + " is already in database");
             return null;
         }
-        for(int i = 1; i <= 10; i ++)
+        for(int i = 0; i <= 10; i ++)
         {
             Skill skill = new Skill(skillName, i);
             skillRepository.save(skill);
         }
-        return skillRepository.findBySkillNameAndSkillLevel(skillName, 1);
+        return skillRepository.findBySkillNameAndSkillLevel(skillName, 0);
     }
 
     @Override
     public List<Skill> getAllValidSkills()
     {
         List<Skill> skills = skillRepository.findBySkillLevel(0);
+        System.out.println(skills);
         Collections.sort(skills);
         return skills;
     }
@@ -742,6 +747,26 @@ public class AccountServiceImpl implements AccountService {
         receiver.addMessage(message);
         accountRepository.save(receiver);
         return message;
+    }
+
+    @Override
+    public Map<String, Integer> getRateForm(String userId, String rateeId, String groupId) {
+        if(!accountRepository.existsByAccountID(userId))
+        {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if ((!groupRepository.existsByGroupID(groupId))) {
+            log.info("Group " + groupId + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupId);
+        if (!group.getGroupMemberIDs().keySet().contains(user.getAccountID())) {
+            log.info("User " + user.getFullName() + " is not in group " + group.getGroupName());
+            return null;
+        }
+        return groupService.getGroupMemberRatingForm(groupId, rateeId);
     }
 
     @Override

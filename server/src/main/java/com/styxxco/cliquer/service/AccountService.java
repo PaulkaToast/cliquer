@@ -64,6 +64,7 @@ public interface AccountService extends UserDetailsService {
     Message rejectGroupInvite(String userId, String inviteId);
     Message requestToGroup(String userId, String leaderId, String groupId);
     Account kickMember(String userId, String kickedId, String groupID);
+    Map<String, Integer> getRateForm(String userId, String rateeId, String groupId);
 
     /* Friend invite services */
     Message sendFriendInvite(String userId, String receiverID);
