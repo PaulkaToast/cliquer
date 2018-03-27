@@ -1,13 +1,9 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-<<<<<<< HEAD
 import { TabContent, TabPane, Nav, NavItem, NavLink, 
-  Card, Button, CardTitle, CardText, Row, Col } from 'reactstrap';
-  import classnames from 'classnames';
-=======
-import { Button, ListGroup, ListGroupItem,
-         Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
->>>>>>> feature/groupServices
+  Card, Button, CardTitle, CardText, Row, Col, ListGroup, ListGroupItem,
+  Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import classnames from 'classnames';
 
 import '../../css/Profile.css'
 import SkillsPanel from './SkillsPanel'
@@ -20,31 +16,17 @@ import nFlag from '../../img/newUser.png'
 
 class Profile extends Component {
   constructor(props) {
-<<<<<<< HEAD
-    super(props);
-
-    this.toggle = this.toggle.bind(this);
-    this.state = {
-      activeTab: '1'
-    };
-  }
-
-  toggle(tab) {
-    if (this.state.activeTab !== tab) {
-      this.setState({
-        activeTab: tab
-      });
-    }
-=======
     super(props)
+
     this.state = {
+      activeTab: '1',
       modal: false,
     }
   }
 
+
   componentDidMount = () => {
     this.fetch(this.props)
->>>>>>> feature/groupServices
   }
 
   componentWillReceiveProps = (nextProps) => {
@@ -57,7 +39,7 @@ class Profile extends Component {
       const type = ownerID === props.accountID ? 'user' : 'public'
 
       // Get profile data
-      if(!props.profile && !props.profileIsLoading) {
+      if(!props.profile && !props.profileIsLoading || props.profile.accountID !== ownerID) {
         this.props.getProfile(`${url}/api/getProfile?userId=${ownerID}&type=${type}`, { 'X-Authorization-Firebase': props.token})
       }
 
@@ -73,16 +55,53 @@ class Profile extends Component {
     }
   }
 
-<<<<<<< HEAD
+  toggle = (tab) => {
+    if (this.state.activeTab !== tab) {
+      this.setState({
+        activeTab: tab
+      })
+    }
+  }
+
+  toggleM = () => {
+    if(this.state.modal) {
+      this.setState({ modal: false })
+    } else {
+      this.setState({ modal: true })
+    }
+  }
+
+  isOwner = (accountID) => {
+    return accountID === this.props.accountID || !this.props.accountID
+  } 
+
+  renderGroupList = () => {
+    const groups = this.props.groups
+    const ownerID = this.props.match.params.ownerID
+    //TODO: check if user already exists in group
+    return (
+      <ListGroup>
+        {groups && Object.keys(groups).length > 0
+        && Object.keys(groups).map((gid, i) => {
+          return (<ListGroupItem>
+            {groups[gid].groupName} <Button type="button" size="lg" onClick={() => this.props.inviteToGroup(gid, ownerID)}>Invite</Button>
+          </ListGroupItem>)
+        })}
+      </ListGroup>
+    )  
+  }
   
   render() {
-    const { user, profile, skills } = this.props
-    if(!profile){
+    const { user, profile, skills, groups } = this.props
+    const ownerID = this.props.match.params.ownerID
+
+    if(!profile || profile.accountID !== ownerID){
       return (
         <div class="loader">Loading...</div>
       )
     }
-  let flag = profile.newUser ? nFlag : "";
+
+    let flag = profile.newUser ? nFlag : "";
     return (
       <div>
         <Nav tabs>
@@ -122,11 +141,14 @@ class Profile extends Component {
               Reputation: {profile.adjustedReputation}
             </h4>
             <hr/>
+            
+            {!this.isOwner(ownerID) && <Button type="button" size="lg" onClick={() => this.props.sendFriendRequest(ownerID)}>Send Friend Request</Button>}
+            {!this.isOwner(ownerID) && groups && Object.keys(groups).length > 0 && 
+              <Button type="button" size="lg" onClick={this.toggleM}>Invite To Group</Button>}
+            <hr/>
             <h4>
               Skills:
             </h4>
-
-            
               <SkillsPanel skills={skills}/>
           </TabPane>
           <TabPane tabId="2">
@@ -134,64 +156,19 @@ class Profile extends Component {
           <TabPane tabId="3">
           </TabPane>
         </TabContent>
-      </div>
-    )
-}
-  
- 
-=======
-  isOwner = (accountID) => {
-    return accountID === this.props.accountID || !this.props.accountID
-  } 
 
-
-  toggle = () => {
-    if(this.state.modal) {
-      this.setState({ modal: false })
-    } else {
-      this.setState({ modal: true })
-    }
-  }
-
-  renderGroupList = () => {
-    const groups = this.props.groups
-    const ownerID = this.props.match.params.ownerID
-    //TODO: check if user already exists in group
-    return (
-      <ListGroup>
-        {groups && Object.keys(groups).length > 0
-        && Object.keys(groups).map((gid, i) => {
-          return (<ListGroupItem>
-            {groups[gid].groupName} <Button type="button" size="lg" onClick={() => this.props.inviteToGroup(gid, ownerID)}>Invite</Button>
-          </ListGroupItem>)
-        })}
-      </ListGroup>
-    )  
-  }
-  
-  render() {
-    const { user, profile, skills, groups } = this.props
-    const ownerID = this.props.match.params.ownerID
-    
-    return (
-      <div>
-        <SkillsPanel skills={skills}/>
-        {!this.isOwner(ownerID) && <Button type="button" size="lg" onClick={() => this.props.sendFriendRequest(ownerID)}>Send Friend Request</Button>}
-        {!this.isOwner(ownerID) && groups && Object.keys(groups).length > 0 && 
-          <Button type="button" size="lg" onClick={this.toggle}>Invite To Group</Button>}
-        <Modal isOpen={this.state.modal} toggle={this.toggle} className="update-settings-modal">
-          <ModalHeader toggle={this.toggle}>Invite To Group</ModalHeader>
+        <Modal isOpen={this.state.modal} toggle={this.toggleM} className="update-settings-modal">
+          <ModalHeader toggle={this.toggleM}>Invite To Group</ModalHeader>
           <ModalBody>
             {this.renderGroupList()}
           </ModalBody>
           <ModalFooter>
-            <Button color="secondary" onClick={this.toggle}>Close</Button>
+            <Button color="secondary" onClick={this.toggleM}>Close</Button>
           </ModalFooter>
         </Modal>
       </div>
     )
-  }
->>>>>>> feature/groupServices
+  } 
 }
 
 const mapStateToProps = (state) => {
