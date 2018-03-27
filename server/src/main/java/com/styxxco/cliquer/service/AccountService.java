@@ -26,6 +26,7 @@ public interface AccountService extends UserDetailsService {
     Account removeSkill(String username, String skillName);
     Account deleteAccount(String username);
     Account rateUser(String username, String friend, String json);
+    Message requestRating(String userId, String groupId);
 
     /* Account Searching */
     Map<String, ? extends Searchable> searchWithFilter(String type, String query, boolean suggestions, boolean weights);
@@ -49,7 +50,7 @@ public interface AccountService extends UserDetailsService {
     Skill getSkill(String username, String skillName);
 
     /* Message centered services */
-    List<Message> getNewMessages(String username);
+    List<Message> getNewMessages(String userId);
     Message sendMessage(String username, String receiverID, String content, int type);
     String deleteMessage(String username, String messageID);
 
@@ -58,14 +59,14 @@ public interface AccountService extends UserDetailsService {
     Group deleteGroup(String username, String groupID);
     Account addToGroup(String username, String groupID);
     Account leaveGroup(String username, String groupID);
-    Account inviteToGroup(String username, String friend, String groupID);
+    Message inviteToGroup(String username, String friend, String groupID);
     Account kickMember(String userId, String kickedId, String groupID);
 
     /* Friend invite services */
-    Message sendFriendInvite(String username, String receiverID);
-    Account acceptFriendInvite(String username, String inviteID);
-    String rejectFriendInvite(String username, String inviteID);
-    Account addFriend(String username, String friendID);
+    Message sendFriendInvite(String userId, String receiverID);
+    Message acceptFriendInvite(String userId, String inviteID);
+    Message rejectFriendInvite(String userId, String inviteID);
+    Account addFriend(String userId, String friendID);
     Account removeFriend(String username, String friendID);
 
     /* Role services */
@@ -77,4 +78,5 @@ public interface AccountService extends UserDetailsService {
     String checkNewUserFlag(String username);
     List<Account> moveSuggestedToTop(List<Account> accounts, int reputation, boolean includeWeights);
     double getReputationRanking(String username);
+    void handleNotifications(String userId, String messageId);
 }

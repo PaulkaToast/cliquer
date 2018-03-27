@@ -52,7 +52,7 @@ public interface GroupService {
     void sendChatMessage(ChatMessage msg, String groupID);
 
     /* Skill and reputation rating services */
-    String initiateRatings(String groupID, String groupLeaderID);
+    Message initiateRatings(String groupID, String groupLeaderID);
     Map<String, Integer> getGroupMemberRatingForm(String groupID, String rateeID);
     String rateGroupMemberSkills(String groupID, String raterID, String rateeID, Map<String, Integer> skillRatings);
 }

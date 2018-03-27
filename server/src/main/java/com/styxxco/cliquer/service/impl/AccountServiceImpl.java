@@ -223,7 +223,6 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Map<String, ? extends Searchable> searchWithFilter(String type, String query, boolean suggestions, boolean weights) {
-        System.out.println(type + " " + query);
         switch(type) {
             case "firstname":
                 return searchByFirstName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
@@ -651,13 +650,13 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Message> getNewMessages(String username) {
-        if(!accountRepository.existsByUsername(username))
+    public List<Message> getNewMessages(String userId) {
+        if(!accountRepository.existsByAccountID(userId))
         {
-            log.info("User " + username + " not found");
+            log.info("User " + userId + " not found");
             return null;
         }
-        Account user = accountRepository.findByUsername(username);
+        Account user = accountRepository.findByAccountID(userId);
         List<Message> messages = new ArrayList<>();
         for(String id : user.getMessageIDs())
         {
@@ -665,7 +664,7 @@ public class AccountServiceImpl implements AccountService {
             if(!message.isRead())
             {
                 messages.add(message);
-                message.setRead(true);
+                //message.setRead(true);
                 messageRepository.save(message);
             }
         }
@@ -702,21 +701,20 @@ public class AccountServiceImpl implements AccountService {
     }
     */
 
-    // TODO: @Reed insert function to notify receiver in real time once web sockets done
     @Override
-    public Message sendMessage(String username, String receiverID, String content, int type)
+    public Message sendMessage(String userId, String receiverID, String content, int type)
     {
-        if(!accountRepository.existsByUsername(username))
+        if(!accountRepository.existsByAccountID(userId))
         {
-            log.info("User " + username + " not found");
+            log.info("User " + userId + " not found");
             return null;
         }
         if(!accountRepository.existsByAccountID(receiverID))
         {
-            log.info("User " + username + " not found");
+            log.info("User " + receiverID + " not found");
             return null;
         }
-        Account sender = accountRepository.findByUsername(username);
+        Account sender = accountRepository.findByAccountID(userId);
         Account receiver = accountRepository.findByAccountID(receiverID);
         Message message = new Message(sender.getAccountID(), content, type);
         messageRepository.save(message);
@@ -726,17 +724,17 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public String deleteMessage(String username, String messageID)
+    public String deleteMessage(String userId, String messageID)
     {
-        if(!accountRepository.existsByUsername(username))
+        if(!accountRepository.existsByAccountID(userId))
         {
-            log.info("User " + username + " not found");
+            log.info("User " + userId + " not found");
             return null;
         }
-        Account user = accountRepository.findByUsername(username);
+        Account user = accountRepository.findByAccountID(userId);
         if(!user.hasMessage(messageID))
         {
-            log.info("User " + username + " did not receive message " + messageID);
+            log.info("User " + userId + " did not receive message " + messageID);
             return null;
         }
         user.removeMessage(messageID);
@@ -845,7 +843,43 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account inviteToGroup(String userId, String friendId, String groupID) {
+    public void handleNotifications(String userId, String messageId) {
+        if(!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return;// null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if(!messageRepository.existsByMessageID(messageId)) {
+            log.info("Message " + messageId + " not found");
+            return;// null;
+        }
+        Message message = messageRepository.findByMessageID(messageId);
+        switch(message.getType()) {
+            case Types.GROUP_INVITE:
+                break;
+            case Types.FRIEND_INVITE:
+                Message accepted = acceptFriendInvite(userId, messageId);
+                break;
+            case Types.MOD_FLAG:
+                break;
+            case Types.JOIN_REQUEST:
+                break;
+            case Types.RATE_REQUEST:
+                break;
+            case Types.GROUP_ACCEPTED:
+                break;
+            case Types.FRIEND_ACCEPTED:
+                break;
+        }
+    }
+
+    @Override
+    public Message requestRating(String userId, String groupId) {
+        return groupService.initiateRatings(groupId, userId);
+    }
+
+    @Override
+    public Message inviteToGroup(String userId, String friendId, String groupID) {
         if(!accountRepository.existsByAccountID(userId))
         {
             log.info("User " + userId + " not found");
@@ -863,11 +897,11 @@ public class AccountServiceImpl implements AccountService {
         }
         Account user = accountRepository.findByAccountID(userId);
         Account friend = accountRepository.findByAccountID(friendId);
-        sendMessage(user.getUsername(), friend.getAccountID(), groupID, Types.GROUP_INVITE);
-        return friend;
+        Group group = groupRepository.findByGroupID(groupID);
+        Message message = sendMessage(user.getAccountID(), friend.getAccountID(), user.getFullName() + " has invited you to join " + group.getGroupName(), Types.GROUP_INVITE);
+        return message;
     }
 
-    // TODO: send message to kicked to notify
     @Override
     public Account kickMember(String userId, String kickedId, String groupID) {
         if(!accountRepository.existsByAccountID(userId))
@@ -886,9 +920,13 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Group group = groupService.removeGroupMember(groupID, userId, kickedId);
+        if (group == null) {
+            return null;
+        }
         if (group.getGroupMemberIDs().contains(kickedId)) {
             return null;
         }
+        sendMessage(userId, kickedId, "You have been kicked from " + group.getGroupName(), Types.KICK_NOTIFICATION);
         return accountRepository.findByAccountID(kickedId);
     }
 
@@ -924,70 +962,77 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Message sendFriendInvite(String username, String receiverID)
+    public Message sendFriendInvite(String userId, String receiverId)
     {
-        if(!accountRepository.existsByUsername(username))
+        if(!accountRepository.existsByAccountID(userId))
         {
-            log.info("User " + username + " not found");
+            log.info("User " + userId + " not found");
             return null;
         }
-        Account user = accountRepository.findByUsername(username);
-        if(user.hasFriend(receiverID))
+        if(!accountRepository.existsByAccountID(receiverId))
         {
-            log.info("User " + username + " is already friends with " + receiverID);
+            log.info("User " + receiverId + " not found");
             return null;
         }
-        return this.sendMessage(username, receiverID,
-                user.getFullName() + "wants to add you as a friend! Do you accept the friend invite?",
-                Types.FRIEND_INVITE);
+        Account user = accountRepository.findByAccountID(userId);
+        if(user.hasFriend(receiverId))
+        {
+            log.info("User " + userId + " is already friends with " + receiverId);
+            return null;
+        }
+        Message message = sendMessage(userId, receiverId, user.getFullName() + " wants to add you as a friend! Do you accept the friend invite?", Types.FRIEND_INVITE);
+        return message;
     }
 
     @Override
-    public Account acceptFriendInvite(String username, String inviteID)
+    public Message acceptFriendInvite(String userId, String inviteID)
     {
-        if(!accountRepository.existsByUsername(username))
+        if(!accountRepository.existsByAccountID(userId))
         {
-            log.info("User " + username + " not found");
+            log.info("User " + userId + " not found");
             return null;
         }
-        Account user = accountRepository.findByUsername(username);
+        Account user = accountRepository.findByAccountID(userId);
         if(!user.hasMessage(inviteID))
         {
-            log.info("User " + username + " did not receive message " + inviteID);
+            log.info("User " + userId + " did not receive message " + inviteID);
             return null;
         }
         Message invite = messageRepository.findByMessageID(inviteID);
         user.removeMessage(inviteID);
-        messageRepository.delete(invite);
         accountRepository.save(user);
-        return this.addFriend(username, invite.getSenderID());
+        this.addFriend(userId, invite.getSenderID());
+        Message accept = sendMessage(userId, invite.getSenderID(),user.getUsername() + " added you as a friend!", Types.FRIEND_ACCEPTED);
+        messageRepository.delete(invite);
+        return accept;
     }
 
     @Override
-    public String rejectFriendInvite(String username, String inviteID)
+    public Message rejectFriendInvite(String userId, String inviteID)
     {
-        if(!accountRepository.existsByUsername(username))
+        if(!accountRepository.existsByAccountID(userId))
         {
-            log.info("User " + username + " not found");
+            log.info("User " + userId + " not found");
             return null;
         }
-        Account user = accountRepository.findByUsername(username);
+        Account user = accountRepository.findByAccountID(userId);
         if(!user.hasMessage(inviteID))
         {
-            log.info("User " + username + " did not receive message " + inviteID);
+            log.info("User " + userId + " did not receive message " + inviteID);
             return null;
         }
+        Message message = messageRepository.findByMessageID(inviteID);
         user.removeMessage(inviteID);
         messageRepository.delete(inviteID);
         accountRepository.save(user);
-        return "Success";
+        return message;
     }
 
     @Override
-    public Account addFriend(String username, String friendID) {
-        if(!accountRepository.existsByUsername(username))
+    public Account addFriend(String userId, String friendID) {
+        if(!accountRepository.existsByAccountID(userId))
         {
-            log.info("User " + username + " not found");
+            log.info("User " + userId + " not found");
             return null;
         }
         if(!accountRepository.existsByAccountID(friendID))
@@ -995,7 +1040,7 @@ public class AccountServiceImpl implements AccountService {
             log.info("User " + friendID + " not found");
             return null;
         }
-        Account user = accountRepository.findByUsername(username);
+        Account user = accountRepository.findByAccountID(userId);
         Account friend = accountRepository.findByAccountID(friendID);
         user.addFriend(friend.getAccountID());
         friend.addFriend(user.getAccountID());

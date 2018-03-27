@@ -149,37 +149,37 @@ public class SprintTwoServicesTest {
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "montgo38@purdue.edu", "Kevin", "Nagar");
 
-        Message invite = accountService.sendFriendInvite("reed226", shawn.getAccountID());
+        Message invite = accountService.sendFriendInvite(jordan.getAccountID(), shawn.getAccountID());
         assertEquals(jordan.getAccountID(), invite.getSenderID());
         shawn = accountRepository.findByUsername(shawn.getUsername());
         assertEquals(invite.getMessageID(), shawn.getMessageIDs().get(0));
         assertEquals(Types.FRIEND_INVITE, invite.getType());
         String first = invite.getMessageID();
 
-        Account account = accountService.acceptFriendInvite("montgo38", invite.getMessageID());
-        assertEquals(jordan.getFirstName(), account.getFirstName());
+        invite = accountService.acceptFriendInvite(shawn.getAccountID(), invite.getMessageID());
+        assertEquals(shawn.getAccountID(), invite.getSenderID());
         shawn = accountRepository.findByUsername(shawn.getUsername());
         assertEquals(jordan.getAccountID(), shawn.getFriendIDs().get(0));
         jordan = accountRepository.findByUsername(jordan.getUsername());
         assertEquals(shawn.getAccountID(), jordan.getFriendIDs().get(0));
         assertEquals(0, shawn.getMessageIDs().size());
 
-        invite = accountService.sendFriendInvite("reed226", kevin.getAccountID());
+        invite = accountService.sendFriendInvite(jordan.getAccountID(), kevin.getAccountID());
         assertEquals(jordan.getAccountID(), invite.getSenderID());
         kevin = accountRepository.findByUsername(kevin.getUsername());
         assertEquals(invite.getMessageID(), kevin.getMessageIDs().get(0));
         assertEquals(Types.FRIEND_INVITE, invite.getType());
         String second = invite.getMessageID();
 
-        String result = accountService.rejectFriendInvite("knagar", invite.getMessageID());
-        assertEquals("Success", result);
+        invite = accountService.rejectFriendInvite(kevin.getAccountID(), invite.getMessageID());
+        assertEquals(jordan.getAccountID(), invite.getSenderID());
         kevin = accountRepository.findByUsername(kevin.getUsername());
         assertEquals(0, kevin.getFriendIDs().size());
         jordan = accountRepository.findByUsername(jordan.getUsername());
         assertEquals(1, jordan.getFriendIDs().size());
         assertEquals(0, kevin.getMessageIDs().size());
 
-        invite = accountService.sendFriendInvite("reed226", shawn.getAccountID());
+        invite = accountService.sendFriendInvite(jordan.getAccountID(), shawn.getAccountID());
         assertNull(invite);
         assertEquals(false, messageRepository.existsByMessageID(first));
         assertEquals(false, messageRepository.existsByMessageID(second));
@@ -445,8 +445,6 @@ public class SprintTwoServicesTest {
         assertEquals(false, result.getGroupMemberIDs().contains(kevin.getAccountID()));
         kevin = accountRepository.findByUsername(kevin.getUsername());
         assertEquals(0, kevin.getGroupIDs().size());
-        Message first = messageRepository.findByMessageID(kevin.getMessageIDs().get(0));
-        assertEquals(Types.GROUP_NOTIFICATION, first.getType());
 
         result = groupService.acceptVoteKick(cliquer.getGroupID(), rhys.getAccountID());
         assertNull(result);
@@ -461,8 +459,6 @@ public class SprintTwoServicesTest {
         assertEquals(false, result.getGroupMemberIDs().contains(rhys.getAccountID()));
         rhys = accountRepository.findByUsername(rhys.getUsername());
         assertEquals(0, rhys.getGroupIDs().size());
-        Message second = messageRepository.findByMessageID(rhys.getMessageIDs().get(0));
-        assertEquals(Types.GROUP_NOTIFICATION, second.getType());
     }
 
     /* Back end Unit Test for User Story 28 */
@@ -553,15 +549,13 @@ public class SprintTwoServicesTest {
         assertEquals(cliquer.getGroupID(), message.getGroupID());
 
         result = groupService.denyJoinRequest(jordan.getAccountID(), message.getMessageID());
-        assertEquals("You have been rejected from joining group Cliquer", result.getContent());
+        assertEquals(null, messageRepository.findByMessageID(result.getMessageID()));
         jordan = accountRepository.findByUsername(jordan.getUsername());
         assertEquals(0, jordan.getMessageIDs().size());
 
         buckmaster = accountRepository.findByUsername(buckmaster.getUsername());
-        assertEquals(1, buckmaster.getMessageIDs().size());
+        assertEquals(0, buckmaster.getMessageIDs().size());
         assertEquals(0, buckmaster.getGroupIDs().size());
-        message = messageRepository.findByMessageID(buckmaster.getMessageIDs().get(0));
-        assertEquals(jordan.getAccountID(), message.getSenderID());
 
         buckmaster.setMessageIDs(new ArrayList<>());
         buckmaster.setReputation(40);

@@ -66,17 +66,15 @@ public class RestController {
         return new ResponseEntity<>(success, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/api/addFriend", method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<?> addFriend(@RequestParam(value = "username") String username,
-                                @RequestParam(value = "friend") String friend) {
-        Account account = accountService.addFriend(username, friend);
-        if (account == null) {
+    @RequestMapping(value = "/api/acceptFriend", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> acceptFriend(@RequestParam(value = "userId") String userId,
+                                @RequestParam(value = "inviteId") String inviteId) {
+        Message message = accountService.acceptFriendInvite(userId, inviteId);
+        if (message == null) {
             return new ResponseEntity<>("Could not add friend", HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(account, HttpStatus.OK);
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
-
-    // TODO: /api/requestFriend endpoint
 
     @RequestMapping(value = "/api/removeFriend", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> removeFriend(@RequestParam(value = "username") String username,
@@ -137,35 +135,6 @@ public class RestController {
             return new ResponseEntity<>("Could not find group from this id", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(user, HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/api/inviteToGroup", method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<?> inviteToGroup(@RequestParam(value = "username") String username,
-                                    @RequestParam(value = "friend") String friend,
-                                    @RequestParam(value = "groupId") String groupId) {
-        Account user = accountService.inviteToGroup(username, friend, groupId);
-        if (user == null) {
-            return new ResponseEntity<>("Could not find group from this id", HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(user, HttpStatus.OK);
-    }
-
-    @MessageMapping("/inviteToGroup/{userId}/{friendId}/{groupId}")
-    @SendTo("/notification/{friendId}")
-    public List<Message> getInviteToGroup(@DestinationVariable String userId,
-                                          @DestinationVariable String friendId,
-                                          @DestinationVariable String groupId) {
-        Account friend = accountService.inviteToGroup(userId, friendId, groupId);
-        if (friend == null) {
-            return null;
-        }
-        return getNewNotifications(friend.getUsername());
-    }
-
-    @MessageMapping("/{username}")
-    @SendTo("/notification/{username}")
-    public List<Message> getNewNotifications(@DestinationVariable String username) {
-        return accountService.getNewMessages(username);
     }
 
     @RequestMapping(value = "/api/kick", method = RequestMethod.POST)
@@ -248,7 +217,6 @@ public class RestController {
         if (map == null) {
             return new ResponseEntity<>("Could not find any results", HttpStatus.BAD_REQUEST);
         }
-        System.out.println(map);
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
@@ -261,5 +229,14 @@ public class RestController {
         }
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
+
+    // TODO: handle notifications or use websockets
+    @RequestMapping(value = "/api/handleNotification", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> handleNotification(@RequestParam(value = "userId") String userId,
+                                                              @RequestParam(value = "messageId") String messageId) {
+        return null;
+    }
+
+    // TODO: reputationRank endpoint
 
 }

@@ -71,7 +71,7 @@ public class Account extends Searchable implements UserDetails {
     private List<String> skillIDs;
 	@JsonIgnore
     private List<String> groupIDs;
-	@JsonIgnore
+	// TODO: make map with names
     private List<String> friendIDs;
 	@JsonIgnore
     private List<String> messageIDs;

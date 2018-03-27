@@ -33,6 +33,7 @@ public class Group extends Searchable {
   
     private String ownerUID;
 
+    // TODO: map to names
 	private List<String> groupMemberIDs;	/* Account ID of the group members */
 
 	private String kickCandidate;

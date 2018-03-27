@@ -27,9 +27,9 @@ public class SocketController {
     @Autowired
     private GroupService groupService;
 
-    @MessageMapping("/{groupID}/sendMessage")
-    @SendTo("/group/{groupID}/message")
-    public ChatMessage send(@DestinationVariable String groupID, ChatMessage msg) {
+    @MessageMapping("/{groupId}/sendMessage")
+    @SendTo("/group/{groupId}")
+    public ChatMessage send(@DestinationVariable String groupId, ChatMessage msg) {
         Account a = accountService.getUserProfile(msg.getSenderId());
         if (a == null) {
             log.info("Account ID not found for User: " + msg.getSenderId());
@@ -37,9 +37,9 @@ public class SocketController {
         }
         msg.setSenderName(a.getFirstName() + " " + a.getLastName());
 
-        Group group = groupService.getUserGroup(groupID, a.getAccountID());
+        Group group = groupService.getUserGroup(groupId, a.getAccountID());
         if (group == null) {
-            log.info("No group found for groupID: " + groupID + " and User: " + msg.getSenderId());
+            log.info("No group found for groupId: " + groupId + " and User: " + msg.getSenderId());
             return null;
         }
 
@@ -47,16 +47,67 @@ public class SocketController {
         return msg;
     }
 
-    @MessageMapping("/{username}/{groupID}/messageHistory")
-    @SendTo("/group/{username}/{groupID}")
-    public List<ChatMessage> messageHistory(@DestinationVariable String groupID, @DestinationVariable String username) {
+    @MessageMapping("/{username}/{groupId}/messageHistory")
+    @SendTo("/group/{username}/{groupId}")
+    public List<ChatMessage> messageHistory(@DestinationVariable String groupId, @DestinationVariable String username) {
         Account a = accountService.getUserProfile(username);
         if (a == null) {
             log.info("Account ID not found for User: " + username);
             return null;
         }
-        Group group = groupService.getUserGroup(groupID, a.getAccountID());
+        Group group = groupService.getUserGroup(groupId, a.getAccountID());
 
         return group.getChatHistory();
+    }
+
+    @MessageMapping("/{userId}/{groupId}/rate")
+    @SendTo("/group/{groupId}")
+    public Message requestRate(@DestinationVariable String userId,
+                               @DestinationVariable String groupId) {
+        Message message = accountService.requestRating(userId, groupId);
+        if (message == null) {
+            log.info("Could not send rate request for group " + groupId);
+        }
+        return message;
+    }
+
+    @MessageMapping("/inviteToGroup/{userId}/{friendId}/{groupId}")
+    @SendTo("/notification/{friendId}")
+    public Message inviteToGroup(@DestinationVariable String userId,
+                                 @DestinationVariable String friendId,
+                                 @DestinationVariable String groupId) {
+        Message invite = accountService.inviteToGroup(userId, friendId, groupId);
+        if (invite == null) {
+            log.info("Could not invite user " + friendId + " to group " + groupId);
+        }
+        return invite;
+    }
+
+    @MessageMapping("/requestToGroup/{userId}/{groupId}")
+    @SendTo("/notification/{leaderId}")
+    public Message requestToGroup(@DestinationVariable String userId,
+                                  @DestinationVariable String groupId) {
+        return null;
+    }
+
+    @MessageMapping("requestFriend/{userId}/{friendId}")
+    @SendTo("/notification/{friendId}")
+    public Message requestFriend(@DestinationVariable String userId,
+                                       @DestinationVariable String friendId) {
+        Message invite = accountService.sendFriendInvite(userId, friendId);
+        if (invite == null) {
+            log.info("Could not send a friend request to " + friendId);
+        }
+        return invite;
+    }
+
+    @MessageMapping("/{userId}/allMessages")
+    @SendTo("/notification/{userId}")
+    public List<Message> getAllMessages(@DestinationVariable String userId) {
+        List<Message> list = accountService.getNewMessages(userId);
+        if (list == null) {
+            log.info("Could not get notifications for user " + userId);
+        }
+        return list;
     }
 }
