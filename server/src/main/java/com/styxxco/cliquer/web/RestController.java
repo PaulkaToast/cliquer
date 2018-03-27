@@ -59,17 +59,6 @@ public class RestController {
         if (user == null) {
             return new ResponseEntity<>("Could not fetch profile with the query", HttpStatus.BAD_REQUEST);
         }
-//        InjectableValues inject = new InjectableValues.Std().addValue(double.class, 3.0);
-//        try {
-//            String json = new ObjectMapper().writeValueAsString(user);
-//            System.out.println(json);
-//            Account user2 = new ObjectMapper().reader(inject).forType(Account.class).readValue(json);
-//            return new ResponseEntity<>(user2, HttpStatus.OK);
-//        } catch (JsonProcessingException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -185,8 +174,8 @@ public class RestController {
     }
 
     @RequestMapping(value = "/api/getSkills", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<?> getSkills(@RequestParam(value = "username") String username) {
-        List<Skill> skills = accountService.getAllUserSkills(username);
+    public @ResponseBody ResponseEntity<?> getSkills(@RequestParam(value = "userId") String userId) {
+        List<Skill> skills = accountService.getAllUserSkills(userId);
         if (skills == null) {
             return new ResponseEntity<>("Could not find skills", HttpStatus.BAD_REQUEST);
         }
@@ -226,9 +215,9 @@ public class RestController {
 
     @RequestMapping(value = "/api/search", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<?> search(@RequestParam(value = "type") String type,
-                             @RequestParam(value = "query", required = false, defaultValue = "null") String query,
-                             @RequestParam(value = "suggestions", required = false, defaultValue = "true") boolean suggestions,
-                             @RequestParam(value = "weights", required = false, defaultValue = "true") boolean weights) {
+                                                  @RequestParam(value = "query", required = false, defaultValue = "null") String query,
+                                                  @RequestParam(value = "suggestions", required = false, defaultValue = "true") boolean suggestions,
+                                                  @RequestParam(value = "weights", required = false, defaultValue = "true") boolean weights) {
         Map<String, ? extends Searchable> map = accountService.searchWithFilter(type, query, suggestions, weights);
         if (map == null) {
             return new ResponseEntity<>("Could not find any results", HttpStatus.BAD_REQUEST);

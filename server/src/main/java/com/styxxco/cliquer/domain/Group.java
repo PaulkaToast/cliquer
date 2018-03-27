@@ -32,7 +32,6 @@ public class Group extends Searchable {
     private String groupLeaderID;
     private String groupLeaderName;
 
-    // TODO: map to names
 	private Map<String, String> groupMemberIDs;	/* Account ID of the group members */
 
 	private String kickCandidate;

@@ -237,10 +237,10 @@ public class AccountServiceImpl implements AccountService {
                 return searchByReputation(Integer.parseInt(query), suggestions, weights).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
             case "skill":
                 return searchBySkill(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "groupname":
+            case "group":
                 return searchByGroupName(query).stream().collect(Collectors.toMap(Group::getGroupID, _it -> _it));
-            case "ispublic":
-                return searchByGroupPublic(Boolean.parseBoolean(query)).stream().collect(Collectors.toMap(Group::getGroupID, _it -> _it));
+            case "isPublic":
+                return searchByGroupPublic(query).stream().collect(Collectors.toMap(Group::getGroupID, _it -> _it));
         }
         return null;
     }
@@ -301,7 +301,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<Account> searchByFirstName(String firstName)
     {
-        List<Account> accounts = accountRepository.findByFirstNameIgnoreCase(firstName);
+        List<Account> accounts = accountRepository.findByFirstNameContainsIgnoreCase(firstName);
         List<Account> masked = new ArrayList<>();
         for(Account account : accounts)
         {
@@ -318,7 +318,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<Account> searchByLastName(String lastName)
     {
-        List<Account> accounts = accountRepository.findByLastNameIgnoreCase(lastName);
+        List<Account> accounts = accountRepository.findByLastNameContainsIgnoreCase(lastName);
         List<Account> masked = new ArrayList<>();
         for(Account account : accounts)
         {
@@ -335,7 +335,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<Account> searchByFullName(String firstName, String lastName)
     {
-        List<Account> accounts = accountRepository.findByFirstNameIgnoreCase(firstName);
+        List<Account> accounts = accountRepository.findByFirstNameContainsIgnoreCase(firstName);
         List<Account> masked = new ArrayList<>();
         for(Account account : accounts)
         {
@@ -465,12 +465,34 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<Group> searchByGroupName(String name) {
-        return groupRepository.findAllByGroupName(name);
+        List<Group> groups = groupRepository.findAllByGroupNameContainsIgnoreCase(name);
+        List<Group> qualified = new ArrayList<>();
+        for (Group group: groups) {
+            if (group.isPublic()) {
+                group.setGroupMemberIDs(null);
+                qualified.add(group);
+            }
+        }
+        return qualified;
     }
 
     @Override
-    public List<Group> searchByGroupPublic(boolean isPublic) {
-        return groupRepository.findAllByPublic(isPublic);
+    public List<Group> searchByGroupPublic(String userId) {
+        if(!accountRepository.existsByAccountID(userId))
+        {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        List<Group> qualified = groupService.searchBySettings(user.getUsername(), groupRepository.findAll());
+        List<Group> groups = new ArrayList<>();
+        for (Group group: qualified) {
+            if (group.isPublic()) {
+                group.setGroupMemberIDs(null);
+                groups.add(group);
+            }
+        }
+        return groups;
     }
 
     @Override
@@ -520,14 +542,14 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Skill> getAllUserSkills(String username)
+    public List<Skill> getAllUserSkills(String userId)
     {
-        if(!accountRepository.existsByUsername(username))
+        if(!accountRepository.existsByAccountID(userId))
         {
-            log.info("User " + username + " not found");
+            log.info("User " + userId + " not found");
             return null;
         }
-        Account user = accountRepository.findByUsername(username);
+        Account user = accountRepository.findByAccountID(userId);
         List<Skill> skills = new ArrayList<>();
         for(String skillID : user.getSkillIDs().keySet())
         {
@@ -561,7 +583,8 @@ public class AccountServiceImpl implements AccountService {
             log.info("User " + username + " not found");
             return null;
         }
-        List<Skill> skills = this.getAllUserSkills(username);
+        Account user = accountRepository.findByUsername(username);
+        List<Skill> skills = this.getAllUserSkills(user.getAccountID());
         for(Skill skill : skills)
         {
             if(skill.getSkillName().equals(skillName))
@@ -775,10 +798,10 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account addToGroup(String username, String groupID) {
-        if(!accountRepository.existsByUsername(username))
+    public Account addToGroup(String userId, String groupID) {
+        if(!accountRepository.existsByAccountID(userId))
         {
-            log.info("User " + username + " not found");
+            log.info("User " + userId + " not found");
             return null;
         }
         if(!groupRepository.existsByGroupID(groupID))
@@ -786,7 +809,7 @@ public class AccountServiceImpl implements AccountService {
             log.info("Group " + groupID + " not found");
             return null;
         }
-        Account user = accountRepository.findByUsername(username);
+        Account user = accountRepository.findByAccountID(userId);
         Group group = groupRepository.findByGroupID(groupID);
 
         groupService.addGroupMember(group.getGroupID(), group.getGroupLeaderID(), user.getAccountID());
@@ -875,7 +898,6 @@ public class AccountServiceImpl implements AccountService {
             case Types.GROUP_ACCEPTED:
                 break;
             case Types.FRIEND_ACCEPTED:
-
                 break;
         }
     }
@@ -1062,9 +1084,9 @@ public class AccountServiceImpl implements AccountService {
         }
         Group group = groupRepository.findByGroupID(invite.getGroupID());
         Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
-        addToGroup(userId, group.getGroupID());
+        this.addToGroup(userId, group.getGroupID());
         Message message = sendMessage(userId, leader.getAccountID(), user.getFullName() + " has joined " + group.getGroupName(), Types.GROUP_ACCEPTED);
-        leader.addMessage(message.getMessageID());
+        leader.addMessage(message);
         accountRepository.save(leader);
         messageRepository.delete(inviteId);
         messageRepository.save(message);
