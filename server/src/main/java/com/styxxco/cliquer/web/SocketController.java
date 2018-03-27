@@ -75,8 +75,8 @@ public class SocketController {
     @MessageMapping("/inviteToGroup/{userId}/{friendId}/{groupId}")
     @SendTo("/notification/{friendId}")
     public Message inviteToGroup(@DestinationVariable String friendId,
-                                 String userId,
-                                 String groupId) {
+                                 @DestinationVariable String userId,
+                                 @DestinationVariable String groupId) {
         Message invite = accountService.inviteToGroup(userId, friendId, groupId);
         if (invite == null) {
             log.info("Could not invite user " + friendId + " to group " + groupId);
@@ -84,11 +84,11 @@ public class SocketController {
         return invite;
     }
 
-    @MessageMapping("/requestToGroup/{userId}/{leaderId}{groupId}")
+    @MessageMapping("/requestToJoin/{userId}/{leaderId}{groupId}")
     @SendTo("/notification/{leaderId}")
     public Message requestToGroup(@DestinationVariable String leaderId,
-                                  String userId,
-                                  String groupId) {
+                                  @DestinationVariable String userId,
+                                  @DestinationVariable String groupId) {
         Message message = accountService.requestToGroup(userId, leaderId, groupId);
         if (message == null) {
             log.info("Could not send request to group " + groupId);
@@ -99,7 +99,7 @@ public class SocketController {
     @MessageMapping("requestFriend/{userId}/{friendId}")
     @SendTo("/notification/{friendId}")
     public Message requestFriend(@DestinationVariable String friendId,
-                                 String userId) {
+                                 @DestinationVariable String userId) {
         Message invite = accountService.sendFriendInvite(userId, friendId);
         if (invite == null) {
             log.info("Could not send a friend request to " + friendId);
