@@ -35,10 +35,10 @@ public class SprintTwoServicesTest {
     public MessageRepository messageRepository;
     @Autowired
     public GroupRepository groupRepository;
-
-    public AccountService accountService;
-
+    @Autowired
     public GroupService groupService;
+    @Autowired
+    public AccountService accountService;
 
     /* Back end Unit Test for User Story 10 */
     //@Test
@@ -183,7 +183,7 @@ public class SprintTwoServicesTest {
         assertEquals(Types.FRIEND_INVITE, invite.getType());
         String second = invite.getMessageID();
 
-        invite = accountService.rejectFriendInvite(kevin.getAccountID(), invite.getMessageID());
+        invite = accountService.rejectInvite(kevin.getAccountID(), invite.getMessageID());
         assertEquals(jordan.getAccountID(), invite.getSenderID());
         kevin = accountRepository.findByUsername(kevin.getUsername());
         assertEquals(0, kevin.getFriendIDs().size());
@@ -798,8 +798,6 @@ public class SprintTwoServicesTest {
     @Before
     public void populateSkills()
     {
-        accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-        groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
         accountService.addSkillToDatabase("Java");
         accountService.addSkillToDatabase("JavaScript");
         accountService.addSkillToDatabase("C");

@@ -101,12 +101,9 @@ public class GroupServiceImpl implements GroupService {
             return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
-        for(String id : group.getGroupMemberIDs().keySet())
+        if(group.getGroupMemberIDs().keySet().contains(accountID))
         {
-            if(id.equals(accountID))
-            {
-                return group;
-            }
+            return group;
         }
         log.info("User " + accountID + " is not a member of group " + groupID);
         return null;
@@ -791,14 +788,9 @@ public class GroupServiceImpl implements GroupService {
         Account sender = accountRepository.findByAccountID(request.getSenderID());
         group.addGroupMember(sender);
         groupRepository.save(group);
-        Message acceptance = new Message(groupLeaderID,
-                "You have been accepted into group " + group.getGroupName(),
-                Message.Types.GROUP_ACCEPTED);
-        messageRepository.save(acceptance);
-        sender.addMessage(acceptance);
         sender.addGroup(group);
         accountRepository.save(sender);
-        return acceptance;
+        return request;
     }
 
     @Override
@@ -853,27 +845,17 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void sendChatMessage(ChatMessage msg, String groupID)
+    public ChatMessage sendChatMessage(ChatMessage msg, String groupID)
     {
         if(!groupRepository.existsByGroupID(groupID))
         {
             log.info("Group " + groupID + " not found");
-            return;
+            return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
-        Account a = accountRepository.findByUsername(msg.getSenderId());
-        if (a == null) {
-            log.info("No accountID found for User: " + msg.getSenderId());
-            return;
-        }
-        if(!group.hasGroupMember(a.getAccountID()))
-        {
-            log.info("User " + msg.getSenderId() + " is not in the group " + groupID);
-            return;
-        }
-
         group.addMessage(msg);
         groupRepository.save(group);
+        return msg;
     }
 
     /* TODO: There is only one message for WebSockets to work properly */

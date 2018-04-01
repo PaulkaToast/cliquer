@@ -36,10 +36,10 @@ public class SprintOneServicesTest {
 	public MessageRepository messageRepository;
 	@Autowired
 	public GroupRepository groupRepository;
-	
+	@Autowired
+	public GroupService groupService;
+	@Autowired
 	public AccountService accountService;
-
-    public GroupService groupService;
 
 	/* Test basic storage of data in MongoDB */
 	@Test
@@ -384,8 +384,6 @@ public class SprintOneServicesTest {
 	@Before
 	public void populateSkills()
 	{
-        accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-        groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
 		accountService.addSkillToDatabase("Java");
 		accountService.addSkillToDatabase("JavaScript");
 		accountService.addSkillToDatabase("C");

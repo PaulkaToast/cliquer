@@ -49,7 +49,7 @@ public interface GroupService {
 
     /* Message centered services */
     Message sendMessage(String groupID, String senderID, String receiverId, String content, int type);
-    void sendChatMessage(ChatMessage msg, String groupID);
+    ChatMessage sendChatMessage(ChatMessage msg, String groupID);
 
     /* Skill and reputation rating services */
     Message initiateRatings(String groupID, String groupLeaderID);

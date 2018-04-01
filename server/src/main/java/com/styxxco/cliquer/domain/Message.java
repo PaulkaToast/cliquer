@@ -36,11 +36,14 @@ public class Message
 		public static final int GROUP_INVITE = 0;
 		public static final int FRIEND_INVITE = 1;
 		public static final int MOD_FLAG = 2;
-		public static final int KICK_NOTIFICATION = 3;
+		public static final int KICKED = 3;
 		public static final int JOIN_REQUEST = 4;
 		public static final int RATE_REQUEST = 5;
 		public static final int GROUP_ACCEPTED = 6;
 		public static final int FRIEND_ACCEPTED = 7;
+		public static final int MOD_INVITE = 8;
+		public static final int MOD_REQUEST = 9;
+		public static final int MOD_ACCEPTED = 10;
 	}
 
 	public Message(String senderID, String content, int type)

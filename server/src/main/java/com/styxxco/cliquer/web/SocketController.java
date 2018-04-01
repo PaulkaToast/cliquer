@@ -10,8 +10,10 @@ import lombok.extern.log4j.Log4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
@@ -27,99 +29,72 @@ public class SocketController {
     private AccountService accountService;
 
     @Autowired
-    private GroupService groupService;
+    private SimpMessagingTemplate sender;
 
     @MessageMapping("/{groupId}/sendMessage")
-    @SendTo("/group/{groupId}")
-    public ChatMessage send(@DestinationVariable String groupId, ChatMessage msg) {
-        Account a = accountService.getUserProfile(msg.getSenderId());
-        if (a == null) {
-            log.info("Account ID not found for User: " + msg.getSenderId());
-            return null;
-        }
-        msg.setSenderName(a.getFirstName() + " " + a.getLastName());
-
-        Group group = groupService.getUserGroup(groupId, a.getAccountID());
-        if (group == null) {
-            log.info("No group found for groupId: " + groupId + " and User: " + msg.getSenderId());
-            return null;
-        }
-
-        groupService.sendChatMessage(msg, group.getGroupID());
-        return msg;
+    public void send(@DestinationVariable String groupId, ChatMessage msg) {
+        accountService.sendChatMessageFromUser(groupId, msg);
     }
 
     @MessageMapping("/{username}/{groupId}/messageHistory")
-    @SendTo("/group/{username}/{groupId}")
-    public List<ChatMessage> messageHistory(@DestinationVariable String groupId,
-                                            @DestinationVariable String username) {
-        Account a = accountService.getUserProfile(username);
-        if (a == null) {
-            log.info("Account ID not found for User: " + username);
-            return null;
-        }
-        Group group = groupService.getUserGroup(groupId, a.getAccountID());
-
-        return group.getChatHistory();
+    public void messageHistory(@DestinationVariable String groupId,
+                               @DestinationVariable String username) {
+        accountService.getChatHistory(groupId, username);
     }
 
     @MessageMapping("/{userId}/{groupId}/rate")
-    @SendTo("/group/{groupId}")
-    public Message requestRate(@DestinationVariable String groupId,
-                               @DestinationVariable String userId) {
-        Message message = accountService.requestRating(userId, groupId);
-        if (message == null) {
-            log.info("Could not send rate request for group " + groupId);
-        }
-        return message;
+    public void requestRate(@DestinationVariable String groupId,
+                            @DestinationVariable String userId) {
+        accountService.requestRating(userId, groupId);
     }
 
     @MessageMapping("/inviteToGroup/{userId}/{friendId}/{groupId}")
-    @SendTo("/notification/{friendId}")
-    public Message inviteToGroup(@DestinationVariable String friendId,
-                                 @DestinationVariable String userId,
-                                 @DestinationVariable String groupId) {
-        Message invite = accountService.inviteToGroup(userId, friendId, groupId);
-        if (invite == null) {
-            log.info("Could not invite user " + friendId + " to group " + groupId);
-        }
-        return invite;
+    public void inviteToGroup(@DestinationVariable String friendId,
+                              @DestinationVariable String userId,
+                              @DestinationVariable String groupId) {
+        accountService.inviteToGroup(userId, friendId, groupId);
     }
 
     @MessageMapping("/requestToJoin/{userId}/{leaderId}/{groupId}")
-    @SendTo("/notification/{leaderId}")
-    public Message requestToJoin(
-            @DestinationVariable String userId,
-            @DestinationVariable String leaderId,
-                                  @DestinationVariable String groupId) {
-        System.out.println("REQUEST TO JOIN");
-        Message message = accountService.requestToGroup(userId, leaderId, groupId);
-        if (message == null) {
-            log.info("Could not send request to group " + groupId);
-        }
-        return message;
+    public void requestToJoin(@DestinationVariable String userId,
+                              @DestinationVariable String leaderId,
+                              @DestinationVariable String groupId) {
+        accountService.requestToGroup(userId, leaderId, groupId);
     }
 
     @MessageMapping("requestFriend/{userId}/{friendId}")
-    @SendTo("/notification/{friendId}")
-    public Message requestFriend(@DestinationVariable String friendId,
+    public void requestFriend(@DestinationVariable String friendId,
                                  @DestinationVariable String userId) {
-        Message invite = accountService.sendFriendInvite(userId, friendId);
-        if (invite == null) {
-            log.info("Could not send a friend request to " + friendId);
-        }
-        return invite;
+        accountService.sendFriendInvite(userId, friendId);
     }
 
     @MessageMapping("/{userId}/allMessages")
-    @SendTo("/notification/{userId}")
-    public Map<String, Message> getAllMessages(@DestinationVariable String userId) {
-        List<Message> list = accountService.getNewMessages(userId);
-        if (list == null) {
-            log.info("Could not get notifications for user " + userId);
-            return null;
-        }
-        Map<String, Message> map = list.stream().collect(Collectors.toMap(Message::getMessageID, _it -> _it));
-        return map;
+    public void getAllMessages(@DestinationVariable String userId) {
+        accountService.getNewMessages(userId);
     }
+
+    @MessageMapping("acceptNotification/{userId}/{messageId}")
+    public void acceptNotification(@DestinationVariable String userId,
+                                   @DestinationVariable String messageId) {
+        accountService.handleAcceptNotification(userId, messageId);
+    }
+
+    @MessageMapping("rejectNotification/{userId}/{messageId}")
+    public void rejectNotification(@DestinationVariable String userId,
+                                   @DestinationVariable String messageId) {
+
+    }
+
+    @MessageMapping("deleteNotification/{userId}/{messageId}")
+    public void deleteNotification(@DestinationVariable String userId,
+                                   @DestinationVariable String messageId) {
+
+    }
+
+    @MessageMapping("readNotification/{userId}/{messageId}")
+    public void readNotification(@DestinationVariable String userId,
+                                 @DestinationVariable String messageId) {
+
+    }
+
 }

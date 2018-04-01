@@ -2,6 +2,7 @@ package com.styxxco.cliquer.service;
 
 import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.security.FirebaseTokenHolder;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public interface AccountService extends UserDetailsService {
     Account removeSkill(String username, String skillName);
     Account deleteAccount(String username);
     Account rateUser(String userId, String rateeId, String groupId, String json, boolean endorse);
-    Message requestRating(String userId, String groupId);
+    void requestRating(String userId, String groupId);
 
     /* Account Searching */
     Map<String, ? extends Searchable> searchWithFilter(String type, String query, boolean suggestions, boolean weights);
@@ -53,6 +54,10 @@ public interface AccountService extends UserDetailsService {
     List<Message> getNewMessages(String userId);
     Message sendMessage(String username, String receiverID, String content, int type);
     Message deleteMessage(String username, String messageID);
+    ChatMessage sendChatMessageFromGroup(String groupId, ChatMessage message);
+    ChatMessage sendChatMessageFromUser(String groupId, ChatMessage message);
+    List<ChatMessage> getChatHistory(String groupId, String username);
+    void handleAcceptNotification(String userId, String messageId);
 
     /* Group centered services */
     Group createGroup(String username, String json);
@@ -61,17 +66,18 @@ public interface AccountService extends UserDetailsService {
     Account leaveGroup(String username, String groupID);
     Message inviteToGroup(String username, String friend, String groupID);
     Message acceptGroupInvite(String userId, String inviteId);
-    Message rejectGroupInvite(String userId, String inviteId);
     Message requestToGroup(String userId, String leaderId, String groupId);
     Message acceptJoinRequest(String userId, String messageId);
     Message rejectJoinRequest(String userId, String messageId);
+    Message acceptModInvite(String userId, String messageId);
+    Message acceptModRequest(String userId, String messageId);
     Message kickMember(String userId, String kickedId, String groupID);
     Map<String, Integer> getRateForm(String userId, String rateeId, String groupId);
 
     /* Friend invite services */
     Message sendFriendInvite(String userId, String receiverID);
     Message acceptFriendInvite(String userId, String inviteID);
-    Message rejectFriendInvite(String userId, String inviteID);
+    Message rejectInvite(String userId, String inviteID);
     Account addFriend(String userId, String friendID);
     Account removeFriend(String username, String friendID);
 
