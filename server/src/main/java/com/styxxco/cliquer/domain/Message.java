@@ -46,9 +46,10 @@ public class Message
 		public static final int RATE_REQUEST = 5;
 		public static final int GROUP_ACCEPTED = 6;
 		public static final int FRIEND_ACCEPTED = 7;
-		public static final int MOD_INVITE = 8;
+		public static final int EVENT_INVITE = 8;
 		public static final int MOD_REQUEST = 9;
 		public static final int MOD_ACCEPTED = 10;
+		public static final int MOD_INVITE = 11;
 	}
 
 	public Message(String senderID, String content, int type)

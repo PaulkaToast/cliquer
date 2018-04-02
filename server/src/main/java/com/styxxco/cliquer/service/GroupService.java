@@ -55,4 +55,9 @@ public interface GroupService {
     Message initiateRatings(String groupID, String groupLeaderID);
     Map<String, Integer> getGroupMemberRatingForm(String groupID, String rateeID);
     String rateGroupMember(String groupID, String raterID, String rateeID, boolean endorse, Map<String, Integer> skillRatings);
+
+    /* Event broadcast services */
+    List<Account> broadcastEvent(String groupID, String groupLeaderID, String description, int proximity, List<String> skillNames);
+
+    /* Group member search services */
 }

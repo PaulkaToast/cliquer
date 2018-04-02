@@ -987,4 +987,55 @@ public class GroupServiceImpl implements GroupService {
         groupRepository.save(group);
         return "Success";
     }
+
+    @Override
+    public List<Account> broadcastEvent(String groupID, String groupLeaderID, String description, int proximity, List<String> skillNames)
+    {
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            log.info("Group " + groupID + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupID);
+        if(!group.getGroupLeaderID().equals(groupLeaderID))
+        {
+            log.info("User " + groupLeaderID + " is not the leader of group " + groupID);
+            return null;
+        }
+        Account leader = accountRepository.findByAccountID(groupLeaderID);
+        List<Account> accounts = accountRepository.findAll();
+        List<Account> qualified = new ArrayList<>();
+        for(Account account : accounts)
+        {
+            if(group.getGroupMemberIDs().containsKey(account.getAccountID()))
+            {
+                continue;
+            }
+            if(account.distanceTo(leader.getLatitude(), leader.getLongitude()) > proximity)
+            {
+                continue;
+            }
+            boolean exit = false;
+            for(String skillName : skillNames)
+            {
+                if(!account.getSkillIDs().containsValue(skillName))
+                {
+                    exit = true;
+                    break;
+                }
+            }
+            if(exit)
+            {
+                continue;
+            }
+            Message invite = new Message(groupLeaderID,
+                    "You have been invited to an event hosted by group " + group.getGroupName() + "! Here are the details: " + description,
+                    Message.Types.EVENT_INVITE);
+            invite.setGroupID(groupID);
+            account.addMessage(invite);
+            accountRepository.save(account);
+            qualified.add(account);
+        }
+        return qualified;
+    }
 }
