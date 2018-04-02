@@ -110,6 +110,13 @@ public class SprintThreeServicesTest {
         assertEquals(2, kevin.getMessageIDs().keySet().size());
     }
 
+    /* Back end Unit Test for User Story 26 */
+    @Test
+    public void testGroupMemberSearch()
+    {
+
+    }
+
     /* Populates valid skills into database, in case they were deleted */
     @Before
     public void populateSkills()

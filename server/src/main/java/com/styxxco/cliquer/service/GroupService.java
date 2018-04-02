@@ -60,4 +60,6 @@ public interface GroupService {
     List<Account> broadcastEvent(String groupID, String groupLeaderID, String description, int proximity, List<String> skillNames);
 
     /* Group member search services */
+    List<Account> inviteEligibleUsers(String groupID, String groupLeaderID);
+
 }

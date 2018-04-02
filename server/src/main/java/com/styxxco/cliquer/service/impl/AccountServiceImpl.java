@@ -174,7 +174,7 @@ public class AccountServiceImpl implements AccountService {
     public Account getProfile(String username, String userid, String type) {
         Account user = accountRepository.findByUsername(username);
         if (username != null) {
-            //user.setRank(this.getReputationRanking(user.getUsername()));
+            user.setRank(this.getReputationRanking(user.getUsername()));
             switch (type) {
                 case "user":
                     user = getUserProfile(username);
@@ -189,7 +189,7 @@ public class AccountServiceImpl implements AccountService {
         } else {
             Account account = accountRepository.findByAccountID(userid);
             if (userid != null) {
-                //account.setRank(this.getReputationRanking(account.getUsername()));
+                account.setRank(this.getReputationRanking(account.getUsername()));
                 if (account != null) {
                     String name = account.getUsername();
                     switch (type) {
@@ -688,15 +688,15 @@ public class AccountServiceImpl implements AccountService {
             if(!message.isRead())
             {
                 messages.add(message);
-                //message.setRead(true);
-                //messageRepository.save(message);
+                message.setRead(true);
+                messageRepository.save(message);
             }
         }
         return messages;
     }
 
-     // Deprecated by Paula's chatlog but logic may be needed
-    /*
+    /* Deprecated by Paula's chatlog but logic may be needed
+
     @Override
     public List<Message> getGroupChatLog(String username, String groupId, int lower, int upper) {
         if(!accountRepository.existsByUsername(username))
@@ -891,12 +891,12 @@ public class AccountServiceImpl implements AccountService {
     public void handleNotifications(String userId, String messageId, boolean accept) {
         if(!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
-            return;// null;
+            return;
         }
         Account user = accountRepository.findByAccountID(userId);
         if(!messageRepository.existsByMessageID(messageId)) {
             log.info("Message " + messageId + " not found");
-            return;// null;
+            return;
         }
         Message message = messageRepository.findByMessageID(messageId);
         System.out.println("MESSAGE: " + message.getContent() + "[" + message.getType() + "]");
@@ -937,6 +937,29 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Message requestRating(String userId, String groupId) {
         return groupService.initiateRatings(groupId, userId);
+    }
+
+    @Override
+    public Message acceptSearchInvite(String userId, String inviteId)
+    {
+        if(!accountRepository.existsByAccountID(userId))
+        {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if(!user.hasMessage(inviteId))
+        {
+            log.info("User " + userId + " did not receive message " + inviteId);
+            return null;
+        }
+        Message invite = messageRepository.findByMessageID(inviteId);
+        messageRepository.delete(invite);
+        user.removeMessage(inviteId);
+        accountRepository.save(user);
+        return groupService.requestToJoinGroup(invite.getGroupID(), userId);
+
+
     }
 
     @Override

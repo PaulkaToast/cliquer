@@ -62,6 +62,7 @@ public interface AccountService extends UserDetailsService {
     Message inviteToGroup(String username, String friend, String groupID);
     Message acceptGroupInvite(String userId, String inviteId);
     Message rejectGroupInvite(String userId, String inviteId);
+    Message acceptSearchInvite(String userId, String inviteId);
     Message requestToGroup(String userId, String leaderId, String groupId);
     Message acceptJoinRequest(String userId, String messageId);
     Message rejectJoinRequest(String userId, String messageId);
