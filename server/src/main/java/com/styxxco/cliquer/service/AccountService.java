@@ -58,6 +58,7 @@ public interface AccountService extends UserDetailsService {
     ChatMessage sendChatMessageFromUser(String groupId, ChatMessage message);
     List<ChatMessage> getChatHistory(String groupId, String username);
     void handleAcceptNotification(String userId, String messageId);
+    void handleRejectNotification(String userId, String messageId);
 
     /* Group centered services */
     Group createGroup(String username, String json);

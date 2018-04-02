@@ -28,9 +28,6 @@ public class SocketController {
     @Autowired
     private AccountService accountService;
 
-    @Autowired
-    private SimpMessagingTemplate sender;
-
     @MessageMapping("/{groupId}/sendMessage")
     public void send(@DestinationVariable String groupId, ChatMessage msg) {
         accountService.sendChatMessageFromUser(groupId, msg);
@@ -82,7 +79,7 @@ public class SocketController {
     @MessageMapping("rejectNotification/{userId}/{messageId}")
     public void rejectNotification(@DestinationVariable String userId,
                                    @DestinationVariable String messageId) {
-
+        accountService.handleRejectNotification(userId, messageId);
     }
 
     @MessageMapping("deleteNotification/{userId}/{messageId}")

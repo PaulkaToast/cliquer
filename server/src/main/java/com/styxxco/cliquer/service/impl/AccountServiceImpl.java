@@ -271,7 +271,7 @@ public class AccountServiceImpl implements AccountService {
         user.setReputationReq(-1.0);
         return user;
     }
-    
+
     @Override
     public Account maskPublicProfile(Account account)
     {
@@ -715,6 +715,37 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Message acceptModRequest(String userId, String messageId) {
         return null;
+    }
+
+    @Override
+    public void handleRejectNotification(String userId, String messageId) {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if (!messageRepository.existsByMessageID(messageId)) {
+            log.info("Message " + messageId + " not found");
+            return;
+        }
+        Message message = messageRepository.findByMessageID(messageId);
+
+        switch (message.getType()) {
+
+            case Types.GROUP_INVITE:
+            case Types.FRIEND_INVITE:
+                rejectInvite(userId, messageId);
+                break;
+            case Types.JOIN_REQUEST:
+                rejectJoinRequest(userId, messageId);
+                break;
+            case Types.MOD_INVITE:
+                rejectModInvite(userId, messageId);
+                break;
+            case Types.MOD_REQUEST:
+                rejectModRequest(userId, messageId);
+                break;
+        }
     }
 
     @Override
