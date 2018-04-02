@@ -40,8 +40,8 @@ public class SprintThreeServicesTest {
 
     public GroupService groupService;
 
-    /* Back end Unit Test for User Story 10 */
-    //@Test
+    /* Back end Unit Test for User Story 11 */
+    @Test
     public void testGroupEventBroadcast()
     {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
