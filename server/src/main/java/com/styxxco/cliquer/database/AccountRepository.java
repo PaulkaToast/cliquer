@@ -16,6 +16,7 @@ public interface AccountRepository extends MongoRepository<Account, String>
 	Account findByAccountID(String accountID);
 	List<Account> findByFirstNameContainsIgnoreCase(String firstName);
 	List<Account> findByFirstName(String firstName);
+	List<Account> findByIsModeratorTrue();
 	List<Account> findByLastNameContainsIgnoreCase(String firstName);
 	List<Account> findByLastName(String firstName);
 	List<Account> findByReputation(int reputation);

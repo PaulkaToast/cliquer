@@ -53,6 +53,7 @@ public interface AccountService extends UserDetailsService {
     /* Message centered services */
     List<Message> getNewMessages(String userId);
     Message sendMessage(String username, String receiverID, String content, int type);
+    Message sendMessageToMods(String senderId, Message message);
     Message deleteMessage(String username, String messageID);
     ChatMessage sendChatMessageFromGroup(String groupId, ChatMessage message);
     ChatMessage sendChatMessageFromUser(String groupId, ChatMessage message);
@@ -72,6 +73,9 @@ public interface AccountService extends UserDetailsService {
     Message rejectJoinRequest(String userId, String messageId);
     Message acceptModInvite(String userId, String messageId);
     Message acceptModRequest(String userId, String messageId);
+    Message rejectModInvite(String userId, String messageId);
+    Message rejectModRequest(String userId, String messageId);
+    Message readMessage(String userId, String messageId);
     Message kickMember(String userId, String kickedId, String groupID);
     Map<String, Integer> getRateForm(String userId, String rateeId, String groupId);
 
@@ -91,5 +95,8 @@ public interface AccountService extends UserDetailsService {
     String checkNewUserFlag(String username);
     List<Account> moveSuggestedToTop(List<Account> accounts, int reputation, boolean includeWeights);
     double getReputationRanking(String username);
+    void deleteMessageByParent(String parentId);
+    void checkModStatus (String userId);
+    void addToModerators (String userId);
     void handleNotifications(String userId, String messageId, boolean accept);
 }

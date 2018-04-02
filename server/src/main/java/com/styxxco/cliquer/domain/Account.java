@@ -38,6 +38,7 @@ public class Account extends Searchable implements UserDetails {
 	private String password;
 
 	private boolean isModerator;
+	private boolean deniedMod;
 	private boolean isNewUser;
 	@JsonIgnore
 	private int loggedInTime;			/* Minutes that user has spent logged in */
@@ -117,6 +118,7 @@ public class Account extends Searchable implements UserDetails {
 		this.credentialsExpired = false;
 		this.numRatings = new TreeMap<>();
 		this.totalRating = new TreeMap<>();
+		this.deniedMod = false;
 	}
 
 	public String getFullName()
@@ -277,6 +279,10 @@ public class Account extends Searchable implements UserDetails {
 			}
 		}
 		return adjustedSkills;
+	}
+
+	public void deniedMod() {
+    	deniedMod = true;
 	}
 
 }

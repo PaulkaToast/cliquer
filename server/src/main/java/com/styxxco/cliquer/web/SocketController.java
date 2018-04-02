@@ -85,13 +85,13 @@ public class SocketController {
     @MessageMapping("deleteNotification/{userId}/{messageId}")
     public void deleteNotification(@DestinationVariable String userId,
                                    @DestinationVariable String messageId) {
-
+        accountService.deleteMessage(userId, messageId);
     }
 
     @MessageMapping("readNotification/{userId}/{messageId}")
     public void readNotification(@DestinationVariable String userId,
                                  @DestinationVariable String messageId) {
-
+        accountService.readMessage(userId, messageId);
     }
 
 }

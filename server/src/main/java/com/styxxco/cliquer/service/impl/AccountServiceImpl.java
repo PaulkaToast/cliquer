@@ -61,8 +61,7 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
-    public AccountServiceImpl(AccountRepository ar, SkillRepository sr, MessageRepository mr, GroupRepository gr)
-    {
+    public AccountServiceImpl(AccountRepository ar, SkillRepository sr, MessageRepository mr, GroupRepository gr) {
         this.accountRepository = ar;
         this.skillRepository = sr;
         this.messageRepository = mr;
@@ -75,7 +74,7 @@ public class AccountServiceImpl implements AccountService {
             return null;
 
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-        for (GrantedAuthority role: userDetails.getAuthorities()) {
+        for (GrantedAuthority role : userDetails.getAuthorities()) {
             grantedAuthorities.add(new SimpleGrantedAuthority(role.getAuthority()));
         }
 
@@ -83,10 +82,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account createAccount(String username, String email, String firstName, String lastName)
-    {
-        if(accountRepository.existsByUsername(username))
-        {
+    public Account createAccount(String username, String email, String firstName, String lastName) {
+        if (accountRepository.existsByUsername(username)) {
             log.info("User " + username + " already exists");
             return null;
         }
@@ -96,20 +93,16 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account deleteAccount(String username)
-    {
-        if(!accountRepository.existsByUsername(username))
-        {
+    public Account deleteAccount(String username) {
+        if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
-        for(String groupID : user.getGroupIDs().keySet())
-        {
+        for (String groupID : user.getGroupIDs().keySet()) {
             Group group = groupRepository.findByGroupID(groupID);
             group.removeGroupMember(user.getAccountID());
-            if(group.getGroupLeaderID().equals(user.getAccountID()))
-            {
+            if (group.getGroupLeaderID().equals(user.getAccountID())) {
                 List<String> memberIDs = new ArrayList<>(group.getGroupMemberIDs().keySet());
                 group.setGroupLeaderID(memberIDs.get(0));
                 group.setGroupLeaderName(group.getGroupMemberIDs().get(memberIDs.get(0)));
@@ -214,10 +207,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account getUserProfile(String username)
-    {
-        if(!accountRepository.existsByUsername(username))
-        {
+    public Account getUserProfile(String username) {
+        if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
@@ -229,7 +220,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Map<String, ? extends Searchable> searchWithFilter(String type, String query, boolean suggestions, boolean weights) {
-        switch(type) {
+        switch (type) {
             case "firstname":
                 return searchByFirstName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
             case "lastname":
@@ -254,10 +245,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account getMemberProfile(String username)
-    {
-        if(!accountRepository.existsByUsername(username))
-        {
+    public Account getMemberProfile(String username) {
+        if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
@@ -273,10 +262,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account maskPublicProfile(Account account)
-    {
-        if(!account.isPublic())
-        {
+    public Account maskPublicProfile(Account account) {
+        if (!account.isPublic()) {
             /* Mask all information except name and reputation */
             account.setSkillIDs(null);
             account.setGroupIDs(null);
@@ -295,10 +282,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account getPublicProfile(String username)
-    {
-        if(!accountRepository.existsByUsername(username))
-        {
+    public Account getPublicProfile(String username) {
+        if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
@@ -307,14 +292,11 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Account> searchByFirstName(String firstName)
-    {
+    public List<Account> searchByFirstName(String firstName) {
         List<Account> accounts = accountRepository.findByFirstNameContainsIgnoreCase(firstName);
         List<Account> masked = new ArrayList<>();
-        for(Account account : accounts)
-        {
-            if(!account.isOptedOut())
-            {
+        for (Account account : accounts) {
+            if (!account.isOptedOut()) {
                 masked.add(this.maskPublicProfile(account));
             }
         }
@@ -324,14 +306,11 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Account> searchByLastName(String lastName)
-    {
+    public List<Account> searchByLastName(String lastName) {
         List<Account> accounts = accountRepository.findByLastNameContainsIgnoreCase(lastName);
         List<Account> masked = new ArrayList<>();
-        for(Account account : accounts)
-        {
-            if(!account.isOptedOut())
-            {
+        for (Account account : accounts) {
+            if (!account.isOptedOut()) {
                 masked.add(this.maskPublicProfile(account));
             }
         }
@@ -341,14 +320,11 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Account> searchByFullName(String firstName, String lastName)
-    {
+    public List<Account> searchByFullName(String firstName, String lastName) {
         List<Account> accounts = accountRepository.findByFirstNameContainsIgnoreCase(firstName);
         List<Account> masked = new ArrayList<>();
-        for(Account account : accounts)
-        {
-            if(account.getLastName().toLowerCase().equals(lastName.toLowerCase()) && !account.isOptedOut())
-            {
+        for (Account account : accounts) {
+            if (account.getLastName().toLowerCase().equals(lastName.toLowerCase()) && !account.isOptedOut()) {
                 masked.add(this.maskPublicProfile(account));
             }
         }
@@ -366,24 +342,18 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public List<Account> searchByReputation(int minimumRep, boolean includeSuggested, boolean includeWeights)
-    {
+    public List<Account> searchByReputation(int minimumRep, boolean includeSuggested, boolean includeWeights) {
         List<Account> accounts = accountRepository.findAll();
         List<Account> qualified = new ArrayList<>();
-        for(Account account : accounts)
-        {
+        for (Account account : accounts) {
             int accountReputation;
-            if(includeWeights)
-            {
+            if (includeWeights) {
                 accountReputation = account.getAdjustedReputation();
-            }
-            else
-            {
+            } else {
                 accountReputation = account.getReputation();
             }
-            if(accountReputation >= minimumRep && !account.isOptedOut() &&
-                    account.getReputation()*account.getReputationReq() <= minimumRep)
-            {
+            if (accountReputation >= minimumRep && !account.isOptedOut() &&
+                    account.getReputation() * account.getReputationReq() <= minimumRep) {
                 qualified.add(this.maskPublicProfile(account));
             }
         }
@@ -394,42 +364,33 @@ public class AccountServiceImpl implements AccountService {
         Comparator<Account> byReputation = Comparator.comparingInt(Account::getReputation);
         byReputation = byReputation.reversed();
         qualified.sort(byReputation);
-        if(includeSuggested)
-        {
+        if (includeSuggested) {
             return this.moveSuggestedToTop(qualified, minimumRep, includeWeights);
         }
         return qualified;
     }
 
     @Override
-    public List<Account> moveSuggestedToTop(List<Account> accounts, int reputation, boolean includeWeights)
-    {
-        if(accounts.size() < 5)
-        {
+    public List<Account> moveSuggestedToTop(List<Account> accounts, int reputation, boolean includeWeights) {
+        if (accounts.size() < 5) {
             return accounts;
         }
-        int suggestions = Math.min(5, accounts.size()/5);
+        int suggestions = Math.min(5, accounts.size() / 5);
         List<Account> suggested = new ArrayList<>();
-        for(Account account : accounts)
-        {
+        for (Account account : accounts) {
             int accountReputation;
-            if(includeWeights)
-            {
+            if (includeWeights) {
                 accountReputation = account.getAdjustedReputation();
-            }
-            else
-            {
+            } else {
                 accountReputation = account.getReputation();
             }
-            if(accountReputation >= reputation && accountReputation <= reputation + Account.MAX_REP/10)
-            {
+            if (accountReputation >= reputation && accountReputation <= reputation + Account.MAX_REP / 10) {
                 suggested.add(account);
             }
         }
         List<Account> results = new ArrayList<>();
-        for(int i = 0; i < suggestions && suggested.size() > 0; i++)
-        {
-            Account random = suggested.get((int)(Math.random()*suggested.size()));
+        for (int i = 0; i < suggestions && suggested.size() > 0; i++) {
+            Account random = suggested.get((int) (Math.random() * suggested.size()));
             suggested.remove(random);
             accounts.remove(random);
             results.add(random);
@@ -456,7 +417,7 @@ public class AccountServiceImpl implements AccountService {
 
         List<Account> qualified = new ArrayList<>();
         for (Account account : accounts) {
-            for(int i = 10; i >= 1; i--) {
+            for (int i = 10; i >= 1; i--) {
                 Skill skill = this.getSkill(account.getUsername(), skillName);
                 if (account.isPublic() && skill != null && skill.getSkillLevel() == i) {
                     qualified.add(this.maskPublicProfile(account));
@@ -475,7 +436,7 @@ public class AccountServiceImpl implements AccountService {
     public List<Group> searchByGroupName(String name) {
         List<Group> groups = groupRepository.findAllByGroupNameContainsIgnoreCase(name);
         List<Group> qualified = new ArrayList<>();
-        for (Group group: groups) {
+        for (Group group : groups) {
             if (group.isPublic()) {
                 group.setGroupMemberIDs(null);
                 qualified.add(group);
@@ -486,15 +447,14 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<Group> searchByGroupPublic(String userId) {
-        if(!accountRepository.existsByAccountID(userId))
-        {
+        if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
         List<Group> qualified = groupService.searchBySettings(user.getUsername(), groupRepository.findAll());
         List<Group> groups = new ArrayList<>();
-        for (Group group: qualified) {
+        for (Group group : qualified) {
             if (group.isPublic()) {
                 group.setGroupMemberIDs(null);
                 groups.add(group);
@@ -505,8 +465,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<Skill> addSkills(String username, String json) {
-        if(!accountRepository.existsByUsername(username))
-        {
+        if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
@@ -516,7 +475,7 @@ public class AccountServiceImpl implements AccountService {
             ObjectMapper om = new ObjectMapper();
             TypeFactory typeFactory = om.getTypeFactory();
             List<String> list = om.readValue(json, typeFactory.constructCollectionType(List.class, String.class));
-            for (String s: list) {
+            for (String s : list) {
                 skills.add(addSkill(user, s, "0"));
             }
         } catch (IOException e) {
@@ -526,12 +485,9 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Skill addSkillToDatabase(String skillName)
-    {
-        for(int i = 0; i <= 10; i++)
-        {
-            if(!skillRepository.existsBySkillNameAndSkillLevel(skillName, i))
-            {
+    public Skill addSkillToDatabase(String skillName) {
+        for (int i = 0; i <= 10; i++) {
+            if (!skillRepository.existsBySkillNameAndSkillLevel(skillName, i)) {
                 Skill skill = new Skill(skillName, i);
                 skillRepository.save(skill);
             }
@@ -540,8 +496,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Skill> getAllValidSkills()
-    {
+    public List<Skill> getAllValidSkills() {
         List<Skill> skills = skillRepository.findBySkillLevel(0);
         System.out.println(skills);
         Collections.sort(skills);
@@ -549,17 +504,14 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Skill> getAllUserSkills(String userId)
-    {
-        if(!accountRepository.existsByAccountID(userId))
-        {
+    public List<Skill> getAllUserSkills(String userId) {
+        if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
         List<Skill> skills = new ArrayList<>();
-        for(String skillID : user.getSkillIDs().keySet())
-        {
+        for (String skillID : user.getSkillIDs().keySet()) {
             Skill skill = skillRepository.findBySkillID(skillID);
             skills.add(skill);
         }
@@ -568,14 +520,13 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<Group> getAllUserGroups(String username) {
-        if(!accountRepository.existsByUsername(username))
-        {
+        if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
         List<Group> groups = new ArrayList<>();
-        for (String groupID: user.getGroupIDs().keySet()) {
+        for (String groupID : user.getGroupIDs().keySet()) {
             Group group = groupRepository.findByGroupID(groupID);
             groups.add(group);
         }
@@ -583,19 +534,15 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Skill getSkill(String username, String skillName)
-    {
-        if(!accountRepository.existsByUsername(username))
-        {
+    public Skill getSkill(String username, String skillName) {
+        if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
         List<Skill> skills = this.getAllUserSkills(user.getAccountID());
-        for(Skill skill : skills)
-        {
-            if(skill.getSkillName().equals(skillName))
-            {
+        for (Skill skill : skills) {
+            if (skill.getSkillName().equals(skillName)) {
                 return skill;
             }
         }
@@ -603,10 +550,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Skill addSkill(String username, String skillName, String skillString)
-    {
-        if(!accountRepository.existsByUsername(username))
-        {
+    public Skill addSkill(String username, String skillName, String skillString) {
+        if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
@@ -615,8 +560,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private Skill addSkill(Account account, String skillName, String skillString) {
-        if(!skillRepository.existsBySkillName(skillName))
-        {
+        if (!skillRepository.existsBySkillName(skillName)) {
             log.info("Skill " + skillName + " is invalid");
             return null;
         }
@@ -626,8 +570,7 @@ public class AccountServiceImpl implements AccountService {
         } catch (NumberFormatException e) {
             log.info("Could not parse " + skillString + " as an integer");
         }
-        if(skillLevel < 0 || skillLevel > 10)
-        {
+        if (skillLevel < 0 || skillLevel > 10) {
             log.info("Skill level " + skillLevel + " is invalid");
             return null;
         }
@@ -635,15 +578,14 @@ public class AccountServiceImpl implements AccountService {
         Skill skill;
         if (skillRepository.existsBySkillNameAndSkillLevel(skillName, skillLevel)) {
             skill = skillRepository.findBySkillNameAndSkillLevel(skillName, skillLevel);
-        } else if (skillRepository.existsBySkillName(skillName)){
+        } else if (skillRepository.existsBySkillName(skillName)) {
             skill = new Skill(skillName, skillLevel);
             skillRepository.save(skill);
         } else {
             return null;
         }
         Skill curr = this.getSkill(account.getUsername(), skillName);
-        if(curr != null)
-        {
+        if (curr != null) {
             if (curr.getSkillLevel() == skillLevel) {
                 log.info("User " + account.getUsername() + " already has skill " + skillName);
                 return null;
@@ -657,17 +599,14 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account removeSkill(String username, String skillName)
-    {
-        if(!accountRepository.existsByUsername(username))
-        {
+    public Account removeSkill(String username, String skillName) {
+        if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
         Skill skill = this.getSkill(username, skillName);
-        if(skill == null)
-        {
+        if (skill == null) {
             log.info("User " + username + " does not have skill " + skillName);
             return null;
 
@@ -679,18 +618,15 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<Message> getNewMessages(String userId) {
-        if(!accountRepository.existsByAccountID(userId))
-        {
+        if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
         List<Message> messages = new ArrayList<>();
-        for(String id : user.getMessageIDs().keySet())
-        {
+        for (String id : user.getMessageIDs().keySet()) {
             Message message = messageRepository.findByMessageID(id);
-            if(!message.isRead())
-            {
+            if (!message.isRead()) {
                 messages.add(message);
             }
         }
@@ -708,13 +644,98 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Message rejectModInvite(String userId, String messageId) {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if (!messageRepository.existsByMessageID(messageId)) {
+            log.info("Message " + messageId + " not found");
+            return null;
+        }
+        Message message = messageRepository.findByMessageID(messageId);
+        messageRepository.delete(messageId);
+        user.removeMessage(messageId);
+        user.deniedMod();
+        accountRepository.save(user);
+        return message;
+    }
+
+    @Override
+    public Message rejectModRequest(String userId, String messageId) {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if (!messageRepository.existsByMessageID(messageId)) {
+            log.info("Message " + messageId + " not found");
+            return null;
+        }
+        Message message = messageRepository.findByMessageID(messageId);
+        messageRepository.delete(messageId);
+        user.removeMessage(messageId);
+        accountRepository.save(user);
+        Message parent = messageRepository.findByParentIDAndAndSenderID(message.getParentID());
+        parent.decrement();
+        messageRepository.save(parent);
+
+        // TODO: update for decided rules
+        if (parent.getCounter() < -5) {
+            deleteMessageByParent(parent.getParentID());
+            user.deniedMod();
+        }
+        return message;
+    }
+
+    @Override
     public Message acceptModInvite(String userId, String messageId) {
-        return null;
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if (!messageRepository.existsByMessageID(messageId)) {
+            log.info("Message " + messageId + " not found");
+            return null;
+        }
+        Message message = messageRepository.findByMessageID(messageId);
+        messageRepository.delete(messageId);
+        user.removeMessage(messageId);
+        accountRepository.save(user);
+        String parentID = "modRequest[" + userId + "]";
+        Message request = new Message(parentID, "I would like to become a moderator. Care to look at my account?", Types.MOD_REQUEST);
+        request.setParentID(parentID);
+        sendMessageToMods(userId, request);
+        return request;
     }
 
     @Override
     public Message acceptModRequest(String userId, String messageId) {
-        return null;
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if (!messageRepository.existsByMessageID(messageId)) {
+            log.info("Message " + messageId + " not found");
+            return null;
+        }
+        Message message = messageRepository.findByMessageID(messageId);
+        messageRepository.delete(messageId);
+        user.removeMessage(messageId);
+        accountRepository.save(user);
+        Message parent = messageRepository.findByParentIDAndAndSenderID(message.getParentID());
+        parent.increment();
+        messageRepository.save(parent);
+
+        // TODO: update for decided rules
+        if (parent.getCounter() > 5) {
+            deleteMessageByParent(parent.getParentID());
+            addToModerators(userId);
+        }
+        return message;
     }
 
     @Override
@@ -750,18 +771,18 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void handleAcceptNotification(String userId, String messageId) {
-        if(!accountRepository.existsByAccountID(userId)) {
+        if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return;
         }
         Account user = accountRepository.findByAccountID(userId);
-        if(!messageRepository.existsByMessageID(messageId)) {
+        if (!messageRepository.existsByMessageID(messageId)) {
             log.info("Message " + messageId + " not found");
             return;
         }
         Message message = messageRepository.findByMessageID(messageId);
 
-        switch(message.getType()) {
+        switch (message.getType()) {
 
             case Types.GROUP_INVITE:
                 acceptGroupInvite(userId, messageId);
@@ -783,13 +804,12 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<ChatMessage> getChatHistory(String groupId, String username) {
-        if(!accountRepository.existsByUsername(username))
-        {
+        if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
         Account sender = accountRepository.findByUsername(username);
-        if(!groupRepository.existsByGroupID(groupId)) {
+        if (!groupRepository.existsByGroupID(groupId)) {
             log.info("Group " + groupId + " not found");
             return null;
         }
@@ -826,14 +846,13 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public ChatMessage sendChatMessageFromUser(String groupId, ChatMessage message) {
-        if(!accountRepository.existsByUsername(message.getSenderId()))
-        {
+        if (!accountRepository.existsByUsername(message.getSenderId())) {
             log.info("User " + message.getSenderId() + " not found");
             return null;
         }
         Account sender = accountRepository.findByUsername(message.getSenderId());
         message.setSenderName(sender.getFullName());
-        if(!groupRepository.existsByGroupID(groupId)) {
+        if (!groupRepository.existsByGroupID(groupId)) {
             log.info("Group " + groupId + " not found");
             return null;
         }
@@ -847,10 +866,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Message sendMessage(String senderId, String receiverID, String content, int type)
-    {
-        if(!accountRepository.existsByAccountID(receiverID))
-        {
+    public Message sendMessage(String senderId, String receiverID, String content, int type) {
+        if (!accountRepository.existsByAccountID(receiverID)) {
             log.info("User " + receiverID + " not found");
             return null;
         }
@@ -863,9 +880,26 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Message sendMessageToMods(String senderId, Message message) {
+        List<Account> mods = accountRepository.findByIsModeratorTrue();
+        for (Account mod : mods) {
+            Message copy = new Message(senderId, message.getContent(), message.getType());
+            copy.setParentID(message.getParentID());
+            mod.addMessage(copy);
+            messageRepository.save(copy);
+            accountRepository.save(mod);
+        }
+        try {
+            template.convertAndSend("/moderators", message);
+        } catch (Exception e) {
+            log.info("Could not send message");
+        }
+        return message;
+    }
+
+    @Override
     public Map<String, Integer> getRateForm(String userId, String rateeId, String groupId) {
-        if(!accountRepository.existsByAccountID(userId))
-        {
+        if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
@@ -883,16 +917,13 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Message deleteMessage(String userId, String messageID)
-    {
-        if(!accountRepository.existsByAccountID(userId))
-        {
+    public Message deleteMessage(String userId, String messageID) {
+        if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
-        if(!user.hasMessage(messageID))
-        {
+        if (!user.hasMessage(messageID)) {
             log.info("User " + userId + " did not receive message " + messageID);
             return null;
         }
@@ -904,9 +935,38 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public void deleteMessageByParent(String parentId) {
+        List<Message> group = messageRepository.findByParentID(parentId);
+        List<Account> mods = accountRepository.findByIsModeratorTrue();
+        for (Account mod : mods) {
+            for (Message message : group) {
+                mod.removeMessage(message.getMessageID());
+            }
+            accountRepository.save(mod);
+        }
+        messageRepository.delete(group);
+    }
+
+    @Override
+    public Message readMessage(String userId, String messageId) {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if (!user.hasMessage(messageId)) {
+            log.info("User " + userId + " did not receive message " + messageId);
+            return null;
+        }
+        Message message = messageRepository.findByMessageID(messageId);
+        message.setRead(true);
+        messageRepository.save(message);
+        return message;
+    }
+
+    @Override
     public Group createGroup(String username, String json) {
-        if(!accountRepository.existsByUsername(username))
-        {
+        if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
@@ -917,7 +977,7 @@ public class AccountServiceImpl implements AccountService {
             String name = obj.getString("groupName");
             String purpose = obj.getString("groupPurpose");
             group = groupService.createGroup(name, purpose, user.getAccountID());
-            for (Object k: obj.keySet()) {
+            for (Object k : obj.keySet()) {
                 String key = k.toString();
                 if (key.contentEquals("skillsReq")) {
                     JSONArray skills = obj.getJSONArray("skillsReq");
@@ -939,13 +999,11 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account addToGroup(String userId, String groupID) {
-        if(!accountRepository.existsByAccountID(userId))
-        {
+        if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
-        if(!groupRepository.existsByGroupID(groupID))
-        {
+        if (!groupRepository.existsByGroupID(groupID)) {
             log.info("Group " + groupID + " not found");
             return null;
         }
@@ -959,34 +1017,27 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account leaveGroup(String username, String groupID) {
-        if(!accountRepository.existsByUsername(username))
-        {
+        if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
-        if(!groupRepository.existsByGroupID(groupID))
-        {
+        if (!groupRepository.existsByGroupID(groupID)) {
             log.info("Group " + groupID + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
         Group group = groupRepository.findByGroupID(groupID);
-        if(!group.hasGroupMember(user.getAccountID()))
-        {
+        if (!group.hasGroupMember(user.getAccountID())) {
             log.info("User " + username + " is not in group " + groupID);
             return null;
         }
-        if(group.getGroupLeaderID().equals(user.getAccountID()))
-        {
-            if(group.getGroupMemberIDs().size() == 1)
-            {
+        if (group.getGroupLeaderID().equals(user.getAccountID())) {
+            if (group.getGroupMemberIDs().size() == 1) {
                 user.removeGroup(groupID);
                 groupRepository.delete(group);
                 accountRepository.save(user);
                 return user;
-            }
-            else
-            {
+            } else {
                 List<String> memberIDs = new ArrayList<>(group.getGroupMemberIDs().keySet());
                 group.setGroupLeaderID(memberIDs.get(0));
                 group.setGroupLeaderName(group.getGroupMemberIDs().get(memberIDs.get(0)));
@@ -1004,18 +1055,18 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void handleNotifications(String userId, String messageId, boolean accept) {
-        if(!accountRepository.existsByAccountID(userId)) {
+        if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return;
         }
         Account user = accountRepository.findByAccountID(userId);
-        if(!messageRepository.existsByMessageID(messageId)) {
+        if (!messageRepository.existsByMessageID(messageId)) {
             log.info("Message " + messageId + " not found");
             return;
         }
         Message message = messageRepository.findByMessageID(messageId);
         System.out.println("MESSAGE: " + message.getContent() + "[" + message.getType() + "]");
-        switch(message.getType()) {
+        switch (message.getType()) {
             /* RATE_REQUEST HANDLED ELSEWHERE */
             case Types.GROUP_INVITE:
                 if (accept) {
@@ -1065,18 +1116,15 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Message requestToGroup(String userId, String leaderId, String groupId) {
-        if(!accountRepository.existsByAccountID(userId))
-        {
+        if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
-        if(!accountRepository.existsByAccountID(leaderId))
-        {
+        if (!accountRepository.existsByAccountID(leaderId)) {
             log.info("User " + leaderId + " not found");
             return null;
         }
-        if(!groupRepository.existsByGroupID(groupId))
-        {
+        if (!groupRepository.existsByGroupID(groupId)) {
             log.info("Group " + groupId + " not found");
             return null;
         }
@@ -1102,18 +1150,15 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Message inviteToGroup(String userId, String friendId, String groupID) {
-        if(!accountRepository.existsByAccountID(userId))
-        {
+        if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
-        if(!accountRepository.existsByAccountID(friendId))
-        {
+        if (!accountRepository.existsByAccountID(friendId)) {
             log.info("User " + friendId + " not found");
             return null;
         }
-        if(!groupRepository.existsByGroupID(groupID))
-        {
+        if (!groupRepository.existsByGroupID(groupID)) {
             log.info("Group " + groupID + " not found");
             return null;
         }
@@ -1135,18 +1180,15 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Message kickMember(String userId, String kickedId, String groupID) {
-        if(!accountRepository.existsByAccountID(userId))
-        {
+        if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
-        if(!accountRepository.existsByAccountID(kickedId))
-        {
+        if (!accountRepository.existsByAccountID(kickedId)) {
             log.info("User " + kickedId + " not found");
             return null;
         }
-        if(!groupRepository.existsByGroupID(groupID))
-        {
+        if (!groupRepository.existsByGroupID(groupID)) {
             log.info("Group " + groupID + " not found");
             return null;
         }
@@ -1168,8 +1210,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Group deleteGroup(String username, String groupID) {
-        if(!accountRepository.existsByUsername(username))
-        {
+        if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
@@ -1178,41 +1219,34 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public double getReputationRanking(String username)
-    {
-        if(!accountRepository.existsByUsername(username))
-        {
+    public double getReputationRanking(String username) {
+        if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return 0.0;
         }
         Account user = accountRepository.findByUsername(username);
         List<Account> accounts = accountRepository.findAll();
         ArrayList<Integer> reputations = new ArrayList<>();
-        for(Account account : accounts)
-        {
+        for (Account account : accounts) {
             reputations.add(account.getReputation());
         }
         Collections.sort(reputations);
         int rank = reputations.lastIndexOf(user.getReputation()) + 1;
-        return (100.0*rank)/reputations.size();
+        return (100.0 * rank) / reputations.size();
     }
 
     @Override
-    public Message sendFriendInvite(String userId, String receiverId)
-    {
-        if(!accountRepository.existsByAccountID(userId))
-        {
+    public Message sendFriendInvite(String userId, String receiverId) {
+        if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
-        if(!accountRepository.existsByAccountID(receiverId))
-        {
+        if (!accountRepository.existsByAccountID(receiverId)) {
             log.info("User " + receiverId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
-        if(user.hasFriend(receiverId))
-        {
+        if (user.hasFriend(receiverId)) {
             log.info("User " + userId + " is already friends with " + receiverId);
             return null;
         }
@@ -1230,16 +1264,13 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Message acceptFriendInvite(String userId, String inviteID)
-    {
-        if(!accountRepository.existsByAccountID(userId))
-        {
+    public Message acceptFriendInvite(String userId, String inviteID) {
+        if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
-        if(!user.hasMessage(inviteID))
-        {
+        if (!user.hasMessage(inviteID)) {
             log.info("User " + userId + " did not receive message " + inviteID);
             return null;
         }
@@ -1247,9 +1278,10 @@ public class AccountServiceImpl implements AccountService {
         user.removeMessage(inviteID);
         accountRepository.save(user);
         this.addFriend(userId, invite.getSenderID());
-        Message accept = sendMessage(userId, invite.getSenderID(),user.getFullName() + " added you as a friend!", Types.FRIEND_ACCEPTED);
+        Message accept = sendMessage(userId, invite.getSenderID(), user.getFullName() + " added you as a friend!", Types.FRIEND_ACCEPTED);
         messageRepository.delete(invite);
         messageRepository.save(accept);
+
         if (accept == null) {
             log.info("Could not add friend");
             return null;
@@ -1264,14 +1296,12 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Message acceptJoinRequest(String userId, String inviteId) {
-        if(!accountRepository.existsByAccountID(userId))
-        {
+        if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
-        if(!user.hasMessage(inviteId))
-        {
+        if (!user.hasMessage(inviteId)) {
             log.info("User " + userId + " did not receive message " + inviteId);
             return null;
         }
@@ -1288,14 +1318,12 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Message rejectJoinRequest(String userId, String inviteId) {
-        if(!accountRepository.existsByAccountID(userId))
-        {
+        if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
-        if(!user.hasMessage(inviteId))
-        {
+        if (!user.hasMessage(inviteId)) {
             log.info("User " + userId + " did not receive message " + inviteId);
             return null;
         }
@@ -1311,14 +1339,12 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Message acceptGroupInvite(String userId, String inviteId) {
-        if(!accountRepository.existsByAccountID(userId))
-        {
+        if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
-        if(!user.hasMessage(inviteId))
-        {
+        if (!user.hasMessage(inviteId)) {
             log.info("User " + userId + " did not receive message " + inviteId);
             return null;
         }
@@ -1338,14 +1364,12 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Message rejectInvite(String userId, String inviteId) {
-        if(!accountRepository.existsByAccountID(userId))
-        {
+        if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
-        if(!user.hasMessage(inviteId))
-        {
+        if (!user.hasMessage(inviteId)) {
             log.info("User " + userId + " did not receive message " + inviteId);
             return null;
         }
@@ -1358,13 +1382,11 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account addFriend(String userId, String friendID) {
-        if(!accountRepository.existsByAccountID(userId))
-        {
+        if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
-        if(!accountRepository.existsByAccountID(friendID))
-        {
+        if (!accountRepository.existsByAccountID(friendID)) {
             log.info("User " + friendID + " not found");
             return null;
         }
@@ -1379,13 +1401,11 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account removeFriend(String username, String friendID) {
-        if(!accountRepository.existsByUsername(username))
-        {
+        if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
-        if(!accountRepository.existsByAccountID(friendID))
-        {
+        if (!accountRepository.existsByAccountID(friendID)) {
             log.info("User " + friendID + " not found");
             return null;
         }
@@ -1399,18 +1419,15 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public String checkNewUserFlag(String username)
-    {
-        if(!accountRepository.existsByUsername(username))
-        {
+    public String checkNewUserFlag(String username) {
+        if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
         user.incrementTimer();
         accountRepository.save(user);
-        if(user.isNewUser())
-        {
+        if (user.isNewUser()) {
             return "New User";
         }
         return "Experienced User";
@@ -1418,18 +1435,18 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account setAccountSettings(String username, String json) {
-        if(!accountRepository.existsByUsername(username))
-        {
+        if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
         try {
             ObjectMapper om = new ObjectMapper();
-            TypeReference<HashMap<String, String>> typeRef = new TypeReference<HashMap<String, String>>() {};
+            TypeReference<HashMap<String, String>> typeRef = new TypeReference<HashMap<String, String>>() {
+            };
             Map<String, String> map = om.readValue(json, typeRef);
-            for (String key: map.keySet()) {
-                switch(key) {
+            for (String key : map.keySet()) {
+                switch (key) {
                     case "isPublic":
                         Boolean isPublic = Boolean.parseBoolean(map.get("isPublic"));
                         user.setPublic(isPublic);
@@ -1457,8 +1474,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Group setGroupSettings(String username, String groupId, String json) {
-        if(!accountRepository.existsByUsername(username))
-        {
+        if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
@@ -1474,7 +1490,7 @@ public class AccountServiceImpl implements AccountService {
         }
         try {
             JSONObject obj = new JSONObject(json);
-            for (Object k: obj.keySet()) {
+            for (Object k : obj.keySet()) {
                 String key = k.toString();
                 if (key.contentEquals("skillsReq")) {
                     JSONArray skills = obj.getJSONArray("skillsReq");
@@ -1496,13 +1512,11 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account rateUser(String userId, String rateeId, String groupId, String json, boolean endorse) {
-        System.out.println(json);
-        if(!accountRepository.existsByAccountID(userId))
-        {
+        if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
-        if(!accountRepository.existsByAccountID(rateeId)) {
+        if (!accountRepository.existsByAccountID(rateeId)) {
             log.info("User " + rateeId + " not found");
             return null;
         }
@@ -1512,7 +1526,7 @@ public class AccountServiceImpl implements AccountService {
         try {
             map = new TreeMap<>();
             JSONObject obj = new JSONObject(json);
-            for (Object k: obj.keySet()) {
+            for (Object k : obj.keySet()) {
                 String key = k.toString();
                 Integer level = Integer.parseInt(obj.getString(key));
                 map.put(key, level);
@@ -1528,7 +1542,58 @@ public class AccountServiceImpl implements AccountService {
         String s = groupService.rateGroupMember(groupId, userId, rateeId, endorse, map);
         ratee.setRank(getReputationRanking(ratee.getUsername()));
         System.out.println(s);
+        checkModStatus(ratee.getAccountID());
         return ratee;
     }
-}
 
+    @Override
+    public void addToModerators (String userId){
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        Message congrats = new Message(userId, "Congratulations! You're a moderator now!", Types.MOD_ACCEPTED);
+        user.setAuthorities(getModRoles());
+        user.setModerator(true);
+        user.addMessage(congrats);
+        accountRepository.save(user);
+        try {
+            template.convertAndSend("/notification/" + userId, congrats);
+        } catch (Exception e) {
+            log.info("Could not send message");
+        }
+    }
+
+    // TODO: update for decided rules
+    @Override
+    public void checkModStatus (String userId) {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if (!user.isModerator()) { //if user is not already a moderator
+            if (!user.isDeniedMod()) { //if user already denied being a moderator
+                if (!user.isNewUser()) { //if user is not a new user
+                    if (user.getReputation() >= 50) { //if user has reputation higher than 50
+                        if (user.getGroupIDs().keySet().size() > 5) { //user has to be in at least 5 groups
+                            Message offer = new Message(userId, "You are now able to apply to be a moderator!", Types.MOD_INVITE);
+                            user.addMessage(offer);
+                            messageRepository.save(offer);
+                            accountRepository.save(user);
+                            try {
+                                template.convertAndSend("/notification/" + userId, offer);
+                            } catch (Exception e) {
+                                log.info("Could not send message");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+
+}

@@ -31,6 +31,11 @@ public class Message
 	private String groupID;	/* MongoDB ID of group that message refers to, if applicable	*/
 	@Setter
 	private boolean read;
+	@Setter
+	@JsonIgnore
+	private String parentID; /* ID if multiple messages belong to a particular action */
+	@JsonIgnore
+	private int counter; /* counter for votes */
 
 	public static class Types {
 		public static final int GROUP_INVITE = 0;
@@ -56,6 +61,15 @@ public class Message
 		this.creationDate = LocalDate.now();
 		this.groupID = null;
 		this.read = false;
+		this.parentID = null;
+	}
+
+	public void increment() {
+		counter++;
+	}
+
+	public void decrement() {
+		counter--;
 	}
 }
 
