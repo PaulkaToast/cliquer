@@ -83,7 +83,7 @@ public class SprintThreeServicesTest {
         accountRepository.save(shawn);
 
         kevin.setLatitude(40.4);
-        kevin.setLongitude(-80.6);
+        kevin.setLongitude(-80.8);
         shawn.addSkill(ball);
         accountRepository.save(kevin);
 
@@ -91,11 +91,13 @@ public class SprintThreeServicesTest {
                 "Test run for Cliquer", 200, new ArrayList<>());
         assertEquals(1, result.size());
         assertEquals("Kevin", result.get(0).getFirstName());
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
         assertEquals(1, kevin.getMessageIDs().keySet().size());
 
         result = groupService.broadcastEvent(cliquer.getGroupID(), jordan.getAccountID(),
                 "Test run for Cliquer", 30, new ArrayList<>());
         assertEquals(0, result.size());
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
         assertEquals(1, kevin.getMessageIDs().keySet().size());
 
         List<String> reqs = new ArrayList<>();
@@ -104,6 +106,7 @@ public class SprintThreeServicesTest {
                 "Basketball tournament", 100, reqs);
         assertEquals(1, result.size());
         assertEquals("Kevin", result.get(0).getFirstName());
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
         assertEquals(2, kevin.getMessageIDs().keySet().size());
     }
 
