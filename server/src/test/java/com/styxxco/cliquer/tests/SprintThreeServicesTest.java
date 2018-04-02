@@ -73,7 +73,7 @@ public class SprintThreeServicesTest {
 
         jordan.setLatitude(40.0);
         jordan.setLongitude(-80.0);
-        shawn.addSkill(java);
+        jordan.addSkill(java);
         accountRepository.save(jordan);
 
         shawn.setLatitude(40.2);
@@ -84,7 +84,7 @@ public class SprintThreeServicesTest {
 
         kevin.setLatitude(40.4);
         kevin.setLongitude(-80.8);
-        shawn.addSkill(ball);
+        kevin.addSkill(ball);
         accountRepository.save(kevin);
 
         List<Account> result = groupService.broadcastEvent(cliquer.getGroupID(), jordan.getAccountID(),
