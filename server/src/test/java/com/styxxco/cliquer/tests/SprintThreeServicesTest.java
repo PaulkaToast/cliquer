@@ -102,7 +102,7 @@ public class SprintThreeServicesTest {
 
         List<String> reqs = new ArrayList<>();
         reqs.add(ball.getSkillName());
-        result = groupService.broadcastEvent(cliquer.getGroupID(), jordan.getAccountID(),
+        result = groupService.broadcastEvent(hoops.getGroupID(), shawn.getAccountID(),
                 "Basketball tournament", 100, reqs);
         assertEquals(1, result.size());
         assertEquals("Kevin", result.get(0).getFirstName());
