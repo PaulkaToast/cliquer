@@ -1036,7 +1036,7 @@ public class GroupServiceImpl implements GroupService {
             boolean exit = false;
             for(String skillName : skillNames)
             {
-                if(!account.getSkillIDs().containsKey(skillName))
+                if(!account.getSkillIDs().containsValue(skillName))
                 {
                     exit = true;
                     break;
