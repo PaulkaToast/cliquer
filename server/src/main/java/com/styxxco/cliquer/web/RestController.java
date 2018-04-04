@@ -36,6 +36,8 @@ public class RestController {
     @Autowired
     private FirebaseService firebaseService;
 
+    private final String OKAY = "{\"status\": \"OK\"}";
+
     @RequestMapping(value = "/login", method = RequestMethod.GET)
     public String index() {
         log.info("Index called");
@@ -195,10 +197,10 @@ public class RestController {
     @RequestMapping(value = "/api/rateUser", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> rateUser(@RequestParam(value = "userId") String userId,
                                                     @RequestParam(value = "rateeId") String rateeId,
-                                                    @RequestParam(value = "groupId") String groupId,
+                                                    @RequestParam(value = "messageId") String messageId,
                                                     @RequestParam(value = "endorse", required = false, defaultValue = "false") boolean endorse,
                                                     @RequestBody String json) {
-        Account user = accountService.rateUser(userId, rateeId, groupId, json, endorse);
+        Account user = accountService.rateUser(userId, rateeId, messageId, json, endorse);
         if (user == null) {
             return new ResponseEntity<>("Could not rate user", HttpStatus.BAD_REQUEST);
         }
@@ -232,7 +234,7 @@ public class RestController {
                                                               @RequestParam(value = "messageId") String messageId,
                                                               @RequestParam(value = "accept", required = false, defaultValue = "true") boolean accept) {
         accountService.handleNotifications(userId, messageId, accept);
-        return new ResponseEntity<>("{\"status\": \"cool\"}", HttpStatus.OK);
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/getRateForm", method = RequestMethod.GET)
@@ -241,9 +243,39 @@ public class RestController {
                                                       @RequestParam(value = "groupId") String groupId) {
         Map<String, Integer> map = accountService.getRateForm(userId, rateeId, groupId);
         if (map == null) {
-            log.info("Could not get rate form correctly");
-            return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Could not get rate form correctly", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(map, HttpStatus.OK);
+    }
+
+    // TODO: may need to take in messageId instead
+    @RequestMapping(value = "/mod/flagUser", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> flagUser(@RequestParam(value = "modId") String modId,
+                                                       @RequestParam(value = "userId") String userId) {
+        int flagCount = accountService.flagUser(modId, userId);
+        if (flagCount <= 0) {
+            return new ResponseEntity<>("Could not flag user", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(flagCount, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/createEvent", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> createEvent(@RequestParam(value = "groupId") String groupId,
+                                                       @RequestBody String json) {
+        Group group = accountService.createEvent(groupId, json);
+        if (group == null) {
+            return new ResponseEntity<>("Could not create event", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(group, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/inviteAll", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> inviteAll(@RequestParam(value = "userId") String userId,
+                                                     @RequestParam(value = "groupId") String groupId) {
+        List<Account> accounts = accountService.inviteAll(userId, groupId);
+        if (accounts == null) {
+            return new ResponseEntity<>("Could not invite users", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
 }

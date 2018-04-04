@@ -26,7 +26,7 @@ public interface AccountService extends UserDetailsService {
     List<Skill> addSkills(String username, String json);
     Account removeSkill(String username, String skillName);
     Account deleteAccount(String username);
-    Account rateUser(String userId, String rateeId, String groupId, String json, boolean endorse);
+    Account rateUser(String userId, String rateeId, String messageId, String json, boolean endorse);
     void requestRating(String userId, String groupId);
 
     /* Account Searching */
@@ -76,8 +76,11 @@ public interface AccountService extends UserDetailsService {
     Message rejectModInvite(String userId, String messageId);
     Message rejectModRequest(String userId, String messageId);
     Message readMessage(String userId, String messageId);
+    Message acceptSearchInvite(String userId, String inviteId);
     Message kickMember(String userId, String kickedId, String groupID);
     Map<String, Integer> getRateForm(String userId, String rateeId, String groupId);
+    Group createEvent(String groupId, String json);
+    List<Account> inviteAll(String userId, String groupId);
 
     /* Friend invite services */
     Message sendFriendInvite(String userId, String receiverID);
@@ -98,5 +101,6 @@ public interface AccountService extends UserDetailsService {
     void deleteMessageByParent(String parentId);
     void checkModStatus (String userId);
     void addToModerators (String userId);
+    int flagUser(String modId, String userId);
     void handleNotifications(String userId, String messageId, boolean accept);
 }

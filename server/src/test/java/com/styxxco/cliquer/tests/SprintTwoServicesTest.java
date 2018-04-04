@@ -678,8 +678,7 @@ public class SprintTwoServicesTest {
         kevin.addSkill(vim);
         accountRepository.save(kevin);
         
-        Message message = groupService.initiateRatings(cliquer.getGroupID(), jordan.getAccountID());
-        assertNotNull(message);
+        groupService.initiateRatings(cliquer.getGroupID(), jordan.getAccountID());
 
         Map<String, Integer> form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), kevin.getAccountID());
         assertNotNull(form);
@@ -757,8 +756,7 @@ public class SprintTwoServicesTest {
         kevin.setReputation(1);
         accountRepository.save(kevin);
 
-        Message message = groupService.initiateRatings(cliquer.getGroupID(), jordan.getAccountID());
-        assertNotNull(message);
+        groupService.initiateRatings(cliquer.getGroupID(), jordan.getAccountID());
 
         Map<String, Integer> form = groupService.getGroupMemberRatingForm(cliquer.getGroupID(), kevin.getAccountID());
         assertNotNull(form);

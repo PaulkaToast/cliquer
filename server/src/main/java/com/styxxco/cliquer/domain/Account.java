@@ -71,6 +71,11 @@ public class Account extends Searchable implements UserDetails {
 	private int reputation;
 	private double rank;
 	@JsonIgnore
+	private int flags;
+	@JsonIgnore
+	private List<String> logs;
+
+	@JsonIgnore
     private List<Role> authorities;
 	@JsonIgnore
     private Map<String, String> skillIDs;
@@ -119,6 +124,7 @@ public class Account extends Searchable implements UserDetails {
 		this.numRatings = new TreeMap<>();
 		this.totalRating = new TreeMap<>();
 		this.deniedMod = false;
+		this.logs = new ArrayList<>();
 	}
 
 	public String getFullName()
@@ -285,4 +291,19 @@ public class Account extends Searchable implements UserDetails {
     	deniedMod = true;
 	}
 
+	public void addFlag() {
+    	flags++;
+	}
+
+	public void removeFlag() {
+    	flags--;
+	}
+
+	public void suspend() {
+    	accountEnabled = false;
+	}
+
+	public void log(String log) {
+    	logs.add(log);
+	}
 }

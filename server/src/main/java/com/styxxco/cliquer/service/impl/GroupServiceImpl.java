@@ -6,6 +6,7 @@ import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.GroupService;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
@@ -32,7 +33,7 @@ public class GroupServiceImpl implements GroupService {
     private GroupRepository groupRepository;
 
     @Autowired
-    private AccountService accountService;
+    private SimpMessagingTemplate template;
 
     public GroupServiceImpl() {
 
@@ -76,6 +77,7 @@ public class GroupServiceImpl implements GroupService {
             log.info("User " + groupLeaderID + " is not the leader of group " + groupID);
             return null;
         }
+        Account leader = accountRepository.findByAccountID(groupLeaderID);
         for(String accountID : group.getGroupMemberIDs().keySet())
         {
             Account account = accountRepository.findByAccountID(accountID);
@@ -83,6 +85,9 @@ public class GroupServiceImpl implements GroupService {
             accountRepository.save(account);
         }
         groupRepository.delete(group);
+        leader.log("Delete group " + group.getGroupName());
+        leader.removeGroup(groupID);
+        accountRepository.save(leader);
         return group;
 
     }
@@ -207,9 +212,12 @@ public class GroupServiceImpl implements GroupService {
             return null;
         }
         Account member = accountRepository.findByAccountID(accountID);
+        Account leader = accountRepository.findByAccountID(groupLeaderID);
         group.addGroupMember(member);
         groupRepository.save(group);
         member.addGroup(group);
+        leader.log("Add " + member.getFullName() + " to group " + group.getGroupName());
+        accountRepository.save(leader);
         accountRepository.save(member);
         return group;
     }
@@ -425,13 +433,11 @@ public class GroupServiceImpl implements GroupService {
         List<Group> qualified = new ArrayList<>();
         for(Group group : groups)
         {
-            System.out.println(group.getGroupName());
             boolean exit = false;
             for(String member : group.getGroupMemberIDs().keySet())
             {
                 if(member.equals(user.getAccountID()))
                 {
-                    System.out.println("is member");
                     exit = true;
                     break;
                 }
@@ -442,7 +448,6 @@ public class GroupServiceImpl implements GroupService {
             }
             else if(!group.isPublic())
             {
-                System.out.println("is not public");
                 continue;
             }
             Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
@@ -453,12 +458,10 @@ public class GroupServiceImpl implements GroupService {
             }
             else if(group.getReputationReq()*leader.getReputation() > user.getReputation() || user.getReputationReq() * user.getReputation() > leader.getReputation())
             {
-                System.out.println("reputation issue");
                 continue;
             }
             else if(user.distanceTo(leader.getLatitude(), leader.getLongitude()) > user.getProximityReq())
             {
-                System.out.println("proximity issue");
                 continue;
             }
             qualified.add(group);
@@ -721,7 +724,6 @@ public class GroupServiceImpl implements GroupService {
                 {
                     if(skill.getSkillLevel() >= skillReq.getSkillLevel())
                     {
-                        System.out.println("metReq true");
                         metReq = true;
                     }
                     break;
@@ -761,7 +763,6 @@ public class GroupServiceImpl implements GroupService {
     {
         if(!this.meetsGroupRequirements(groupID, accountID))
         {
-            System.out.println("Does not meet requirements");
             return null;
         }
         Group group = groupRepository.findByGroupID(groupID);
@@ -772,8 +773,10 @@ public class GroupServiceImpl implements GroupService {
                 Message.Types.JOIN_REQUEST);
         joinRequest.setGroupID(groupID);
         messageRepository.save(joinRequest);
+        user.log("Request to join group " + group.getGroupName());
         leader.addMessage(joinRequest);
         accountRepository.save(leader);
+        accountRepository.save(user);
         return joinRequest;
     }
 
@@ -809,9 +812,16 @@ public class GroupServiceImpl implements GroupService {
         Account sender = accountRepository.findByAccountID(request.getSenderID());
         group.addGroupMember(sender);
         groupRepository.save(group);
+        leader.log("Accept join request from " + sender.getFullName() + " for group " + group.getGroupName());
+        accountRepository.save(leader);
+        Message acceptance = new Message(groupLeaderID,
+                "You have been accepted into group " + group.getGroupName(),
+                Message.Types.GROUP_ACCEPTED);
+        messageRepository.save(acceptance);
+        sender.addMessage(acceptance);
         sender.addGroup(group);
         accountRepository.save(sender);
-        return request;
+        return acceptance;
     }
 
     @Override
@@ -837,6 +847,7 @@ public class GroupServiceImpl implements GroupService {
         sender.removeMessage(messageID);
         messageRepository.delete(request);
         leader.removeMessage(messageID);
+        leader.log("Deny join request from " + sender.getFullName());
         accountRepository.save(leader);
         accountRepository.save(sender);
         return request;
@@ -879,41 +890,46 @@ public class GroupServiceImpl implements GroupService {
         return msg;
     }
 
-    /* TODO: There is only one message for WebSockets to work properly */
     @Override
-    public Message initiateRatings(String groupID, String groupLeaderID)
-    {
+    public void initiateRatings(String groupID, String groupLeaderID) {
         if(!groupRepository.existsByGroupID(groupID))
         {
             log.info("Group " + groupID + " not found");
-            return null;
+            return;
         }
         Group group = groupRepository.findByGroupID(groupID);
         if(!group.getGroupLeaderID().equals(groupLeaderID))
         {
             log.info("User " + groupLeaderID + " is not the leader of group " + groupID);
-            return null;
+            return;
         }
         if(!group.startMemberRatings())
         {
             log.info("Group " + groupID + " has maxed out the limit for group ratings");
-            return null;
+            return;
         }
-        Message message = new Message(groupLeaderID, "You can now rate your fellow members in group " + group.getGroupName() + "!", Message.Types.RATE_REQUEST);
-        message.setGroupID(groupID);
-        messageRepository.save(message);
+
         for(String accountID : group.getGroupMemberIDs().keySet())
         {
             if(accountID.equals(groupLeaderID))
             {
                 continue;
             }
+            Message message = new Message(groupLeaderID,
+                    "You can now rate your fellow members in group " + group.getGroupName() + "!", Message.Types.RATE_REQUEST);
+            message.setGroupID(groupID);
+            messageRepository.save(message);
             Account member = accountRepository.findByAccountID(accountID);
             member.addMessage(message);
             accountRepository.save(member);
+
+            try {
+                template.convertAndSend("/notification/" + member.getAccountID(), message);
+            } catch (Exception e) {
+                log.info("Could not send message");
+            }
         }
         groupRepository.save(group);
-        return message;
     }
 
     @Override
@@ -1056,6 +1072,12 @@ public class GroupServiceImpl implements GroupService {
             account.addMessage(invite);
             accountRepository.save(account);
             qualified.add(account);
+
+            try {
+                template.convertAndSend("/notification/" + account.getAccountID(), invite);
+            } catch (Exception e) {
+                log.info("Could not send message");
+            }
         }
         return qualified;
     }
@@ -1103,6 +1125,12 @@ public class GroupServiceImpl implements GroupService {
             account.addMessage(invite);
             accountRepository.save(account);
             qualified.add(account);
+
+            try {
+                template.convertAndSend("/notification/" + account.getAccountID(), invite);
+            } catch (Exception e) {
+                log.info("Could not send message");
+            }
         }
         return qualified;
     }
