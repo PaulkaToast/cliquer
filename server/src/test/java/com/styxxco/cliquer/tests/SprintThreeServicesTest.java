@@ -183,7 +183,7 @@ public class SprintThreeServicesTest {
         assertEquals(true, buckmaster.getMessageIDs().values().contains(Types.SEARCH_INVITE));
         ArrayList<String> messages = new ArrayList<>(buckmaster.getMessageIDs().keySet());
         Message message = messageRepository.findByMessageID(messages.get(0));
-        assertEquals("You have been matched with group Cliquer", message.getContent());
+        assertEquals("You have been matched with group Cliquer!", message.getContent());
         message = groupService.acceptSearchInvite(buckmaster.getAccountID(), messages.get(0));
         assertNotNull(message);
         assertEquals("User Jordan Buckmaster wishes to join your group Cliquer", message.getContent());
@@ -196,7 +196,7 @@ public class SprintThreeServicesTest {
         messages = new ArrayList<>(jordan.getMessageIDs().keySet());
         message = groupService.acceptJoinRequest(jordan.getAccountID(), messages.get(0));
         assertNotNull(message);
-        assertEquals("You have been accepted into group Cliquer!", message.getContent());
+        assertEquals("You have been accepted into group Cliquer", message.getContent());
         jordan = accountRepository.findByAccountID(jordan.getAccountID());
         assertEquals(0, jordan.getMessageIDs().keySet().size());
 
