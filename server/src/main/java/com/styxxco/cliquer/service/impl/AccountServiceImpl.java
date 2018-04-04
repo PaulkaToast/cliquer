@@ -940,29 +940,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Message acceptSearchInvite(String userId, String inviteId)
-    {
-        if(!accountRepository.existsByAccountID(userId))
-        {
-            log.info("User " + userId + " not found");
-            return null;
-        }
-        Account user = accountRepository.findByAccountID(userId);
-        if(!user.hasMessage(inviteId))
-        {
-            log.info("User " + userId + " did not receive message " + inviteId);
-            return null;
-        }
-        Message invite = messageRepository.findByMessageID(inviteId);
-        messageRepository.delete(invite);
-        user.removeMessage(inviteId);
-        accountRepository.save(user);
-        return groupService.requestToJoinGroup(invite.getGroupID(), userId);
-
-
-    }
-
-    @Override
     public Message requestToGroup(String userId, String leaderId, String groupId) {
         if(!accountRepository.existsByAccountID(userId))
         {

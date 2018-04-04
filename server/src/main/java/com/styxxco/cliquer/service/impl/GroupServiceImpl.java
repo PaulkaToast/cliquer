@@ -739,6 +739,27 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
+    public Message acceptSearchInvite(String userId, String inviteId)
+    {
+        if(!accountRepository.existsByAccountID(userId))
+        {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if(!user.hasMessage(inviteId))
+        {
+            log.info("User " + userId + " did not receive message " + inviteId);
+            return null;
+        }
+        Message invite = messageRepository.findByMessageID(inviteId);
+        messageRepository.delete(invite);
+        user.removeMessage(inviteId);
+        accountRepository.save(user);
+        return this.requestToJoinGroup(invite.getGroupID(), userId);
+    }
+
+    @Override
     public Message requestToJoinGroup(String groupID, String accountID)
     {
         if(!this.meetsGroupRequirements(groupID, accountID))

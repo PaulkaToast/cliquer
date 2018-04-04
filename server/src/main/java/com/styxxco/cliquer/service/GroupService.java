@@ -61,5 +61,6 @@ public interface GroupService {
 
     /* Group member search services */
     List<Account> inviteEligibleUsers(String groupID, String groupLeaderID);
+    Message acceptSearchInvite(String userId, String inviteId);
 
 }
