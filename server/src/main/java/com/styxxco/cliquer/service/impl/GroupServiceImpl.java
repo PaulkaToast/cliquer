@@ -1096,6 +1096,7 @@ public class GroupServiceImpl implements GroupService {
                     "You have been matched with group " + group.getGroupName() +"!",
                     Message.Types.SEARCH_INVITE);
             invite.setGroupID(groupID);
+            messageRepository.save(invite);
             account.addMessage(invite);
             accountRepository.save(account);
             qualified.add(account);

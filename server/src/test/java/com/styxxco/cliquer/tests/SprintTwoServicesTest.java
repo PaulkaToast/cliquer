@@ -119,7 +119,7 @@ public class SprintTwoServicesTest {
         assertEquals("Hoops", groups.get(0).getGroupName());
 
         groups = groupService.searchBySettings("reed226", null);
-        assertEquals(3, groups.size());
+        assertEquals(2, groups.size());
         assertEquals("Hoops", groups.get(0).getGroupName());
 
         List<Group> first = groupService.searchByLeaderFirstName("Shawn", null);
@@ -146,7 +146,7 @@ public class SprintTwoServicesTest {
         accountRepository.save(shawn);
 
         groups = groupService.searchBySettings("reed226", null);
-        assertEquals(3, groups.size());
+        assertEquals(2, groups.size());
         assertEquals("Hoops", groups.get(0).getGroupName());
 
         groups = groupService.searchBySettings("montgo38", null);
