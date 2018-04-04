@@ -456,11 +456,11 @@ public class GroupServiceImpl implements GroupService {
                 System.out.println("reputation issue");
                 continue;
             }
-//            else if(user.distanceTo(leader.getLatitude(), leader.getLongitude()) > user.getProximityReq())
-//            {
-//                System.out.println("proximity issue");
-//                continue;
-//            }
+            else if(user.distanceTo(leader.getLatitude(), leader.getLongitude()) > user.getProximityReq())
+            {
+                System.out.println("proximity issue");
+                continue;
+            }
             qualified.add(group);
         }
         Comparator<Group> byGroupName = Comparator.comparing(Group::getGroupName);
@@ -701,14 +701,14 @@ public class GroupServiceImpl implements GroupService {
             log.info("User " + accountID + " is already a member of group " + groupID);
             return false;
         }
-//        if(group.getReputationReq()*leader.getReputation() > user.getReputation() || user.getReputationReq() * user.getReputation() > leader.getReputation())
-//        {
-//            return false;
-//        }
-//        if(user.distanceTo(leader.getLatitude(), leader.getLongitude()) > group.getProximityReq())
-//        {
-//            return false;
-//        }
+        if(group.getReputationReq()*leader.getReputation() > user.getReputation())
+        {
+            return false;
+        }
+        if(user.distanceTo(leader.getLatitude(), leader.getLongitude()) > group.getProximityReq())
+        {
+            return false;
+        }
         boolean metReq = true;
         for(String skillReqID : group.getSkillReqs().keySet())
         {
@@ -733,6 +733,27 @@ public class GroupServiceImpl implements GroupService {
             }
         }
         return metReq;
+    }
+
+    @Override
+    public Message acceptSearchInvite(String userId, String inviteId)
+    {
+        if(!accountRepository.existsByAccountID(userId))
+        {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if(!user.hasMessage(inviteId))
+        {
+            log.info("User " + userId + " did not receive message " + inviteId);
+            return null;
+        }
+        Message invite = messageRepository.findByMessageID(inviteId);
+        messageRepository.delete(invite);
+        user.removeMessage(inviteId);
+        accountRepository.save(user);
+        return this.requestToJoinGroup(invite.getGroupID(), userId);
     }
 
     @Override
@@ -1032,6 +1053,53 @@ public class GroupServiceImpl implements GroupService {
                     "You have been invited to an event hosted by group " + group.getGroupName() + "! Here are the details: " + description,
                     Message.Types.EVENT_INVITE);
             invite.setGroupID(groupID);
+            account.addMessage(invite);
+            accountRepository.save(account);
+            qualified.add(account);
+        }
+        return qualified;
+    }
+
+    @Override
+    public List<Account> inviteEligibleUsers(String groupID, String groupLeaderID)
+    {
+        if(!groupRepository.existsByGroupID(groupID))
+        {
+            log.info("Group " + groupID + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupID);
+        if(!group.getGroupLeaderID().equals(groupLeaderID))
+        {
+            log.info("User " + groupLeaderID + " is not the leader of group " + groupID);
+            return null;
+        }
+        Account leader = accountRepository.findByAccountID(groupLeaderID);
+        List<Account> accounts = accountRepository.findAll();
+        List<Account> qualified = new ArrayList<>();
+        for(Account account : accounts)
+        {
+            if(group.getGroupMemberIDs().containsKey(account.getAccountID()))
+            {
+                continue;
+            }
+            if(!meetsGroupRequirements(groupID, account.getAccountID()))
+            {
+                continue;
+            }
+            if(leader.getReputation() < account.getReputation() * account.getReputationReq())
+            {
+                continue;
+            }
+            if(account.distanceTo(leader.getLatitude(), leader.getLongitude()) > account.getProximityReq())
+            {
+                continue;
+            }
+            Message invite = new Message(groupLeaderID,
+                    "You have been matched with group " + group.getGroupName() +"!",
+                    Message.Types.SEARCH_INVITE);
+            invite.setGroupID(groupID);
+            messageRepository.save(invite);
             account.addMessage(invite);
             accountRepository.save(account);
             qualified.add(account);

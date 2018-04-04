@@ -171,7 +171,7 @@ public class AccountServiceImpl implements AccountService {
     public Account getProfile(String username, String userid, String type) {
         Account user = accountRepository.findByUsername(username);
         if (username != null) {
-            //user.setRank(this.getReputationRanking(user.getUsername()));
+            user.setRank(this.getReputationRanking(user.getUsername()));
             switch (type) {
                 case "user":
                     user = getUserProfile(username);
@@ -186,7 +186,7 @@ public class AccountServiceImpl implements AccountService {
         } else {
             Account account = accountRepository.findByAccountID(userid);
             if (userid != null) {
-                //account.setRank(this.getReputationRanking(account.getUsername()));
+                account.setRank(this.getReputationRanking(account.getUsername()));
                 if (account != null) {
                     String name = account.getUsername();
                     switch (type) {
@@ -628,6 +628,8 @@ public class AccountServiceImpl implements AccountService {
             Message message = messageRepository.findByMessageID(id);
             if (!message.isRead()) {
                 messages.add(message);
+                message.setRead(true);
+                messageRepository.save(message);
             }
         }
         if (messages == null) {

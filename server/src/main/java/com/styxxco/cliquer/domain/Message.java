@@ -50,6 +50,7 @@ public class Message
 		public static final int MOD_REQUEST = 9;
 		public static final int MOD_ACCEPTED = 10;
 		public static final int MOD_INVITE = 11;
+		public static final int SEARCH_INVITE = 12;
 	}
 
 	public Message(String senderID, String content, int type)

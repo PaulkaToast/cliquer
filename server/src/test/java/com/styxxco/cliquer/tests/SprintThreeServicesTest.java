@@ -69,7 +69,7 @@ public class SprintThreeServicesTest {
 
         hoops.addSkillReq(ball);
         hoops.setProximityReq(1);
-        groupRepository.save(cliquer);
+        groupRepository.save(hoops);
 
         jordan.setLatitude(40.0);
         jordan.setLongitude(-80.0);
@@ -108,6 +108,117 @@ public class SprintThreeServicesTest {
         assertEquals("Kevin", result.get(0).getFirstName());
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
         assertEquals(2, kevin.getMessageIDs().keySet().size());
+    }
+
+    /* Back end Unit Test for User Story 26 */
+    @Test
+    public void testGroupMemberSearch()
+    {
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
+
+        Group cliquer = groupService.createGroup(
+                "Cliquer",
+                "To create a web app that facilitates the teaming of people who may have never met before",
+                jordan.getAccountID());
+
+        Skill javaReq = skillRepository.findBySkillNameAndSkillLevel("Java", 7);
+        Skill javaPass = skillRepository.findBySkillNameAndSkillLevel("Java", 8);
+        Skill javaFail = skillRepository.findBySkillNameAndSkillLevel("Java", 6);
+
+        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID());
+        cliquer = groupRepository.findByGroupID(cliquer.getGroupID());
+        shawn = accountRepository.findByAccountID(shawn.getAccountID());
+
+        cliquer.addSkillReq(javaReq);
+        cliquer.setProximityReq(30);
+        cliquer.setReputationReq(0.5);
+        groupRepository.save(cliquer);
+
+        jordan.setLatitude(40.0);
+        jordan.setLongitude(-80.0);
+        jordan.addSkill(javaPass);
+        jordan.setReputation(40);
+        jordan.setProximityReq(100);
+        accountRepository.save(jordan);
+
+        shawn.setLatitude(40.2);
+        shawn.setLongitude(-80.4);
+        shawn.addSkill(javaPass);
+        shawn.setReputation(20);
+        shawn.setReputationReq(0.0);
+        shawn.setProximityReq(100);
+        accountRepository.save(shawn);
+
+        kevin.setLatitude(40.2);
+        kevin.setLongitude(-80.4);
+        kevin.addSkill(javaFail);
+        kevin.setReputation(40);
+        kevin.setReputationReq(0.0);
+        kevin.setProximityReq(100);
+        accountRepository.save(kevin);
+
+        buckmaster.setLatitude(40.4);
+        buckmaster.setLongitude(-80.8);
+        buckmaster.addSkill(javaPass);
+        buckmaster.setReputation(60);
+        buckmaster.setReputationReq(0.0);
+        buckmaster.setProximityReq(100);
+        accountRepository.save(buckmaster);
+
+        List<Account> result = groupService.inviteEligibleUsers(cliquer.getGroupID(), jordan.getAccountID());
+        assertEquals(0, result.size());
+
+        cliquer.setProximityReq(60);
+        groupRepository.save(cliquer);
+
+        result = groupService.inviteEligibleUsers(cliquer.getGroupID(), jordan.getAccountID());
+        assertEquals(1, result.size());
+        assertEquals("Jordan Buckmaster", result.get(0).getFullName());
+
+        buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
+        assertEquals(1, buckmaster.getMessageIDs().keySet().size());
+        assertEquals(true, buckmaster.getMessageIDs().values().contains(Types.SEARCH_INVITE));
+        ArrayList<String> messages = new ArrayList<>(buckmaster.getMessageIDs().keySet());
+        Message message = messageRepository.findByMessageID(messages.get(0));
+        assertEquals("You have been matched with group Cliquer!", message.getContent());
+        message = groupService.acceptSearchInvite(buckmaster.getAccountID(), messages.get(0));
+        assertNotNull(message);
+        assertEquals("User Jordan Buckmaster wishes to join your group Cliquer", message.getContent());
+        buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
+        assertEquals(0, buckmaster.getMessageIDs().keySet().size());
+
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        assertEquals(1, jordan.getMessageIDs().keySet().size());
+        assertEquals(true, jordan.getMessageIDs().values().contains(Types.JOIN_REQUEST));
+        messages = new ArrayList<>(jordan.getMessageIDs().keySet());
+        message = groupService.acceptJoinRequest(jordan.getAccountID(), messages.get(0));
+        assertNotNull(message);
+        assertEquals("You have been accepted into group Cliquer", message.getContent());
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        assertEquals(0, jordan.getMessageIDs().keySet().size());
+
+        buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
+        assertEquals(true, buckmaster.getGroupIDs().containsKey(cliquer.getGroupID()));
+        cliquer = groupRepository.findByGroupID(cliquer.getGroupID());
+        assertEquals(true, cliquer.getGroupMemberIDs().containsKey(buckmaster.getAccountID()));
+
+        groupService.removeGroupMember(cliquer.getGroupID(), jordan.getAccountID(), buckmaster.getAccountID());
+        buckmaster.setReputationReq(0.9);
+        accountRepository.save(buckmaster);
+
+        result = groupService.inviteEligibleUsers(cliquer.getGroupID(), jordan.getAccountID());
+        assertEquals(0, result.size());
+
+        groupService.removeGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID());
+        cliquer = groupRepository.findByGroupID(cliquer.getGroupID());
+        cliquer.setReputationReq(0.75);
+        groupRepository.save(cliquer);
+
+        result = groupService.inviteEligibleUsers(cliquer.getGroupID(), jordan.getAccountID());
+        assertEquals(0, result.size());
     }
 
     /* Populates valid skills into database, in case they were deleted */

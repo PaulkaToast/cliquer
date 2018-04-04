@@ -41,7 +41,7 @@ public class SprintTwoServicesTest {
     public AccountService accountService;
 
     /* Back end Unit Test for User Story 10 */
-    //@Test
+    @Test
     public void testGroupSearchFilters() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
@@ -80,7 +80,7 @@ public class SprintTwoServicesTest {
         hula.setReputationReq(0.25);
         hoops.setReputationReq(0.5);
         games.setReputationReq(0.5);
-        styxx.setReputationReq(0.6);
+        styxx.setReputationReq(0.9);
 
         cliquer.setPublic(true);
         hula.setPublic(true);
@@ -115,8 +115,8 @@ public class SprintTwoServicesTest {
         assertEquals(1, groups.get(0).getSkillReqs().size());
 
         groups = groupService.searchBySettings("reed226", groups);
-        assertEquals(1, groups.size());
-        assertEquals("To play basketball", groups.get(0).getGroupPurpose());
+        assertEquals(2, groups.size());
+        assertEquals("Hoops", groups.get(0).getGroupName());
 
         groups = groupService.searchBySettings("reed226", null);
         assertEquals(2, groups.size());
@@ -150,7 +150,7 @@ public class SprintTwoServicesTest {
         assertEquals("Hoops", groups.get(0).getGroupName());
 
         groups = groupService.searchBySettings("montgo38", null);
-        assertEquals(1, groups.size());
+        assertEquals(0, groups.size());
     }
 
     /* Back end Unit Test for User Story 13 */
@@ -483,7 +483,7 @@ public class SprintTwoServicesTest {
     }
 
     /* Back end Unit Test for User Story 28 */
-    //@Test
+    @Test
     public void testJoiningGroup() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
@@ -502,7 +502,7 @@ public class SprintTwoServicesTest {
 
         cliquer.setReputationReq(0.5);
         cliquer.setProximityReq(30);
-        cliquer.addSkillReq(missReq);
+        cliquer.addSkillReq(requirement);
         jordan.setNewUser(false);
         jordan.setReputation(50);
         jordan.setLatitude(40.0);
