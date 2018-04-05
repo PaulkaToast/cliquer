@@ -28,6 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -620,50 +622,32 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Message> getNewMessages(String userId) {
+    public List<Message> getMessages(String userId, boolean includeRead, String startDate /* YEAR-MONTH-DAY */) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
         List<Message> messages = new ArrayList<>();
-        for (String id : user.getMessageIDs().keySet()) {
-            Message message = messageRepository.findByMessageID(id);
-            if (!message.isRead()) {
-                messages.add(message);
-                //message.setRead(true);
-                //messageRepository.save(message);
+        LocalDate start = null;
+        if(startDate != null) {
+            try {
+                start = LocalDate.parse(startDate);
+            } catch (DateTimeParseException e) {
+                log.info("Date " + startDate + " is invalid");
+                return null;
             }
         }
-        if (messages == null) {
-            log.info("Could not get notifications for user " + userId);
-            return null;
-        }
-        Map<String, Message> map = messages.stream().collect(Collectors.toMap(Message::getMessageID, _it -> _it));
-        try {
-            template.convertAndSend("/notification/" + userId, map);
-        } catch (Exception e) {
-            log.info("Could not send message");
-        }
-        return messages;
-    }
-
-    @Override
-    public List<Message> getAllMessages(String userId) {
-        if (!accountRepository.existsByAccountID(userId)) {
-            log.info("User " + userId + " not found");
-            return null;
-        }
-        Account user = accountRepository.findByAccountID(userId);
-        List<Message> messages = new ArrayList<>();
         for (String id : user.getMessageIDs().keySet()) {
             Message message = messageRepository.findByMessageID(id);
-            messages.add(message);
+            if ((includeRead || !message.isRead()) && (start == null || !message.getCreationDate().isBefore(start))) {
+                messages.add(message);
+            }
         }
-        if (messages == null) {
-            log.info("Could not get notifications for user " + userId);
-            return null;
-        }
+        Comparator<Message> byTime = Comparator.comparing(Message::getCreationTime);
+        messages.sort(byTime);
+        Comparator<Message> byDate = Comparator.comparing(Message::getCreationDate);
+        messages.sort(byDate);
         Map<String, Message> map = messages.stream().collect(Collectors.toMap(Message::getMessageID, _it -> _it));
         try {
             template.convertAndSend("/notification/" + userId, map);

@@ -323,16 +323,19 @@ public class SprintOneServicesTest {
 		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
 		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 
-		accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Be my friend?", Message.Types.FRIEND_INVITE);
-		accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Please be my friend?", Message.Types.FRIEND_INVITE);
+		Message first = accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Be my friend?", Message.Types.FRIEND_INVITE);
+		Message second = accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Please be my friend?", Message.Types.FRIEND_INVITE);
 
-		List<Message> newMessages = accountService.getNewMessages(shawn.getAccountID());
+		List<Message> newMessages = accountService.getMessages(shawn.getAccountID(), false, null);
 		assertEquals(2, newMessages.size());
 		assertEquals(1, newMessages.get(0).getType());
 
-		accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Pretty please be my friend?", Message.Types.FRIEND_INVITE);
+		accountService.readMessage(shawn.getAccountID(), first.getMessageID());
+		accountService.readMessage(shawn.getAccountID(), second.getMessageID());
 
-		newMessages = accountService.getNewMessages(shawn.getAccountID());
+		Message third = accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Pretty please be my friend?", Message.Types.FRIEND_INVITE);
+
+		newMessages = accountService.getMessages(shawn.getAccountID(), false, null);
 		assertEquals(1, newMessages.size());
 		assertEquals("Pretty please be my friend?", newMessages.get(0).getContent());
 	}

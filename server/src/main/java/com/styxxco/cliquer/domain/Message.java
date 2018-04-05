@@ -24,8 +24,10 @@ public class Message
 	private final String senderID;	/* MongoDB ID of entity that sent message	*/
 
 	private final int type;			/* Dictates behavior on user interation		*/
-	private final LocalTime creationTime;
-	private final LocalDate creationDate;
+	@Setter
+	private LocalTime creationTime;
+	@Setter
+	private LocalDate creationDate;
 
 	@Setter
 	private String groupID;	/* MongoDB ID of group that message refers to, if applicable	*/

@@ -6,6 +6,7 @@ import com.styxxco.cliquer.domain.Group;
 import com.styxxco.cliquer.domain.Message;
 import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.GroupService;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.extern.log4j.Log4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,14 +66,11 @@ public class SocketController {
         accountService.sendFriendInvite(userId, friendId);
     }
 
-    @MessageMapping("/{userId}/allNewMessages")
-    public void getNewMessages(@DestinationVariable String userId) {
-        accountService.getNewMessages(userId);
-    }
-
-    @MessageMapping("/{userId}/allMessages")
-    public void getAllMessages(@DestinationVariable String userId) {
-        accountService.getAllMessages(userId);
+    @MessageMapping("/{userId}/{includeRead}/{startDate}/allMessages")
+    public void getAllMessages(@DestinationVariable String userId,
+                               @DestinationVariable String includeRead,
+                               @DestinationVariable String startDate) {
+        accountService.getMessages(userId, Boolean.parseBoolean(includeRead), startDate);
     }
 
     @MessageMapping("acceptNotification/{userId}/{messageId}")
