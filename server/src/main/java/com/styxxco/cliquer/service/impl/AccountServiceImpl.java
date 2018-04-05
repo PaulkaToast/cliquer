@@ -631,9 +631,34 @@ public class AccountServiceImpl implements AccountService {
             Message message = messageRepository.findByMessageID(id);
             if (!message.isRead()) {
                 messages.add(message);
-                message.setRead(true);
-                messageRepository.save(message);
+                //message.setRead(true);
+                //messageRepository.save(message);
             }
+        }
+        if (messages == null) {
+            log.info("Could not get notifications for user " + userId);
+            return null;
+        }
+        Map<String, Message> map = messages.stream().collect(Collectors.toMap(Message::getMessageID, _it -> _it));
+        try {
+            template.convertAndSend("/notification/" + userId, map);
+        } catch (Exception e) {
+            log.info("Could not send message");
+        }
+        return messages;
+    }
+
+    @Override
+    public List<Message> getAllMessages(String userId) {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        List<Message> messages = new ArrayList<>();
+        for (String id : user.getMessageIDs().keySet()) {
+            Message message = messageRepository.findByMessageID(id);
+            messages.add(message);
         }
         if (messages == null) {
             log.info("Could not get notifications for user " + userId);

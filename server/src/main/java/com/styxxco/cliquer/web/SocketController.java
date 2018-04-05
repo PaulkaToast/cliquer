@@ -65,9 +65,14 @@ public class SocketController {
         accountService.sendFriendInvite(userId, friendId);
     }
 
+    @MessageMapping("/{userId}/allNewMessages")
+    public void getNewMessages(@DestinationVariable String userId) {
+        accountService.getNewMessages(userId);
+    }
+
     @MessageMapping("/{userId}/allMessages")
     public void getAllMessages(@DestinationVariable String userId) {
-        accountService.getNewMessages(userId);
+        accountService.getAllMessages(userId);
     }
 
     @MessageMapping("acceptNotification/{userId}/{messageId}")

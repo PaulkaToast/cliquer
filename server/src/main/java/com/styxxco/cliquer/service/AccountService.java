@@ -52,6 +52,7 @@ public interface AccountService extends UserDetailsService {
 
     /* Message centered services */
     List<Message> getNewMessages(String userId);
+    List<Message> getAllMessages(String userId);
     Message sendMessage(String username, String receiverID, String content, int type);
     Message sendMessageToMods(String senderId, Message message);
     Message deleteMessage(String username, String messageID);
