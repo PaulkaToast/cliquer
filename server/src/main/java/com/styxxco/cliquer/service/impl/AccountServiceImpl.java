@@ -642,10 +642,6 @@ public class AccountServiceImpl implements AccountService {
                 messageRepository.save(message);
             }
         }
-        if (messages.isEmpty()) {
-            log.info("Could not get notifications for user " + userId);
-            return null;
-        }
         Comparator<Message> byTime = Comparator.comparing(Message::getCreationTime);
         messages.sort(byTime);
         Comparator<Message> byDate = Comparator.comparing(Message::getCreationDate);
