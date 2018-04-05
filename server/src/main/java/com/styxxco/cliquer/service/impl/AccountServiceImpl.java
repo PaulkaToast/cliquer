@@ -627,10 +627,13 @@ public class AccountServiceImpl implements AccountService {
         Account user = accountRepository.findByAccountID(userId);
         List<Message> messages = new ArrayList<>();
         LocalDate start = null;
-        try {
-            start = LocalDate.parse(startDate);
-        } catch (DateTimeParseException e) {
-            log.info("Date " + startDate + " is invalid");
+        if(startDate != null) {
+            try {
+                start = LocalDate.parse(startDate);
+            } catch (DateTimeParseException e) {
+                log.info("Date " + startDate + " is invalid");
+                return null;
+            }
         }
         for (String id : user.getMessageIDs().keySet()) {
             Message message = messageRepository.findByMessageID(id);
