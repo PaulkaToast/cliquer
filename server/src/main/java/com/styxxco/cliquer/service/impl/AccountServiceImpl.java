@@ -619,7 +619,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Message> getMessages(String userId, boolean includeRead, String startDate) {
+    public List<Message> getMessages(String userId, boolean includeRead, String startDate /* YEAR-MONTH-DAY */) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;

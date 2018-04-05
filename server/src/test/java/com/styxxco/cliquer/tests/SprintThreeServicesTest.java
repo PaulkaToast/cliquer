@@ -254,36 +254,36 @@ public class SprintThreeServicesTest {
         messages = accountService.getMessages(shawn.getAccountID(), true, null);
         assertEquals(3, messages.size());
 
-        first.setCreationDate(LocalDate.parse("4-1-2018"));
-        second.setCreationDate(LocalDate.parse("3-22-2018"));
-        third.setCreationDate(LocalDate.parse("4-1-2016"));
+        first.setCreationDate(LocalDate.parse("2018-4-1"));
+        second.setCreationDate(LocalDate.parse("2018-3-22"));
+        third.setCreationDate(LocalDate.parse("2016-4-1"));
 
         messageRepository.save(first);
         messageRepository.save(second);
         messageRepository.save(third);
 
-        messages = accountService.getMessages(shawn.getAccountID(), true, "3-21-2016");
+        messages = accountService.getMessages(shawn.getAccountID(), true, "2016-3-21");
         assertEquals(3, messages.size());
         assertEquals("Pretty please be my friend?", messages.get(0).getContent());
         assertEquals("Please be my friend?", messages.get(1).getContent());
         assertEquals("Be my friend?", messages.get(2).getContent());
 
-        messages = accountService.getMessages(shawn.getAccountID(), true, "3-23-2018");
+        messages = accountService.getMessages(shawn.getAccountID(), true, "2018-3-23");
         assertEquals(1, messages.size());
         assertEquals("Be my friend?", messages.get(0).getContent());
 
-        first.setCreationDate(LocalDate.parse("4-1-2018"));
+        first.setCreationDate(LocalDate.parse("2018-4-1"));
         first.setCreationTime(LocalTime.parse("14:10"));
-        second.setCreationDate(LocalDate.parse("4-1-2018"));
+        second.setCreationDate(LocalDate.parse("2018-4-1"));
         second.setCreationTime(LocalTime.parse("11:20"));
-        third.setCreationDate(LocalDate.parse("4-1-2018"));
+        third.setCreationDate(LocalDate.parse("2018-4-1"));
         third.setCreationTime(LocalTime.parse("23:40"));
 
         messageRepository.save(first);
         messageRepository.save(second);
         messageRepository.save(third);
 
-        messages = accountService.getMessages(shawn.getAccountID(), true, "3-30-2016");
+        messages = accountService.getMessages(shawn.getAccountID(), true, "2016-3-30");
         assertEquals(3, messages.size());
         assertEquals("Please be my friend?", messages.get(0).getContent());
         assertEquals("Be my friend?", messages.get(1).getContent());
