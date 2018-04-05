@@ -51,7 +51,7 @@ public interface AccountService extends UserDetailsService {
     Skill getSkill(String username, String skillName);
 
     /* Message centered services */
-    List<Message> getNewMessages(String userId);
+    List<Message> getMessages(String userId, boolean includeRead, String startDate);
     Message sendMessage(String username, String receiverID, String content, int type);
     Message sendMessageToMods(String senderId, Message message);
     Message deleteMessage(String username, String messageID);

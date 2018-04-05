@@ -28,6 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -617,25 +619,34 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Message> getNewMessages(String userId) {
+    public List<Message> getMessages(String userId, boolean includeRead, String startDate) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
         List<Message> messages = new ArrayList<>();
+        LocalDate start = null;
+        try {
+            start = LocalDate.parse(startDate);
+        } catch (DateTimeParseException e) {
+            log.info("Date " + startDate + " is invalid");
+        }
         for (String id : user.getMessageIDs().keySet()) {
             Message message = messageRepository.findByMessageID(id);
-            if (!message.isRead()) {
+            if ((includeRead || !message.isRead()) && (start == null || !message.getCreationDate().isBefore(start))) {
                 messages.add(message);
-                message.setRead(true);
                 messageRepository.save(message);
             }
         }
-        if (messages == null) {
+        if (messages.isEmpty()) {
             log.info("Could not get notifications for user " + userId);
             return null;
         }
+        Comparator<Message> byTime = Comparator.comparing(Message::getCreationTime);
+        messages.sort(byTime);
+        Comparator<Message> byDate = Comparator.comparing(Message::getCreationDate);
+        messages.sort(byDate);
         Map<String, Message> map = messages.stream().collect(Collectors.toMap(Message::getMessageID, _it -> _it));
         try {
             template.convertAndSend("/notification/" + userId, map);

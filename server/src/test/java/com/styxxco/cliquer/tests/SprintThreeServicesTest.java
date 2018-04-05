@@ -17,6 +17,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -219,6 +221,73 @@ public class SprintThreeServicesTest {
 
         result = groupService.inviteEligibleUsers(cliquer.getGroupID(), jordan.getAccountID());
         assertEquals(0, result.size());
+    }
+
+    /* Back end Unit Test for User Story 8 */
+    @Test
+    public void testGetMessages()
+    {
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+
+        Message first = accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Be my friend?", Message.Types.FRIEND_INVITE);
+        Message second = accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Please be my friend?", Message.Types.FRIEND_INVITE);
+
+        List<Message> messages = accountService.getMessages(shawn.getAccountID(), false, null);
+        assertEquals(2, messages.size());
+        assertEquals(1, messages.get(0).getType());
+
+        accountService.readMessage(shawn.getAccountID(), first.getMessageID());
+        accountService.readMessage(shawn.getAccountID(), second.getMessageID());
+
+        Message third = accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Pretty please be my friend?", Message.Types.FRIEND_INVITE);
+
+        messages = accountService.getMessages(shawn.getAccountID(), false, null);
+        assertEquals(1, messages.size());
+        assertEquals("Pretty please be my friend?", messages.get(0).getContent());
+
+        accountService.readMessage(shawn.getAccountID(), third.getMessageID());
+
+        messages = accountService.getMessages(shawn.getAccountID(), false, null);
+        assertEquals(0, messages.size());
+
+        messages = accountService.getMessages(shawn.getAccountID(), true, null);
+        assertEquals(3, messages.size());
+
+        first.setCreationDate(LocalDate.parse("4-1-2018"));
+        second.setCreationDate(LocalDate.parse("3-22-2018"));
+        third.setCreationDate(LocalDate.parse("4-1-2016"));
+
+        messageRepository.save(first);
+        messageRepository.save(second);
+        messageRepository.save(third);
+
+        messages = accountService.getMessages(shawn.getAccountID(), true, "3-21-2016");
+        assertEquals(3, messages.size());
+        assertEquals("Pretty please be my friend?", messages.get(0).getContent());
+        assertEquals("Please be my friend?", messages.get(1).getContent());
+        assertEquals("Be my friend?", messages.get(2).getContent());
+
+        messages = accountService.getMessages(shawn.getAccountID(), true, "3-23-2018");
+        assertEquals(1, messages.size());
+        assertEquals("Be my friend?", messages.get(0).getContent());
+
+        first.setCreationDate(LocalDate.parse("4-1-2018"));
+        first.setCreationTime(LocalTime.parse("14:10"));
+        second.setCreationDate(LocalDate.parse("4-1-2018"));
+        second.setCreationTime(LocalTime.parse("11:20"));
+        third.setCreationDate(LocalDate.parse("4-1-2018"));
+        third.setCreationTime(LocalTime.parse("23:40"));
+
+        messageRepository.save(first);
+        messageRepository.save(second);
+        messageRepository.save(third);
+
+        messages = accountService.getMessages(shawn.getAccountID(), true, "3-30-2016");
+        assertEquals(3, messages.size());
+        assertEquals("Please be my friend?", messages.get(0).getContent());
+        assertEquals("Be my friend?", messages.get(1).getContent());
+        assertEquals("Pretty please be my friend?", messages.get(2).getContent());
     }
 
     /* Populates valid skills into database, in case they were deleted */
