@@ -8,17 +8,17 @@ import java.util.Map;
 
 public interface GroupService {
     /* Group Creation */
-    Group createGroup(String groupName, String groupPurpose, String groupLeaderID);
+    Group createGroup(String groupName, String groupPurpose, String groupLeaderId);
 
     /* Group Access */
-    Group getUserGroup(String groupID, String accountID);
-    Group getPublicGroup(String groupID);
+    Group getUserGroup(String groupId, String accountId);
+    Group getPublicGroup(String groupId);
 
     /* Group Modification */
-    Group updateGroupSettings(String groupID, String groupLeaderID, String field, String value);
-    Group addGroupMember(String groupID, String groupLeaderID, String accountID);
-    Group removeGroupMember(String groupID, String groupLeaderID, String accountID);
-    Group deleteGroup(String groupID, String groupLeaderID);
+    Group updateGroupSettings(String groupId, String groupLeaderId, String field, String value);
+    Group addGroupMember(String groupId, String groupLeaderId, String accountId);
+    Group removeGroupMember(String groupId, String groupLeaderId, String accountId);
+    Group deleteGroup(String groupId, String groupLeaderId);
 
     /* Group Searching */
     /* List<Group> groups is used to chain together filters */
@@ -30,33 +30,33 @@ public interface GroupService {
     List<Group> searchByLeaderFullName(String firstName, String lastName, List<Group> groups);
 
     /* Vote kicking services */
-    Group startVoteKick(String groupID, String groupLeaderID, String accountID);
-    Group closeVoteKick(String groupID, String groupLeaderID);
-    Group acceptVoteKick(String groupID, String accountID);
-    Group denyVoteKick(String groupID, String accountID);
+    Group startVoteKick(String groupId, String groupLeaderId, String accountId);
+    Group closeVoteKick(String groupId, String groupLeaderId);
+    Group acceptVoteKick(String groupId, String accountId);
+    Group denyVoteKick(String groupId, String accountId);
 
     /* Joining a Group */
-    boolean meetsGroupRequirements(String groupID, String accountID);
-    Message requestToJoinGroup(String groupID, String accountID);
-    Message acceptJoinRequest(String groupLeaderID, String messageID);
-    Message denyJoinRequest(String groupLeaderID, String messageID);
+    boolean meetsGroupRequirements(String groupId, String accountId);
+    Message requestToJoinGroup(String groupId, String accountId);
+    Message acceptJoinRequest(String groupLeaderId, String messageId);
+    Message denyJoinRequest(String groupLeaderId, String messageId);
 
     /* Skill centered services */
-    List<Skill> getAllSkillReqs(String groupID);
-    Skill getSkillReq(String groupID, String skillName);
-    Group addSkillReq(String groupID, String groupLeaderID, String skillName, int skillLevel);
-    Group removeSkillReq(String groupID, String groupLeaderID, String skillName);
+    List<Skill> getAllSkillReqs(String groupId);
+    Skill getSkillReq(String groupId, String skillName);
+    Group addSkillReq(String groupId, String groupLeaderId, String skillName, int skillLevel);
+    Group removeSkillReq(String groupId, String groupLeaderId, String skillName);
 
     /* Skill and reputation rating services */
-    void initiateRatings(String groupID, String groupLeaderID);
-    Map<String, Integer> getGroupMemberRatingForm(String groupID, String rateeID);
-    String rateGroupMember(String groupID, String raterID, String rateeID, boolean endorse, Map<String, Integer> skillRatings);
+    void initiateRatings(String groupId, String groupLeaderId);
+    Map<String, Integer> getGroupMemberRatingForm(String groupId, String rateeId);
+    String rateGroupMember(String groupId, String raterId, String rateeId, boolean endorse, Map<String, Integer> skillRatings);
 
     /* Event broadcast services */
-    List<Account> broadcastEvent(String groupID, String groupLeaderID, String description, int proximity, List<String> skillNames);
+    List<Account> broadcastEvent(String groupId, String groupLeaderId, String description, int proximity, List<String> skillNames);
 
     /* Group member search services */
-    List<Account> inviteEligibleUsers(String groupID, String groupLeaderID);
+    List<Account> inviteEligibleUsers(String groupId, String groupLeaderId);
     Message acceptSearchInvite(String userId, String inviteId);
 
 }

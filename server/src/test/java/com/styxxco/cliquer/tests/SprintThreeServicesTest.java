@@ -44,8 +44,7 @@ public class SprintThreeServicesTest {
 
     /* Back end Unit Test for User Story 11 */
     @Test
-    public void testGroupEventBroadcast()
-    {
+    public void testGroupEventBroadcast() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
@@ -114,8 +113,7 @@ public class SprintThreeServicesTest {
 
     /* Back end Unit Test for User Story 26 */
     @Test
-    public void testGroupMemberSearch()
-    {
+    public void testGroupMemberSearch() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
@@ -225,8 +223,7 @@ public class SprintThreeServicesTest {
 
     /* Back end Unit Test for User Story 8 */
     @Test
-    public void testGetMessages()
-    {
+    public void testGetMessages() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 
@@ -292,8 +289,7 @@ public class SprintThreeServicesTest {
 
     /* Populates valid skills into database, in case they were deleted */
     @Before
-    public void populateSkills()
-    {
+    public void populateSkills() {
         accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
         groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
         accountService.addSkillToDatabase("Java");
@@ -328,8 +324,7 @@ public class SprintThreeServicesTest {
 
     /* Function to clear items that should not already be in database */
     @After
-    public void clearDatabase()
-    {
+    public void clearDatabase() {
         accountRepository.deleteAll();
         skillRepository.deleteAll();
         messageRepository.deleteAll();

@@ -59,8 +59,7 @@ public class SprintOneServicesTest {
 
 	/* Test account creation and retrieval accountServices */
 	@Test
-	public void testAccountCreationAndRetrieval()
-	{
+	public void testAccountCreationAndRetrieval() {
 		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
 		assertNotNull(jordan);
 
@@ -94,8 +93,7 @@ public class SprintOneServicesTest {
 
 	/* Test account modification accountServices */
 	@Test
-	public void testAccountModification()
-	{
+	public void testAccountModification() {
 		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
 		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 
@@ -125,8 +123,7 @@ public class SprintOneServicesTest {
 
 	/* Test account searching accountServices and ranking */
 	@Test
-	public void testAccountSearchingAndRanking()
-	{
+	public void testAccountSearchingAndRanking() {
 		Account reed = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
 		Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu","Jordan", "Buckmaster");
 		Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@purdue.edu",  "Rhys", "Buckmaster");
@@ -195,8 +192,7 @@ public class SprintOneServicesTest {
 
 	/* Test group retrieval accountServices */
 	@Test
-	public void testGroupRetrieval()
-	{
+	public void testGroupRetrieval() {
 		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
 		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 		Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
@@ -226,8 +222,7 @@ public class SprintOneServicesTest {
 	}
 
 	@Test
-    public void testRetrieveAllGroups()
-    {
+    public void testRetrieveAllGroups() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
 
         Group cliquer = groupService.createGroup(
@@ -244,11 +239,6 @@ public class SprintOneServicesTest {
                 jordan.getAccountID());
 
         List<Group> groupsOne = accountService.getAllUserGroups(jordan.getUsername());
-        try {
-            Thread.sleep(4000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         List<Group> groupsTwo = accountService.getAllUserGroups(jordan.getUsername());
         for(int i = 0; i < groupsOne.size(); i++)
         {
@@ -258,8 +248,7 @@ public class SprintOneServicesTest {
 
 	/* Test group modification accountServices */
 	@Test
-	public void testGroupModification()
-	{
+	public void testGroupModification() {
 		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
 		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 		Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
@@ -318,8 +307,7 @@ public class SprintOneServicesTest {
 	}
 
 	@Test
-	public void testAccountMessaging()
-	{
+	public void testAccountMessaging() {
 		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
 		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 
@@ -341,8 +329,7 @@ public class SprintOneServicesTest {
 	}
 
 	@Test
-	public void testAccountDeletion()
-	{
+	public void testAccountDeletion() {
 		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
 		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
 		Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
@@ -385,8 +372,7 @@ public class SprintOneServicesTest {
 
 	/* Populates valid skills into database, in case they were deleted */
 	@Before
-	public void populateSkills()
-	{
+	public void populateSkills() {
 		accountService.addSkillToDatabase("Java");
 		accountService.addSkillToDatabase("JavaScript");
 		accountService.addSkillToDatabase("C");
