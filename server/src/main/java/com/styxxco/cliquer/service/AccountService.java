@@ -14,8 +14,8 @@ public interface AccountService extends UserDetailsService {
     Account createAccount(String username, String email, String firstName, String lastName);
 
     /* Account Access */
-    Account getProfile(String username, String userid, String type);
-    Account getProfile(String userid);
+    Account getProfile(String username, String userId, String type);
+    Account getProfile(String userId);
     Account getUserProfile(String username);
     Account getMemberProfile(String username);
     Account maskPublicProfile(Account account);
@@ -62,10 +62,10 @@ public interface AccountService extends UserDetailsService {
 
     /* Group centered services */
     Group createGroup(String username, String json);
-    Group deleteGroup(String username, String groupID);
-    Account addToGroup(String username, String groupID);
-    Account leaveGroup(String username, String groupID);
-    Message inviteToGroup(String username, String friend, String groupID);
+    Group deleteGroup(String username, String groupId);
+    Account addToGroup(String username, String groupId);
+    Account leaveGroup(String username, String groupId);
+    Message inviteToGroup(String username, String friend, String groupId);
     Message acceptGroupInvite(String userId, String inviteId);
     Message requestToGroup(String userId, String leaderId, String groupId);
     Message acceptJoinRequest(String userId, String messageId);
@@ -76,17 +76,17 @@ public interface AccountService extends UserDetailsService {
     Message rejectModRequest(String userId, String messageId);
     Message readMessage(String userId, String messageId);
     Message acceptSearchInvite(String userId, String inviteId);
-    Message kickMember(String userId, String kickedId, String groupID);
+    Message kickMember(String userId, String kickedId, String groupId);
     Map<String, Integer> getRateForm(String userId, String rateeId, String groupId);
     Group createEvent(String groupId, String json);
     List<Account> inviteAll(String userId, String groupId);
 
     /* Friend invite services */
-    Message sendFriendInvite(String userId, String receiverID);
-    Message acceptFriendInvite(String userId, String inviteID);
-    Message rejectInvite(String userId, String inviteID);
-    Account addFriend(String userId, String friendID);
-    Account removeFriend(String username, String friendID);
+    Message sendFriendInvite(String userId, String receiverId);
+    Message acceptFriendInvite(String userId, String inviteId);
+    Message rejectInvite(String userId, String inviteId);
+    Account addFriend(String userId, String friendId);
+    Account removeFriend(String username, String friendId);
 
     /* Role services */
     List<Role> getAnonRoles();
