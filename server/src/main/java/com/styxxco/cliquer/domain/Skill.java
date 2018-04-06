@@ -22,8 +22,7 @@ public class Skill extends Searchable implements Comparable<Skill> {
 	private String skillName;
 	private int skillLevel;
 
-	public Skill(String skillName, int skillLevel)			/* Constructor for creating a skill for an account	*/
-	{
+	public Skill(String skillName, int skillLevel) {
 		this.skillID = new ObjectId().toString();
 		this.skillName = skillName;
 		this.skillLevel = skillLevel;

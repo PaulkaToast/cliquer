@@ -111,20 +111,19 @@ public class Group extends Searchable {
 		chatMessageIDs.remove(messageID);
 	}
 
-	public boolean startMemberRatings()
-	{
-		if(maxRatings <= 0)
-		{
+	public boolean hasMessage(String messageID) {
+		return chatMessageIDs.contains(messageID);
+	}
+
+	public boolean startMemberRatings() {
+		if(maxRatings <= 0) {
 			return false;
 		}
 		ratingsToGive = new TreeMap<>();
-		for(String accountID : groupMemberIDs.keySet())
-		{
+		for(String accountID : groupMemberIDs.keySet()) {
 			List<String> members = new ArrayList<>();
-			for(String memberID : groupMemberIDs.keySet())
-			{
-				if(!memberID.equals(accountID))
-				{
+			for(String memberID : groupMemberIDs.keySet()) {
+				if(!memberID.equals(accountID)) {
 					members.add(memberID);
 				}
 			}
@@ -134,8 +133,7 @@ public class Group extends Searchable {
 		return true;
 	}
 
-	public boolean canGiveRating(String raterID, String rateeID)
-	{
+	public boolean canGiveRating(String raterID, String rateeID) {
         return (ratingsToGive.get(raterID) != null) && ratingsToGive.get(raterID).remove(rateeID);
 	}
 }

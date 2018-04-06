@@ -287,6 +287,48 @@ public class SprintThreeServicesTest {
         assertEquals("Pretty please be my friend?", messages.get(2).getContent());
     }
 
+    /* Back end Unit Test for User Story 31 */
+    @Test
+    public void testChatHistory() {
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+
+        Group cliquer = groupService.createGroup(
+                "Cliquer",
+                "To create a web app that facilitates the teaming of people who may have never met before",
+                jordan.getAccountID());
+
+        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID());
+
+        accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(), "Hello", Types.CHAT_MESSAGE);
+        accountService.sendMessage(kevin.getAccountID(), cliquer.getGroupID(), "Hey", Types.CHAT_MESSAGE);
+        accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(), "Bye", Types.CHAT_MESSAGE);
+
+        List<Message> messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getAccountID());
+
+        assertEquals(3, messages.size());
+
+        accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getAccountID(), messages.get(0).getMessageID(), Message.Reactions.UP_VOTE);
+        messages = accountService.getChatHistory(cliquer.getGroupID(), jordan.getAccountID());
+        assertEquals(1, messages.get(0).getReactions().size());
+        assertEquals(Message.Reactions.UP_VOTE, (int)messages.get(0).getReactions().get(kevin.getAccountID()));
+
+        accountService.reactToChatMessage(cliquer.getGroupID(), jordan.getAccountID(), messages.get(0).getMessageID(), Message.Reactions.UP_VOTE);
+        messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getAccountID());
+        assertEquals(2, messages.get(0).getReactions().size());
+        assertEquals(Message.Reactions.UP_VOTE, (int)messages.get(0).getReactions().get(jordan.getAccountID()));
+
+        accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getAccountID(), messages.get(0).getMessageID(), Message.Reactions.DOWN_VOTE);
+        messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getAccountID());
+        assertEquals(2, messages.get(0).getReactions().size());
+        assertEquals(Message.Reactions.DOWN_VOTE, (int)messages.get(0).getReactions().get(kevin.getAccountID()));
+
+        accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getAccountID(), messages.get(0).getMessageID(), Message.Reactions.DOWN_VOTE);
+        messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getAccountID());
+        assertEquals(1, messages.get(0).getReactions().size());
+        assertEquals(false, messages.get(0).getReactions().containsKey(kevin.getAccountID()));
+    }
+
     /* Populates valid skills into database, in case they were deleted */
     @Before
     public void populateSkills() {

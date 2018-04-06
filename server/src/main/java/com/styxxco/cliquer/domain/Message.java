@@ -64,8 +64,7 @@ public class Message
         public static final int DOWN_VOTE = 1;
     }
 
-	public Message(String senderID, String senderName, String content, int type)
-	{
+	public Message(String senderID, String senderName, String content, int type) {
 		this.messageID = new ObjectId().toString();
 		this.senderID = senderID;
 		this.senderName = senderName;
@@ -88,6 +87,10 @@ public class Message
     {
         reactions.remove(accountID);
     }
+
+    public boolean hasReaction(String accountID) {
+		return reactions.containsKey(accountID);
+	}
 
 	public void increment() {
 		counter++;

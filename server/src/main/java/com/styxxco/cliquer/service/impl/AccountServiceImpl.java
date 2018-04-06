@@ -825,10 +825,6 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public List<Message> getChatHistory(String groupId, String userId) {
-        if (!accountRepository.existsByAccountID(userId)) {
-            log.info("User " + userId + " not found");
-            return null;
-        }
         if (!groupRepository.existsByGroupID(groupId)) {
             log.info("Group " + groupId + " not found");
             return null;
@@ -849,6 +845,32 @@ public class AccountServiceImpl implements AccountService {
             log.info("Could not send message");
         }
         return messages;
+    }
+
+    @Override
+    public Message reactToChatMessage(String groupId, String userId, String messageId, int reaction)
+    {
+        if (!groupRepository.existsByGroupID(groupId)) {
+            log.info("Group " + groupId + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupId);
+        if(!group.hasGroupMember(userId)) {
+            log.info("User " + userId + " is not in group " + groupId);
+            return null;
+        }
+        if(!group.hasMessage(messageId)) {
+            log.info("Message " + messageId + " not found in chat for group " + groupId);
+            return null;
+        }
+        Message message = messageRepository.findByMessageID(messageId);
+        if(message.hasReaction(userId)) {
+            message.removeReaction(userId);
+        } else {
+            message.addReaction(userId, reaction);
+        }
+        messageRepository.save(message);
+        return message;
     }
 
     @Override
