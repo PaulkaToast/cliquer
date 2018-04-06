@@ -864,7 +864,7 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Message message = messageRepository.findByMessageID(messageId);
-        if(message.hasReaction(userId)) {
+        if(message.getReaction(userId) == reaction) {
             message.removeReaction(userId);
         } else {
             message.addReaction(userId, reaction);

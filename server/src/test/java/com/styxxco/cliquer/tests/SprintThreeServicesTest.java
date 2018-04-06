@@ -311,22 +311,22 @@ public class SprintThreeServicesTest {
         accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getAccountID(), messages.get(0).getMessageID(), Message.Reactions.UP_VOTE);
         messages = accountService.getChatHistory(cliquer.getGroupID(), jordan.getAccountID());
         assertEquals(1, messages.get(0).getReactions().size());
-        assertEquals(Message.Reactions.UP_VOTE, (int)messages.get(0).getReactions().get(kevin.getAccountID()));
+        assertEquals(Message.Reactions.UP_VOTE, messages.get(0).getReaction(kevin.getAccountID()));
 
         accountService.reactToChatMessage(cliquer.getGroupID(), jordan.getAccountID(), messages.get(0).getMessageID(), Message.Reactions.UP_VOTE);
         messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getAccountID());
         assertEquals(2, messages.get(0).getReactions().size());
-        assertEquals(Message.Reactions.UP_VOTE, (int)messages.get(0).getReactions().get(jordan.getAccountID()));
+        assertEquals(Message.Reactions.UP_VOTE, messages.get(0).getReaction(jordan.getAccountID()));
 
         accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getAccountID(), messages.get(0).getMessageID(), Message.Reactions.DOWN_VOTE);
         messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getAccountID());
         assertEquals(2, messages.get(0).getReactions().size());
-        assertEquals(Message.Reactions.DOWN_VOTE, (int)messages.get(0).getReactions().get(kevin.getAccountID()));
+        assertEquals(Message.Reactions.DOWN_VOTE, messages.get(0).getReaction(kevin.getAccountID()));
 
         accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getAccountID(), messages.get(0).getMessageID(), Message.Reactions.DOWN_VOTE);
         messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getAccountID());
         assertEquals(1, messages.get(0).getReactions().size());
-        assertEquals(false, messages.get(0).getReactions().containsKey(kevin.getAccountID()));
+        assertEquals(-1, messages.get(0).getReaction(kevin.getAccountID()));
     }
 
     /* Populates valid skills into database, in case they were deleted */

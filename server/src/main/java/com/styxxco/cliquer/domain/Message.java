@@ -88,6 +88,14 @@ public class Message
         reactions.remove(accountID);
     }
 
+    public int getReaction(String accountID)
+	{
+		if(!reactions.containsKey(accountID)) {
+			return -1;
+		}
+		return reactions.get(accountID);
+	}
+
     public boolean hasReaction(String accountID) {
 		return reactions.containsKey(accountID);
 	}
