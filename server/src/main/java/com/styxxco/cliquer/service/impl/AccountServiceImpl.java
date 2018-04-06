@@ -857,32 +857,31 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Message sendMessage(String senderId, String receiverId, String content, int type) {
-        if (!accountRepository.existsByAccountID(receiverId)) {
-            log.info("Receiver " + receiverId + " not found");
-            return null;
-        }
         String senderName;
         if (accountRepository.existsByAccountID(senderId)) {
             senderName = accountRepository.findByAccountID(senderId).getFullName();
-        }
-        else if (groupRepository.existsByGroupID(senderId)) {
+        } else if (groupRepository.existsByGroupID(senderId)) {
             senderName = groupRepository.findByGroupID(senderId).getGroupName();
-        }
-        else
-        {
+        } else {
             log.info("Sender " + senderId + " not found");
             return null;
         }
         Message message;
         if(type == Types.CHAT_MESSAGE) {
+            if (!groupRepository.existsByGroupID(receiverId)) {
+                log.info("Group " + receiverId + " not found");
+                return null;
+            }
             Group receiver = groupRepository.findByGroupID(receiverId);
             message = new Message(senderId, senderName, content, type);
             messageRepository.save(message);
             receiver.addMessage(message.getMessageID());
             groupRepository.save(receiver);
-        }
-        else
-        {
+        } else {
+            if (!accountRepository.existsByAccountID(receiverId)) {
+                log.info("Account " + receiverId + " not found");
+                return null;
+            }
             Account receiver = accountRepository.findByAccountID(receiverId);
             message = new Message(senderId, senderName, content, type);
             messageRepository.save(message);

@@ -56,7 +56,7 @@ public interface AccountService extends UserDetailsService {
     Message sendMessage(String senderId, String receiverId, String content, int type);
     Message sendMessageToMods(String senderId, Message message);
     Message deleteMessage(String username, String messageId);
-    List<Message> getChatHistory(String groupId, String username);
+    List<Message> getChatHistory(String groupId, String userId);
     void handleAcceptNotification(String userId, String messageId);
     void handleRejectNotification(String userId, String messageId);
 
