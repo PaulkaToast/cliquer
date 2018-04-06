@@ -831,12 +831,16 @@ public class AccountServiceImpl implements AccountService {
             log.info("User " + userId + " not found");
             return null;
         }
-        Account sender = accountRepository.findByAccountID(userId);
         if (!groupRepository.existsByGroupID(groupId)) {
             log.info("Group " + groupId + " not found");
             return null;
         }
-        Group group = groupService.getUserGroup(groupId, sender.getAccountID());
+        Group group = groupRepository.findByGroupID(groupId);
+        if(!group.hasGroupMember(userId))
+        {
+            log.info("User " + userId + " is not in group " + groupId);
+            return null;
+        }
         List<Message> messages = new ArrayList<>();
         for(String messageID : group.getChatMessageIDs())
         {
@@ -870,20 +874,20 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Message message;
-        if(type != Types.CHAT_MESSAGE) {
-            Account receiver = accountRepository.findByAccountID(receiverId);
-            message = new Message(senderId, senderName, content, type);
-            messageRepository.save(message);
-            receiver.addMessage(message);
-            accountRepository.save(receiver);
-        }
-        else
-        {
+        if(type == Types.CHAT_MESSAGE) {
             Group receiver = groupRepository.findByGroupID(receiverId);
             message = new Message(senderId, senderName, content, type);
             messageRepository.save(message);
             receiver.addMessage(message.getMessageID());
             groupRepository.save(receiver);
+        }
+        else
+        {
+            Account receiver = accountRepository.findByAccountID(receiverId);
+            message = new Message(senderId, senderName, content, type);
+            messageRepository.save(message);
+            receiver.addMessage(message);
+            accountRepository.save(receiver);
         }
         return message;
     }

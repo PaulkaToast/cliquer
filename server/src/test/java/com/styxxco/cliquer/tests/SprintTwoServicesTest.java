@@ -625,8 +625,6 @@ public class SprintTwoServicesTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        cliquer = groupRepository.findByGroupID(cliquer.getGroupID());
-
         List<Message> messages = accountService.getChatHistory(cliquer.getGroupID(), jordan.getAccountID());
 
         assertEquals(3, messages.size());
