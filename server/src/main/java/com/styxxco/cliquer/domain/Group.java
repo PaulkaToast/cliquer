@@ -2,9 +2,6 @@
 package com.styxxco.cliquer.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.StringSerializer;
-import com.styxxco.cliquer.database.ObjectIdSerial;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -41,7 +38,7 @@ public class Group extends Searchable {
 	private int maxRatings;
 
 	@JsonIgnore
-	private List<ChatMessage> chatHistory;
+	private List<String> chatMessageIDs;
 
 	public Group(@NonNull String groupName, String groupPurpose, String groupLeaderID, String groupLeaderName) {
 		this.groupID = new ObjectId().toString();
@@ -63,7 +60,7 @@ public class Group extends Searchable {
 		this.ratingsToGive = new TreeMap<>();
 		this.maxRatings = 1;
 
-		this.chatHistory = new ArrayList<>();
+		this.chatMessageIDs = new ArrayList<>();
 	}
 
 	public void addKickVote(String accountID)
@@ -106,14 +103,12 @@ public class Group extends Searchable {
 		return groupMemberIDs.containsKey(accountID);
 	}
 
-	/*
-	public Message makeAccountInvite(String content)
-	{
-		return new Message(content, this.groupID, "Group Invite");
+	public void addMessage(String messageID) {
+    chatMessageIDs.add(messageID);
 	}
-	*/
-	public void addMessage(ChatMessage msg) { 
-    chatHistory.add(msg);
+
+	public void removeMessage(String messageID) {
+		chatMessageIDs.remove(messageID);
 	}
 
 	public boolean startMemberRatings()
@@ -141,12 +136,7 @@ public class Group extends Searchable {
 
 	public boolean canGiveRating(String raterID, String rateeID)
 	{
-		List<String> toGive = ratingsToGive.get(raterID);
-		if (toGive != null) {
-            return ratingsToGive.get(raterID).remove(rateeID);
-        }
-        return false;
+        return (ratingsToGive.get(raterID) != null) && ratingsToGive.get(raterID).remove(rateeID);
 	}
-
 }
 

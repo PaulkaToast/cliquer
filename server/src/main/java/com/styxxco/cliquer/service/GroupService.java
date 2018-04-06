@@ -47,10 +47,6 @@ public interface GroupService {
     Group addSkillReq(String groupID, String groupLeaderID, String skillName, int skillLevel);
     Group removeSkillReq(String groupID, String groupLeaderID, String skillName);
 
-    /* Message centered services */
-    Message sendMessage(String groupID, String senderID, String receiverId, String content, int type);
-    ChatMessage sendChatMessage(ChatMessage msg, String groupID);
-
     /* Skill and reputation rating services */
     void initiateRatings(String groupID, String groupLeaderID);
     Map<String, Integer> getGroupMemberRatingForm(String groupID, String rateeID);

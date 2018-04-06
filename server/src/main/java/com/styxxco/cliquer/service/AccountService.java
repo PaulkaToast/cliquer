@@ -53,12 +53,10 @@ public interface AccountService extends UserDetailsService {
     /* Message centered services */
     /* Note: startDate is of format YEAR-MONTH-DAY, MONTH and DAY are zero padded to reach two digits*/
     List<Message> getMessages(String userId, boolean includeRead, String startDate);
-    Message sendMessage(String username, String receiverID, String content, int type);
+    Message sendMessage(String senderId, String receiverId, String content, int type);
     Message sendMessageToMods(String senderId, Message message);
-    Message deleteMessage(String username, String messageID);
-    ChatMessage sendChatMessageFromGroup(String groupId, ChatMessage message);
-    ChatMessage sendChatMessageFromUser(String groupId, ChatMessage message);
-    List<ChatMessage> getChatHistory(String groupId, String username);
+    Message deleteMessage(String username, String messageId);
+    List<Message> getChatHistory(String groupId, String username);
     void handleAcceptNotification(String userId, String messageId);
     void handleRejectNotification(String userId, String messageId);
 

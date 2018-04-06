@@ -614,22 +614,20 @@ public class SprintTwoServicesTest {
                 "To create a web app that facilitates the teaming of people who may have never met before",
                 jordan.getAccountID());
 
-        cliquer.addGroupMember(kevin);
-        groupRepository.save(cliquer);
+        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID());
 
-        groupService.sendChatMessage(new ChatMessage("Hello", jordan.getUsername(), "Jordan Reed"),cliquer.getGroupID());
-        groupService.sendChatMessage(new ChatMessage("Hey", kevin.getUsername(), "Kevin Nagar"), cliquer.getGroupID());
-        groupService.sendChatMessage(new ChatMessage("Bye", jordan.getUsername(), "Jordan Reed"), cliquer.getGroupID());
+        accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(), "Hello", Types.CHAT_MESSAGE);
+        accountService.sendMessage(kevin.getAccountID(), cliquer.getGroupID(), "Hey", Types.CHAT_MESSAGE);
+        accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(), "Bye", Types.CHAT_MESSAGE);
 
         try {
             Thread.sleep(4000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        List<Group> groups = accountService.getAllUserGroups(jordan.getUsername());
+        cliquer = groupRepository.findByGroupID(cliquer.getGroupID());
 
-        assertEquals(1, groups.size());
-        List<ChatMessage> messages = groups.get(0).getChatHistory();
+        List<Message> messages = accountService.getChatHistory(cliquer.getGroupID(), jordan.getAccountID());
 
         assertEquals(3, messages.size());
 

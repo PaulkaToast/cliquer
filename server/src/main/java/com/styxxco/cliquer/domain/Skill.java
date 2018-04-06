@@ -9,6 +9,8 @@ import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
+import javax.validation.constraints.NotNull;
+
 @Getter
 @Setter
 @ToString(exclude = {"skillID"})

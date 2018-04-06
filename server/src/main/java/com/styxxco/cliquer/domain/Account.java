@@ -243,7 +243,6 @@ public class Account extends Searchable implements UserDetails {
 		{
 			return Integer.MAX_VALUE;
 		}
-		double theta = this.longitude - longitude;
 		double distance = Math.sin(degToRad(this.latitude)) * Math.sin(degToRad(latitude))
 				+ Math.cos(degToRad(this.latitude)) * Math.cos(degToRad(latitude)) * Math.cos(degToRad(this.longitude - longitude));
 		distance = Math.acos(distance);
@@ -251,12 +250,12 @@ public class Account extends Searchable implements UserDetails {
 		return (int)(distance * 60 * 1.1515);
 	}
 
-	public static double degToRad(double degrees)
+	private static double degToRad(double degrees)
 	{
 		return (degrees * Math.PI)/180;
 	}
 
-	public static double radToDeg(double radians)
+	private static double radToDeg(double radians)
 	{
 		return (radians * 180)/Math.PI;
 	}

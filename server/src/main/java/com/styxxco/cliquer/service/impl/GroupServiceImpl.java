@@ -768,7 +768,7 @@ public class GroupServiceImpl implements GroupService {
         Group group = groupRepository.findByGroupID(groupID);
         Account user = accountRepository.findByAccountID(accountID);
         Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
-        Message joinRequest = new Message(accountID,
+        Message joinRequest = new Message(accountID, user.getFullName(),
                 "User " + user.getFullName() + " wishes to join your group " + group.getGroupName(),
                 Message.Types.JOIN_REQUEST);
         joinRequest.setGroupID(groupID);
@@ -814,7 +814,7 @@ public class GroupServiceImpl implements GroupService {
         groupRepository.save(group);
         leader.log("Accept join request from " + sender.getFullName() + " for group " + group.getGroupName());
         accountRepository.save(leader);
-        Message acceptance = new Message(groupLeaderID,
+        Message acceptance = new Message(groupLeaderID, leader.getFullName(),
                 "You have been accepted into group " + group.getGroupName(),
                 Message.Types.GROUP_ACCEPTED);
         messageRepository.save(acceptance);
@@ -854,43 +854,6 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Message sendMessage(String groupID, String senderID, String receiverID, String content, int type)
-    {
-        if(!groupRepository.existsByGroupID(groupID))
-        {
-            log.info("Group " + groupID + " not found");
-            return null;
-        }
-        Group group = groupRepository.findByGroupID(groupID);
-        if(!group.getGroupLeaderID().equals(senderID))
-        {
-            log.info("User " + senderID + " is not the leader of group " + groupID);
-            return null;
-        }
-        Account receiver = accountRepository.findByAccountID(receiverID);
-        Message message = new Message(senderID, content, type);
-        message.setGroupID(group.getGroupID());
-        messageRepository.save(message);
-        receiver.addMessage(message);
-        accountRepository.save(receiver);
-        return message;
-    }
-
-    @Override
-    public ChatMessage sendChatMessage(ChatMessage msg, String groupID)
-    {
-        if(!groupRepository.existsByGroupID(groupID))
-        {
-            log.info("Group " + groupID + " not found");
-            return null;
-        }
-        Group group = groupRepository.findByGroupID(groupID);
-        group.addMessage(msg);
-        groupRepository.save(group);
-        return msg;
-    }
-
-    @Override
     public void initiateRatings(String groupID, String groupLeaderID) {
         if(!groupRepository.existsByGroupID(groupID))
         {
@@ -903,6 +866,7 @@ public class GroupServiceImpl implements GroupService {
             log.info("User " + groupLeaderID + " is not the leader of group " + groupID);
             return;
         }
+        Account leader = accountRepository.findByAccountID(groupLeaderID);
         if(!group.startMemberRatings())
         {
             log.info("Group " + groupID + " has maxed out the limit for group ratings");
@@ -915,7 +879,7 @@ public class GroupServiceImpl implements GroupService {
             {
                 continue;
             }
-            Message message = new Message(groupLeaderID,
+            Message message = new Message(groupLeaderID, leader.getFullName(),
                     "You can now rate your fellow members in group " + group.getGroupName() + "!", Message.Types.RATE_REQUEST);
             message.setGroupID(groupID);
             messageRepository.save(message);
@@ -1065,7 +1029,7 @@ public class GroupServiceImpl implements GroupService {
             {
                 continue;
             }
-            Message invite = new Message(groupLeaderID,
+            Message invite = new Message(groupLeaderID, leader.getFullName(),
                     "You have been invited to an event hosted by group " + group.getGroupName() + "! Here are the details: " + description,
                     Message.Types.EVENT_INVITE);
             invite.setGroupID(groupID);
@@ -1117,7 +1081,7 @@ public class GroupServiceImpl implements GroupService {
             {
                 continue;
             }
-            Message invite = new Message(groupLeaderID,
+            Message invite = new Message(groupLeaderID, leader.getFullName(),
                     "You have been matched with group " + group.getGroupName() +"!",
                     Message.Types.SEARCH_INVITE);
             invite.setGroupID(groupID);

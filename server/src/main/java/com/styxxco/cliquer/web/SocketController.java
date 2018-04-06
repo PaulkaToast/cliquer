@@ -1,26 +1,12 @@
 package com.styxxco.cliquer.web;
 
-import com.styxxco.cliquer.domain.Account;
-import com.styxxco.cliquer.domain.ChatMessage;
-import com.styxxco.cliquer.domain.Group;
 import com.styxxco.cliquer.domain.Message;
 import com.styxxco.cliquer.service.AccountService;
-import com.styxxco.cliquer.service.GroupService;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.extern.log4j.Log4j;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Log4j
 @Controller
@@ -29,15 +15,18 @@ public class SocketController {
     @Autowired
     private AccountService accountService;
 
-    @MessageMapping("/{groupId}/sendMessage")
-    public void send(@DestinationVariable String groupId, ChatMessage msg) {
-        accountService.sendChatMessageFromUser(groupId, msg);
+    // TODO: Account for change on frontend
+    @MessageMapping("/{userId}/{groupId}/{content}/sendMessage")
+    public void send(@DestinationVariable String userId,
+                     @DestinationVariable String groupId,
+                     @DestinationVariable String content) {
+        accountService.sendMessage(userId, groupId, content, Message.Types.CHAT_MESSAGE);
     }
 
-    @MessageMapping("/{username}/{groupId}/messageHistory")
+    @MessageMapping("/{userId}/{groupId}/messageHistory")
     public void messageHistory(@DestinationVariable String groupId,
-                               @DestinationVariable String username) {
-        accountService.getChatHistory(groupId, username);
+                               @DestinationVariable String userId) {
+        accountService.getChatHistory(groupId, userId);
     }
 
     @MessageMapping("/{userId}/{groupId}/rate")
@@ -66,6 +55,7 @@ public class SocketController {
         accountService.sendFriendInvite(userId, friendId);
     }
 
+    // TODO: Account for change on front end
     @MessageMapping("/{userId}/{includeRead}/{startDate}/allMessages")
     public void getAllMessages(@DestinationVariable String userId,
                                @DestinationVariable String includeRead,
