@@ -329,6 +329,61 @@ public class SprintThreeServicesTest {
         assertEquals(-1, messages.get(0).getReaction(kevin.getAccountID()));
     }
 
+    /* Back end Unit Test for User Story 34 */
+    @Test
+    public void testReportGroupMembers() {
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+
+        Group cliquer = groupService.createGroup(
+                "Cliquer",
+                "To create a web app that facilitates the teaming of people who may have never met before",
+                jordan.getAccountID());
+
+        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID());
+        accountService.addToModerators(kevin.getAccountID());
+
+        Message first = accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(),
+                "So are you ready to work?", Types.CHAT_MESSAGE);
+        Message second = accountService.sendMessage(shawn.getAccountID(), cliquer.getGroupID(),
+                "Fuck off, your idea sucks.", Types.CHAT_MESSAGE);
+        Message third = accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(),
+                "What do you not like about it?", Types.CHAT_MESSAGE);
+        Message fourth = accountService.sendMessage(shawn.getAccountID(), cliquer.getGroupID(),
+                "That you are a faggot.", Types.CHAT_MESSAGE);
+        Message fifth = accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(),
+                "Well that isn't very nice.", Types.CHAT_MESSAGE);
+        Message sixth = accountService.sendMessage(shawn.getAccountID(), cliquer.getGroupID(),
+                "Neither is your face.", Types.CHAT_MESSAGE);
+        Message seventh = accountService.sendMessage(shawn.getAccountID(), cliquer.getGroupID(),
+                "I'm leaving this shit hole", Types.CHAT_MESSAGE);
+        Message eighth = accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(),
+                "Well fine, leave you piece of shit.", Types.CHAT_MESSAGE);
+        accountService.leaveGroup(shawn.getUsername(), cliquer.getGroupID());
+        Message report = accountService.reportGroupMember(cliquer.getGroupID(), jordan.getAccountID(), second.getMessageID(), "Foul Language");
+
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        assertEquals(1, kevin.getMessageIDs().size());
+        assertEquals(Types.MOD_REPORT, (int)kevin.getMessageIDs().get(report.getMessageID()));
+
+        List<Message> history = accountService.getReportContext(kevin.getAccountID(), report.getMessageID(), null);
+        assertEquals(7, history.size());
+        assertEquals(first.getMessageID(), history.get(0).getMessageID());
+        assertEquals(seventh.getMessageID(), history.get(6).getMessageID());
+        accountService.flagUser(kevin.getAccountID(), shawn.getAccountID());
+
+        history = accountService.getReportContext(kevin.getAccountID(), report.getMessageID(), history);
+        assertEquals(8, history.size());
+        assertEquals(eighth.getMessageID(), history.get(7).getMessageID());
+        accountService.flagUser(kevin.getAccountID(), jordan.getAccountID());
+
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        shawn = accountRepository.findByAccountID(shawn.getAccountID());
+        assertEquals(1, jordan.getFlags());
+        assertEquals(1, shawn.getFlags());
+    }
+
     /* Populates valid skills into database, in case they were deleted */
     @Before
     public void populateSkills() {

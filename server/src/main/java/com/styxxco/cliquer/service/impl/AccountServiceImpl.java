@@ -1814,13 +1814,9 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Message reportGroupMember(String groupId, String reporterId, String reporteeId, String messageId, String reason) {
+    public Message reportGroupMember(String groupId, String reporterId, String messageId, String reason) {
         if (!groupRepository.existsByGroupID(groupId)) {
             log.info("Group " + groupId + " not found");
-            return null;
-        }
-        if (!accountRepository.existsByAccountID(reporteeId)) {
-            log.info("User " + reporteeId + " not found");
             return null;
         }
         Group group = groupRepository.findByGroupID(groupId);
@@ -1832,8 +1828,9 @@ public class AccountServiceImpl implements AccountService {
             log.info("Group " + groupId + " does not contain message " + messageId);
             return null;
         }
+        Message message = messageRepository.findByMessageID(messageId);
         Account reporter = accountRepository.findByAccountID(reporterId);
-        Account reportee = accountRepository.findByAccountID(reporteeId);
+        Account reportee = accountRepository.findByAccountID(message.getSenderID());
         reporter.log("Report user " + reportee.getFullName());
         reportee.log("Reported by user " + reporter.getFullName());
         accountRepository.save(reporter);
@@ -1841,14 +1838,14 @@ public class AccountServiceImpl implements AccountService {
         Message report = new Message(reporterId, reporter.getFullName(), reason, Message.Types.MOD_REPORT);
         report.setParentID("Report:" + reportee.getAccountID());
         report.setGroupID(groupId);
-        report.setTopicID(reporteeId);
+        report.setTopicID(reportee.getAccountID());
         report.setChatMessageID(messageId);
         sendMessageToMods(reporterId, report);
         return report;
     }
 
     @Override
-    public List<Message> getReportContext(String modId, String groupId, String messageId, List<Message> currentContext) {
+    public List<Message> getReportContext(String modId, String messageId, List<Message> currentContext) {
         if (!accountRepository.existsByAccountID(modId)) {
             log.info("Moderator " + modId + " not found");
             return null;
@@ -1872,11 +1869,7 @@ public class AccountServiceImpl implements AccountService {
             log.info("Report " + messageId + " does not pertain to a group chat");
             return null;
         }
-        if (!groupRepository.existsByGroupID(groupId)) {
-            log.info("Group " + groupId + " not found");
-            return null;
-        }
-        Group group = groupRepository.findByGroupID(groupId);
+        Group group = groupRepository.findByGroupID(report.getGroupID());
         String startId = messageId;
         String endId = messageId;
         if(currentContext != null) {
@@ -1884,9 +1877,9 @@ public class AccountServiceImpl implements AccountService {
             endId = currentContext.get(currentContext.size()-1).getMessageID();
         }
         int start = Math.max(group.getChatMessageIDs().indexOf(startId)-5, 0);
-        int end = Math.min(group.getChatMessageIDs().indexOf(endId)-5, group.getChatMessageIDs().size());
+        int end = Math.min(group.getChatMessageIDs().indexOf(endId)+5, group.getChatMessageIDs().size());
         List<Message> context = new ArrayList<>();
-        for(int i = start; i < end; i++) {
+        for(int i = start; i <= end; i++) {
             context.add(messageRepository.findByMessageID(group.getChatMessageIDs().get(i)));
         }
         return context;
