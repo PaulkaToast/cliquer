@@ -1,9 +1,6 @@
 package com.styxxco.cliquer.tests;
 
-import com.styxxco.cliquer.database.AccountRepository;
-import com.styxxco.cliquer.database.GroupRepository;
-import com.styxxco.cliquer.database.MessageRepository;
-import com.styxxco.cliquer.database.SkillRepository;
+import com.styxxco.cliquer.database.*;
 import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.GroupService;
 import com.styxxco.cliquer.service.impl.AccountServiceImpl;
@@ -29,14 +26,15 @@ public class PopulateDatabase {
     public MessageRepository messageRepository;
     @Autowired
     public GroupRepository groupRepository;
-
+    @Autowired
+    public RoleRepository roleRepository;
+    @Autowired
     public AccountService accountService;
 
     @Test
     public void populateSkills()
     {
         clearDatabase();
-        accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
         accountService.addSkillToDatabase("Java");
         accountService.addSkillToDatabase("JavaScript");
         accountService.addSkillToDatabase("C");
