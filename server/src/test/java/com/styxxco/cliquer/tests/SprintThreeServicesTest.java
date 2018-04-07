@@ -17,6 +17,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,8 +44,7 @@ public class SprintThreeServicesTest {
 
     /* Back end Unit Test for User Story 11 */
     @Test
-    public void testGroupEventBroadcast()
-    {
+    public void testGroupEventBroadcast() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
@@ -112,8 +113,7 @@ public class SprintThreeServicesTest {
 
     /* Back end Unit Test for User Story 26 */
     @Test
-    public void testGroupMemberSearch()
-    {
+    public void testGroupMemberSearch() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
@@ -221,10 +221,117 @@ public class SprintThreeServicesTest {
         assertEquals(0, result.size());
     }
 
+    /* Back end Unit Test for User Story 8 */
+    @Test
+    public void testGetMessages() {
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+
+        Message first = accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Be my friend?", Message.Types.FRIEND_INVITE);
+        Message second = accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Please be my friend?", Message.Types.FRIEND_INVITE);
+
+        List<Message> messages = accountService.getMessages(shawn.getAccountID(), false, null);
+        assertEquals(2, messages.size());
+        assertEquals(1, messages.get(0).getType());
+
+        accountService.readMessage(shawn.getAccountID(), first.getMessageID());
+        accountService.readMessage(shawn.getAccountID(), second.getMessageID());
+
+        Message third = accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Pretty please be my friend?", Message.Types.FRIEND_INVITE);
+
+        messages = accountService.getMessages(shawn.getAccountID(), false, null);
+        assertEquals(1, messages.size());
+        assertEquals("Pretty please be my friend?", messages.get(0).getContent());
+
+        accountService.readMessage(shawn.getAccountID(), third.getMessageID());
+
+        messages = accountService.getMessages(shawn.getAccountID(), false, null);
+        assertEquals(0, messages.size());
+
+        messages = accountService.getMessages(shawn.getAccountID(), true, null);
+        assertEquals(3, messages.size());
+
+        first.setCreationDate(LocalDate.parse("2018-04-01"));
+        second.setCreationDate(LocalDate.parse("2018-03-22"));
+        third.setCreationDate(LocalDate.parse("2016-04-01"));
+
+        messageRepository.save(first);
+        messageRepository.save(second);
+        messageRepository.save(third);
+
+        messages = accountService.getMessages(shawn.getAccountID(), true, "2016-03-21");
+        assertEquals(3, messages.size());
+        assertEquals("Pretty please be my friend?", messages.get(0).getContent());
+        assertEquals("Please be my friend?", messages.get(1).getContent());
+        assertEquals("Be my friend?", messages.get(2).getContent());
+
+        messages = accountService.getMessages(shawn.getAccountID(), true, "2018-03-23");
+        assertEquals(1, messages.size());
+        assertEquals("Be my friend?", messages.get(0).getContent());
+
+        first.setCreationDate(LocalDate.parse("2018-04-01"));
+        first.setCreationTime(LocalTime.parse("14:10"));
+        second.setCreationDate(LocalDate.parse("2018-04-01"));
+        second.setCreationTime(LocalTime.parse("11:20"));
+        third.setCreationDate(LocalDate.parse("2018-04-01"));
+        third.setCreationTime(LocalTime.parse("23:40"));
+
+        messageRepository.save(first);
+        messageRepository.save(second);
+        messageRepository.save(third);
+
+        messages = accountService.getMessages(shawn.getAccountID(), true, "2016-03-30");
+        assertEquals(3, messages.size());
+        assertEquals("Please be my friend?", messages.get(0).getContent());
+        assertEquals("Be my friend?", messages.get(1).getContent());
+        assertEquals("Pretty please be my friend?", messages.get(2).getContent());
+    }
+
+    /* Back end Unit Test for User Story 31 */
+    @Test
+    public void testChatHistory() {
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+
+        Group cliquer = groupService.createGroup(
+                "Cliquer",
+                "To create a web app that facilitates the teaming of people who may have never met before",
+                jordan.getAccountID());
+
+        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID());
+
+        accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(), "Hello", Types.CHAT_MESSAGE);
+        accountService.sendMessage(kevin.getAccountID(), cliquer.getGroupID(), "Hey", Types.CHAT_MESSAGE);
+        accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(), "Bye", Types.CHAT_MESSAGE);
+
+        List<Message> messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getAccountID());
+
+        assertEquals(3, messages.size());
+
+        accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getAccountID(), messages.get(0).getMessageID(), Message.Reactions.UP_VOTE);
+        messages = accountService.getChatHistory(cliquer.getGroupID(), jordan.getAccountID());
+        assertEquals(1, messages.get(0).getReactions().size());
+        assertEquals(Message.Reactions.UP_VOTE, messages.get(0).getReaction(kevin.getAccountID()));
+
+        accountService.reactToChatMessage(cliquer.getGroupID(), jordan.getAccountID(), messages.get(0).getMessageID(), Message.Reactions.UP_VOTE);
+        messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getAccountID());
+        assertEquals(2, messages.get(0).getReactions().size());
+        assertEquals(Message.Reactions.UP_VOTE, messages.get(0).getReaction(jordan.getAccountID()));
+
+        accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getAccountID(), messages.get(0).getMessageID(), Message.Reactions.DOWN_VOTE);
+        messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getAccountID());
+        assertEquals(2, messages.get(0).getReactions().size());
+        assertEquals(Message.Reactions.DOWN_VOTE, messages.get(0).getReaction(kevin.getAccountID()));
+
+        accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getAccountID(), messages.get(0).getMessageID(), Message.Reactions.DOWN_VOTE);
+        messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getAccountID());
+        assertEquals(1, messages.get(0).getReactions().size());
+        assertEquals(-1, messages.get(0).getReaction(kevin.getAccountID()));
+    }
+
     /* Populates valid skills into database, in case they were deleted */
     @Before
-    public void populateSkills()
-    {
+    public void populateSkills() {
         accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
         groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
         accountService.addSkillToDatabase("Java");
@@ -259,8 +366,7 @@ public class SprintThreeServicesTest {
 
     /* Function to clear items that should not already be in database */
     @After
-    public void clearDatabase()
-    {
+    public void clearDatabase() {
         accountRepository.deleteAll();
         skillRepository.deleteAll();
         messageRepository.deleteAll();

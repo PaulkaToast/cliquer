@@ -155,8 +155,7 @@ public class SprintTwoServicesTest {
 
     /* Back end Unit Test for User Story 13 */
     @Test
-    public void testFriendInvites()
-    {
+    public void testFriendInvites() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "montgo38@purdue.edu", "Kevin", "Nagar");
@@ -199,8 +198,7 @@ public class SprintTwoServicesTest {
 
     /* Back end Unit Test for User Story 15 */
     @Test
-    public void testReputationSuggestions()
-    {
+    public void testReputationSuggestions() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "montgo38@purdue.edu", "Kevin", "Nagar");
@@ -226,8 +224,7 @@ public class SprintTwoServicesTest {
         assertEquals(1, results.size());
         assertEquals("Jordan Buckmaster", results.get(0).getFullName());
 
-        for(int i = 0; i < 10; i++)
-        {
+        for(int i = 0; i < 10; i++) {
             results = accountService.searchByReputation(45, true, false);
             assertEquals(6, results.size());
             assertNull(results.get(1));
@@ -239,8 +236,7 @@ public class SprintTwoServicesTest {
 
     /* Back end Unit Test for User Story 16 */
     @Test
-    public void testOptingOutOfSearch()
-    {
+    public void testOptingOutOfSearch() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "UniqueJordan", "Reed");
         Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "UniqueJordan", "Buckmaster");
         Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@purdue.edu", "Rhys", "Buckmaster");
@@ -270,8 +266,7 @@ public class SprintTwoServicesTest {
 
     /* Back end Unit Test for User Story 17 */
     @Test
-    public void testReputationRange()
-    {
+    public void testReputationRange() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
@@ -298,8 +293,7 @@ public class SprintTwoServicesTest {
 
     /* Back end Unit Test for User Story 20 */
     @Test
-    public void testNewUserFlag()
-    {
+    public void testNewUserFlag() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
@@ -350,8 +344,7 @@ public class SprintTwoServicesTest {
 
     /* Back end Unit Test for User Story 23 */
     @Test
-    public void testPublicPrivateGroupSearch()
-    {
+    public void testPublicPrivateGroupSearch() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
@@ -404,8 +397,7 @@ public class SprintTwoServicesTest {
 
     /* Back end Unit Test for User Story 24 */
     @Test
-    public void testGroupClosing()
-    {
+    public void testGroupClosing() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
@@ -436,8 +428,7 @@ public class SprintTwoServicesTest {
 
     /* Back end Unit Test for User Story 25 */
     @Test
-    public void testGroupMemberKicking()
-    {
+    public void testGroupMemberKicking() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
@@ -604,8 +595,7 @@ public class SprintTwoServicesTest {
 
     /* Back end Unit Test for User Story 30 */
     @Test
-    public void testChatHistory()
-    {
+    public void testChatHistory() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
 
@@ -614,22 +604,13 @@ public class SprintTwoServicesTest {
                 "To create a web app that facilitates the teaming of people who may have never met before",
                 jordan.getAccountID());
 
-        cliquer.addGroupMember(kevin);
-        groupRepository.save(cliquer);
+        groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID());
 
-        groupService.sendChatMessage(new ChatMessage("Hello", jordan.getUsername(), "Jordan Reed"),cliquer.getGroupID());
-        groupService.sendChatMessage(new ChatMessage("Hey", kevin.getUsername(), "Kevin Nagar"), cliquer.getGroupID());
-        groupService.sendChatMessage(new ChatMessage("Bye", jordan.getUsername(), "Jordan Reed"), cliquer.getGroupID());
+        accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(), "Hello", Types.CHAT_MESSAGE);
+        accountService.sendMessage(kevin.getAccountID(), cliquer.getGroupID(), "Hey", Types.CHAT_MESSAGE);
+        accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(), "Bye", Types.CHAT_MESSAGE);
 
-        try {
-            Thread.sleep(4000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        List<Group> groups = accountService.getAllUserGroups(jordan.getUsername());
-
-        assertEquals(1, groups.size());
-        List<ChatMessage> messages = groups.get(0).getChatHistory();
+        List<Message> messages = accountService.getChatHistory(cliquer.getGroupID(), jordan.getAccountID());
 
         assertEquals(3, messages.size());
 
@@ -640,8 +621,7 @@ public class SprintTwoServicesTest {
 
     /* Back end Unit Test for User Story 32 */
     @Test
-    public void testSkillRating()
-    {
+    public void testSkillRating() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
@@ -727,8 +707,7 @@ public class SprintTwoServicesTest {
 
     /* Back end Unit Test for User Story 33 */
     @Test
-    public void testReputationRating()
-    {
+    public void testReputationRating() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
@@ -794,8 +773,7 @@ public class SprintTwoServicesTest {
 
     /* Populates valid skills into database, in case they were deleted */
     @Before
-    public void populateSkills()
-    {
+    public void populateSkills() {
         accountService.addSkillToDatabase("Java");
         accountService.addSkillToDatabase("JavaScript");
         accountService.addSkillToDatabase("C");
@@ -828,8 +806,7 @@ public class SprintTwoServicesTest {
 
     /* Function to clear items that should not already be in database */
     @After
-    public void clearDatabase()
-    {
+    public void clearDatabase() {
         accountRepository.deleteAll();
         skillRepository.deleteAll();
         messageRepository.deleteAll();

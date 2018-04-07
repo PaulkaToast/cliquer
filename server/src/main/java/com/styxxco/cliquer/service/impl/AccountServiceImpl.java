@@ -28,6 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -186,21 +188,19 @@ public class AccountServiceImpl implements AccountService {
             }
         } else {
             Account account = accountRepository.findByAccountID(userid);
-            if (userid != null) {
+            if (account != null) {
                 account.setRank(this.getReputationRanking(account.getUsername()));
-                if (account != null) {
-                    String name = account.getUsername();
-                    switch (type) {
-                        case "user":
-                            user = getUserProfile(name);
-                            break;
-                        case "member":
-                            user = getMemberProfile(name);
-                            break;
-                        case "public":
-                            user = getPublicProfile(name);
-                            break;
-                    }
+                String name = account.getUsername();
+                switch (type) {
+                    case "user":
+                        user = getUserProfile(name);
+                        break;
+                    case "member":
+                        user = getMemberProfile(name);
+                        break;
+                    case "public":
+                        user = getPublicProfile(name);
+                        break;
                 }
             }
         }
@@ -623,50 +623,32 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Message> getNewMessages(String userId) {
+    public List<Message> getMessages(String userId, boolean includeRead, String startDate /* YEAR-MONTH-DAY */) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
         List<Message> messages = new ArrayList<>();
-        for (String id : user.getMessageIDs().keySet()) {
-            Message message = messageRepository.findByMessageID(id);
-            if (!message.isRead()) {
-                messages.add(message);
-                //message.setRead(true);
-                //messageRepository.save(message);
+        LocalDate start = null;
+        if(startDate != null) {
+            try {
+                start = LocalDate.parse(startDate);
+            } catch (DateTimeParseException e) {
+                log.info("Date " + startDate + " is invalid");
+                return null;
             }
         }
-        if (messages == null) {
-            log.info("Could not get notifications for user " + userId);
-            return null;
-        }
-        Map<String, Message> map = messages.stream().collect(Collectors.toMap(Message::getMessageID, _it -> _it));
-        try {
-            template.convertAndSend("/notification/" + userId, map);
-        } catch (Exception e) {
-            log.info("Could not send message");
-        }
-        return messages;
-    }
-
-    @Override
-    public List<Message> getAllMessages(String userId) {
-        if (!accountRepository.existsByAccountID(userId)) {
-            log.info("User " + userId + " not found");
-            return null;
-        }
-        Account user = accountRepository.findByAccountID(userId);
-        List<Message> messages = new ArrayList<>();
         for (String id : user.getMessageIDs().keySet()) {
             Message message = messageRepository.findByMessageID(id);
-            messages.add(message);
+            if ((includeRead || !message.isRead()) && (start == null || !message.getCreationDate().isBefore(start))) {
+                messages.add(message);
+            }
         }
-        if (messages == null) {
-            log.info("Could not get notifications for user " + userId);
-            return null;
-        }
+        Comparator<Message> byTime = Comparator.comparing(Message::getCreationTime);
+        messages.sort(byTime);
+        Comparator<Message> byDate = Comparator.comparing(Message::getCreationDate);
+        messages.sort(byDate);
         Map<String, Message> map = messages.stream().collect(Collectors.toMap(Message::getMessageID, _it -> _it));
         try {
             template.convertAndSend("/notification/" + userId, map);
@@ -741,7 +723,7 @@ public class AccountServiceImpl implements AccountService {
         user.log("Send mod request");
         accountRepository.save(user);
         String parentID = "modRequest[" + userId + "]";
-        Message request = new Message(parentID, "I would like to become a moderator. Care to look at my account?", Types.MOD_REQUEST);
+        Message request = new Message(parentID, user.getFullName(), "I would like to become a moderator. Care to look at my account?", Types.MOD_REQUEST);
         request.setParentID(parentID);
         sendMessageToMods(userId, request);
         return request;
@@ -844,24 +826,23 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<ChatMessage> getChatHistory(String groupId, String username) {
-        if (!accountRepository.existsByUsername(username)) {
-            log.info("User " + username + " not found");
-            return null;
-        }
-        Account sender = accountRepository.findByUsername(username);
+    public List<Message> getChatHistory(String groupId, String userId) {
         if (!groupRepository.existsByGroupID(groupId)) {
             log.info("Group " + groupId + " not found");
             return null;
         }
-        Group group = groupService.getUserGroup(groupId, sender.getAccountID());
-        List<ChatMessage> messages = group.getChatHistory();
-        if (messages == null) {
-            log.info("Could not get group messages");
+        Group group = groupRepository.findByGroupID(groupId);
+        if(!group.hasGroupMember(userId)) {
+            log.info("User " + userId + " is not in group " + groupId);
             return null;
         }
+        List<Message> messages = new ArrayList<>();
+        for(String messageID : group.getChatMessageIDs()) {
+            Message message = messageRepository.findByMessageID(messageID);
+            messages.add(message);
+        }
         try {
-            template.convertAndSend("/group/" + username + "/" + groupId, messages);
+            template.convertAndSend("/group/" + userId + "/" + groupId, messages);
         } catch (Exception e) {
             log.info("Could not send message");
         }
@@ -869,54 +850,64 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public ChatMessage sendChatMessageFromGroup(String groupId, ChatMessage message) {
+    public Message reactToChatMessage(String groupId, String userId, String messageId, int reaction)
+    {
         if (!groupRepository.existsByGroupID(groupId)) {
             log.info("Group " + groupId + " not found");
             return null;
         }
-        Group sender = groupRepository.findByGroupID(groupId);
-        message.setSenderName(sender.getGroupName());
-        groupService.sendChatMessage(message, groupId);
-        try {
-            template.convertAndSend("/group/" + groupId, message);
-        } catch (Exception e) {
-            log.info("Could not send message");
-        }
-        return message;
-    }
-
-    @Override
-    public ChatMessage sendChatMessageFromUser(String groupId, ChatMessage message) {
-        if (!accountRepository.existsByUsername(message.getSenderId())) {
-            log.info("User " + message.getSenderId() + " not found");
+        Group group = groupRepository.findByGroupID(groupId);
+        if(!group.hasGroupMember(userId)) {
+            log.info("User " + userId + " is not in group " + groupId);
             return null;
         }
-        Account sender = accountRepository.findByUsername(message.getSenderId());
-        message.setSenderName(sender.getFullName());
-        if (!groupRepository.existsByGroupID(groupId)) {
-            log.info("Group " + groupId + " not found");
+        if(!group.hasMessage(messageId)) {
+            log.info("Message " + messageId + " not found in chat for group " + groupId);
             return null;
         }
-        groupService.sendChatMessage(message, groupId);
-        try {
-            template.convertAndSend("/group/" + groupId, message);
-        } catch (Exception e) {
-            log.info("Could not send message");
+        Message message = messageRepository.findByMessageID(messageId);
+        if(message.getReaction(userId) == reaction) {
+            message.removeReaction(userId);
+        } else {
+            message.addReaction(userId, reaction);
         }
-        return message;
-    }
-
-    @Override
-    public Message sendMessage(String senderId, String receiverID, String content, int type) {
-        if (!accountRepository.existsByAccountID(receiverID)) {
-            log.info("User " + receiverID + " not found");
-            return null;
-        }
-        Account receiver = accountRepository.findByAccountID(receiverID);
-        Message message = new Message(senderId, content, type);
         messageRepository.save(message);
-        receiver.addMessage(message);
-        accountRepository.save(receiver);
+        return message;
+    }
+
+    @Override
+    public Message sendMessage(String senderId, String receiverId, String content, int type) {
+        String senderName;
+        if (accountRepository.existsByAccountID(senderId)) {
+            senderName = accountRepository.findByAccountID(senderId).getFullName();
+        } else if (groupRepository.existsByGroupID(senderId)) {
+            senderName = groupRepository.findByGroupID(senderId).getGroupName();
+        } else {
+            log.info("Sender " + senderId + " not found");
+            return null;
+        }
+        Message message;
+        if(type == Types.CHAT_MESSAGE) {
+            if (!groupRepository.existsByGroupID(receiverId)) {
+                log.info("Group " + receiverId + " not found");
+                return null;
+            }
+            Group receiver = groupRepository.findByGroupID(receiverId);
+            message = new Message(senderId, senderName, content, type);
+            messageRepository.save(message);
+            receiver.addMessage(message.getMessageID());
+            groupRepository.save(receiver);
+        } else {
+            if (!accountRepository.existsByAccountID(receiverId)) {
+                log.info("Account " + receiverId + " not found");
+                return null;
+            }
+            Account receiver = accountRepository.findByAccountID(receiverId);
+            message = new Message(senderId, senderName, content, type);
+            messageRepository.save(message);
+            receiver.addMessage(message);
+            accountRepository.save(receiver);
+        }
         return message;
     }
 
@@ -924,7 +915,7 @@ public class AccountServiceImpl implements AccountService {
     public Message sendMessageToMods(String senderId, Message message) {
         List<Account> mods = accountRepository.findByIsModeratorTrue();
         for (Account mod : mods) {
-            Message copy = new Message(senderId, message.getContent(), message.getType());
+            Message copy = new Message(message.getSenderID(), message.getSenderName(), message.getContent(), message.getType());
             copy.setParentID(message.getParentID());
             copy.setTopicID(message.getTopicID());
             mod.addMessage(copy);
@@ -959,17 +950,17 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Message deleteMessage(String userId, String messageID) {
+    public Message deleteMessage(String userId, String messageId) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
-        if (!user.hasMessage(messageID)) {
-            log.info("User " + userId + " did not receive message " + messageID);
+        if (!user.hasMessage(messageId)) {
+            log.info("User " + userId + " did not receive message " + messageId);
             return null;
         }
-        Message message = messageRepository.findByMessageID(messageID);
+        Message message = messageRepository.findByMessageID(messageId);
         user.removeMessage(message.getMessageID());
         accountRepository.save(user);
         messageRepository.delete(message.getMessageID());
@@ -1084,17 +1075,17 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account addToGroup(String userId, String groupID) {
+    public Account addToGroup(String userId, String groupId) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
-        if (!groupRepository.existsByGroupID(groupID)) {
-            log.info("Group " + groupID + " not found");
+        if (!groupRepository.existsByGroupID(groupId)) {
+            log.info("Group " + groupId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
-        Group group = groupRepository.findByGroupID(groupID);
+        Group group = groupRepository.findByGroupID(groupId);
 
         groupService.addGroupMember(group.getGroupID(), group.getGroupLeaderID(), user.getAccountID());
 
@@ -1102,24 +1093,24 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account leaveGroup(String username, String groupID) {
+    public Account leaveGroup(String username, String groupId) {
         if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
-        if (!groupRepository.existsByGroupID(groupID)) {
-            log.info("Group " + groupID + " not found");
+        if (!groupRepository.existsByGroupID(groupId)) {
+            log.info("Group " + groupId + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
-        Group group = groupRepository.findByGroupID(groupID);
+        Group group = groupRepository.findByGroupID(groupId);
         if (!group.hasGroupMember(user.getAccountID())) {
-            log.info("User " + username + " is not in group " + groupID);
+            log.info("User " + username + " is not in group " + groupId);
             return null;
         }
         if (group.getGroupLeaderID().equals(user.getAccountID())) {
             if (group.getGroupMemberIDs().size() == 1) {
-                user.removeGroup(groupID);
+                user.removeGroup(groupId);
                 groupRepository.delete(group);
                 accountRepository.save(user);
                 return user;
@@ -1130,12 +1121,12 @@ public class AccountServiceImpl implements AccountService {
             }
 
         }
-        user.removeGroup(groupID);
+        user.removeGroup(groupId);
         user.log("Leave group " + group.getGroupName());
         group.removeGroupMember(user.getAccountID());
         groupRepository.save(group);
         accountRepository.save(user);
-        sendChatMessageFromGroup(groupID, new ChatMessage(user.getFullName() + " has left the group", groupID));
+        sendMessage(groupId, groupId, user.getFullName() + " has left the group", Types.CHAT_MESSAGE);
         return user;
 
     }
@@ -1232,7 +1223,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Message inviteToGroup(String userId, String friendId, String groupID) {
+    public Message inviteToGroup(String userId, String friendId, String groupId) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
@@ -1241,20 +1232,21 @@ public class AccountServiceImpl implements AccountService {
             log.info("User " + friendId + " not found");
             return null;
         }
-        if (!groupRepository.existsByGroupID(groupID)) {
-            log.info("Group " + groupID + " not found");
+        if (!groupRepository.existsByGroupID(groupId)) {
+            log.info("Group " + groupId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
         Account friend = accountRepository.findByAccountID(friendId);
-        Group group = groupRepository.findByGroupID(groupID);
+        Group group = groupRepository.findByGroupID(groupId);
         user.log("Invite " + friend.getFullName() + " to group " + group.getGroupName());
         accountRepository.save(user);
-        Message message = groupService.sendMessage(group.getGroupID(), user.getAccountID(), friend.getAccountID(), user.getFullName() + " has invited you to join " + group.getGroupName(), Types.GROUP_INVITE);
+        Message message = sendMessage(user.getAccountID(), friend.getAccountID(), user.getFullName() + " has invited you to join " + group.getGroupName(), Types.GROUP_INVITE);
         if (message == null) {
             log.info("Could not invite user " + friend.getFullName() + " to group " + group.getGroupName());
             return null;
         }
+        message.setGroupID(groupId);
         try {
             template.convertAndSend("/notification/" + friendId, message);
         } catch (Exception e) {
@@ -1264,7 +1256,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Message kickMember(String userId, String kickedId, String groupID) {
+    public Message kickMember(String userId, String kickedId, String groupId) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
@@ -1275,15 +1267,15 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Account kicked = accountRepository.findByAccountID(kickedId);
-        if (!groupRepository.existsByGroupID(groupID)) {
-            log.info("Group " + groupID + " not found");
+        if (!groupRepository.existsByGroupID(groupId)) {
+            log.info("Group " + groupId + " not found");
             return null;
         }
-        Group group = groupService.removeGroupMember(groupID, userId, kickedId);
+        Group group = groupService.removeGroupMember(groupId, userId, kickedId);
         if (group == null) {
             return null;
         }
-        if (group.getGroupLeaderID() != user.getAccountID()) {
+        if (!group.getGroupLeaderID().equals(user.getAccountID())) {
             return null;
         }
         if (group.hasGroupMember(kickedId)) {
@@ -1301,13 +1293,13 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Group deleteGroup(String username, String groupID) {
+    public Group deleteGroup(String username, String groupId) {
         if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
-        return groupService.deleteGroup(groupID, user.getAccountID());
+        return groupService.deleteGroup(groupId, user.getAccountID());
     }
 
     @Override
@@ -1359,18 +1351,18 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Message acceptFriendInvite(String userId, String inviteID) {
+    public Message acceptFriendInvite(String userId, String inviteId) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
-        if (!user.hasMessage(inviteID)) {
-            log.info("User " + userId + " did not receive message " + inviteID);
+        if (!user.hasMessage(inviteId)) {
+            log.info("User " + userId + " did not receive message " + inviteId);
             return null;
         }
-        Message invite = messageRepository.findByMessageID(inviteID);
-        user.removeMessage(inviteID);
+        Message invite = messageRepository.findByMessageID(inviteId);
+        user.removeMessage(inviteId);
         user.log("Accept friend invite");
         accountRepository.save(user);
         this.addFriend(userId, invite.getSenderID());
@@ -1408,7 +1400,7 @@ public class AccountServiceImpl implements AccountService {
         }
         Group group = groupRepository.findByGroupID(invite.getGroupID());
         Message accepted = groupService.acceptJoinRequest(userId, inviteId);
-        sendChatMessageFromGroup(group.getGroupID(), new ChatMessage(user.getFullName() + " has joined the group!", group.getGroupID()));
+        sendMessage(group.getGroupID(), group.getGroupID(), user.getFullName() + " has joined the group!", Types.CHAT_MESSAGE);
 
         try {
             template.convertAndSend("/notification/" + invite.getSenderID(), accepted);
@@ -1435,9 +1427,7 @@ public class AccountServiceImpl implements AccountService {
             log.info("Could not find group within message");
             return null;
         }
-        Group group = groupRepository.findByGroupID(invite.getGroupID());
-        Message message = groupService.denyJoinRequest(userId, inviteId);
-        return message;
+        return groupService.denyJoinRequest(userId, inviteId);
     }
 
     @Override
@@ -1477,7 +1467,7 @@ public class AccountServiceImpl implements AccountService {
         user.removeMessage(inviteId);
         user.log("Accept group invite for group " + group.getGroupName());
         accountRepository.save(user);
-        sendChatMessageFromGroup(group.getGroupID(), new ChatMessage(user.getFullName() + " has joined the group!", group.getGroupID()));
+        sendMessage(group.getGroupID(), group.getGroupID(), user.getFullName() + " has joined the group!", Types.CHAT_MESSAGE);
         addToGroup(userId, group.getGroupID());
         messageRepository.delete(inviteId);
         return invite;
@@ -1503,17 +1493,17 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account addFriend(String userId, String friendID) {
+    public Account addFriend(String userId, String friendId) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
         }
-        if (!accountRepository.existsByAccountID(friendID)) {
-            log.info("User " + friendID + " not found");
+        if (!accountRepository.existsByAccountID(friendId)) {
+            log.info("User " + friendId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
-        Account friend = accountRepository.findByAccountID(friendID);
+        Account friend = accountRepository.findByAccountID(friendId);
         user.addFriend(friend);
         friend.addFriend(user);
         user.log("Add friend " + friend.getFullName());
@@ -1524,17 +1514,17 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account removeFriend(String username, String friendID) {
+    public Account removeFriend(String username, String friendId) {
         if (!accountRepository.existsByUsername(username)) {
             log.info("User " + username + " not found");
             return null;
         }
-        if (!accountRepository.existsByAccountID(friendID)) {
-            log.info("User " + friendID + " not found");
+        if (!accountRepository.existsByAccountID(friendId)) {
+            log.info("User " + friendId + " not found");
             return null;
         }
         Account user = accountRepository.findByUsername(username);
-        Account friend = accountRepository.findByAccountID(friendID);
+        Account friend = accountRepository.findByAccountID(friendId);
         user.removeFriend(friend.getAccountID());
         friend.removeFriend(user.getAccountID());
         user.log("Remove friend " + friend.getFullName());
@@ -1688,7 +1678,7 @@ public class AccountServiceImpl implements AccountService {
             return;
         }
         Account user = accountRepository.findByAccountID(userId);
-        Message congrats = new Message(userId, "Congratulations! You're a moderator now!", Types.MOD_ACCEPTED);
+        Message congrats = new Message(userId, user.getFullName(),"Congratulations! You're a moderator now!", Types.MOD_ACCEPTED);
         user.setAuthorities(getModRoles());
         user.setModerator(true);
         user.addMessage(congrats);
@@ -1714,7 +1704,7 @@ public class AccountServiceImpl implements AccountService {
                 if (!user.isNewUser()) { //if user is not a new user
                     if (user.getReputation() >= 50) { //if user has reputation higher than 50
                         if (user.getGroupIDs().keySet().size() > 5) { //user has to be in at least 5 groups
-                            Message offer = new Message(userId, "You are now able to apply to be a moderator!", Types.MOD_INVITE);
+                            Message offer = new Message(userId, user.getFullName(),"You are now able to apply to be a moderator!", Types.MOD_INVITE);
                             user.addMessage(offer);
                             messageRepository.save(offer);
                             accountRepository.save(user);
@@ -1814,7 +1804,7 @@ public class AccountServiceImpl implements AccountService {
         reportee.log("Reported by user " + user.getFullName());
         accountRepository.save(user);
         accountRepository.save(reportee);
-        Message message = new Message(user.getAccountID(), reason, Types.MOD_REPORT);
+        Message message = new Message(user.getAccountID(), user.getFullName(), reason, Types.MOD_REPORT);
         message.setParentID("Report:" + reportee.getAccountID());
         message.setTopicID(reportee.getAccountID());
         sendMessageToMods(user.getAccountID(), message);

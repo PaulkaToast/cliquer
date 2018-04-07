@@ -147,8 +147,7 @@ public class Account extends Searchable implements UserDetails {
 		this.intervalTimer = LocalTime.now();
 	}
 
-	public void incrementTimer()
-	{
+	public void incrementTimer() {
 		this.loggedInTime += this.intervalTimer.until(LocalTime.now(), MINUTES);
 		this.intervalTimer = LocalTime.now();
 		if(this.loggedInTime >= NEW_USER_HOURS*60)
@@ -157,10 +156,8 @@ public class Account extends Searchable implements UserDetails {
 		}
 	}
 
-	public int getAdjustedReputation()
-	{
-		if(this.isNewUser)
-		{
+	public int getAdjustedReputation() {
+		if(this.isNewUser) {
 			return (int)(this.reputation + NEW_USER_REP*(1 - (((double)this.loggedInTime)/(NEW_USER_HOURS*60))));
 		}
 		return this.reputation;
@@ -246,14 +243,11 @@ public class Account extends Searchable implements UserDetails {
 		return accountEnabled;
 	}
 
-	public int distanceTo(double latitude, double longitude)
-	{
+	public int distanceTo(double latitude, double longitude) {
 		if(Math.abs(this.latitude) > 90.00 || Math.abs(this.longitude) > 180.00
-				|| Math.abs(latitude) > 90.00 || Math.abs(longitude) > 180.00)
-		{
+				|| Math.abs(latitude) > 90.00 || Math.abs(longitude) > 180.00) {
 			return Integer.MAX_VALUE;
 		}
-		double theta = this.longitude - longitude;
 		double distance = Math.sin(degToRad(this.latitude)) * Math.sin(degToRad(latitude))
 				+ Math.cos(degToRad(this.latitude)) * Math.cos(degToRad(latitude)) * Math.cos(degToRad(this.longitude - longitude));
 		distance = Math.acos(distance);
@@ -261,35 +255,30 @@ public class Account extends Searchable implements UserDetails {
 		return (int)(distance * 60 * 1.1515);
 	}
 
-	public static double degToRad(double degrees)
+	private static double degToRad(double degrees)
 	{
 		return (degrees * Math.PI)/180;
 	}
 
-	public static double radToDeg(double radians)
+	private static double radToDeg(double radians)
 	{
 		return (radians * 180)/Math.PI;
 	}
 
-	public Map<String, Integer> addSkillRatings(List<Skill> skills, List<Integer> ratings)
-	{
+	public Map<String, Integer> addSkillRatings(List<Skill> skills, List<Integer> ratings) {
 		Map<String, Integer> adjustedSkills = new TreeMap<>();
-		for(int i = 0; i < skills.size(); i++)
-		{
+		for(int i = 0; i < skills.size(); i++) {
 			String skillName = skills.get(i).getSkillName();
 			int rating = ratings.get(i);
-			if(numRatings.containsKey(skillName))
-			{
+			if(numRatings.containsKey(skillName)) {
 				numRatings.replace(skillName, numRatings.get(skillName) + 1);
 				totalRating.replace(skillName, totalRating.get(skillName) + rating);
 			}
-			else
-			{
+			else {
 				numRatings.put(skillName, 1);
 				totalRating.put(skillName, rating);
 			}
-			if(Math.abs(totalRating.get(skillName) / numRatings.get(skillName) - skills.get(i).getSkillLevel()) >= 1)
-			{
+			if(Math.abs(totalRating.get(skillName) / numRatings.get(skillName) - skills.get(i).getSkillLevel()) >= 1) {
 				skillIDs.remove(skills.get(i).getSkillID());
 				adjustedSkills.put(skillName, totalRating.get(skillName) / numRatings.get(skillName));
 			}
