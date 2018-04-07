@@ -36,6 +36,8 @@ public class SprintTwoServicesTest {
     @Autowired
     public GroupRepository groupRepository;
     @Autowired
+    public RoleRepository roleRepository;
+    @Autowired
     public GroupService groupService;
     @Autowired
     public AccountService accountService;

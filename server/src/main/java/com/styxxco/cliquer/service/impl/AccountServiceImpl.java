@@ -64,11 +64,12 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
-    public AccountServiceImpl(AccountRepository ar, SkillRepository sr, MessageRepository mr, GroupRepository gr) {
+    public AccountServiceImpl(AccountRepository ar, SkillRepository sr, MessageRepository mr, GroupRepository gr, RoleRepository rr) {
         this.accountRepository = ar;
         this.skillRepository = sr;
         this.messageRepository = mr;
         this.groupRepository = gr;
+        this.roleRepository = rr;
     }
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

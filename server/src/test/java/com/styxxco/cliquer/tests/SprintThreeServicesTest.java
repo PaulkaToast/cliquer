@@ -37,9 +37,11 @@ public class SprintThreeServicesTest {
     public MessageRepository messageRepository;
     @Autowired
     public GroupRepository groupRepository;
-
+    @Autowired
+    public RoleRepository roleRepository;
+    @Autowired
     public AccountService accountService;
-
+    @Autowired
     public GroupService groupService;
 
     /* Back end Unit Test for User Story 8 */
@@ -364,7 +366,7 @@ public class SprintThreeServicesTest {
         Message report = accountService.reportGroupMember(cliquer.getGroupID(), jordan.getAccountID(), second.getMessageID(), "Foul Language");
 
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
-        assertEquals(1, kevin.getMessageIDs().size());
+        assertEquals(2, kevin.getMessageIDs().size());
         assertEquals(Types.MOD_REPORT, (int)kevin.getMessageIDs().get(report.getMessageID()));
 
         List<Message> history = accountService.getReportContext(kevin.getAccountID(), report.getMessageID(), null);
@@ -387,8 +389,6 @@ public class SprintThreeServicesTest {
     /* Populates valid skills into database, in case they were deleted */
     @Before
     public void populateSkills() {
-        accountService = new AccountServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
-        groupService = new GroupServiceImpl(accountRepository, skillRepository, messageRepository, groupRepository);
         accountService.addSkillToDatabase("Java");
         accountService.addSkillToDatabase("JavaScript");
         accountService.addSkillToDatabase("C");
