@@ -1812,19 +1812,19 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Message reportGroupMember(String groupId, String reporterId, String reporteeId, String messageId, String reason) {
-        if(!groupRepository.existsByGroupID(groupId)) {
+        if (!groupRepository.existsByGroupID(groupId)) {
             log.info("Group " + groupId + " not found");
             return null;
         }
-        if(!accountRepository.existsByAccountID(reporteeId)) {
+        if (!accountRepository.existsByAccountID(reporteeId)) {
             log.info("User " + reporteeId + " not found");
         }
         Group group = groupRepository.findByGroupID(groupId);
-        if(!group.hasGroupMember(reporterId)) {
+        if (!group.hasGroupMember(reporterId)) {
             log.info("User " + reporterId + " is not in group " + groupId);
             return null;
         }
-        if(!group.hasMessage(messageId)) {
+        if (!group.hasMessage(messageId)) {
             log.info("Group " + groupId + " does not contain message " + messageId);
             return null;
         }
@@ -1833,10 +1833,6 @@ public class AccountServiceImpl implements AccountService {
         report.setGroupID(groupId);
         report.setAccountID(reporteeId);
         report.setChatMessageID(messageId);
-    }
-
-    @Override
-    public Message reportUserProfile(String reporterId, String reporteeId, String reason){
         return null;
     }
 
