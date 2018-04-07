@@ -91,13 +91,17 @@ public interface AccountService extends UserDetailsService {
     Message acceptModRequest(String userId, String messageId);
     Message rejectModInvite(String userId, String messageId);
     Message rejectModRequest(String userId, String messageId);
+
+    // TODO: @Reed functions for reporting group members
     Message reportGroupMember(String groupId, String reporterId, String reporteeId, String messageId, String reason);
-    Message reportUserProfile(String reporterId, String reporteeId, String reason);
     List<Message> getReportContext(String modId, String groupId, String messageId, List<Message> currentContext);
     List<Message> getMessageHistory(String modId, String userId);
+
     void checkModStatus (String userId);
     void addToModerators (String userId);
     int flagUser(String modId, String userId);
+    void suspendUser(String modId, String messageId, long minutes);
+    void reportUser(String userId, String reporteeId, String reason);
 
     /* Role services */
     List<Role> getAnonRoles();

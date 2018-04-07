@@ -204,6 +204,9 @@ public class AccountServiceImpl implements AccountService {
                 }
             }
         }
+        if (!user.isAccountEnabled()) {
+            user.tryUnsuspend();
+        }
         return user;
     }
 
@@ -694,8 +697,7 @@ public class AccountServiceImpl implements AccountService {
         parent.decrement();
         messageRepository.save(parent);
 
-        // TODO: update for decided rules
-        if (parent.getCounter() < -5) {
+        if (parent.getCounter() < -3) {
             deleteMessageByParent(parent.getParentID());
             user.deniedMod();
             user.log("Deny mod request");
@@ -915,6 +917,7 @@ public class AccountServiceImpl implements AccountService {
         for (Account mod : mods) {
             Message copy = new Message(message.getSenderID(), message.getSenderName(), message.getContent(), message.getType());
             copy.setParentID(message.getParentID());
+            copy.setTopicID(message.getTopicID());
             mod.addMessage(copy);
             messageRepository.save(copy);
             accountRepository.save(mod);
@@ -964,6 +967,7 @@ public class AccountServiceImpl implements AccountService {
         return message;
     }
 
+    /* Deletes all messages associated with said parent NOTE: ONLY SEARCHES THROUGH MODS */
     @Override
     public void deleteMessageByParent(String parentId) {
         List<Message> group = messageRepository.findByParentID(parentId);
@@ -1716,11 +1720,94 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
-
-    // TODO: update user flags
     @Override
-    public int flagUser(String modId, String userId) {
-        return 0;
+    public void flagUser(String modId, String messageId) {
+        if (!messageRepository.existsByMessageID(messageId)) {
+            log.info("Message " + messageId + " not found");
+            return;
+        }
+        Message report = messageRepository.findByMessageID(messageId);
+
+        if (!accountRepository.existsByAccountID(modId)) {
+            log.info("User " + modId + " not found");
+            return;
+        }
+        Account mod = accountRepository.findByAccountID(modId);
+
+        if (!accountRepository.existsByAccountID(report.getTopicID())) {
+            log.info("User " + report.getTopicID() + " not found");
+            return;
+        }
+        Account user = accountRepository.findByAccountID(report.getTopicID());
+
+        if (!mod.isModerator()) {
+            log.info(mod.getFullName() + " is not a moderator");
+            return;
+        }
+        if (mod.haveFlagged(user.getAccountID())) {
+            user.removeFlag();
+        } else {
+            user.addFlag();
+        }
+        mod.toggleFlag(user.getAccountID());
+        accountRepository.save(user);
+        accountRepository.save(mod);
+        report.setRead(true);
+        messageRepository.save(report);
+        return;
+    }
+
+    @Override
+    public void suspendUser(String modId, String messageId, long minutes) {
+        if (!accountRepository.existsByAccountID(modId)) {
+            log.info("User " + modId + " not found");
+            return;
+        }
+        Account mod = accountRepository.findByAccountID(modId);
+
+        if (!messageRepository.existsByMessageID(messageId)) {
+            log.info("Message " + messageId + " not found");
+            return;
+        }
+        Message report = messageRepository.findByMessageID(messageId);
+
+        if (!accountRepository.existsByAccountID(report.getTopicID())) {
+            log.info("User " + report.getTopicID() + " not found");
+            return;
+        }
+        Account user = accountRepository.findByAccountID(report.getTopicID());
+
+        if (!mod.isModerator()) {
+            log.info(mod.getFullName() + " is not a moderator");
+            return;
+        }
+        if (user.isAccountEnabled()) {
+            user.suspend(minutes);
+            accountRepository.save(user);
+        }
+        deleteMessageByParent(report.getParentID());
+    }
+
+    @Override
+    public void reportUser(String userId, String reporteeId, String reason) {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return;
+        }
+        if (!accountRepository.existsByAccountID(reporteeId)) {
+            log.info("User " + reporteeId + " not found");
+            return;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        Account reportee = accountRepository.findByAccountID(reporteeId);
+        user.log("Report user " + reportee.getFullName());
+        reportee.log("Reported by user " + user.getFullName());
+        accountRepository.save(user);
+        accountRepository.save(reportee);
+        Message message = new Message(user.getAccountID(), user.getFullName(), reason, Types.MOD_REPORT);
+        message.setParentID("Report:" + reportee.getAccountID());
+        message.setTopicID(reportee.getAccountID());
+        sendMessageToMods(user.getAccountID(), message);
     }
 
     @Override

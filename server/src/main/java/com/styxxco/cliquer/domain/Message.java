@@ -39,6 +39,8 @@ public class Message
 
 	@JsonIgnore
 	private String parentID; /* ID if multiple messages belong to a particular action */
+	@Setter
+	private String topicID; /* ID if message is about another user */
 	@JsonIgnore
 	private int counter; /* counter for votes */
 
@@ -58,6 +60,7 @@ public class Message
 		public static final int MOD_ACCEPTED = 10;
 		public static final int MOD_INVITE = 11;
 		public static final int SEARCH_INVITE = 12;
+		public static final int MOD_REPORT = 14;
 		public static final int CHAT_MESSAGE = 13;
 		public static final int REPORT = 13;
 	}
@@ -80,6 +83,7 @@ public class Message
 		this.chatMessageID = null;
 		this.read = false;
 		this.parentID = null;
+		this.topicID = null;
 		this.reactions = new TreeMap<>();
 	}
 
