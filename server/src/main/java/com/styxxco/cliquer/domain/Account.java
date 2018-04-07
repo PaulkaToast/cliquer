@@ -11,6 +11,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -321,7 +322,7 @@ public class Account extends Searchable implements UserDetails {
 	}
 
 	public void log(String log) {
-		this.logs.add(log);
+		this.logs.add(log + " at " + LocalTime.now() + " on " + LocalDate.now());
 	}
 
 	public Boolean haveFlagged(String userId) {

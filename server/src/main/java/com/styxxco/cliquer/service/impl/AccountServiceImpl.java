@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -1742,6 +1743,7 @@ public class AccountServiceImpl implements AccountService {
 
         if (!mod.isModerator()) {
             log.info(mod.getFullName() + " is not a moderator");
+            mod.log("Attempted to use moderator tool");
             return;
         }
         if (mod.haveFlagged(user.getAccountID())) {
@@ -1779,6 +1781,7 @@ public class AccountServiceImpl implements AccountService {
 
         if (!mod.isModerator()) {
             log.info(mod.getFullName() + " is not a moderator");
+            mod.log("Attempted to use moderator tool");
             return;
         }
         if (user.isAccountEnabled()) {
@@ -1818,6 +1821,7 @@ public class AccountServiceImpl implements AccountService {
         }
         if (!accountRepository.existsByAccountID(reporteeId)) {
             log.info("User " + reporteeId + " not found");
+            return null;
         }
         Group group = groupRepository.findByGroupID(groupId);
         if (!group.hasGroupMember(reporterId)) {
@@ -1829,21 +1833,82 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Account reporter = accountRepository.findByAccountID(reporterId);
-        Message report = new Message(reporterId, reporter.getFullName(), reason, Message.Types.REPORT);
+        Account reportee = accountRepository.findByAccountID(reporteeId);
+        reporter.log("Report user " + reportee.getFullName());
+        reportee.log("Reported by user " + reporter.getFullName());
+        accountRepository.save(reporter);
+        accountRepository.save(reportee);
+        Message report = new Message(reporterId, reporter.getFullName(), reason, Message.Types.MOD_REPORT);
+        report.setParentID("Report:" + reportee.getAccountID());
         report.setGroupID(groupId);
-        report.setAccountID(reporteeId);
+        report.setTopicID(reporteeId);
         report.setChatMessageID(messageId);
-        return null;
+        sendMessageToMods(reporterId, report);
+        return report;
     }
 
     @Override
     public List<Message> getReportContext(String modId, String groupId, String messageId, List<Message> currentContext) {
-        return null;
+        if (!accountRepository.existsByAccountID(modId)) {
+            log.info("Moderator " + modId + " not found");
+            return null;
+        }
+        Account moderator = accountRepository.findByAccountID(modId);
+        if(!moderator.isModerator()) {
+            log.info("Account " + modId + " is not a moderator");
+            moderator.log("Attempted to use moderator tool");
+            return null;
+        }
+        if(!messageRepository.existsByMessageID(messageId)) {
+            log.info("Message " + messageId + " not found");
+            return null;
+        }
+        if(!moderator.hasMessage(messageId)) {
+            log.info("Moderator " + modId + " does not have message " + messageId);
+            return null;
+        }
+        Message report = messageRepository.findByMessageID(messageId);
+        if(report.getChatMessageID() == null) {
+            log.info("Report " + messageId + " does not pertain to a group chat");
+            return null;
+        }
+        if (!groupRepository.existsByGroupID(groupId)) {
+            log.info("Group " + groupId + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupId);
+        String startId = messageId;
+        String endId = messageId;
+        if(currentContext != null) {
+            startId = currentContext.get(0).getMessageID();
+            endId = currentContext.get(currentContext.size()-1).getMessageID();
+        }
+        int start = Math.max(group.getChatMessageIDs().indexOf(startId)-5, 0);
+        int end = Math.min(group.getChatMessageIDs().indexOf(endId)-5, group.getChatMessageIDs().size());
+        List<Message> context = new ArrayList<>();
+        for(int i = start; i < end; i++) {
+            context.add(messageRepository.findByMessageID(group.getChatMessageIDs().get(i)));
+        }
+        return context;
     }
 
     @Override
     public List<Message> getMessageHistory(String modId, String userId) {
-        return null;
+        if (!accountRepository.existsByAccountID(modId)) {
+            log.info("Moderator " + modId + " not found");
+            return null;
+        }
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account moderator = accountRepository.findByAccountID(modId);
+        if(!moderator.isModerator()) {
+            log.info("Account " + modId + " is not a moderator");
+            moderator.log("Attempted to use moderator tool");
+            return null;
+        }
+        return messageRepository.findBySenderID(userId);
     }
 
 }
