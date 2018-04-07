@@ -32,7 +32,9 @@ public class Message
 	private LocalTime creationTime;
 	private LocalDate creationDate;
 
-	private String groupID;	/* MongoDB ID of group that message refers to, if applicable	*/
+	private String groupID;			/* ID of group that message refers to, if applicable	*/
+	private String accountID;		/* ID of account that message refers to, if applicable	*/
+	private String chatMessageID;	/* ID of chat message that message refers to, if applicable	*/
 	private boolean read;
 
 	@JsonIgnore
@@ -57,6 +59,7 @@ public class Message
 		public static final int MOD_INVITE = 11;
 		public static final int SEARCH_INVITE = 12;
 		public static final int CHAT_MESSAGE = 13;
+		public static final int REPORT = 13;
 	}
 
     public static class Reactions {
@@ -73,6 +76,8 @@ public class Message
 		this.creationTime = LocalTime.now();
 		this.creationDate = LocalDate.now();
 		this.groupID = null;
+		this.accountID = null;
+		this.chatMessageID = null;
 		this.read = false;
 		this.parentID = null;
 		this.reactions = new TreeMap<>();

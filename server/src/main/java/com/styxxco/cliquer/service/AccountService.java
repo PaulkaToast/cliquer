@@ -5,6 +5,7 @@ import com.styxxco.cliquer.security.FirebaseTokenHolder;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +55,6 @@ public interface AccountService extends UserDetailsService {
     /* Note: startDate is of format YEAR-MONTH-DAY, MONTH and DAY are zero padded to reach two digits*/
     List<Message> getMessages(String userId, boolean includeRead, String startDate);
     Message sendMessage(String senderId, String receiverId, String content, int type);
-    Message sendMessageToMods(String senderId, Message message);
     Message deleteMessage(String username, String messageId);
     List<Message> getChatHistory(String groupId, String userId);
     Message reactToChatMessage(String groupId, String userId, String messageId, int reaction);
@@ -71,10 +71,6 @@ public interface AccountService extends UserDetailsService {
     Message requestToGroup(String userId, String leaderId, String groupId);
     Message acceptJoinRequest(String userId, String messageId);
     Message rejectJoinRequest(String userId, String messageId);
-    Message acceptModInvite(String userId, String messageId);
-    Message acceptModRequest(String userId, String messageId);
-    Message rejectModInvite(String userId, String messageId);
-    Message rejectModRequest(String userId, String messageId);
     Message readMessage(String userId, String messageId);
     Message acceptSearchInvite(String userId, String inviteId);
     Message kickMember(String userId, String kickedId, String groupId);
@@ -89,6 +85,20 @@ public interface AccountService extends UserDetailsService {
     Account addFriend(String userId, String friendId);
     Account removeFriend(String username, String friendId);
 
+    /* Moderator related services */
+    Message sendMessageToMods(String senderId, Message message);
+    Message acceptModInvite(String userId, String messageId);
+    Message acceptModRequest(String userId, String messageId);
+    Message rejectModInvite(String userId, String messageId);
+    Message rejectModRequest(String userId, String messageId);
+    Message reportGroupMember(String groupId, String reporterId, String reporteeId, String messageId, String reason);
+    Message reportUserProfile(String reporterId, String reporteeId, String reason);
+    List<Message> getReportContext(String modId, String groupId, String messageId, List<Message> currentContext);
+    List<Message> getMessageHistory(String modId, String userId);
+    void checkModStatus (String userId);
+    void addToModerators (String userId);
+    int flagUser(String modId, String userId);
+
     /* Role services */
     List<Role> getAnonRoles();
     List<Role> getUserRoles();
@@ -99,8 +109,5 @@ public interface AccountService extends UserDetailsService {
     List<Account> moveSuggestedToTop(List<Account> accounts, int reputation, boolean includeWeights);
     double getReputationRanking(String username);
     void deleteMessageByParent(String parentId);
-    void checkModStatus (String userId);
-    void addToModerators (String userId);
-    int flagUser(String modId, String userId);
     void handleNotifications(String userId, String messageId, boolean accept);
 }

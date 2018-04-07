@@ -1723,4 +1723,44 @@ public class AccountServiceImpl implements AccountService {
         return 0;
     }
 
+    @Override
+    public Message reportGroupMember(String groupId, String reporterId, String reporteeId, String messageId, String reason) {
+        if(!groupRepository.existsByGroupID(groupId)) {
+            log.info("Group " + groupId + " not found");
+            return null;
+        }
+        if(!accountRepository.existsByAccountID(reporteeId)) {
+            log.info("User " + reporteeId + " not found");
+        }
+        Group group = groupRepository.findByGroupID(groupId);
+        if(!group.hasGroupMember(reporterId)) {
+            log.info("User " + reporterId + " is not in group " + groupId);
+            return null;
+        }
+        if(!group.hasMessage(messageId)) {
+            log.info("Group " + groupId + " does not contain message " + messageId);
+            return null;
+        }
+        Account reporter = accountRepository.findByAccountID(reporterId);
+        Message report = new Message(reporterId, reporter.getFullName(), reason, Message.Types.REPORT);
+        report.setGroupID(groupId);
+        report.setAccountID(reporteeId);
+        report.setChatMessageID(messageId);
+    }
+
+    @Override
+    public Message reportUserProfile(String reporterId, String reporteeId, String reason){
+        return null;
+    }
+
+    @Override
+    public List<Message> getReportContext(String modId, String groupId, String messageId, List<Message> currentContext) {
+        return null;
+    }
+
+    @Override
+    public List<Message> getMessageHistory(String modId, String userId) {
+        return null;
+    }
+
 }
