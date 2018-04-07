@@ -345,6 +345,9 @@ public class SprintThreeServicesTest {
 
         groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID());
         accountService.addToModerators(kevin.getAccountID());
+        for(String id : kevin.getMessageIDs().keySet()) {
+            accountService.deleteMessage(kevin.getUsername(), id);
+        }
 
         Message first = accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(),
                 "So are you ready to work?", Types.CHAT_MESSAGE);
@@ -366,16 +369,20 @@ public class SprintThreeServicesTest {
         Message report = accountService.reportGroupMember(cliquer.getGroupID(), jordan.getAccountID(), second.getMessageID(), "Foul Language");
 
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
-        assertEquals(2, kevin.getMessageIDs().size());
-        assertEquals(Types.MOD_REPORT, (int)kevin.getMessageIDs().get(report.getMessageID()));
+        assertEquals(1, kevin.getMessageIDs().size());
+        String messageID = null;
+        for(String id : kevin.getMessageIDs().keySet()){
+            assertEquals(Types.MOD_REPORT, (int)kevin.getMessageIDs().get(id));
+            messageID = id;
+        }
 
-        List<Message> history = accountService.getReportContext(kevin.getAccountID(), report.getMessageID(), null);
+        List<Message> history = accountService.getReportContext(kevin.getAccountID(), messageID, null);
         assertEquals(7, history.size());
         assertEquals(first.getMessageID(), history.get(0).getMessageID());
         assertEquals(seventh.getMessageID(), history.get(6).getMessageID());
         accountService.flagUser(kevin.getAccountID(), shawn.getAccountID());
 
-        history = accountService.getReportContext(kevin.getAccountID(), report.getMessageID(), history);
+        history = accountService.getReportContext(kevin.getAccountID(), messageID, history);
         assertEquals(8, history.size());
         assertEquals(eighth.getMessageID(), history.get(7).getMessageID());
         accountService.flagUser(kevin.getAccountID(), jordan.getAccountID());
