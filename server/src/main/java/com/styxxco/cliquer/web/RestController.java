@@ -60,7 +60,11 @@ public class RestController {
         if (user == null) {
             return new ResponseEntity<>("Could not fetch profile with the query", HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        if (user.isAccountEnabled()) {
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(user.getFullName() + "'s account is disabled until ", HttpStatus.OK);
+        }
     }
 
     @RequestMapping(value = "/api/deleteProfile", method = RequestMethod.POST)
@@ -248,15 +252,27 @@ public class RestController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    // TODO: may need to take in messageId instead
+    @RequestMapping(value = "/api/reportUser", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> reportUser(@RequestParam(value = "userId") String userId,
+                                                      @RequestParam(value = "reporteeId") String reporteeId,
+                                                      @RequestParam(value = "reason") String reason) {
+        accountService.reportUser(userId, reporteeId, reason);
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/mod/flagUser", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> flagUser(@RequestParam(value = "modId") String modId,
-                                                       @RequestParam(value = "userId") String userId) {
-        int flagCount = accountService.flagUser(modId, userId);
-        if (flagCount <= 0) {
-            return new ResponseEntity<>("Could not flag user", HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(flagCount, HttpStatus.OK);
+                                                    @RequestParam(value = "messageId") String messageId) {
+        accountService.flagUser(modId, messageId);
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/mod/suspendUser", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> suspendUser(@RequestParam(value = "modId") String modId,
+                                                       @RequestParam(value = "messageId") String messageId,
+                                                       @RequestParam(value = "time") long time) {
+        accountService.suspendUser(modId, messageId, time);
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/createEvent", method = RequestMethod.POST)

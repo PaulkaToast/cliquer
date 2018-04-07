@@ -41,6 +41,8 @@ public class Account extends Searchable implements UserDetails {
 	private boolean deniedMod;
 	private boolean isNewUser;
 	@JsonIgnore
+	private boolean canSuspend;
+	@JsonIgnore
 	private int loggedInTime;			/* Minutes that user has spent logged in */
 	@JsonIgnore
 	private LocalTime intervalTimer;
@@ -60,6 +62,10 @@ public class Account extends Searchable implements UserDetails {
 	private boolean accountEnabled;
 	@JsonIgnore
 	private boolean credentialsExpired;
+	@JsonIgnore
+	public long suspendTime; 			/* Amount of time in minutes the user is suspended */
+	@JsonIgnore
+	public LocalTime startSuspendTime;		/* Local Time the user started the suspend */
 
 	public static final int MAX_REP = 100;
 	public static final int MAX_SKILL = 10;
@@ -90,6 +96,8 @@ public class Account extends Searchable implements UserDetails {
 	private Map<String, Integer> numRatings;		/* Mapping for number of times each skill has been rated */
 	@JsonIgnore
 	private Map<String, Integer> totalRating;		/* Mapping for cumulative value of ratings for each skill */
+	@JsonIgnore
+	private Map<String, Boolean> flaggedUser; 		/* Mapping for whether they flagged a certain user */
 
     public Account() {
     	this.accountID = new ObjectId().toString();
@@ -125,6 +133,8 @@ public class Account extends Searchable implements UserDetails {
 		this.totalRating = new TreeMap<>();
 		this.deniedMod = false;
 		this.logs = new ArrayList<>();
+		this.flaggedUser = new TreeMap<>();
+		this.canSuspend = false;
 	}
 
 	public String getFullName()
@@ -288,22 +298,55 @@ public class Account extends Searchable implements UserDetails {
 	}
 
 	public void deniedMod() {
-    	deniedMod = true;
+		this.deniedMod = true;
 	}
 
 	public void addFlag() {
-    	flags++;
+		this.flags++;
+		if (this.flags > 5) {
+			this.canSuspend = true;
+		}
 	}
 
 	public void removeFlag() {
-    	flags--;
+		this.flags--;
 	}
 
-	public void suspend() {
-    	accountEnabled = false;
+	/* Returns time still needed served and unsuspends if time is less than 0 */
+	public long tryUnsuspend() {
+    	long served = this.startSuspendTime.until(LocalTime.now(), MINUTES);
+    	long timeLeft = suspendTime - served;
+    	if (timeLeft < 0) {
+    		suspendTime = 0;
+    		startSuspendTime = null;
+    		accountEnabled = true;
+    		this.flags = 0;
+		}
+		return timeLeft;
+	}
+
+	public void suspend(long minutes) {
+		this.accountEnabled = false;
+		this.startSuspendTime = LocalTime.now();
+		this.suspendTime = minutes;
 	}
 
 	public void log(String log) {
-    	logs.add(log);
+		this.logs.add(log);
+	}
+
+	public Boolean haveFlagged(String userId) {
+    	if (!this.flaggedUser.containsKey(userId)) {
+			this.flaggedUser.put(userId, false);
+		}
+		return this.flaggedUser.get(userId);
+	}
+
+	public void toggleFlag(String userId) {
+    	this.flaggedUser.replace(userId, !this.flaggedUser.get(userId));
+	}
+
+	public boolean canSuspend() {
+    	return canSuspend;
 	}
 }

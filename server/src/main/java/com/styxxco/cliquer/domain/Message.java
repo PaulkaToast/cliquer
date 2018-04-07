@@ -34,6 +34,8 @@ public class Message
 	@Setter
 	@JsonIgnore
 	private String parentID; /* ID if multiple messages belong to a particular action */
+	@Setter
+	private String topicID; /* ID if message is about another user */
 	@JsonIgnore
 	private int counter; /* counter for votes */
 
@@ -51,6 +53,7 @@ public class Message
 		public static final int MOD_ACCEPTED = 10;
 		public static final int MOD_INVITE = 11;
 		public static final int SEARCH_INVITE = 12;
+		public static final int MOD_REPORT = 13;
 	}
 
 	public Message(String senderID, String content, int type)
@@ -64,6 +67,7 @@ public class Message
 		this.groupID = null;
 		this.read = false;
 		this.parentID = null;
+		this.topicID = null;
 	}
 
 	public void increment() {
