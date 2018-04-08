@@ -52,6 +52,7 @@ class Groups extends Component {
       this.props.clearSkills()
       this.setState({ modal: false })
     } else {
+      this.setState({ settingsPopOver: false})
       this.setState({ modal: true })
     }
   }
@@ -234,10 +235,12 @@ class Groups extends Component {
           <Popover placement="left" isOpen={this.state.settingsPopOver} target="PopoverS" toggle={this.toggleS}>
               <PopoverHeader>Settings</PopoverHeader>
               <PopoverBody>
+              <ButtonGroup vertical>
                 {this.isOwner(this.props.currentGroup) && <Button type="button" size="lg" onClick={() => this.props.allowRating(this.props.currentGroup.groupID)}>Allow Rating</Button>}
                 {this.isOwner(this.props.currentGroup) && <Button type="button" size="lg" onClick={this.toggle}>Update Settings</Button>}
                 <Button type="button" size="lg" onClick={this.leaveGroup}>Leave Group</Button>
                 {this.isOwner(this.props.currentGroup) && <Button type="button" size="lg" onClick={this.disbandGroup}>Disband Group</Button>}
+              </ButtonGroup>
               </PopoverBody>
           </Popover>
         </div>
