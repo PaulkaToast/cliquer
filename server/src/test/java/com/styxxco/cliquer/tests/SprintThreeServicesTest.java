@@ -384,7 +384,7 @@ public class SprintThreeServicesTest {
         history = accountService.getReportContext(kevin.getAccountID(), messageID, history);
         assertEquals(9, history.size());
         assertEquals(eighth.getMessageID(), history.get(7).getMessageID());
-        accountService.flagUser(kevin.getAccountID(), shawn.getAccountID());
+        accountService.flagUser(kevin.getAccountID(), messageID);
 
         jordan = accountRepository.findByAccountID(jordan.getAccountID());
         shawn = accountRepository.findByAccountID(shawn.getAccountID());
