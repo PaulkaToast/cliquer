@@ -1873,8 +1873,8 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Group group = groupRepository.findByGroupID(report.getGroupID());
-        String startId = messageId;
-        String endId = messageId;
+        String startId = report.getChatMessageID();
+        String endId = report.getChatMessageID();
         if(currentContext != null) {
             startId = currentContext.get(0).getMessageID();
             endId = currentContext.get(currentContext.size()-1).getMessageID();
