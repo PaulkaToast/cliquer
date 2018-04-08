@@ -96,7 +96,7 @@ public interface AccountService extends UserDetailsService {
     List<Message> getMessageHistory(String modId, String userId);
     void checkModStatus (String userId);
     void addToModerators (String userId);
-    void flagUser(String modId, String userId);
+    void flagUser(String modId, String messageId);
     void suspendUser(String modId, String messageId, long minutes);
     void reportUser(String userId, String reporteeId, String reason);
 

@@ -363,9 +363,9 @@ public class SprintThreeServicesTest {
         Message sixth = accountService.sendMessage(shawn.getAccountID(), cliquer.getGroupID(),
                 "Neither is your face.", Types.CHAT_MESSAGE);
         Message seventh = accountService.sendMessage(shawn.getAccountID(), cliquer.getGroupID(),
-                "I'm leaving this shit hole", Types.CHAT_MESSAGE);
+                "I'm leaving this shit hole.", Types.CHAT_MESSAGE);
         Message eighth = accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(),
-                "Well fine, leave you piece of shit.", Types.CHAT_MESSAGE);
+                "Well fine, leave.", Types.CHAT_MESSAGE);
         accountService.leaveGroup(shawn.getUsername(), cliquer.getGroupID());
         Message report = accountService.reportGroupMember(cliquer.getGroupID(), jordan.getAccountID(), second.getMessageID(), "Foul Language");
 
@@ -381,16 +381,14 @@ public class SprintThreeServicesTest {
         assertEquals(7, history.size());
         assertEquals(first.getMessageID(), history.get(0).getMessageID());
         assertEquals(seventh.getMessageID(), history.get(6).getMessageID());
-        accountService.flagUser(kevin.getAccountID(), shawn.getAccountID());
-
         history = accountService.getReportContext(kevin.getAccountID(), messageID, history);
         assertEquals(9, history.size());
         assertEquals(eighth.getMessageID(), history.get(7).getMessageID());
-        accountService.flagUser(kevin.getAccountID(), jordan.getAccountID());
+        accountService.flagUser(kevin.getAccountID(), shawn.getAccountID());
 
         jordan = accountRepository.findByAccountID(jordan.getAccountID());
         shawn = accountRepository.findByAccountID(shawn.getAccountID());
-        assertEquals(1, jordan.getFlags());
+        assertEquals(0, jordan.getFlags());
         assertEquals(1, shawn.getFlags());
     }
 
