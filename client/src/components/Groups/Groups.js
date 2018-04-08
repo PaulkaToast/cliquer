@@ -7,6 +7,7 @@ import { Button, ButtonGroup, Col, Row, Container, Navbar,
         Modal, ModalHeader, ModalBody, ModalFooter,
         Form, FormGroup, Label, Input,
         ListGroupItem  } from 'reactstrap'
+import Toggle from 'react-toggle'
 
 import '../../css/Groups.css'
 import { history } from '../../redux/store'
@@ -190,13 +191,13 @@ class Groups extends Component {
   render() {
     const name = this.props.currentGroup ? this.props.currentGroup.groupName : null
     const purpose = this.props.currentGroup ? this.props.currentGroup.groupPurpose : null
-    const isPublic = this.props.currentGroup ? this.props.currentGroup.isPublic : null
+    const isPublic = this.props.currentGroup ? this.props.currentGroup.public : null
     const minRep = this.props.currentGroup ? this.props.currentGroup.reputationReq : null
     const reputation = this.props.profile ? this.props.profile.reputation : null
     const skills = this.props.currentGroup ? this.props.currentGroup.skillsReq : null
     const proximity = this.props.currentGroup ? this.props.currentGroup.proximityReq : null
     const rateForm = this.props.rateForm
-
+    
     return (
         <Container fluid className="Groups h-100">
           <Navbar className="group-nav" color="primary" dark expand="md">
@@ -268,8 +269,12 @@ class Groups extends Component {
                 <Input type="number" name="proximity" id="proximity" min={0} defaultValue={proximity} />
               </FormGroup>     
               <FormGroup>
+                {/*<Label check>
+                  <Input className="public-check-box" type="checkbox" name="isPublic" defaultValue={isPublic}/>{' '}Public
+                </Label>*/}
                 <Label check>
-                  <Input type="checkbox" name="isPublic" defaultValue={isPublic}/>{' '}Public
+                  <Toggle defaultChecked={isPublic} name="isPublic" />
+                  <span> Make Group Public </span>
                 </Label>
               </FormGroup>
             </Form>
