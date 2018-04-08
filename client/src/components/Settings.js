@@ -3,6 +3,7 @@ import { Container, Row, Col, Button, Modal, ModalHeader, ModalBody,
          ModalFooter, Input, Label, FormGroup,
          Form } from 'reactstrap'
 import { connect } from 'react-redux'
+import Toggle from 'react-toggle'
 
 import '../css/Settings.css'
 import { auth, firebase, credential } from '../firebase'
@@ -101,6 +102,13 @@ class Settings extends Component {
     const reputation = this.props.profile ? this.props.profile.reputation : 0
     const minRep = this.props.profile ? this.props.profile.reputationReq : 0
     const proximity = this.props.profile ? this.props.profile.proximityReq : 0
+    const optOut = this.props.profile ? this.props.profile.optedOut : false
+    const isPublic = this.props.profile ? this.props.profile.public : false
+    if(!this.props.profile){
+      return (
+        <div className="loader">Loading...</div>
+      )
+    }
     return (
       <Container>
         <h2 className="account-settings-label">Account Settings</h2>
@@ -111,10 +119,14 @@ class Settings extends Component {
       <div className="search-settings-section" md={{ size: 4, offset: 4}}>
       <Form onSubmit={this.handleSubmit}>
         <FormGroup className="search-settings">
-          <Input type="checkbox" name="optOut" id="optOut"/>{' Opt out of search results'}
+          {/*<Input type="checkbox" name="optOut" id="optOut"/>{' Opt out of search results'}*/}
+          <Toggle defaultChecked={optOut} name="optOut" />
+          <span> Opt out of search results </span>
         </FormGroup>
         <FormGroup>
-          <Input type="checkbox" name="isPublic" id="isPublic"/>{' Make your profile public '}
+          {/*<Input type="checkbox" name="isPublic" id="isPublic"/>{' Make your profile public '}*/}
+          <Toggle defaultChecked={isPublic} name="isPublic" />
+          <span> Make you profile public</span>
         </FormGroup>
         <FormGroup>
           <Label for="reputation">Minimum Reputation</Label>
