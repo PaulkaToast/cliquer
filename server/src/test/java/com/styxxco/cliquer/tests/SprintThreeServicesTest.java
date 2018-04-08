@@ -345,9 +345,10 @@ public class SprintThreeServicesTest {
 
         groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID());
         accountService.addToModerators(kevin.getAccountID());
-        for(String id : kevin.getMessageIDs().keySet()) {
-            accountService.deleteMessage(kevin.getUsername(), id);
-        }
+
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        kevin.setMessageIDs(new TreeMap<>());
+        accountRepository.save(kevin);
 
         Message first = accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(),
                 "So are you ready to work?", Types.CHAT_MESSAGE);
