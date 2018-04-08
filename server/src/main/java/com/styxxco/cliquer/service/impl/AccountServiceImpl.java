@@ -1880,7 +1880,7 @@ public class AccountServiceImpl implements AccountService {
             endId = currentContext.get(currentContext.size()-1).getMessageID();
         }
         int start = Math.max(group.getChatMessageIDs().indexOf(startId)-5, 0);
-        int end = Math.min(group.getChatMessageIDs().indexOf(endId)+5, group.getChatMessageIDs().size());
+        int end = Math.min(group.getChatMessageIDs().indexOf(endId)+5, group.getChatMessageIDs().size()-1);
         List<Message> context = new ArrayList<>();
         for(int i = start; i <= end; i++) {
             context.add(messageRepository.findByMessageID(group.getChatMessageIDs().get(i)));
