@@ -919,7 +919,9 @@ public class AccountServiceImpl implements AccountService {
         for (Account mod : mods) {
             Message copy = new Message(message.getSenderID(), message.getSenderName(), message.getContent(), message.getType());
             copy.setParentID(message.getParentID());
+            copy.setGroupID(message.getGroupID());
             copy.setTopicID(message.getTopicID());
+            copy.setChatMessageID(message.getChatMessageID());
             mod.addMessage(copy);
             messageRepository.save(copy);
             accountRepository.save(mod);
