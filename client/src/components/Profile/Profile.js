@@ -75,6 +75,11 @@ class Profile extends Component {
     return accountID === this.props.accountID || !this.props.accountID
   } 
 
+  inviteAndToggle = (gid, ownerID) => {
+    this.props.inviteToGroup(gid, ownerID)
+    this.toggleM()
+  }
+
   renderGroupList = () => {
     const groups = this.props.groups
     const ownerID = this.props.match.params.ownerID
@@ -84,7 +89,8 @@ class Profile extends Component {
         {groups && Object.keys(groups).length > 0
         && Object.keys(groups).map((gid, i) => {
           return (<ListGroupItem>
-            {groups[gid].groupName} <Button type="button" size="lg" onClick={() => this.props.inviteToGroup(gid, ownerID)}>Invite</Button>
+            {groups[gid].groupName} <Button className="invite-to-group-button" type="button" size="lg" 
+            onClick={() => this.inviteAndToggle(gid, ownerID)}>Invite</Button>
           </ListGroupItem>)
         })}
       </ListGroup>
