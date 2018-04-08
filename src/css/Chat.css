@@ -1,0 +1,40 @@
+.Chat{
+    padding-right: 0px;
+    padding-left: 0px;
+    background-image: url("../img/cliquerLogoLogo.png");
+    background-repeat: no-repeat;
+    background-position: right bottom;
+}
+.message-container{
+    height: 80vh;
+    overflow-y: scroll;
+}
+
+.send-message-container{
+    margin-top: 10px;
+}
+
+.sender-message-right{
+    text-align: right;
+}
+.sender-message-right-badge{
+    background-color: #dbdbdb;
+}
+
+.sender-message-right-alert{
+    color: black;
+    background-color: #dbdbdb;
+    border-color: transparent;
+    display:inline-block;
+}
+
+.sender-message-left-badge{
+    background-color: #A7C5BD;
+}
+
+.sender-message-left-alert{
+    color: black;
+    background-color: #A7C5BD;
+    border-color: transparent;
+    display:inline-block;
+}

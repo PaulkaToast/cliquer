@@ -1,0 +1,64 @@
+.SearchResults {
+    height: 100vh; /*should be changed to calc(100vh - height of nav bar) later */
+}
+
+.SearchResults .list-container {
+    display: flex;
+    align-items: space-evenly;
+}
+
+.SearchResults ul {
+    padding-left: 0;
+    width: 42.5%;
+    height: 5rem;
+    margin-left: 5%;
+}
+
+.SearchResults ul .search-result {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100px;
+    text-decoration: none;
+    border: 1px solid #A3A3A3;
+    padding: 0.5rem;
+    margin-top: 1rem; 
+    cursor: pointer;
+}
+
+.SearchResults ul .search-result .left-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    flex-grow: 1;
+}
+
+.SearchResults ul .search-result .search-icon {
+    text-align: center;
+}
+
+.SearchResults ul .search-result .search-name {
+    font-size: 1.5rem;
+}
+
+.SearchResults ul .search-result .search-reputation {
+    font-size: 1.5rem;
+    color: #A3A3A3;
+}
+
+.SearchResults ul .search-result .right-content {
+    margin-left: 1rem;
+    height: 100%;
+    flex-grow: 2;
+}
+
+.SearchResults ul .search-result .right-top-content {
+    display: flex;
+    justify-content: space-between;
+}
+
+.SearchResults ul .search-result .friend-request {
+    margin-left: 1rem;
+    
+}
