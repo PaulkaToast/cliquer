@@ -423,7 +423,7 @@ public class SprintThreeServicesTest {
         }
 
         Message message = messageRepository.findByMessageID(messageID);
-        assertEquals("Spamming friend invite.", message.getContent());
+        assertEquals("Spamming friend invites.", message.getContent());
         List<Message> history = accountService.getMessageHistory(kevin.getAccountID(), message.getTopicID());
         assertEquals(5, history.size());
         assertEquals(Types.FRIEND_INVITE, history.get(0).getType());
