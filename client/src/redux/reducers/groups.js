@@ -186,6 +186,18 @@ function groups(state = {}, action) {
             return Object.assign({}, state, {
                 postRateFormIsLoading: action.isLoading,
             })
+        case 'INVITE_ALL_HAS_ERROR':
+            return Object.assign({}, state, {
+                inviteAllHasError: action.hasError,
+            })
+        case 'INVITE_ALL_DATA_SUCCESS':
+            return Object.assign({}, state, {
+                inviteAllData: action.data,
+            })
+        case 'INVITE_ALL_IS_LOADING':
+            return Object.assign({}, state, {
+                inviteAllIsLoading: action.isLoading,
+            })
         default:
             return state
     }

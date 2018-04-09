@@ -13,12 +13,10 @@ import '../../css/Groups.css'
 import { history } from '../../redux/store'
 import Group from './Group'
 import Chat from './Chat'
-import GroupMembers from './GroupMembers'
-import GroupSettings from './GroupSettings'
 import SkillsForm from '../Profile/SkillsForm'
 import { getGroups, setCurrentGroup,
          leaveGroup, deleteGroup, clearNewSkills, setGroupSettings, 
-         getProfile, kick, getRateForm, postRateForm } from '../../redux/actions'
+         getProfile, kick, getRateForm, postRateForm, inviteAll } from '../../redux/actions'
 import url from '../../server'
 
 class Groups extends Component {
@@ -141,6 +139,10 @@ class Groups extends Component {
     history.push(`/groups/${groupID}`)
   }
 
+  inviteAll = () => {
+    this.props.inviteAll(`${url}/api/inviteAll?userId=${this.props.accountID}&groupId=${this.props.currentGroup.groupID}`, { 'X-Authorization-Firebase': this.props.token})
+  }
+
   disbandGroup = () => {
     this.props.deleteGroup(`${url}/api/deleteGroup?username=${this.props.user.uid}&groupId=${this.props.currentGroup.groupID}`, { 'X-Authorization-Firebase': this.props.token}, null, this.props.currentGroup.groupID)
     this.clearGroup()
@@ -161,7 +163,6 @@ class Groups extends Component {
                 <ListGroupItem onClick={(ev) => this.props.goToProfile(ev, memberID, document.querySelector('.kick-button'), document.querySelector('.rate-button'))} key={memberID} className="d-flex justify-content-between align-items-center" action> 
                   {this.props.currentGroup.groupMemberIDs[memberID]}
                   {this.isOwner(this.props.currentGroup) && <Button type="button" className="kick-button" size="lg" onClick={() => this.kickUser(this.props.currentGroup, memberID)}>Kick</Button>}
-                  {/*TODO: implement haveRated, check if user has already rated other user*/}
                   {this.canRate(this.props.currentGroup.groupID) && <Button type="button" className="rate-button" size="lg" onClick={() => this.getRateForm(this.props.currentGroup, memberID)}>Rate</Button>}
                 </ListGroupItem>
               )
@@ -237,10 +238,11 @@ class Groups extends Component {
               <PopoverHeader>Settings</PopoverHeader>
               <PopoverBody>
               <ButtonGroup vertical>
-                {this.isOwner(this.props.currentGroup) && <Button type="button" size="lg" onClick={() => this.props.allowRating(this.props.currentGroup.groupID)}>Allow Rating</Button>}
-                {this.isOwner(this.props.currentGroup) && <Button type="button" size="lg" onClick={this.toggle}>Update Settings</Button>}
-                <Button type="button" size="lg" onClick={this.leaveGroup}>Leave Group</Button>
-                {this.isOwner(this.props.currentGroup) && <Button type="button" size="lg" onClick={this.disbandGroup}>Disband Group</Button>}
+                {this.isOwner(this.props.currentGroup) && <Button color="primary" type="button" size="lg" onClick={() => this.props.allowRating(this.props.currentGroup.groupID)}>Allow Rating</Button>}
+                {this.isOwner(this.props.currentGroup) && <Button color="primary" type="button" size="lg" onClick={this.toggle}>Update Settings</Button>}
+                {this.isOwner(this.props.currentGroup) && <Button color="primary" type="button" size="lg" onClick={this.inviteAll}>Invite Eligible Members</Button>}
+                <Button color="danger" type="button" size="lg" onClick={this.leaveGroup}>Leave Group</Button>
+                {this.isOwner(this.props.currentGroup) && <Button color="danger" type="button" size="lg" onClick={this.disbandGroup}>Disband Group</Button>}
               </ButtonGroup>
               </PopoverBody>
           </Popover>
@@ -346,6 +348,7 @@ const mapDispatchToProps = (dispatch) => {
     kick: (url, headers, extra) => dispatch(kick(url, headers, null, extra)),
     getRateForm: (url, headers) => dispatch(getRateForm(url, headers)),
     postRateForm: (url, headers, body) => dispatch(postRateForm(url, headers, body)),
+    inviteAll: (url, headers) => dispatch(inviteAll(url, headers)),
   }
 }
 

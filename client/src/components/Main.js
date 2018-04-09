@@ -155,11 +155,11 @@ class Main extends Component {
   }
 
   allowRating = (groupID) => {
-   this.clientRef.sendMessage(`/app/${this.props.accountID}/${groupID}/rate`) 
+    this.clientRef.sendMessage(`/app/${this.props.accountID}/${groupID}/rate`) 
   }
 
   onWebsocketConnect = () => {
-    this.clientRef.sendMessage(`/app/${this.props.accountID}/allMessages`, "");
+    this.clientRef.sendMessage(`/app/${this.props.accountID}/allMessages`)
   }
 
   getWebsocket = () => {
@@ -192,7 +192,13 @@ class Main extends Component {
                 inviteToGroup={this.inviteToGroup} 
               />}
             />
-            <Route path="/groups" render={(navProps) => <Groups {...navProps} {...this.props} allowRating={this.allowRating} />}/>
+            <Route path="/groups" render={(navProps) => 
+              <Groups 
+                {...navProps} 
+                {...this.props} 
+                allowRating={this.allowRating} 
+              />}
+            />
             <Route path="/public" render={(navProps) => <PublicGroups {...navProps} accountID={this.props.accountID}/>}/>
             <Route path="/settings" render={(navProps) => <Settings {...navProps} />}/>
             <Route path="/search/:category/:query" render={(navProps) => <SearchResults {...navProps} sendFriendRequest={this.sendFriendRequest} goToProfile={this.props.goToProfile} requestToJoin={this.requestToJoin}/>}/>

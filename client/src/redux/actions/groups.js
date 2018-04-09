@@ -332,3 +332,28 @@ export const postRateForm = genericDispatch(
     postRateFormHasError, postRateFormIsLoading, postRateFormDataSuccess, 'POST'
 )
 
+export function inviteAllHasError(hasError) {
+    return {
+        type: 'INVITE_ALL_ERROR',
+        hasError
+    }  
+}
+
+export function inviteAllIsLoading(isLoading) {
+    return {
+        type: 'INVITE_ALL_IS_LOADING',
+        isLoading
+    }
+}
+
+export function inviteAllDataSuccess(data) {
+    return {
+        type: 'INVITE_ALL_DATA_SUCCESS',
+        data
+    }
+}
+
+export const inviteAll = genericDispatch(
+    inviteAllHasError, inviteAllIsLoading, inviteAllDataSuccess, 'GET'
+)
+
