@@ -458,7 +458,7 @@ public class SprintThreeServicesTest {
         assertEquals(true, log.get(log.size()-4).contains("Attempted to use moderator tool"));
         assertEquals(true, log.get(log.size()-3).contains("Attempted to use moderator tool"));
         assertEquals(true, log.get(log.size()-2).contains("Attempted to use moderator tool"));
-        assertEquals("Reported by user Shawn Montgomery", log.get(log.size()-1));
+        assertEquals(true, log.get(log.size()-1).contains("Reported by user Shawn Montgomery"));
         accountService.flagUser(kevin.getAccountID(), messageID);
         kevin.setMessageIDs(new TreeMap<>());
         accountRepository.save(kevin);
@@ -472,7 +472,7 @@ public class SprintThreeServicesTest {
         assertEquals(false, log.get(log.size()-4).contains("Attempted to use moderator tool"));
         assertEquals(true, log.get(log.size()-3).contains("Attempted to use moderator tool"));
         assertEquals(true, log.get(log.size()-2).contains("Attempted to use moderator tool"));
-        assertEquals("Reported by user Shawn Montgomery", log.get(log.size()-1));
+        assertEquals(true, log.get(log.size()-1).contains("Reported by user Shawn Montgomery"));
     }
 
     /* Populates valid skills into database, in case they were deleted */

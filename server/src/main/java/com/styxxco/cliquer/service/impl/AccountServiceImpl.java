@@ -1838,6 +1838,9 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Account account = accountRepository.findByAccountID(userId);
+        if(startDate == null && endDate == null) {
+            return account.getLogs();
+        }
         if(startDate == null){
             startDate = "2000-01-01";
         }
