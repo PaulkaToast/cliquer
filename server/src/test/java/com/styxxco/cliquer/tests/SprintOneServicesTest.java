@@ -40,6 +40,8 @@ public class SprintOneServicesTest {
 	public GroupService groupService;
 	@Autowired
 	public AccountService accountService;
+	@Autowired
+	public RoleRepository roleRepository;
 
 	/* Test basic storage of data in MongoDB */
 	@Test
