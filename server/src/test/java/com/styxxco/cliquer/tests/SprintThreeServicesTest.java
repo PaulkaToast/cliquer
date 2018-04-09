@@ -453,7 +453,7 @@ public class SprintThreeServicesTest {
             messageID = id;
         }
         message = messageRepository.findByMessageID(messageID);
-        assertEquals("Spamming friend invite.", message.getContent());
+        assertEquals("Tried getting access to my message history.", message.getContent());
         List<String> log = accountService.getActivityLog(kevin.getAccountID(), message.getTopicID(), null, null);
         assertEquals(true, log.get(log.size()-4).contains("Attempted to use moderator tool"));
         assertEquals(true, log.get(log.size()-3).contains("Attempted to use moderator tool"));
