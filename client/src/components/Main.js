@@ -40,6 +40,7 @@ class Main extends Component {
     } else if(data) {
       switch (data.type) {
         case 0:
+        case 12:
           // Group invite
           this._notificationSystem.addNotification({
             title: 'Group Invite',
@@ -115,6 +116,90 @@ class Main extends Component {
             level: 'success',
           })
           break
+        case 6:
+          //Accepted join request
+          this._notificationSystem.addNotification({
+            title: 'Accepted Join Request',
+            message: data.content,
+            level: 'success',
+            action: {
+              label: 'OK',
+              callback: () => this.acceptNotification(data.messageID)
+            }
+          })
+        break
+        case 7:
+          //Accepted friend request
+          this._notificationSystem.addNotification({
+            title: 'Accepted Friend Request',
+            message: data.content,
+            level: 'success',
+            action: {
+              label: 'OK',
+              callback: () => this.acceptNotification(data.messageID)
+            }
+          })
+        case 8:
+          // Event invite
+          this._notificationSystem.addNotification({
+            title: 'Event Invite',
+            message: data.content,
+            level: 'success',
+            autoDismiss: 8,
+            children: (
+              <ButtonGroup>
+                <Button color="success" onClick={() => this.acceptNotification(data.messageID)}>Join</Button>
+                <Button color="danger" onClick={() => this.rejectNotification(data.messageID)}>Ignore</Button>
+              </ButtonGroup>
+            )
+          })
+        case 9:
+          // Mod request
+          // TODO: Show mod application
+          this._notificationSystem.addNotification({
+            title: 'Mod Request',
+            message: data.content,
+            level: 'success',
+            action: {
+              label: 'OK',
+              callback: () => this.acceptNotification(data.messageID)
+            }
+          })
+        case 10:
+          // Mod request accepted
+          this._notificationSystem.addNotification({
+            title: 'Mod Application Accepted',
+            message: data.content,
+            level: 'success',
+            action: {
+              label: 'OK',
+              callback: () => this.acceptNotification(data.messageID)
+            }
+          })
+        case 11:
+          // Mod invite
+          // TODO: Show mod application
+          this._notificationSystem.addNotification({
+            title: 'Submit a Mod Application',
+            message: data.content,
+            level: 'success',
+            action: {
+              label: 'OK',
+              callback: () => this.acceptNotification(data.messageID)
+            }
+          })
+        case 13:
+          //Mod report
+          //Todo all mod to respond
+          this._notificationSystem.addNotification({
+            title: 'Report',
+            message: data.content,
+            level: 'error',
+            action: {
+              label: 'OK',
+              callback: () => this.acceptNotification(data.messageID)
+            }
+          })
         default:
           // Basic Notification
           // Add basic messages here if necessary
