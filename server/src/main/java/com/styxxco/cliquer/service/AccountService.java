@@ -99,6 +99,7 @@ public interface AccountService extends UserDetailsService {
     void flagUser(String modId, String messageId);
     void suspendUser(String modId, String messageId, long minutes);
     void reportUser(String userId, String reporteeId, String reason);
+    List<String> getActivityLog(String modId, String userId, String startDate, String endDate);
 
     /* Role services */
     List<Role> getAnonRoles();

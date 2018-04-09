@@ -1817,6 +1817,42 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public List<String> getActivityLog(String modId, String userId, String startDate, String endDate)
+    {
+        if (!accountRepository.existsByAccountID(modId)) {
+            log.info("Moderator " + modId + " not found");
+            return null;
+        }
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account moderator = accountRepository.findByAccountID(modId);
+        if(!moderator.isModerator()) {
+            log.info("Account " + modId + " is not a moderator");
+            moderator.log("Attempted to use moderator tool");
+            return null;
+        }
+        Account account = accountRepository.findByAccountID(userId);
+        if(startDate == null){
+            startDate = "2000-01-01";
+        }
+        if(endDate == null){
+            endDate = LocalDate.now().toString();
+        }
+        LocalDate start = LocalDate.parse(startDate);
+        LocalDate end = LocalDate.parse(endDate);
+        List<String> log = new ArrayList<>();
+        for(String info : account.getLogs()) {
+            LocalDate date = LocalDate.parse(info.substring(info.length()-10));
+            if(!date.isBefore(start) && !date.isAfter(end)) {
+                log.add(info);
+            }
+        }
+        return log;
+    }
+
+    @Override
     public Message reportGroupMember(String groupId, String reporterId, String messageId, String reason) {
         if (!groupRepository.existsByGroupID(groupId)) {
             log.info("Group " + groupId + " not found");

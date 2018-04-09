@@ -367,7 +367,7 @@ public class SprintThreeServicesTest {
         Message eighth = accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(),
                 "Well fine, leave.", Types.CHAT_MESSAGE);
         accountService.leaveGroup(shawn.getUsername(), cliquer.getGroupID());
-        Message report = accountService.reportGroupMember(cliquer.getGroupID(), jordan.getAccountID(), second.getMessageID(), "Foul Language");
+        accountService.reportGroupMember(cliquer.getGroupID(), jordan.getAccountID(), second.getMessageID(), "Foul Language");
 
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
         assertEquals(1, kevin.getMessageIDs().size());
@@ -390,6 +390,88 @@ public class SprintThreeServicesTest {
         shawn = accountRepository.findByAccountID(shawn.getAccountID());
         assertEquals(0, jordan.getFlags());
         assertEquals(1, shawn.getFlags());
+    }
+
+    /* Back end Unit Test for User Story 38 */
+    @Test
+    public void testModeratorReview() {
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        kevin.setMessageIDs(new TreeMap<>());
+        accountRepository.save(kevin);
+
+        accountService.sendFriendInvite(jordan.getAccountID(), shawn.getAccountID());
+        accountService.sendFriendInvite(jordan.getAccountID(), shawn.getAccountID());
+        accountService.sendFriendInvite(jordan.getAccountID(), shawn.getAccountID());
+        accountService.sendFriendInvite(jordan.getAccountID(), shawn.getAccountID());
+        accountService.sendFriendInvite(jordan.getAccountID(), shawn.getAccountID());
+
+        shawn = accountRepository.findByAccountID(shawn.getAccountID());
+        assertEquals(5, shawn.getMessageIDs().keySet().size());
+        accountService.reportUser(shawn.getAccountID(), jordan.getAccountID(), "Spamming friend invites.");
+
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        assertEquals(1, kevin.getMessageIDs().size());
+        String messageID = null;
+        for(String id : kevin.getMessageIDs().keySet()){
+            assertEquals(Types.MOD_REPORT, (int)kevin.getMessageIDs().get(id));
+            messageID = id;
+        }
+
+        Message message = messageRepository.findByMessageID(messageID);
+        assertEquals("Spamming friend invite.", message.getContent());
+        List<Message> history = accountService.getMessageHistory(kevin.getAccountID(), message.getTopicID());
+        assertEquals(5, history.size());
+        assertEquals(Types.FRIEND_INVITE, history.get(0).getType());
+        accountService.flagUser(kevin.getAccountID(), messageID);
+        kevin.setMessageIDs(new TreeMap<>());
+        accountRepository.save(kevin);
+
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        shawn = accountRepository.findByAccountID(shawn.getAccountID());
+        assertEquals(1, jordan.getFlags());
+        assertEquals(0, shawn.getFlags());
+
+        accountService.getMessageHistory(jordan.getAccountID(), shawn.getAccountID());
+        accountService.getMessageHistory(jordan.getAccountID(), shawn.getAccountID());
+        accountService.getMessageHistory(jordan.getAccountID(), shawn.getAccountID());
+
+        kevin.setMessageIDs(new TreeMap<>());
+        accountRepository.save(kevin);
+
+        accountService.reportUser(shawn.getAccountID(), jordan.getAccountID(), "Tried getting access to my message history.");
+
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        assertEquals(1, kevin.getMessageIDs().size());
+        messageID = null;
+        for(String id : kevin.getMessageIDs().keySet()){
+            assertEquals(Types.MOD_REPORT, (int)kevin.getMessageIDs().get(id));
+            messageID = id;
+        }
+        message = messageRepository.findByMessageID(messageID);
+        assertEquals("Spamming friend invite.", message.getContent());
+        List<String> log = accountService.getActivityLog(kevin.getAccountID(), message.getTopicID(), null, null);
+        assertEquals(true, log.get(log.size()-4).contains("Attempted to use moderator tool"));
+        assertEquals(true, log.get(log.size()-3).contains("Attempted to use moderator tool"));
+        assertEquals(true, log.get(log.size()-2).contains("Attempted to use moderator tool"));
+        assertEquals("Reported by user Shawn Montgomery", log.get(log.size()-1));
+        accountService.flagUser(kevin.getAccountID(), messageID);
+        kevin.setMessageIDs(new TreeMap<>());
+        accountRepository.save(kevin);
+
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        assertEquals(2, jordan.getFlags());
+        jordan.getLogs().set(jordan.getLogs().size()-3, "Attempted to use moderator tool at 06:30 on 2018-04-01");
+        accountRepository.save(jordan);
+
+        log = accountService.getActivityLog(kevin.getAccountID(), message.getTopicID(), "2018-04-07", LocalDate.now().toString());
+        assertEquals(false, log.get(log.size()-4).contains("Attempted to use moderator tool"));
+        assertEquals(true, log.get(log.size()-3).contains("Attempted to use moderator tool"));
+        assertEquals(true, log.get(log.size()-2).contains("Attempted to use moderator tool"));
+        assertEquals("Reported by user Shawn Montgomery", log.get(log.size()-1));
     }
 
     /* Populates valid skills into database, in case they were deleted */
