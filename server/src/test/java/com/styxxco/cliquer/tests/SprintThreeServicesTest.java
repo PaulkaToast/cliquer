@@ -399,6 +399,7 @@ public class SprintThreeServicesTest {
         Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
 
+        accountService.addToModerators(kevin.getAccountID());
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
         kevin.setMessageIDs(new TreeMap<>());
         accountRepository.save(kevin);
