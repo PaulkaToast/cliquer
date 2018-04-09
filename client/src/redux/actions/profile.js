@@ -75,3 +75,9 @@ export const setSettings = genericDispatch(
     setSettingsHasError, setSettingsIsLoading, setSettingsDataSuccess, 'POST'
 )
 
+export function clearProfile() {
+    return {
+        type: 'CLEAR_PROFILE'
+    }
+}
+

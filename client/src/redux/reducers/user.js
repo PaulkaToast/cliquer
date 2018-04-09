@@ -45,6 +45,10 @@ function user(state = {}, action) {
             return Object.assign({}, state, {
                 accountID: action.id
             })
+        case 'CLEAR_OBJECT_ID':
+            return Object.assign({}, state, {
+                accountID: null
+            })
         default:
             return state
     }

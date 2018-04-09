@@ -52,3 +52,9 @@ export function addObjectID(id) {
         id
     }
 }
+
+export function clearObjectID() {
+    return {
+        type: 'CLEAR_OBJECT_ID',
+    }
+}

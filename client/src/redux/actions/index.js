@@ -1,13 +1,14 @@
 export { logIn, logOut, registerHasError, registerIsLoading, registerSuccess, registerUser, setToken } from './auth'
 export { updateUserData, addSkills, addNewSkill, deleteNewSkill, clearNewSkills, setLocation, setNewSkills,
-         addObjectID } from './user'
+         addObjectID, clearObjectID } from './user'
 export { postSkillsHasError, postSkillsIsLoading, postSkillsDataSuccess, postSkills,
          getSkillsHasError, getSkillsIsLoading, getSkillsDataSuccess, getSkills,
          removeSkillHasError, removeSkillIsLoading, removeSkillDataSuccess, removeSkill,
          getSkillsListHasError, getSkillsListIsLoading, getSkillsListDataSuccess, getSkillsList,} from './skills'
 export { getProfileHasError, getProfileIsLoading, getProfileDataSuccess, getProfile,
          deleteProfileHasError, deleteProfileIsLoading, deleteProfileDataSuccess, deleteProfile,
-         setSettingsHasError, setSettingsIsLoading, setSettingsDataSuccess, setSettings } from './profile'
+         setSettingsHasError, setSettingsIsLoading, setSettingsDataSuccess, setSettings,
+         clearProfile } from './profile'
 export { getGroupsHasError, getGroupsIsLoading, getGroupsDataSuccess, getGroups,
          groupInviteHasError, groupInviteIsLoading, groupInviteDataSuccess, groupInvite,
          joinGroupHasError, joinGroupIsLoading, joinGroupDataSuccess, joinGroup,
