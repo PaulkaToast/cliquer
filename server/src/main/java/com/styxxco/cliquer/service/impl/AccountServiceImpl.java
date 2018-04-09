@@ -1034,6 +1034,7 @@ public class AccountServiceImpl implements AccountService {
         }
         if (group != null) {
             user.log("Create group " + group.getGroupName());
+            accountRepository.save(user);
         }
         return group;
     }
@@ -1747,6 +1748,7 @@ public class AccountServiceImpl implements AccountService {
         if (!mod.isModerator()) {
             log.info(mod.getFullName() + " is not a moderator");
             mod.log("Attempted to use moderator tool");
+            accountRepository.save(mod);
             return;
         }
         if (mod.haveFlagged(user.getAccountID())) {
@@ -1785,6 +1787,7 @@ public class AccountServiceImpl implements AccountService {
         if (!mod.isModerator()) {
             log.info(mod.getFullName() + " is not a moderator");
             mod.log("Attempted to use moderator tool");
+            accountRepository.save(mod);
             return;
         }
         if (user.isAccountEnabled()) {
@@ -1831,6 +1834,7 @@ public class AccountServiceImpl implements AccountService {
         if(!moderator.isModerator()) {
             log.info("Account " + modId + " is not a moderator");
             moderator.log("Attempted to use moderator tool");
+            accountRepository.save(moderator);
             return null;
         }
         Account account = accountRepository.findByAccountID(userId);
@@ -1893,6 +1897,7 @@ public class AccountServiceImpl implements AccountService {
         if(!moderator.isModerator()) {
             log.info("Account " + modId + " is not a moderator");
             moderator.log("Attempted to use moderator tool");
+            accountRepository.save(moderator);
             return null;
         }
         if(!messageRepository.existsByMessageID(messageId)) {
@@ -1938,6 +1943,7 @@ public class AccountServiceImpl implements AccountService {
         if(!moderator.isModerator()) {
             log.info("Account " + modId + " is not a moderator");
             moderator.log("Attempted to use moderator tool");
+            accountRepository.save(moderator);
             return null;
         }
         return messageRepository.findBySenderID(userId);
