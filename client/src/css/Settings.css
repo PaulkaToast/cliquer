@@ -46,6 +46,9 @@
     padding-bottom: 30px;
 }
 
+.delete_account_section .delete-button {
+    margin-top: 1rem;
+}
 .search-settings-section {
     margin-right: auto;
     margin-left: auto;

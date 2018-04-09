@@ -3,6 +3,7 @@ import { Container, Row, Col, Button, Modal, ModalHeader, ModalBody,
          ModalFooter, Input, Label, FormGroup,
          Form } from 'reactstrap'
 import { connect } from 'react-redux'
+import { Link } from 'react-router-dom'
 import Toggle from 'react-toggle'
 
 import '../css/Settings.css'
@@ -140,7 +141,7 @@ class Settings extends Component {
             this.setState({ proximity: ev.target.value})
           }} />
         </FormGroup> 
-        <Button color="success" type="submit" onSubmit={this.handleSubmit} block>Submit</Button>
+        <Button color="primary" type="submit" onSubmit={this.handleSubmit} block>Submit</Button>
       </Form>  
       </div>
         <hr/>
@@ -198,7 +199,10 @@ class Settings extends Component {
         </Modal>
         <hr />
       <div className="delete_account_section" md={{ size: 4, offset: 4}}>
-        <Button color="danger" size="lg" onClick={this.toggle} block>Delete Account</Button>
+        <a href="mailto:cliquer307@gmail.com">
+          <Button color="primary" size="lg" block>Send Feedback</Button>
+        </a>
+        <Button color="danger" className="delete-button" size="lg" onClick={this.toggle} block>Delete Account</Button>
       </div>
       </Container>
     )
