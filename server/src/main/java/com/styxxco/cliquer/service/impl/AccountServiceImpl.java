@@ -802,9 +802,7 @@ public class AccountServiceImpl implements AccountService {
         // TODO: update for decided rules
         if (parent.getCounter() > 5) {
             deleteMessageByParent(parent.getParentID());
-            addToModerators(userId);
-            user.log("Accept mod request");
-            accountRepository.save(user);
+            addToModerators(parent.getSenderID());
         }
         return message;
     }
@@ -1180,7 +1178,12 @@ public class AccountServiceImpl implements AccountService {
         group.removeGroupMember(user.getAccountID());
         groupRepository.save(group);
         accountRepository.save(user);
-        sendMessage(groupId, groupId, user.getFullName() + " has left the group", Types.CHAT_MESSAGE);
+        Message toSend = sendMessage(groupId, groupId, user.getFullName() + " has left the group", Types.CHAT_MESSAGE);
+        try {
+            template.convertAndSend("/group/" + groupId, toSend);
+        } catch (Exception e) {
+            log.info("Could not send message");
+        }
         return user;
 
     }
@@ -1301,6 +1304,7 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         message.setGroupID(groupId);
+        messageRepository.save(message);
         try {
             template.convertAndSend("/notification/" + friendId, message);
         } catch (Exception e) {
@@ -1454,10 +1458,16 @@ public class AccountServiceImpl implements AccountService {
         }
         Group group = groupRepository.findByGroupID(invite.getGroupID());
         Message accepted = groupService.acceptJoinRequest(userId, inviteId);
-        sendMessage(group.getGroupID(), group.getGroupID(), user.getFullName() + " has joined the group!", Types.CHAT_MESSAGE);
+        Message chatMessage = sendMessage(group.getGroupID(), group.getGroupID(), user.getFullName() + " has joined the group!", Types.CHAT_MESSAGE);
 
         try {
             template.convertAndSend("/notification/" + invite.getSenderID(), accepted);
+        } catch (Exception e) {
+            log.info("Could not send message");
+        }
+
+        try {
+            template.convertAndSend("/group/" + group.getGroupID(), chatMessage);
         } catch (Exception e) {
             log.info("Could not send message");
         }
@@ -1521,9 +1531,16 @@ public class AccountServiceImpl implements AccountService {
         user.removeMessage(inviteId);
         user.log("Accept group invite for group " + group.getGroupName());
         accountRepository.save(user);
-        sendMessage(group.getGroupID(), group.getGroupID(), user.getFullName() + " has joined the group!", Types.CHAT_MESSAGE);
+        Message chatMessage = sendMessage(group.getGroupID(), group.getGroupID(), user.getFullName() + " has joined the group!", Types.CHAT_MESSAGE);
         addToGroup(userId, group.getGroupID());
         messageRepository.delete(inviteId);
+
+        try {
+            template.convertAndSend("/group/" + group.getGroupID(), chatMessage);
+        } catch (Exception e) {
+            log.info("Could not send message");
+        }
+
         return invite;
     }
 
