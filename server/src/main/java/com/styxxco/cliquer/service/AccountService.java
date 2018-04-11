@@ -76,6 +76,9 @@ public interface AccountService extends UserDetailsService {
     Message readMessage(String userId, String messageId);
     Message acceptSearchInvite(String userId, String inviteId);
     Message kickMember(String userId, String kickedId, String groupId);
+    Message rejectKickRequest(String userId, String messageId);
+    Message acceptKickRequest(String userId, String messageId);
+    void startKickVote(String userId, String kickedId, String groupId);
     Map<String, Integer> getRateForm(String userId, String rateeId, String groupId);
     Group createEvent(String groupId, String json);
     List<Account> inviteAll(String userId, String groupId);

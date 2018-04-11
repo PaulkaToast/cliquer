@@ -808,6 +808,46 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Message acceptKickRequest(String userId, String messageId) {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if (!messageRepository.existsByMessageID(messageId)) {
+            log.info("Message " + messageId + " not found");
+            return null;
+        }
+        Message message = messageRepository.findByMessageID(messageId);
+        message.setRead(true);
+        messageRepository.save(message);
+        Group group = groupService.acceptVoteKick(message.getGroupID(), userId);
+        if (!group.getGroupMemberIDs().keySet().contains(message.getTopicID())) {
+            //The member has been kicked from the group so delete messages
+            deleteMessageByParent(message.getParentID());
+        }
+        return message;
+    }
+
+    @Override
+    public Message rejectKickRequest(String userId, String messageId) {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if (!messageRepository.existsByMessageID(messageId)) {
+            log.info("Message " + messageId + " not found");
+            return null;
+        }
+        Message message = messageRepository.findByMessageID(messageId);
+        message.setRead(true);
+        messageRepository.save(message);
+        Group group = groupService.denyVoteKick(message.getGroupID(), userId);
+        return message;
+    }
+
+    @Override
     public void handleRejectNotification(String userId, String messageId) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
@@ -835,6 +875,9 @@ public class AccountServiceImpl implements AccountService {
                 break;
             case Types.MOD_REQUEST:
                 rejectModRequest(userId, messageId);
+                break;
+            case Types.KICK_REQUEST:
+                rejectKickRequest(userId, messageId);
                 break;
         }
     }
@@ -871,6 +914,10 @@ public class AccountServiceImpl implements AccountService {
                 break;
             case Types.SEARCH_INVITE:
                 acceptSearchInvite(userId, messageId);
+                break;
+            case Types.KICK_REQUEST:
+                acceptKickRequest(userId, messageId);
+                break;
         }
     }
 
@@ -1320,6 +1367,35 @@ public class AccountServiceImpl implements AccountService {
             log.info("Could not send message");
         }
         return message;
+    }
+
+    @Override
+    public void startKickVote(String userId, String kickedId, String groupId) {
+        Group group = groupService.startVoteKick(groupId, userId, kickedId);
+        if (group == null) {
+            return;
+        }
+        Account leader = accountRepository.findByAccountID(userId);
+        Account kickee = accountRepository.findByAccountID(kickedId);
+
+        for (String memberId: group.getGroupMemberIDs().keySet()) {
+            if (memberId.contentEquals(leader.getAccountID())) continue;
+            if (memberId.contentEquals(kickee.getAccountID())) continue;
+            Account member = accountRepository.findByAccountID(memberId);
+            Message voteTicket = new Message(leader.getAccountID(), leader.getFullName(), "You can now vote to kick " + kickee.getFullName() + " from group " + group.getGroupName(), Types.KICK_REQUEST);
+            voteTicket.setTopicID(kickedId);
+            voteTicket.setParentID("VoteToKick:" + kickedId + ":FromGroup:" + groupId);
+            voteTicket.setGroupID(groupId);
+            member.addMessage(voteTicket);
+            messageRepository.save(voteTicket);
+            accountRepository.save(member);
+
+            try {
+                template.convertAndSend("/notification/" + member.getAccountID(), voteTicket);
+            } catch (Exception e) {
+                log.info("Could not send message");
+            }
+        }
     }
 
     @Override

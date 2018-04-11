@@ -140,6 +140,14 @@ public class RestController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/api/startKickVote", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> startKickVote(@RequestParam(value = "userId") String userId,
+                                                         @RequestParam(value = "kickedId") String kickedId,
+                                                         @RequestParam(value = "groupId") String groupId) {
+        accountService.startKickVote(userId, kickedId, groupId);
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/api/getUserGroups", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<?> getUserGroups(@RequestParam(value = "username") String username) {
         List<Group> groups = accountService.getAllUserGroups(username);
