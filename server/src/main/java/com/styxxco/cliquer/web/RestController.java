@@ -299,6 +299,18 @@ public class RestController {
         return new ResponseEntity<>(log, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/api/react", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> react(@RequestParam(value = "userId") String userId,
+                                                 @RequestParam(value = "groupId") String groupId,
+                                                 @RequestParam(value = "messageId") String messageId,
+                                                 @RequestParam(value = "reaction") String reaction) {
+        Message message = accountService.reactToChatMessage(groupId, userId, messageId, reaction);
+        if (message == null) {
+            return new ResponseEntity<>("Could not react to chat message", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/api/createEvent", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> createEvent(@RequestParam(value = "groupId") String groupId,
                                                        @RequestBody String json) {

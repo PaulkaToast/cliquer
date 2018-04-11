@@ -59,7 +59,7 @@ public interface AccountService extends UserDetailsService {
     Message sendMessage(String senderId, String receiverId, String content, int type);
     Message deleteMessage(String username, String messageId);
     List<Message> getChatHistory(String groupId, String userId);
-    Message reactToChatMessage(String groupId, String userId, String messageId, int reaction);
+    Message reactToChatMessage(String groupId, String userId, String messageId, String reaction);
     void handleAcceptNotification(String userId, String messageId);
     void handleRejectNotification(String userId, String messageId);
 

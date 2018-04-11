@@ -899,7 +899,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Message reactToChatMessage(String groupId, String userId, String messageId, int reaction)
+    public Message reactToChatMessage(String groupId, String userId, String messageId, String reaction)
     {
         if (!groupRepository.existsByGroupID(groupId)) {
             log.info("Group " + groupId + " not found");
@@ -915,10 +915,19 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Message message = messageRepository.findByMessageID(messageId);
-        if(message.getReaction(userId) == reaction) {
+
+        int react = Message.Reactions.UP_VOTE;
+
+        try {
+            react = Integer.parseInt(reaction);
+        } catch (NumberFormatException e) {
+            log.info("Could not parse reaction string");
+        }
+
+        if(message.getReaction(userId) == react) {
             message.removeReaction(userId);
         } else {
-            message.addReaction(userId, reaction);
+            message.addReaction(userId, react);
         }
         messageRepository.save(message);
         return message;
