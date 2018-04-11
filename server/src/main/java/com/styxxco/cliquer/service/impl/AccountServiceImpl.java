@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.method.P;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -233,7 +234,37 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Map<String, ? extends Searchable> searchWithFilter(String type, String query, boolean suggestions, boolean weights) {
+    public Map<String, ? extends Searchable> searchWithFilter(String type, String query) {
+        if (type.contentEquals("profile")) {
+            Map<String, Account> results = new TreeMap<>();
+            Map<String, Account> firstName = searchByFirstName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
+            Map<String, Account> lastName = searchByLastName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
+            Map<String, Account> fullName = searchByFullName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
+            for (String key: firstName.keySet()) {
+                results.putIfAbsent(key, firstName.get(key));
+            }
+            for (String key: lastName.keySet()) {
+                results.putIfAbsent(key, lastName.get(key));
+            }
+            for (String key: fullName.keySet()) {
+                results.putIfAbsent(key, fullName.get(key));
+            }
+            Account user = searchByUsername(query);
+            if (user != null) {
+                results.putIfAbsent(user.getUsername(), user);
+            }
+            List<Account> sorted = this.sortByReputation(new ArrayList<>(results.values()));
+            results = new TreeMap<>();
+            for (Account a: sorted) {
+                results.put(a.getUsername(), a);
+            }
+            return results;
+
+        } else if (type.contentEquals("group")) {
+            return searchByGroupPublic(query).stream().collect(Collectors.toMap(Group::getGroupID, _it -> _it));
+        }
+
+        /* TODO: Deprecated once front end updates to new search type */
         switch (type) {
             case "firstname":
                 return searchByFirstName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
@@ -246,12 +277,6 @@ public class AccountServiceImpl implements AccountService {
                 Account account = searchByUsername(query);
                 map.put(account.getUsername(), account);
                 return map;
-            case "reputation":
-                return searchByReputation(Integer.parseInt(query), suggestions, weights).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "skill":
-                return searchBySkill(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "group":
-                return searchByGroupName(query).stream().collect(Collectors.toMap(Group::getGroupID, _it -> _it));
             case "isPublic":
                 return searchByGroupPublic(query).stream().collect(Collectors.toMap(Group::getGroupID, _it -> _it));
         }
@@ -355,6 +380,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
 
+    /* TODO: Remove once front end updates to new search type */
     @Override
     public List<Account> searchByReputation(int minimumRep, boolean includeSuggested, boolean includeWeights) {
         List<Account> accounts = accountRepository.findAll();
@@ -382,6 +408,13 @@ public class AccountServiceImpl implements AccountService {
             return this.moveSuggestedToTop(qualified, minimumRep, includeWeights);
         }
         return qualified;
+    }
+
+    public List<Account> sortByReputation(List<Account> unsorted) {
+        Comparator<Account> byReputation = Comparator.comparingInt(Account::getReputation);
+        byReputation = byReputation.reversed();
+        unsorted.sort(byReputation);
+        return this.moveSuggestedToTop(unsorted, 0, true);
     }
 
     @Override

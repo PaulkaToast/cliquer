@@ -205,10 +205,8 @@ public class RestController {
 
     @RequestMapping(value = "/api/search", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<?> search(@RequestParam(value = "type") String type,
-                                                  @RequestParam(value = "query", required = false, defaultValue = "null") String query,
-                                                  @RequestParam(value = "suggestions", required = false, defaultValue = "true") boolean suggestions,
-                                                  @RequestParam(value = "weights", required = false, defaultValue = "true") boolean weights) {
-        Map<String, ? extends Searchable> map = accountService.searchWithFilter(type, query, suggestions, weights);
+                                                  @RequestParam(value = "query") String query) {
+        Map<String, ? extends Searchable> map = accountService.searchWithFilter(type, query);
         if (map == null) {
             return new ResponseEntity<>("Could not find any results", HttpStatus.BAD_REQUEST);
         }

@@ -33,7 +33,7 @@ public interface AccountService extends UserDetailsService {
     void requestRating(String userId, String groupId);
 
     /* Account Searching */
-    Map<String, ? extends Searchable> searchWithFilter(String type, String query, boolean suggestions, boolean weights);
+    Map<String, ? extends Searchable> searchWithFilter(String type, String query);
     Account setAccountSettings(String username, String json);
     Group setGroupSettings(String username, String groupId, String json);
     List<Account> searchByFirstName(String firstName);
