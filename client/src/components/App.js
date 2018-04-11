@@ -4,7 +4,8 @@ import { connect } from 'react-redux'
 
 import '../css/App.css'
 import { firebase } from '../firebase'
-import { logIn, logOut, setToken, setLocation, getProfile, addObjectID, requestFriend } from '../redux/actions'
+import { logIn, logOut, setToken, setLocation, getProfile, 
+         addObjectID, requestFriend, clearProfile, clearObjectID } from '../redux/actions'
 import { history } from '../redux/store'
 import url from '../server'
 import Login from './Login'
@@ -23,7 +24,7 @@ class App extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if(nextProps.profile && !this.props.profile && !this.props.accountID) {
+    if(this.loggedIn() && nextProps.profile && !this.props.profile && !this.props.accountID) {
       this.props.addObjectID(nextProps.profile.accountID)
     }
   }
@@ -43,9 +44,12 @@ class App extends Component {
         authUser.getIdToken(true)
           .then((token) => {
             this.props.setToken(token)
+            this.props.clearProfile()
             this.props.getProfile(`${url}/api/getProfile?username=${authUser.uid}&type=user`, { 'X-Authorization-Firebase': token})
           })
       } else {
+        this.props.clearProfile()
+        this.props.clearObjectID()
         this.props.logOut(authUser)
       }
       this.setState({ isLoading: false })
@@ -124,7 +128,9 @@ const mapDispatchToProps = (dispatch) => {
     setLocation: (position) => dispatch(setLocation(position)),
     getProfile: (url, headers) => dispatch(getProfile(url, headers)),
     addObjectID: (id) => dispatch(addObjectID(id)),
-    requestFriend: (url, headers) => dispatch(requestFriend(url, headers))
+    requestFriend: (url, headers) => dispatch(requestFriend(url, headers)),
+    clearProfile: () => dispatch(clearProfile()),
+    clearObjectID: () => dispatch(clearObjectID()),
 	}
 }
 

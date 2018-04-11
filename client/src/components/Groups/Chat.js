@@ -59,7 +59,6 @@ class Chat extends Component {
 
   handleMessage = (data) => {
     //if data is an array.
-    console.log(data)
     if(data.type) {
       this.props.handleNotification(data)
     } else {

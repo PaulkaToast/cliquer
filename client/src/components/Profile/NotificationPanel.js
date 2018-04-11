@@ -11,7 +11,6 @@ class NotificationPanel extends Component {
 
   render() {
     const { notifications } = this.props
-    console.log(notifications)
     return (
       <div className="NotificationPanel">
         { notifications 

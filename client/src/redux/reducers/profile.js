@@ -36,6 +36,10 @@ function profile(state = {}, action) {
             return Object.assign({}, state, {
                 setSettingsIsLoading: action.isLoading,
             })
+        case 'CLEAR_PROFILE':
+            return Object.assign({}, state, {
+                getData: null,
+            })
         default:
             return state
     }

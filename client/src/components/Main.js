@@ -35,12 +35,12 @@ class Main extends Component {
   }
 
   handleNotification = (data) => {
-    console.log('data', data)
     if(data && !data.senderID && !this.props.notifications) {
       this.props.loadNotifications(data)
     } else if(data) {
       switch (data.type) {
         case 0:
+        case 12:
           // Group invite
           this._notificationSystem.addNotification({
             title: 'Group Invite',
@@ -116,6 +116,90 @@ class Main extends Component {
             level: 'success',
           })
           break
+        case 6:
+          //Accepted join request
+          this._notificationSystem.addNotification({
+            title: 'Accepted Join Request',
+            message: data.content,
+            level: 'success',
+            action: {
+              label: 'OK',
+              callback: () => this.acceptNotification(data.messageID)
+            }
+          })
+        break
+        case 7:
+          //Accepted friend request
+          this._notificationSystem.addNotification({
+            title: 'Accepted Friend Request',
+            message: data.content,
+            level: 'success',
+            action: {
+              label: 'OK',
+              callback: () => this.acceptNotification(data.messageID)
+            }
+          })
+        case 8:
+          // Event invite
+          this._notificationSystem.addNotification({
+            title: 'Event Invite',
+            message: data.content,
+            level: 'success',
+            autoDismiss: 8,
+            children: (
+              <ButtonGroup>
+                <Button color="success" onClick={() => this.acceptNotification(data.messageID)}>Join</Button>
+                <Button color="danger" onClick={() => this.rejectNotification(data.messageID)}>Ignore</Button>
+              </ButtonGroup>
+            )
+          })
+        case 9:
+          // Mod request
+          // TODO: Show mod application
+          this._notificationSystem.addNotification({
+            title: 'Mod Request',
+            message: data.content,
+            level: 'success',
+            action: {
+              label: 'OK',
+              callback: () => this.acceptNotification(data.messageID)
+            }
+          })
+        case 10:
+          // Mod request accepted
+          this._notificationSystem.addNotification({
+            title: 'Mod Application Accepted',
+            message: data.content,
+            level: 'success',
+            action: {
+              label: 'OK',
+              callback: () => this.acceptNotification(data.messageID)
+            }
+          })
+        case 11:
+          // Mod invite
+          // TODO: Show mod application
+          this._notificationSystem.addNotification({
+            title: 'Submit a Mod Application',
+            message: data.content,
+            level: 'success',
+            action: {
+              label: 'OK',
+              callback: () => this.acceptNotification(data.messageID)
+            }
+          })
+        case 13:
+          //Mod report
+          //Todo all mod to respond
+          this._notificationSystem.addNotification({
+            title: 'Report',
+            message: data.content,
+            level: 'error',
+            action: {
+              label: 'OK',
+              callback: () => this.acceptNotification(data.messageID)
+            }
+          })
         default:
           // Basic Notification
           // Add basic messages here if necessary
@@ -128,16 +212,19 @@ class Main extends Component {
   }
 
   acceptNotification = (messageID) => {
-    this.props.handleNotification(`${url}/api/handleNotification?userId=${this.props.accountID}&messageId=${messageID}&accept=true`, { 'X-Authorization-Firebase': this.props.token })
+    this.clientRef.sendMessage(`/app/acceptNotification/${this.props.accountID}/${messageID}`)
   }
 
   rejectNotification = (messageID) => {
-    this.props.handleNotification(`${url}/api/handleNotification?userId=${this.props.accountID}&messageId=${messageID}&accept=false`, { 'X-Authorization-Firebase': this.props.token })
+    this.clientRef.sendMessage(`/app/rejectNotification/${this.props.accountID}/${messageID}`)
   }
 
   deleteNotification = (messageID) => {
-    this.props.deleteNotification(messageID) 
-    this.acceptNotification(messageID)
+    this.clientRef.sendMessage(`/app/deleteNotification/${this.props.accountID}/${messageID}`)
+  }
+
+  markAsRead = (messageID) => {
+    this.clientRef.sendMessage(`/app/readNotification/${this.props.accountID}/${messageID}`)
   }
 
   inviteToGroup = (groupID, accountID) => {
@@ -149,17 +236,15 @@ class Main extends Component {
   }
 
   requestToJoin = (groupID, ownerID) => {
-    console.log('groupID', groupID)
-    console.log('ownerID', ownerID)
     this.clientRef.sendMessage(`/app/requestToJoin/${this.props.accountID}/${ownerID}/${groupID}`)
   }
 
   allowRating = (groupID) => {
-   this.clientRef.sendMessage(`/app/${this.props.accountID}/${groupID}/rate`) 
+    this.clientRef.sendMessage(`/app/${this.props.accountID}/${groupID}/rate`) 
   }
 
   onWebsocketConnect = () => {
-    this.clientRef.sendMessage(`/app/${this.props.accountID}/allMessages`, "");
+    this.clientRef.sendMessage(`/app/${this.props.accountID}/allMessages`)
   }
 
   getWebsocket = () => {
@@ -176,21 +261,32 @@ class Main extends Component {
     return 
   }
 
-  renderMemberList = () => {
-
-  }
-
   render() {
     return (
       <div className="Main h-100">
         <Navbar {...this.props} />
         <Switch>
             <Route path="/create" render={(navProps) => <CreateGroup {...navProps} />}/>
-            <Route path="/profile/:ownerID" render={(navProps) => <Profile {...navProps} sendFriendRequest={this.sendFriendRequest} goToProfile={this.props.goToProfile} deleteNotification={this.deleteNotification} inviteToGroup={this.inviteToGroup} />}/>
-            <Route path="/groups" render={(navProps) => <Groups {...navProps} {...this.props} allowRating={this.allowRating} />}/>
+            <Route path="/profile/:ownerID" render={(navProps) => 
+              <Profile 
+                {...navProps} 
+                sendFriendRequest={this.sendFriendRequest} 
+                goToProfile={this.props.goToProfile} 
+                markAsRead={this.markAsRead} 
+                deleteNotification={this.deleteNotification} 
+                inviteToGroup={this.inviteToGroup} 
+              />}
+            />
+            <Route path="/groups" render={(navProps) => 
+              <Groups 
+                {...navProps} 
+                {...this.props} 
+                allowRating={this.allowRating} 
+              />}
+            />
             <Route path="/public" render={(navProps) => <PublicGroups {...navProps} accountID={this.props.accountID}/>}/>
             <Route path="/settings" render={(navProps) => <Settings {...navProps} />}/>
-            <Route path="/search/:category/:query" render={(navProps) => <SearchResults {...navProps} sendFriendRequest={this.sendFriendRequest} goToProfile={this.props.goToProfile}/>}/>
+            <Route path="/search/:category/:query" render={(navProps) => <SearchResults {...navProps} sendFriendRequest={this.sendFriendRequest} goToProfile={this.props.goToProfile} requestToJoin={this.requestToJoin}/>}/>
             <Route path='/' render={(navProps) => <Redirect to="/groups" />}/>
         </Switch>
         

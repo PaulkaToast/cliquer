@@ -7,17 +7,16 @@ import { Button, ButtonGroup, Col, Row, Container, Navbar,
         Modal, ModalHeader, ModalBody, ModalFooter,
         Form, FormGroup, Label, Input,
         ListGroupItem  } from 'reactstrap'
+import Toggle from 'react-toggle'
 
 import '../../css/Groups.css'
 import { history } from '../../redux/store'
 import Group from './Group'
 import Chat from './Chat'
-import GroupMembers from './GroupMembers'
-import GroupSettings from './GroupSettings'
 import SkillsForm from '../Profile/SkillsForm'
 import { getGroups, setCurrentGroup,
          leaveGroup, deleteGroup, clearNewSkills, setGroupSettings, 
-         getProfile, kick, getRateForm, postRateForm } from '../../redux/actions'
+         getProfile, kick, getRateForm, postRateForm, inviteAll } from '../../redux/actions'
 import url from '../../server'
 
 class Groups extends Component {
@@ -52,6 +51,7 @@ class Groups extends Component {
       this.props.clearSkills()
       this.setState({ modal: false })
     } else {
+      this.setState({ settingsPopOver: false})
       this.setState({ modal: true })
     }
   }
@@ -139,6 +139,10 @@ class Groups extends Component {
     history.push(`/groups/${groupID}`)
   }
 
+  inviteAll = () => {
+    this.props.inviteAll(`${url}/api/inviteAll?userId=${this.props.accountID}&groupId=${this.props.currentGroup.groupID}`, { 'X-Authorization-Firebase': this.props.token})
+  }
+
   disbandGroup = () => {
     this.props.deleteGroup(`${url}/api/deleteGroup?username=${this.props.user.uid}&groupId=${this.props.currentGroup.groupID}`, { 'X-Authorization-Firebase': this.props.token}, null, this.props.currentGroup.groupID)
     this.clearGroup()
@@ -159,7 +163,6 @@ class Groups extends Component {
                 <ListGroupItem onClick={(ev) => this.props.goToProfile(ev, memberID, document.querySelector('.kick-button'), document.querySelector('.rate-button'))} key={memberID} className="d-flex justify-content-between align-items-center" action> 
                   {this.props.currentGroup.groupMemberIDs[memberID]}
                   {this.isOwner(this.props.currentGroup) && <Button type="button" className="kick-button" size="lg" onClick={() => this.kickUser(this.props.currentGroup, memberID)}>Kick</Button>}
-                  {/*TODO: implement haveRated, check if user has already rated other user*/}
                   {this.canRate(this.props.currentGroup.groupID) && <Button type="button" className="rate-button" size="lg" onClick={() => this.getRateForm(this.props.currentGroup, memberID)}>Rate</Button>}
                 </ListGroupItem>
               )
@@ -189,13 +192,13 @@ class Groups extends Component {
   render() {
     const name = this.props.currentGroup ? this.props.currentGroup.groupName : null
     const purpose = this.props.currentGroup ? this.props.currentGroup.groupPurpose : null
-    const isPublic = this.props.currentGroup ? this.props.currentGroup.isPublic : null
+    const isPublic = this.props.currentGroup ? this.props.currentGroup.public : null
     const minRep = this.props.currentGroup ? this.props.currentGroup.reputationReq : null
     const reputation = this.props.profile ? this.props.profile.reputation : null
     const skills = this.props.currentGroup ? this.props.currentGroup.skillsReq : null
     const proximity = this.props.currentGroup ? this.props.currentGroup.proximityReq : null
     const rateForm = this.props.rateForm
-
+    
     return (
         <Container fluid className="Groups h-100">
           <Navbar className="group-nav" color="primary" dark expand="md">
@@ -234,10 +237,13 @@ class Groups extends Component {
           <Popover placement="left" isOpen={this.state.settingsPopOver} target="PopoverS" toggle={this.toggleS}>
               <PopoverHeader>Settings</PopoverHeader>
               <PopoverBody>
-                {this.isOwner(this.props.currentGroup) && <Button type="button" size="lg" onClick={() => this.props.allowRating(this.props.currentGroup.groupID)}>Allow Rating</Button>}
-                {this.isOwner(this.props.currentGroup) && <Button type="button" size="lg" onClick={this.toggle}>Update Settings</Button>}
-                <Button type="button" size="lg" onClick={this.leaveGroup}>Leave Group</Button>
-                {this.isOwner(this.props.currentGroup) && <Button type="button" size="lg" onClick={this.disbandGroup}>Disband Group</Button>}
+              <ButtonGroup vertical>
+                {this.isOwner(this.props.currentGroup) && <Button color="primary" type="button" size="lg" onClick={() => this.props.allowRating(this.props.currentGroup.groupID)}>Allow Rating</Button>}
+                {this.isOwner(this.props.currentGroup) && <Button color="primary" type="button" size="lg" onClick={this.toggle}>Update Settings</Button>}
+                {this.isOwner(this.props.currentGroup) && <Button color="primary" type="button" size="lg" onClick={this.inviteAll}>Invite Eligible Members</Button>}
+                <Button color="danger" type="button" size="lg" onClick={this.leaveGroup}>Leave Group</Button>
+                {this.isOwner(this.props.currentGroup) && <Button color="danger" type="button" size="lg" onClick={this.disbandGroup}>Disband Group</Button>}
+              </ButtonGroup>
               </PopoverBody>
           </Popover>
         </div>
@@ -265,8 +271,12 @@ class Groups extends Component {
                 <Input type="number" name="proximity" id="proximity" min={0} defaultValue={proximity} />
               </FormGroup>     
               <FormGroup>
+                {/*<Label check>
+                  <Input className="public-check-box" type="checkbox" name="isPublic" defaultValue={isPublic}/>{' '}Public
+                </Label>*/}
                 <Label check>
-                  <Input type="checkbox" name="isPublic" defaultValue={isPublic}/>{' '}Public
+                  <Toggle defaultChecked={isPublic} name="isPublic" />
+                  <span> Make Group Public </span>
                 </Label>
               </FormGroup>
             </Form>
@@ -338,6 +348,7 @@ const mapDispatchToProps = (dispatch) => {
     kick: (url, headers, extra) => dispatch(kick(url, headers, null, extra)),
     getRateForm: (url, headers) => dispatch(getRateForm(url, headers)),
     postRateForm: (url, headers, body) => dispatch(postRateForm(url, headers, body)),
+    inviteAll: (url, headers) => dispatch(inviteAll(url, headers)),
   }
 }
 

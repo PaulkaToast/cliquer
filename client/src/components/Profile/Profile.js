@@ -39,7 +39,7 @@ class Profile extends Component {
       const type = ownerID === props.accountID ? 'user' : 'public'
 
       // Get profile data
-      if(!props.profile && !props.profileIsLoading || props.profile.accountID !== ownerID) {
+      if((!props.profile && !props.profileIsLoading) || (props.profile && props.profile.accountID !== ownerID)) {
         this.props.getProfile(`${url}/api/getProfile?userId=${ownerID}&type=${type}`, { 'X-Authorization-Firebase': props.token})
       }
 
@@ -75,6 +75,11 @@ class Profile extends Component {
     return accountID === this.props.accountID || !this.props.accountID
   } 
 
+  inviteAndToggle = (gid, ownerID) => {
+    this.props.inviteToGroup(gid, ownerID)
+    this.toggleM()
+  }
+
   renderGroupList = () => {
     const groups = this.props.groups
     const ownerID = this.props.match.params.ownerID
@@ -84,7 +89,8 @@ class Profile extends Component {
         {groups && Object.keys(groups).length > 0
         && Object.keys(groups).map((gid, i) => {
           return (<ListGroupItem>
-            {groups[gid].groupName} <Button type="button" size="lg" onClick={() => this.props.inviteToGroup(gid, ownerID)}>Invite</Button>
+            {groups[gid].groupName} <Button className="invite-to-group-button" type="button" size="lg" 
+            onClick={() => this.inviteAndToggle(gid, ownerID)}>Invite</Button>
           </ListGroupItem>)
         })}
       </ListGroup>
@@ -110,7 +116,7 @@ class Profile extends Component {
               className={classnames({ active: this.state.activeTab === '1' })}
               onClick={() => { this.toggle('1'); }}
             >
-              My Profile
+              Profile
             </NavLink>
           </NavItem>
           <NavItem>
@@ -118,17 +124,19 @@ class Profile extends Component {
               className={classnames({ active: this.state.activeTab === '2' })}
               onClick={() => { this.toggle('2'); }}
             >
-              My Friends
+              Friends
             </NavLink>
           </NavItem>
-          <NavItem>
-            <NavLink
-              className={classnames({ active: this.state.activeTab === '2' })}
-              onClick={() => { this.toggle('3'); }}
-            >
-              Notifications
-            </NavLink>
-          </NavItem>
+          {this.isOwner(ownerID) && 
+            <NavItem>
+              <NavLink
+                className={classnames({ active: this.state.activeTab === '2' })}
+                onClick={() => { this.toggle('3'); }}
+              >
+                Notifications
+              </NavLink>
+            </NavItem>
+          }
         </Nav>
         <TabContent activeTab={this.state.activeTab}>
           <TabPane className="profile-tab" tabId="1">
