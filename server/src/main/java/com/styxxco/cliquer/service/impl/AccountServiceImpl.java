@@ -1907,7 +1907,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Message> getReportContext(String modId, String messageId, List<Message> currentContext) {
+    public List<Message> getReportContext(String modId, String messageId, String startId, String endId) {
         if (!accountRepository.existsByAccountID(modId)) {
             log.info("Moderator " + modId + " not found");
             return null;
@@ -1928,17 +1928,22 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Message report = messageRepository.findByMessageID(messageId);
+
         if(report.getChatMessageID() == null) {
             log.info("Report " + messageId + " does not pertain to a group chat");
             return null;
         }
         Group group = groupRepository.findByGroupID(report.getGroupID());
-        String startId = report.getChatMessageID();
-        String endId = report.getChatMessageID();
-        if(currentContext != null) {
-            startId = currentContext.get(0).getMessageID();
-            endId = currentContext.get(currentContext.size()-1).getMessageID();
+
+        if (!messageRepository.existsByMessageID(startId)) {
+            log.info("Could not find lower boundary message");
+            startId = report.getChatMessageID();
         }
+        if (!messageRepository.existsByMessageID(endId)) {
+            log.info("Could not find upper boundary message");
+            endId = report.getChatMessageID();
+        }
+
         int start = Math.max(group.getChatMessageIDs().indexOf(startId)-5, 0);
         int end = Math.min(group.getChatMessageIDs().indexOf(endId)+5, group.getChatMessageIDs().size()-1);
         List<Message> context = new ArrayList<>();

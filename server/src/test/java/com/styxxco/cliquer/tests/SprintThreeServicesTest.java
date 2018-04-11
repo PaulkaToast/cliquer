@@ -377,11 +377,11 @@ public class SprintThreeServicesTest {
             messageID = id;
         }
 
-        List<Message> history = accountService.getReportContext(kevin.getAccountID(), messageID, null);
+        List<Message> history = accountService.getReportContext(kevin.getAccountID(), messageID, null, null);
         assertEquals(7, history.size());
         assertEquals(first.getMessageID(), history.get(0).getMessageID());
         assertEquals(seventh.getMessageID(), history.get(6).getMessageID());
-        history = accountService.getReportContext(kevin.getAccountID(), messageID, history);
+        history = accountService.getReportContext(kevin.getAccountID(), messageID, history.get(0).getMessageID(), history.get(history.size() - 1).getMessageID());
         assertEquals(9, history.size());
         assertEquals(eighth.getMessageID(), history.get(7).getMessageID());
         accountService.flagUser(kevin.getAccountID(), messageID);

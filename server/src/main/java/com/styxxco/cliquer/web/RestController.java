@@ -253,6 +253,15 @@ public class RestController {
         return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/api/reportMember", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> reportMember(@RequestParam(value = "userId") String userId,
+                                                        @RequestParam(value = "groupId") String groupId,
+                                                        @RequestParam(value = "messageId") String messageId,
+                                                        @RequestBody String reason) {
+        accountService.reportGroupMember(groupId, userId, messageId, reason);
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/mod/flagUser", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> flagUser(@RequestParam(value = "modId") String modId,
                                                     @RequestParam(value = "messageId") String messageId) {
@@ -266,6 +275,30 @@ public class RestController {
                                                        @RequestParam(value = "time") long time) {
         accountService.suspendUser(modId, messageId, time);
         return new ResponseEntity<>(OKAY, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/mod/activityLog", method = RequestMethod.GET)
+    public @ResponseBody ResponseEntity<?> activityLog(@RequestParam(value = "modId") String modId,
+                                                       @RequestParam(value = "userId") String userId,
+                                                       @RequestParam(value = "startDate", required = false) String startDate,
+                                                       @RequestParam(value = "endDate", required = false) String endDate) {
+        List<String> log = accountService.getActivityLog(modId, userId, startDate, endDate);
+        if (log == null) {
+            return new ResponseEntity<>("Could not retrieve logs", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(log, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/mod/chatContext", method = RequestMethod.GET)
+    public @ResponseBody ResponseEntity<?> chatContext(@RequestParam(value = "modId") String modId,
+                                                       @RequestParam(value = "messageId") String messageId,
+                                                       @RequestParam(value = "startId", required = false) String startId,
+                                                       @RequestParam(value = "endId", required = false) String endId) {
+        List<Message> log = accountService.getReportContext(modId, messageId, startId, endId);
+        if (log == null) {
+            return new ResponseEntity<>("Could not retrieve chat context", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(log, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/createEvent", method = RequestMethod.POST)
@@ -289,8 +322,8 @@ public class RestController {
     }
 
     @RequestMapping(value = "/api/uploadFile", method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<?> submit(@RequestParam("userId") String userId,
-                                                  @RequestParam("file") MultipartFile file) {
+    public @ResponseBody ResponseEntity<?> uploadFile(@RequestParam("userId") String userId,
+                                                      @RequestParam("file") MultipartFile file) {
         try {
             accountService.uploadPicture(userId, file);
         } catch (Exception e) {

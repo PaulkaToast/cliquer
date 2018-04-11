@@ -94,7 +94,7 @@ public interface AccountService extends UserDetailsService {
     Message rejectModInvite(String userId, String messageId);
     Message rejectModRequest(String userId, String messageId);
     Message reportGroupMember(String groupId, String reporterId, String messageId, String reason);
-    List<Message> getReportContext(String modId, String messageId, List<Message> currentContext);
+    List<Message> getReportContext(String modId, String messageId, String startId, String endId);
     List<Message> getMessageHistory(String modId, String userId);
     void checkModStatus (String userId);
     void addToModerators (String userId);
