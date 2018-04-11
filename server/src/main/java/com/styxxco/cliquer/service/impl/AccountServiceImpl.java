@@ -633,7 +633,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Message> getMessages(String userId, boolean includeRead, String startDate /* YEAR-MONTH-DAY */) {
+    public List<Message> getMessages(String userId, String read, String startDate /* YEAR-MONTH-DAY */) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
@@ -649,6 +649,14 @@ public class AccountServiceImpl implements AccountService {
                 return null;
             }
         }
+
+        boolean includeRead = false;
+        try {
+            includeRead = Boolean.parseBoolean(read);
+        } catch (Exception e) {
+            log.info("Could not parse boolean");
+        }
+
         for (String id : user.getMessageIDs().keySet()) {
             Message message = messageRepository.findByMessageID(id);
             if ((includeRead || !message.isRead()) && (start == null || !message.getCreationDate().isBefore(start))) {

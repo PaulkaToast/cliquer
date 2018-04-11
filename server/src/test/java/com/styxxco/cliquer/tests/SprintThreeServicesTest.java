@@ -53,7 +53,7 @@ public class SprintThreeServicesTest {
         Message first = accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Be my friend?", Message.Types.FRIEND_INVITE);
         Message second = accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Please be my friend?", Message.Types.FRIEND_INVITE);
 
-        List<Message> messages = accountService.getMessages(shawn.getAccountID(), false, null);
+        List<Message> messages = accountService.getMessages(shawn.getAccountID(), "false", null);
         assertEquals(2, messages.size());
         assertEquals(1, messages.get(0).getType());
 
@@ -62,16 +62,16 @@ public class SprintThreeServicesTest {
 
         Message third = accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Pretty please be my friend?", Message.Types.FRIEND_INVITE);
 
-        messages = accountService.getMessages(shawn.getAccountID(), false, null);
+        messages = accountService.getMessages(shawn.getAccountID(), "false", null);
         assertEquals(1, messages.size());
         assertEquals("Pretty please be my friend?", messages.get(0).getContent());
 
         accountService.readMessage(shawn.getAccountID(), third.getMessageID());
 
-        messages = accountService.getMessages(shawn.getAccountID(), false, null);
+        messages = accountService.getMessages(shawn.getAccountID(), "false", null);
         assertEquals(0, messages.size());
 
-        messages = accountService.getMessages(shawn.getAccountID(), true, null);
+        messages = accountService.getMessages(shawn.getAccountID(), "true", null);
         assertEquals(3, messages.size());
 
         first.setCreationDate(LocalDate.parse("2018-04-01"));
@@ -82,13 +82,13 @@ public class SprintThreeServicesTest {
         messageRepository.save(second);
         messageRepository.save(third);
 
-        messages = accountService.getMessages(shawn.getAccountID(), true, "2016-03-21");
+        messages = accountService.getMessages(shawn.getAccountID(), "true", "2016-03-21");
         assertEquals(3, messages.size());
         assertEquals("Pretty please be my friend?", messages.get(0).getContent());
         assertEquals("Please be my friend?", messages.get(1).getContent());
         assertEquals("Be my friend?", messages.get(2).getContent());
 
-        messages = accountService.getMessages(shawn.getAccountID(), true, "2018-03-23");
+        messages = accountService.getMessages(shawn.getAccountID(), "true", "2018-03-23");
         assertEquals(1, messages.size());
         assertEquals("Be my friend?", messages.get(0).getContent());
 
@@ -103,7 +103,7 @@ public class SprintThreeServicesTest {
         messageRepository.save(second);
         messageRepository.save(third);
 
-        messages = accountService.getMessages(shawn.getAccountID(), true, "2016-03-30");
+        messages = accountService.getMessages(shawn.getAccountID(), "true", "2016-03-30");
         assertEquals(3, messages.size());
         assertEquals("Please be my friend?", messages.get(0).getContent());
         assertEquals("Be my friend?", messages.get(1).getContent());

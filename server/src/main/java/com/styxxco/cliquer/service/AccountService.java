@@ -55,7 +55,7 @@ public interface AccountService extends UserDetailsService {
 
     /* Message centered services */
     /* Note: startDate is of format YEAR-MONTH-DAY, MONTH and DAY are zero padded to reach two digits*/
-    List<Message> getMessages(String userId, boolean includeRead, String startDate);
+    List<Message> getMessages(String userId, String read, String startDate);
     Message sendMessage(String senderId, String receiverId, String content, int type);
     Message deleteMessage(String username, String messageId);
     List<Message> getChatHistory(String groupId, String userId);
