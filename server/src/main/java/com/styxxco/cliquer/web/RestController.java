@@ -1,27 +1,19 @@
 package com.styxxco.cliquer.web;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.InjectableValues;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.Http;
 import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.security.FirebaseFilter;
 import lombok.extern.log4j.Log4j;
-import org.bson.types.ObjectId;
 import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.FirebaseService;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -233,6 +225,7 @@ public class RestController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    /* TODO: Remove after completely deprecated by sockets */
     @RequestMapping(value = "/api/handleNotification", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> handleNotification(@RequestParam(value = "userId") String userId,
                                                               @RequestParam(value = "messageId") String messageId,
@@ -294,4 +287,17 @@ public class RestController {
         }
         return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/api/uploadFile", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> submit(@RequestParam("userId") String userId,
+                                                  @RequestParam("file") MultipartFile file) {
+        try {
+            accountService.uploadPicture(userId, file);
+        } catch (Exception e) {
+            log.info("Could not upload image properly");
+            return new ResponseEntity<>("Could not upload image properly", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>("Profile picture uploaded successfully", HttpStatus.OK);
+    }
+
 }

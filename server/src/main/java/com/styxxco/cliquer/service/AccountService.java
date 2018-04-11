@@ -4,6 +4,7 @@ import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.security.FirebaseTokenHolder;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ public interface AccountService extends UserDetailsService {
     Account removeSkill(String username, String skillName);
     Account deleteAccount(String username);
     Account rateUser(String userId, String rateeId, String messageId, String json, boolean endorse);
+    void uploadPicture(String userId, MultipartFile file) throws Exception;
     void requestRating(String userId, String groupId);
 
     /* Account Searching */

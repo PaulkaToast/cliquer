@@ -18,6 +18,7 @@ import com.styxxco.cliquer.service.AccountService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,7 +27,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -59,6 +64,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Autowired
     private SimpMessagingTemplate template;
+
+    @Value("${spring.account.path}")
+    private String picturePath;
 
     public AccountServiceImpl() {
 
@@ -1952,4 +1960,22 @@ public class AccountServiceImpl implements AccountService {
         return messageRepository.findBySenderID(userId);
     }
 
+    /* TODO: Finish upload picture once Jordan knows how it will be sent */
+    @Override
+    public void uploadPicture(String userId, MultipartFile file) throws Exception {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            throw new UsernameNotFoundException("Could not find user");
+        }
+        Account user = accountRepository.findByAccountID(userId);
+
+        if (!file.isEmpty()) {
+            BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(new File(picturePath, file.getOriginalFilename())));
+            outputStream.write(file.getBytes());
+            outputStream.flush();
+            outputStream.close();
+        }
+        user.setPicturePath(picturePath + "/" + file.getOriginalFilename());
+        accountRepository.save(user);
+    }
 }
