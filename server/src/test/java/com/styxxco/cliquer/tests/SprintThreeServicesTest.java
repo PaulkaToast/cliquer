@@ -230,7 +230,7 @@ public class SprintThreeServicesTest {
         String messageID = null;
         jordan = accountRepository.findByAccountID(jordan.getAccountID());
         for(String id : jordan.getMessageIDs().keySet()){
-            assertEquals(Types.MOD_REQUEST, (int)kevin.getMessageIDs().get(id));
+            assertEquals(Types.MOD_REQUEST, (int)jordan.getMessageIDs().get(id));
             messageID = id;
         }
         accountService.acceptModRequest(jordan.getAccountID(), messageID);
@@ -239,7 +239,7 @@ public class SprintThreeServicesTest {
 
         shawn = accountRepository.findByAccountID(shawn.getAccountID());
         for(String id : shawn.getMessageIDs().keySet()){
-            assertEquals(Types.MOD_REQUEST, (int)kevin.getMessageIDs().get(id));
+            assertEquals(Types.MOD_REQUEST, (int)shawn.getMessageIDs().get(id));
             messageID = id;
         }
         accountService.rejectModRequest(shawn.getAccountID(), messageID);
