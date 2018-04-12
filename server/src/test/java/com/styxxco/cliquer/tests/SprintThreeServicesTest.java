@@ -217,6 +217,7 @@ public class SprintThreeServicesTest {
         Message result = accountService.checkModStatus(buckmaster.getAccountID());
         assertNull(result);
 
+        buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
         buckmaster.getGroupIDs().put("group5", "group5");
         accountRepository.save(buckmaster);
         result = accountService.checkModStatus(buckmaster.getAccountID());
