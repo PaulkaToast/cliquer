@@ -1867,10 +1867,10 @@ public class AccountServiceImpl implements AccountService {
                             accountRepository.save(user);
                             try {
                                 template.convertAndSend("/notification/" + userId, offer);
-                                return offer;
                             } catch (Exception e) {
                                 log.info("Could not send message");
                             }
+                            return offer;
                         }
                     }
                 }
