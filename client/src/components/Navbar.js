@@ -74,6 +74,10 @@ class NavigationBar extends Component {
             <NavItem>
               <NavLink href="/settings">Settings</NavLink>
             </NavItem> 
+            {this.props.isMod() &&
+            <NavItem>
+              <NavLink href="/mod">Moderator Panel</NavLink>
+            </NavItem>}
             </Nav>
             <Col sm={5}>
               <InputGroup>

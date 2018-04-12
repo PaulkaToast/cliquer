@@ -60,6 +60,10 @@ class App extends Component {
     return this.props.loggedIn
   }
 
+  isMod = () => {
+    return true
+  }
+
   isLoggedInWithFacebook = () => {
     if(this.props.loggedIn) {
       const providers = this.props.user.providerData
@@ -100,6 +104,7 @@ class App extends Component {
                 allowHTML={false}
                 accountID={this.props.accountID}
                 goToProfile={this.goToProfile}
+                isMod={this.isMod}
               />
             : <Redirect to="/login" />
           }/>

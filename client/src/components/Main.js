@@ -13,6 +13,7 @@ import PublicGroups from './PublicGroups'
 import Profile from './Profile/Profile'
 import Settings from './Settings'
 import SearchResults from './SearchResults'
+import ModPanel from './ModPanel'
 import url from '../server'
 import { loadNotifications, handleNotifications, deleteNotification} from '../redux/actions'
 
@@ -286,6 +287,11 @@ class Main extends Component {
             />
             <Route path="/public" render={(navProps) => <PublicGroups {...navProps} accountID={this.props.accountID}/>}/>
             <Route path="/settings" render={(navProps) => <Settings {...navProps} />}/>
+            <Route path="/mod" render={(navProps) => 
+              this.props.isMod()
+              ? <ModPanel {...navProps} />
+              : <Redirect to="/groups" />
+            }/>
             <Route path="/search/:category/:query" render={(navProps) => <SearchResults {...navProps} sendFriendRequest={this.sendFriendRequest} goToProfile={this.props.goToProfile} requestToJoin={this.requestToJoin}/>}/>
             <Route path='/' render={(navProps) => <Redirect to="/groups" />}/>
         </Switch>
