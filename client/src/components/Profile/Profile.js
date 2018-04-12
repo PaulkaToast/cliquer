@@ -149,9 +149,15 @@ class Profile extends Component {
         <TabContent activeTab={this.state.activeTab}>
           <TabPane className="profile-tab" tabId="1">
             <hr/>
-            <h1>
-              {profile.fullName}<img className="profile-user-flag" src={flag} alt=""></img>
-            </h1>
+            <div className="main-info">
+              <div className="icon">
+                <i className="fa fa-upload" style="font-size:10px"></i>
+                <i className="fa fa-user-circle" style="font-size:32px"></i>
+              </div>
+              <h1>
+                {profile.fullName}<img className="profile-user-flag" src={flag} alt=""></img>
+              </h1>
+            </div>
             <hr/>
             <h4>
               Reputation: {profile.reputation}

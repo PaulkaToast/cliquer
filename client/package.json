@@ -12,6 +12,7 @@
     "react": "^16.2.0",
     "react-autosuggest": "^9.3.3",
     "react-dom": "^16.2.0",
+    "react-image-upload": "0.0.1",
     "react-mailto": "^0.4.0",
     "react-notification-system": "^0.2.17",
     "react-redux": "^5.0.6",

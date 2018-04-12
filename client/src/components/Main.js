@@ -271,6 +271,7 @@ class Main extends Component {
             <Route path="/profile/:ownerID" render={(navProps) => 
               <Profile 
                 {...navProps} 
+                isMod={this.props.isMod}
                 sendFriendRequest={this.sendFriendRequest} 
                 goToProfile={this.props.goToProfile} 
                 markAsRead={this.markAsRead} 
@@ -282,6 +283,7 @@ class Main extends Component {
               <Groups 
                 {...navProps} 
                 {...this.props} 
+                isMod={this.props.isMod}
                 allowRating={this.allowRating} 
               />}
             />
