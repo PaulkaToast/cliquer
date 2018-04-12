@@ -182,6 +182,104 @@ public class SprintThreeServicesTest {
         assertEquals(2, kevin.getMessageIDs().keySet().size());
     }
 
+    /* Back end Unit Test for User Story 19 */
+    @Test
+    public void testBecomingModerator() {
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
+        Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@purdue.edu", "Rhys", "Buckmaster");
+
+        accountService.addToModerators(jordan.getAccountID());
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        jordan.setMessageIDs(new TreeMap<>());
+        accountRepository.save(jordan);
+
+        accountService.addToModerators(shawn.getAccountID());
+        shawn = accountRepository.findByAccountID(shawn.getAccountID());
+        shawn.setMessageIDs(new TreeMap<>());
+        accountRepository.save(shawn);
+
+        accountService.addToModerators(kevin.getAccountID());
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        kevin.setMessageIDs(new TreeMap<>());
+        accountRepository.save(kevin);
+
+        buckmaster.setReputation(55);
+        buckmaster.setNewUser(false);
+        buckmaster.getGroupIDs().put("group1", "group1");
+        buckmaster.getGroupIDs().put("group2", "group2");
+        buckmaster.getGroupIDs().put("group3", "group3");
+        buckmaster.getGroupIDs().put("group4", "group4");
+        accountRepository.save(buckmaster);
+
+        Message result = accountService.checkModStatus(buckmaster.getAccountID());
+        assertNull(result);
+
+        buckmaster.getGroupIDs().put("group5", "group5");
+        accountRepository.save(buckmaster);
+        result = accountService.checkModStatus(buckmaster.getAccountID());
+        assertEquals("You are now able to apply to be a moderator!", result.getContent());
+        buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
+        assertEquals(Types.MOD_INVITE, (int)buckmaster.getMessageIDs().get(result.getMessageID()));
+
+        accountService.acceptModInvite(buckmaster.getAccountID(), result.getMessageID());
+
+        String messageID = null;
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        for(String id : jordan.getMessageIDs().keySet()){
+            assertEquals(Types.MOD_REQUEST, (int)kevin.getMessageIDs().get(id));
+            messageID = id;
+        }
+        accountService.acceptModRequest(jordan.getAccountID(), messageID);
+        buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
+        assertEquals(false, buckmaster.isModerator());
+
+        shawn = accountRepository.findByAccountID(shawn.getAccountID());
+        for(String id : shawn.getMessageIDs().keySet()){
+            assertEquals(Types.MOD_REQUEST, (int)kevin.getMessageIDs().get(id));
+            messageID = id;
+        }
+        accountService.rejectModRequest(shawn.getAccountID(), messageID);
+        buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
+        assertEquals(false, buckmaster.isModerator());
+
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        for(String id : kevin.getMessageIDs().keySet()){
+            assertEquals(Types.MOD_REQUEST, (int)kevin.getMessageIDs().get(id));
+            messageID = id;
+        }
+        accountService.acceptModRequest(kevin.getAccountID(), messageID);
+        buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
+        assertEquals(true, buckmaster.isModerator());
+
+        rhys.setReputation(60);
+        rhys.setNewUser(false);
+        rhys.getGroupIDs().put("group1", "group1");
+        rhys.getGroupIDs().put("group2", "group2");
+        rhys.getGroupIDs().put("group3", "group3");
+        rhys.getGroupIDs().put("group4", "group4");
+        rhys.getGroupIDs().put("group5", "group5");
+        accountRepository.save(rhys);
+
+        result = accountService.checkModStatus(rhys.getAccountID());
+        assertEquals("You are now able to apply to be a moderator!", result.getContent());
+        rhys = accountRepository.findByAccountID(rhys.getAccountID());
+        assertEquals(Types.MOD_INVITE, (int)rhys.getMessageIDs().get(result.getMessageID()));
+
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        jordan.setMessageIDs(new TreeMap<>());
+        accountRepository.save(jordan);
+
+        accountService.rejectModInvite(rhys.getAccountID(), result.getMessageID());
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        assertEquals(true, jordan.getMessageIDs().isEmpty());
+
+        result = accountService.checkModStatus(rhys.getAccountID());
+        assertNull(result);
+    }
+
     /* Back end Unit Test for User Story 26 */
     @Test
     public void testGroupMemberSearch() {

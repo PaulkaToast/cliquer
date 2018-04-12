@@ -99,7 +99,7 @@ public interface AccountService extends UserDetailsService {
     Message reportGroupMember(String groupId, String reporterId, String messageId, String reason);
     List<Message> getReportContext(String modId, String messageId, String startId, String endId);
     List<Message> getMessageHistory(String modId, String userId);
-    void checkModStatus (String userId);
+    Message checkModStatus (String userId);
     void addToModerators (String userId);
     void flagUser(String modId, String messageId);
     void suspendUser(String modId, String messageId, long minutes);

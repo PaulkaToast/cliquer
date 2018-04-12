@@ -798,9 +798,10 @@ public class AccountServiceImpl implements AccountService {
         Message parent = messageRepository.findByParentIDAndAndSenderID(message.getParentID());
         parent.increment();
         messageRepository.save(parent);
+        List<Account> moderators = accountRepository.findByIsModeratorTrue();
 
         // TODO: update for decided rules
-        if (parent.getCounter() > 5) {
+        if (parent.getCounter() == Math.ceil(moderators.size()/2.0)) {
             deleteMessageByParent(parent.getParentID());
             addToModerators(parent.getSenderID());
         }
@@ -1849,10 +1850,10 @@ public class AccountServiceImpl implements AccountService {
 
     // TODO: update for decided rules
     @Override
-    public void checkModStatus (String userId) {
+    public Message checkModStatus (String userId) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
-            return;
+            return null;
         }
         Account user = accountRepository.findByAccountID(userId);
         if (!user.isModerator()) { //if user is not already a moderator
@@ -1866,6 +1867,7 @@ public class AccountServiceImpl implements AccountService {
                             accountRepository.save(user);
                             try {
                                 template.convertAndSend("/notification/" + userId, offer);
+                                return offer;
                             } catch (Exception e) {
                                 log.info("Could not send message");
                             }
@@ -1874,6 +1876,7 @@ public class AccountServiceImpl implements AccountService {
                 }
             }
         }
+        return null;
     }
 
     @Override
