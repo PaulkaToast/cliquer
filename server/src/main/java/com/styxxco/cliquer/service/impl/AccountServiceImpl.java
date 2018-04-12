@@ -1860,7 +1860,7 @@ public class AccountServiceImpl implements AccountService {
             if (!user.isDeniedMod()) { //if user already denied being a moderator
                 if (!user.isNewUser()) { //if user is not a new user
                     if (user.getReputation() >= 50) { //if user has reputation higher than 50
-                        if (user.getGroupIDs().keySet().size() > 5) { //user has to be in at least 5 groups
+                        if (user.getGroupIDs().keySet().size() >= 5) { //user has to be in at least 5 groups
                             Message offer = new Message(userId, user.getFullName(),"You are now able to apply to be a moderator!", Types.MOD_INVITE);
                             user.addMessage(offer);
                             messageRepository.save(offer);
