@@ -22,7 +22,8 @@ export { getGroupsHasError, getGroupsIsLoading, getGroupsDataSuccess, getGroups,
          kickHasError, kickIsLoading, kickDataSuccess, kick,
          getRateFormHasError, getRateFormIsLoading, getRateFormDataSuccess, getRateForm,
          postRateFormHasError, postRateFormIsLoading, postRateFormDataSuccess, postRateForm,
-         inviteAllHasError, inviteAllIsLoading, inviteAllDataSuccess, inviteAll } from './groups'
+         inviteAllHasError, inviteAllIsLoading, inviteAllDataSuccess, inviteAll,
+         createEventHasError, createEventIsLoading, createEventDataSuccess, createEvent} from './groups'
 export { addFriendHasError, addFriendIsLoading, addFriendDataSuccess, addFriend,
          removeFriendHasError, removeFriendIsLoading, removeFriendDataSuccess, removeFriend,
          requestFriendHasError, requestFriendIsLoading, requestFriendDataSuccess, requestFriend, } from './friends'

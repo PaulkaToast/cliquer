@@ -357,3 +357,28 @@ export const inviteAll = genericDispatch(
     inviteAllHasError, inviteAllIsLoading, inviteAllDataSuccess, 'GET'
 )
 
+export function createEventHasError(hasError) {
+    return {
+        type: 'CREATE_EVENT_ERROR',
+        hasError
+    }  
+}
+
+export function createEventIsLoading(isLoading) {
+    return {
+        type: 'CREATE_EVENT_IS_LOADING',
+        isLoading
+    }
+}
+
+export function createEventDataSuccess(data) {
+    return {
+        type: 'CREATE_EVENT_DATA_SUCCESS',
+        data
+    }
+}
+
+export const createEvent = genericDispatch(
+    createEventHasError, createEventIsLoading, createEventDataSuccess, 'POST'
+)
+
