@@ -10,7 +10,7 @@ import SkillsPanel from './SkillsPanel'
 import FriendsPanel from './FriendsPanel'
 import UserInfo from './UserInfo'
 import NotificationPanel from './NotificationPanel'
-import { getSkills, getProfile, getGroups } from '../../redux/actions'
+import { getSkills, getProfile, getGroups, flagUser } from '../../redux/actions'
 import url from '../../server.js'
 import nFlag from '../../img/newUser.png'
 
@@ -21,6 +21,7 @@ class Profile extends Component {
     this.state = {
       activeTab: '1',
       modal: false,
+      flagged: false,
     }
   }
 
@@ -78,6 +79,13 @@ class Profile extends Component {
   inviteAndToggle = (gid, ownerID) => {
     this.props.inviteToGroup(gid, ownerID)
     this.toggleM()
+  }
+
+  flagUser = (ownerID) => {
+    if(this.props.isMod()) {
+      this.props.flagUser(`${url}/mod/flagUser?modId=${this.props.accountID}&userId=${ownerID}`, { 'X-Authorization-Firebase': this.props.token})
+      this.setState({ flagged: true })
+    }
   }
 
   renderGroupList = () => {
@@ -153,6 +161,8 @@ class Profile extends Component {
             {!this.isOwner(ownerID) && <Button type="button" size="lg" onClick={() => this.props.sendFriendRequest(ownerID)}>Send Friend Request</Button>}
             {!this.isOwner(ownerID) && groups && Object.keys(groups).length > 0 && 
               <Button type="button" size="lg" onClick={this.toggleM}>Invite To Group</Button>}
+            {!this.isOwner(ownerID) && this.props.isMod() && 
+              <Button type="button" color="warning" size="lg" onClick={!this.state.flagged ? this.flagUser(ownerID) : null}>{!this.state.flagged ? 'Flag User' : 'Flagged'}</Button>}
             <hr/>
             <h4>
               Skills:
@@ -211,6 +221,7 @@ const mapDispatchToProps = (dispatch) => {
     getSkills: (url, headers) => dispatch(getSkills(url, headers)),
     getProfile: (url, headers) => dispatch(getProfile(url, headers)),
     getGroups: (url, headers) => dispatch(getGroups(url, headers)),
+    flagUser: (url, headers) => dispatch(flagUser(url, headers)),
   }
 }
 
