@@ -744,16 +744,6 @@ public class AccountServiceImpl implements AccountService {
         messageRepository.delete(messageId);
         user.removeMessage(messageId);
         accountRepository.save(user);
-        Message parent = messageRepository.findByParentIDAndAndSenderID(message.getParentID());
-        parent.decrement();
-        messageRepository.save(parent);
-
-        if (parent.getCounter() < -3) {
-            deleteMessageByParent(parent.getParentID());
-            user.deniedMod();
-            user.log("Deny mod request");
-            accountRepository.save(user);
-        }
         return message;
     }
 
@@ -795,14 +785,14 @@ public class AccountServiceImpl implements AccountService {
         messageRepository.delete(messageId);
         user.removeMessage(messageId);
         accountRepository.save(user);
-        Message parent = messageRepository.findByParentIDAndAndSenderID(message.getParentID());
+        Message parent = messageRepository.findByMessageID(message.getParentID());
         parent.increment();
         messageRepository.save(parent);
         List<Account> moderators = accountRepository.findByIsModeratorTrue();
 
         // TODO: update for decided rules
         if (parent.getCounter() == Math.ceil(moderators.size()/2.0)) {
-            deleteMessageByParent(parent.getParentID());
+            deleteMessageByParent(parent.getMessageID());
             addToModerators(parent.getSenderID());
         }
         return message;
@@ -823,10 +813,6 @@ public class AccountServiceImpl implements AccountService {
         message.setRead(true);
         messageRepository.save(message);
         Group group = groupService.acceptVoteKick(message.getGroupID(), userId);
-        if (!group.getGroupMemberIDs().keySet().contains(message.getTopicID())) {
-            //The member has been kicked from the group so delete messages
-            deleteMessageByParent(message.getParentID());
-        }
         return message;
     }
 
