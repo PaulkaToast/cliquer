@@ -60,6 +60,7 @@ public class Message
 		public static final int SEARCH_INVITE = 12;
 		public static final int CHAT_MESSAGE = 13;
 		public static final int MOD_REPORT = 14;
+		public static final int KICK_REQUEST = 15;
 	}
 
     public static class Reactions {

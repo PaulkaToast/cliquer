@@ -4,6 +4,7 @@ import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.security.FirebaseTokenHolder;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,10 +29,11 @@ public interface AccountService extends UserDetailsService {
     Account removeSkill(String username, String skillName);
     Account deleteAccount(String username);
     Account rateUser(String userId, String rateeId, String messageId, String json, boolean endorse);
+    void uploadPicture(String userId, MultipartFile file) throws Exception;
     void requestRating(String userId, String groupId);
 
     /* Account Searching */
-    Map<String, ? extends Searchable> searchWithFilter(String type, String query, boolean suggestions, boolean weights);
+    Map<String, ? extends Searchable> searchWithFilter(String type, String query);
     Account setAccountSettings(String username, String json);
     Group setGroupSettings(String username, String groupId, String json);
     List<Account> searchByFirstName(String firstName);
@@ -53,11 +55,11 @@ public interface AccountService extends UserDetailsService {
 
     /* Message centered services */
     /* Note: startDate is of format YEAR-MONTH-DAY, MONTH and DAY are zero padded to reach two digits*/
-    List<Message> getMessages(String userId, boolean includeRead, String startDate);
+    List<Message> getMessages(String userId, String read, String startDate);
     Message sendMessage(String senderId, String receiverId, String content, int type);
     Message deleteMessage(String username, String messageId);
     List<Message> getChatHistory(String groupId, String userId);
-    Message reactToChatMessage(String groupId, String userId, String messageId, int reaction);
+    Message reactToChatMessage(String groupId, String userId, String messageId, String reaction);
     void handleAcceptNotification(String userId, String messageId);
     void handleRejectNotification(String userId, String messageId);
 
@@ -74,6 +76,9 @@ public interface AccountService extends UserDetailsService {
     Message readMessage(String userId, String messageId);
     Message acceptSearchInvite(String userId, String inviteId);
     Message kickMember(String userId, String kickedId, String groupId);
+    Message rejectKickRequest(String userId, String messageId);
+    Message acceptKickRequest(String userId, String messageId);
+    void startKickVote(String userId, String kickedId, String groupId);
     Map<String, Integer> getRateForm(String userId, String rateeId, String groupId);
     Group createEvent(String groupId, String json);
     List<Account> inviteAll(String userId, String groupId);
@@ -92,9 +97,9 @@ public interface AccountService extends UserDetailsService {
     Message rejectModInvite(String userId, String messageId);
     Message rejectModRequest(String userId, String messageId);
     Message reportGroupMember(String groupId, String reporterId, String messageId, String reason);
-    List<Message> getReportContext(String modId, String messageId, List<Message> currentContext);
+    List<Message> getReportContext(String modId, String messageId, String startId, String endId);
     List<Message> getMessageHistory(String modId, String userId);
-    void checkModStatus (String userId);
+    Message checkModStatus (String userId);
     void addToModerators (String userId);
     void flagUser(String modId, String messageId);
     void suspendUser(String modId, String messageId, long minutes);

@@ -38,6 +38,8 @@ public class Account extends Searchable implements UserDetails {
 	@JsonIgnore
 	private String password;
 
+	private String picturePath;
+
 	private boolean isModerator;
 	private boolean deniedMod;
 	private boolean isNewUser;
@@ -136,6 +138,7 @@ public class Account extends Searchable implements UserDetails {
 		this.logs = new ArrayList<>();
 		this.flaggedUser = new TreeMap<>();
 		this.canSuspend = false;
+		this.picturePath = null;
 	}
 
 	public String getFullName()

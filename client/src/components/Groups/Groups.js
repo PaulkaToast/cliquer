@@ -16,7 +16,8 @@ import Chat from './Chat'
 import SkillsForm from '../Profile/SkillsForm'
 import { getGroups, setCurrentGroup,
          leaveGroup, deleteGroup, clearNewSkills, setGroupSettings, 
-         getProfile, kick, getRateForm, postRateForm, inviteAll } from '../../redux/actions'
+         getProfile, kick, getRateForm, postRateForm, inviteAll,
+         createEvent } from '../../redux/actions'
 import url from '../../server'
 
 class Groups extends Component {
@@ -29,6 +30,7 @@ class Groups extends Component {
       settingsPopOver: false,
       modal: false,
       modalR: false,
+      modalE: false,
       memberID: '',
     }
   }
@@ -45,7 +47,8 @@ class Groups extends Component {
         this.props.getGroups(`${url}/api/getUserGroups?username=${nextProps.user.uid}`, { 'X-Authorization-Firebase': nextProps.token })
     }
   }
-
+ 
+  // Detailed settings modal
   toggle = () => {
     if(this.state.modal) {
       this.props.clearSkills()
@@ -56,16 +59,24 @@ class Groups extends Component {
     }
   }
 
+  // Rate modal
   toggleR = () => {
     this.setState({ modalR: !this.state.modalR })
   }
 
+  // Event modal
+  toggleE = () => {
+    this.setState({ modalE: !this.state.modalE })
+  }
+
+  // Members Popover
   toggleM = () => {
     this.setState({
       membersPopOver: !this.state.membersPopOver
     })
   }
 
+  // Settings Popover
   toggleS = () => {
     this.setState({
       settingsPopOver: !this.state.settingsPopOver
@@ -73,7 +84,6 @@ class Groups extends Component {
   }
 
   updateSettings = (ev) => {
-    //TODO: Fix skill list default values, fix public checkbox default value
     this.toggleS() 
     if(ev.preventDefault) ev.preventDefault()
     const skillsReq = this.props.newSkills
@@ -90,6 +100,22 @@ class Groups extends Component {
                             isPublic,
                             reputationReq,
                             proximityReq,
+                            skillsReq
+                          }))
+    this.toggle()
+  }
+
+  createEvent = (ev) => {
+    this.toggleS() 
+    if(ev.preventDefault) ev.preventDefault()
+    const skillsReq = this.props.newSkills
+    const purpose = ev.target.purpose.value
+    const proximity = ev.target.proximity.value
+
+    this.props.createEvent(`${url}/api/createEvent?userId=${this.props.accountID}&groupId=${this.props.currentGroup.groupID}`, { 'X-Authorization-Firebase': this.props.token}, 
+                          JSON.stringify({
+                            purpose,
+                            proximity,
                             skillsReq
                           }))
     this.toggle()
@@ -317,6 +343,38 @@ class Groups extends Component {
             <Button color="secondary" onClick={this.toggleR}>Cancel</Button>
           </ModalFooter>
         </Modal>
+
+        <Modal isOpen={this.state.modalE} toggle={this.toggleE} className="update-settings-modal">
+          <ModalHeader toggle={this.toggleE}>Create a Group Event</ModalHeader>
+          <ModalBody>
+            <Form className="create-group-form" id="event-form" onSubmit={this.createEvent}>
+              <FormGroup className="required">
+                <Label for="name">Event Name</Label>
+                <Input required type="text" name="name" id="name" />
+              </FormGroup>
+              <FormGroup>
+              <Label for="purpose">Purpose</Label>
+              <Input type="textarea" name="purpose" id="purpose"/>
+            </FormGroup>
+              {/*<FormGroup className="required">
+                <Label for="reputation">Minimum Reputation</Label>
+                <Input type="number" name="reputation" id="repuation" min={0} max={reputation}/>
+              </FormGroup>*/}
+              <FormGroup className="required">
+                <Label for="proximity">Maximum Proximity (Miles)</Label>
+                <Input required type="number" name="proximity" id="proximity" min={0} defaultValue={proximity} />
+              </FormGroup>     
+            </Form>
+            <div className="skills-form">
+              <Label for="skills">Preferred Skills</Label>
+              <SkillsForm id="skills" autoFocus={false} />
+            </div> 
+          </ModalBody>
+          <ModalFooter>
+            <Button color="primary" type="button" onClick={() => this.createEvent({ target: document.querySelector('#event-form')})}>Create Event</Button>{' '}
+            <Button color="secondary" onClick={this.toggleE}>Cancel</Button>
+          </ModalFooter>
+        </Modal>
       </Container>
     )
   }
@@ -349,6 +407,7 @@ const mapDispatchToProps = (dispatch) => {
     getRateForm: (url, headers) => dispatch(getRateForm(url, headers)),
     postRateForm: (url, headers, body) => dispatch(postRateForm(url, headers, body)),
     inviteAll: (url, headers) => dispatch(inviteAll(url, headers)),
+    createEvent: (url, headers, body) => dispatch(createEvent(url, headers, body)),
   }
 }
 
