@@ -242,24 +242,17 @@ public class SprintThreeServicesTest {
             assertEquals(Types.MOD_REQUEST, (int)shawn.getMessageIDs().get(id));
             messageID = id;
         }
-        Message message = messageRepository.findByMessageID(messageID);
         accountService.rejectModRequest(shawn.getAccountID(), messageID);
         buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
-        Message parent = messageRepository.findByMessageID(message.getParentID());
-        assertEquals(1, parent.getCounter());
         assertEquals(false, buckmaster.isModerator());
 
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
-        assertEquals(true, kevin.isModerator());
         for(String id : kevin.getMessageIDs().keySet()){
             assertEquals(Types.MOD_REQUEST, (int)kevin.getMessageIDs().get(id));
             messageID = id;
         }
-        message = messageRepository.findByMessageID(messageID);
         accountService.acceptModRequest(kevin.getAccountID(), messageID);
         buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
-        parent = messageRepository.findByMessageID(message.getParentID());
-        assertEquals(2, parent.getCounter());
         assertEquals(true, buckmaster.isModerator());
 
         rhys.setReputation(60);

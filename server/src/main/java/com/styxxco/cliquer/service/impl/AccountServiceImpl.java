@@ -764,7 +764,7 @@ public class AccountServiceImpl implements AccountService {
         user.log("Send mod request");
         accountRepository.save(user);
         String parentID = "modRequest[" + userId + "]";
-        Message request = new Message(parentID, user.getFullName(), "I would like to become a moderator. Care to look at my account?", Types.MOD_REQUEST);
+        Message request = new Message(userId, user.getFullName(), "I would like to become a moderator. Care to look at my account?", Types.MOD_REQUEST);
         request.setParentID(request.getMessageID());
         messageRepository.save(request);
         sendMessageToMods(userId, request);
