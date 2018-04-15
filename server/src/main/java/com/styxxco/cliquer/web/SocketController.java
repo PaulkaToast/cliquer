@@ -60,7 +60,7 @@ public class SocketController {
     public void getAllMessages(@DestinationVariable String userId,
                                @DestinationVariable String includeRead,
                                @DestinationVariable String startDate) {
-        accountService.getMessages(userId, Boolean.parseBoolean(includeRead), startDate);
+        accountService.getMessages(userId, includeRead, startDate);
     }
 
     @MessageMapping("acceptNotification/{userId}/{messageId}")

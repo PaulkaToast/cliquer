@@ -845,6 +845,9 @@ public class GroupServiceImpl implements GroupService {
             if(group.getGroupMemberIDs().containsKey(account.getAccountID())) {
                 continue;
             }
+            if(!account.isPublic() || account.isOptedOut()) {
+                continue;
+            }
             if(account.distanceTo(leader.getLatitude(), leader.getLongitude()) > proximity) {
                 continue;
             }
@@ -893,13 +896,16 @@ public class GroupServiceImpl implements GroupService {
             if(group.getGroupMemberIDs().containsKey(account.getAccountID())) {
                 continue;
             }
-            if(!meetsGroupRequirements(groupId, account.getAccountID())) {
+            if(account.isOptedOut()) {
                 continue;
             }
             if(leader.getReputation() < account.getReputation() * account.getReputationReq()) {
                 continue;
             }
             if(account.distanceTo(leader.getLatitude(), leader.getLongitude()) > account.getProximityReq()) {
+                continue;
+            }
+            if(!meetsGroupRequirements(groupId, account.getAccountID())) {
                 continue;
             }
             Message invite = new Message(groupLeaderId, leader.getFullName(),
