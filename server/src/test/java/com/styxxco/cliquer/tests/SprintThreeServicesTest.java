@@ -622,7 +622,7 @@ public class SprintThreeServicesTest {
         jordan = accountRepository.findByAccountID(jordan.getAccountID());
         assertEquals(false, jordan.isAccountEnabled());
 
-        Account result = accountService.getPublicProfile(jordan.getUsername());
+        Account result = accountService.getUserProfile(jordan.getUsername());
         assertNull(result);
 
         jordan = accountRepository.findByAccountID(jordan.getAccountID());
@@ -631,7 +631,7 @@ public class SprintThreeServicesTest {
         jordan.setFlags(4);
         accountRepository.save(jordan);
 
-        result = accountService.getPublicProfile(jordan.getUsername());
+        result = accountService.getUserProfile(jordan.getUsername());
         assertNotNull(result);
 
         accountService.reportUser(shawn.getAccountID(), jordan.getAccountID(), "Spamming friend invites.");
