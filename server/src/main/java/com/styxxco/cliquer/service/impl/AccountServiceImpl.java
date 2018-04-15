@@ -793,8 +793,8 @@ public class AccountServiceImpl implements AccountService {
 
         // TODO: update for decided rules
         if (parent.getCounter() == Math.ceil(moderators.size()/2.0)) {
-            deleteMessageByParent(parent.getMessageID());
             addToModerators(parent.getSenderID());
+            deleteMessageByParent(parent.getMessageID());
         }
         return message;
     }
