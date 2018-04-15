@@ -1898,7 +1898,7 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(mod);
         report.setRead(true);
         messageRepository.save(report);
-        if(user.getFlags() > 5) {
+        if(user.getFlags() >= 5) {
             suspendUser(modId, messageId);
         }
         return;
