@@ -253,6 +253,9 @@ public class SprintThreeServicesTest {
         }
         accountService.acceptModRequest(kevin.getAccountID(), messageID);
         buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
+        Message message = messageRepository.findByMessageID(messageID);
+        Message parent = messageRepository.findByMessageID(message.getParentID());
+        assertEquals(2, parent.getCounter());
         assertEquals(true, buckmaster.isModerator());
 
         rhys.setReputation(60);
