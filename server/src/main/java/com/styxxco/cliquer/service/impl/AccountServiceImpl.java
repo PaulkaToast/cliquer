@@ -1034,6 +1034,7 @@ public class AccountServiceImpl implements AccountService {
         }
         if (group != null) {
             user.log("Create group " + group.getGroupName());
+            user.addGroup(group);
             accountRepository.save(user);
         }
         return group;
