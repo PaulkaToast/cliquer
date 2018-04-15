@@ -250,6 +250,7 @@ public class SprintThreeServicesTest {
         assertEquals(false, buckmaster.isModerator());
 
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        assertEquals(true, kevin.isModerator());
         for(String id : kevin.getMessageIDs().keySet()){
             assertEquals(Types.MOD_REQUEST, (int)kevin.getMessageIDs().get(id));
             messageID = id;
