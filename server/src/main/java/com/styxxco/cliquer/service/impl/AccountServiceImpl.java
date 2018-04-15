@@ -1128,10 +1128,6 @@ public class AccountServiceImpl implements AccountService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (group != null) {
-            user.log("Create group " + group.getGroupName());
-            accountRepository.save(user);
-        }
         return group;
     }
 
@@ -1169,9 +1165,6 @@ public class AccountServiceImpl implements AccountService {
             log.info("Could not create broadcast event");
             return null;
         }
-        Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
-        leader.log("Create event for group " + group.getGroupName() + " for purpose " + purpose);
-        accountRepository.save(leader);
         return group;
     }
 
@@ -1795,8 +1788,6 @@ public class AccountServiceImpl implements AccountService {
 
         user.removeMessage(messageId);
         messageRepository.delete(message.getMessageID());
-        user.log("Rate user " + ratee.getFullName());
-        accountRepository.save(user);
 
         Map<String, Integer> map = null;
         try {

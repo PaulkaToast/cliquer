@@ -56,6 +56,7 @@ public class GroupServiceImpl implements GroupService {
         Group group = new Group(groupName, groupPurpose, user.getAccountID(), user.getFullName());
         this.groupRepository.save(group);
         user.addGroup(group);
+        user.log("Create group " + group.getGroupName());
         this.accountRepository.save(user);
         return group;
     }
@@ -815,13 +816,15 @@ public class GroupServiceImpl implements GroupService {
             Skill skill = skillRepository.findBySkillNameAndSkillLevel(entry.getKey(), entry.getValue());
             member.addSkill(skill);
         }
+        Account rater = accountRepository.findByAccountID(raterId);
         if(endorse) {
-            Account rater = accountRepository.findByAccountID(raterId);
             int reputation = member.getReputation();
             reputation += (2 + rater.getReputation()/15);
             reputation = Math.min(reputation, 100);
             member.setReputation(reputation);
         }
+        rater.log("Rate user " + member.getFullName());
+        accountRepository.save(rater);
         accountRepository.save(member);
         groupRepository.save(group);
         return "Success";
@@ -875,6 +878,8 @@ public class GroupServiceImpl implements GroupService {
                 log.info("Could not send message");
             }
         }
+        leader.log("Create event for group " + group.getGroupName() + " for purpose " + description);
+        accountRepository.save(leader);
         return qualified;
     }
 
