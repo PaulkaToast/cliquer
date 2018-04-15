@@ -190,8 +190,8 @@ public class SprintThreeServicesTest {
         Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
-        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
-        Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@purdue.edu", "Rhys", "Buckmaster");
+        Account buckmaster = accountService.createAccount("buckmast", "buckmast@pdue.edu", "Jordan", "Buckmaster");
+        Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@pdue.edu", "Rhys", "Buckmaster");
 
         accountService.addToModerators(jordan.getAccountID());
         jordan = accountRepository.findByAccountID(jordan.getAccountID());

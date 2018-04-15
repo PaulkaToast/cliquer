@@ -68,8 +68,6 @@ public class ServiceBypassTests {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
-        Account buckmaster = accountService.createAccount("buckmast", "buckmast@pdue.edu", "Jordan", "Buckmaster");
-        Account paula = accountService.createAccount("toth21", "toth21@pdue.edu", "Paula", "Toth");
 
         Account result = accountService.editUserProfile(jordan.getAccountID(), shawn.getAccountID(), "reputation", "54");
         assertEquals(54, result.getReputation());

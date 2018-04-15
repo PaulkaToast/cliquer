@@ -2124,30 +2124,37 @@ public class AccountServiceImpl implements AccountService {
             case "reputation" :{
                 int reputation = Integer.parseInt(value);
                 user.setReputation(reputation);
+                break;
             }
             case "latitude" :{
                 double latitude = Double.parseDouble(value);
                 user.setLatitude(latitude);
+                break;
             }
             case "longitude" :{
                 double longitude = Double.parseDouble(value);
                 user.setLongitude(longitude);
+                break;
             }
             case "suspendTime" :{
                 int time = Integer.parseInt(value);
                 user.setSuspendTime(time);
+                break;
             }
             case "loggedInTime" :{
                 int time = Integer.parseInt(value);
                 user.setLoggedInTime(time);
+                break;
             }
             case "isModerator" :{
                 addToModerators(userId);
                 user = accountRepository.findByAccountID(userId);
+                break;
             }
             case "isNewUser" :{
                 boolean flag = Boolean.parseBoolean(value);
                 user.setNewUser(flag);
+                break;
             }
         }
         accountRepository.save(user);
