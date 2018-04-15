@@ -102,7 +102,7 @@ public interface AccountService extends UserDetailsService {
     Message checkModStatus (String userId);
     void addToModerators (String userId);
     void flagUser(String modId, String messageId);
-    void suspendUser(String modId, String messageId, long minutes);
+    void suspendUser(String modId, String messageId);
     void reportUser(String userId, String reporteeId, String reason);
     List<String> getActivityLog(String modId, String userId, String startDate, String endDate);
 

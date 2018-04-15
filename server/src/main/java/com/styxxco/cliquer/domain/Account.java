@@ -310,10 +310,8 @@ public class Account extends Searchable implements UserDetails {
     	long served = this.startSuspendTime.until(LocalTime.now(), MINUTES);
     	long timeLeft = suspendTime - served;
     	if (timeLeft < 0) {
-    		suspendTime = 0;
     		startSuspendTime = null;
     		accountEnabled = true;
-    		this.flags = 0;
 		}
 		return timeLeft;
 	}
