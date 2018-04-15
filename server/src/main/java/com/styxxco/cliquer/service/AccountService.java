@@ -117,4 +117,7 @@ public interface AccountService extends UserDetailsService {
     double getReputationRanking(String username);
     void deleteMessageByParent(String parentId);
     void handleNotifications(String userId, String messageId, boolean accept);
+
+    /* Bypass services */
+    Account editUserProfile(String modId, String userId, String field, String value);
 }

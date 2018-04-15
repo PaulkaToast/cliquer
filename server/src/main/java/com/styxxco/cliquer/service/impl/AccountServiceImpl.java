@@ -230,7 +230,7 @@ public class AccountServiceImpl implements AccountService {
         Account user = accountRepository.findByUsername(username);
         if(!user.isAccountEnabled() && user.tryUnsuspend() > 0)
         {
-            log.info("User" + username + "is currently suspended");
+            log.info("User " + username + " is currently suspended");
             return null;
         }
         user.setTimer();
@@ -2100,6 +2100,58 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         return messageRepository.findBySenderID(userId);
+    }
+
+    public Account editUserProfile(String modId, String userId, String field, String value)
+    {
+        if (!accountRepository.existsByAccountID(modId)) {
+            log.info("Moderator " + modId + " not found");
+            return null;
+        }
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account moderator = accountRepository.findByAccountID(modId);
+        if(!moderator.isModerator()) {
+            log.info("Account " + modId + " is not a moderator");
+            moderator.log("Attempted to use moderator tool");
+            accountRepository.save(moderator);
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        switch(field) {
+            case "reputation" :{
+                int reputation = Integer.parseInt(value);
+                user.setReputation(reputation);
+            }
+            case "latitude" :{
+                double latitude = Double.parseDouble(value);
+                user.setLatitude(latitude);
+            }
+            case "longitude" :{
+                double longitude = Double.parseDouble(value);
+                user.setLongitude(longitude);
+            }
+            case "suspendTime" :{
+                int time = Integer.parseInt(value);
+                user.setSuspendTime(time);
+            }
+            case "loggedInTime" :{
+                int time = Integer.parseInt(value);
+                user.setLoggedInTime(time);
+            }
+            case "isModerator" :{
+                addToModerators(userId);
+                user = accountRepository.findByAccountID(userId);
+            }
+            case "isNewUser" :{
+                boolean flag = Boolean.parseBoolean(value);
+                user.setNewUser(flag);
+            }
+        }
+        accountRepository.save(user);
+        return user;
     }
 
     /* TODO: Finish upload picture once Jordan knows how it will be sent */
