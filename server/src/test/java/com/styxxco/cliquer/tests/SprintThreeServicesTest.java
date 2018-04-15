@@ -242,9 +242,9 @@ public class SprintThreeServicesTest {
             assertEquals(Types.MOD_REQUEST, (int)shawn.getMessageIDs().get(id));
             messageID = id;
         }
+        Message message = messageRepository.findByMessageID(messageID);
         accountService.rejectModRequest(shawn.getAccountID(), messageID);
         buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
-        Message message = messageRepository.findByMessageID(messageID);
         Message parent = messageRepository.findByMessageID(message.getParentID());
         assertEquals(1, parent.getCounter());
         assertEquals(false, buckmaster.isModerator());
@@ -254,9 +254,9 @@ public class SprintThreeServicesTest {
             assertEquals(Types.MOD_REQUEST, (int)kevin.getMessageIDs().get(id));
             messageID = id;
         }
+        message = messageRepository.findByMessageID(messageID);
         accountService.acceptModRequest(kevin.getAccountID(), messageID);
         buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
-        message = messageRepository.findByMessageID(messageID);
         parent = messageRepository.findByMessageID(message.getParentID());
         assertEquals(2, parent.getCounter());
         assertEquals(true, buckmaster.isModerator());
