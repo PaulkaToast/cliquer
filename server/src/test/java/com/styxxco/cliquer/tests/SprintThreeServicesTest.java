@@ -18,6 +18,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -627,7 +628,7 @@ public class SprintThreeServicesTest {
 
         jordan = accountRepository.findByAccountID(jordan.getAccountID());
         assertEquals(2*24*60, jordan.getSuspendTime());
-        jordan.setStartSuspendTime(LocalTime.parse("2017-01-01"));
+        jordan.setStartSuspendTime(LocalDateTime.parse("2017-01-01 12:00"));
         jordan.setFlags(4);
         accountRepository.save(jordan);
 
