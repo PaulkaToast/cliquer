@@ -18,7 +18,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -494,7 +496,7 @@ public class SprintThreeServicesTest {
         assertEquals(1, shawn.getFlags());
     }
 
-    /* Back end Unit Test for User Story 38 */
+    /* Back end Unit Test for User Story 38 and 39*/
     @Test
     public void testModeratorReview() {
         Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
@@ -576,6 +578,83 @@ public class SprintThreeServicesTest {
         assertEquals(true, log.get(log.size()-2).contains("Attempted to use moderator tool"));
         assertEquals(true, log.get(log.size()-1).contains("Reported by user Shawn Montgomery"));
     }
+
+    @Test
+    public void testSuspendUsers() {
+        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+
+        accountService.addToModerators(kevin.getAccountID());
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        kevin.setMessageIDs(new TreeMap<>());
+        accountRepository.save(kevin);
+
+        jordan.setFlags(3);
+        accountRepository.save(jordan);
+
+        accountService.reportUser(shawn.getAccountID(), jordan.getAccountID(), "Spamming friend invites.");
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        assertEquals(1, kevin.getMessageIDs().size());
+        String messageID = null;
+        for(String id : kevin.getMessageIDs().keySet()){
+            assertEquals(Types.MOD_REPORT, (int)kevin.getMessageIDs().get(id));
+            messageID = id;
+        }
+        Message message = messageRepository.findByMessageID(messageID);
+        assertEquals("Spamming friend invites.", message.getContent());
+        accountService.flagUser(kevin.getAccountID(), messageID);
+        kevin.setMessageIDs(new TreeMap<>());
+        accountRepository.save(kevin);
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        assertEquals(true, jordan.isAccountEnabled());
+
+        accountService.reportUser(shawn.getAccountID(), jordan.getAccountID(), "Spamming friend invites.");
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        assertEquals(1, kevin.getMessageIDs().size());
+        for(String id : kevin.getMessageIDs().keySet()){
+            assertEquals(Types.MOD_REPORT, (int)kevin.getMessageIDs().get(id));
+            messageID = id;
+        }
+        message = messageRepository.findByMessageID(messageID);
+        assertEquals("Spamming friend invites.", message.getContent());
+        accountService.flagUser(kevin.getAccountID(), messageID);
+        kevin.setMessageIDs(new TreeMap<>());
+        accountRepository.save(kevin);
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        assertEquals(false, jordan.isAccountEnabled());
+
+        Account result = accountService.getUserProfile(jordan.getUsername());
+        assertNull(result);
+
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        assertEquals(2*24*60, jordan.getSuspendTime());
+        jordan.setStartSuspendTime(LocalDateTime.of(2017, Month.JANUARY, 1, 12, 30));
+        jordan.setFlags(4);
+        accountRepository.save(jordan);
+
+        result = accountService.getUserProfile(jordan.getUsername());
+        assertNotNull(result);
+
+        accountService.reportUser(shawn.getAccountID(), jordan.getAccountID(), "Spamming friend invites.");
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        assertEquals(1, kevin.getMessageIDs().size());
+        for(String id : kevin.getMessageIDs().keySet()){
+            assertEquals(Types.MOD_REPORT, (int)kevin.getMessageIDs().get(id));
+            messageID = id;
+        }
+        message = messageRepository.findByMessageID(messageID);
+        assertEquals("Spamming friend invites.", message.getContent());
+        accountService.flagUser(kevin.getAccountID(), messageID);
+        kevin.setMessageIDs(new TreeMap<>());
+        accountRepository.save(kevin);
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        assertEquals(false, jordan.isAccountEnabled());
+
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        assertEquals(4*24*60, jordan.getSuspendTime());
+    }
+
 
     /* Populates valid skills into database, in case they were deleted */
     @Before

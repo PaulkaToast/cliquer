@@ -275,11 +275,13 @@ public class RestController {
         return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
 
+    // TODO: Determine if this call could be removed
+    @Deprecated
     @RequestMapping(value = "/mod/suspendUser", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> suspendUser(@RequestParam(value = "modId") String modId,
                                                        @RequestParam(value = "messageId") String messageId,
                                                        @RequestParam(value = "time") long time) {
-        accountService.suspendUser(modId, messageId, time);
+        accountService.suspendUser(modId, messageId);
         return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
 

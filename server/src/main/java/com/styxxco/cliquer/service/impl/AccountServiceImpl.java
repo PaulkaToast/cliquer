@@ -228,6 +228,11 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Account user = accountRepository.findByUsername(username);
+        if(!user.isAccountEnabled() && user.tryUnsuspend() > 0)
+        {
+            log.info("User" + username + "is currently suspended");
+            return null;
+        }
         user.setTimer();
         accountRepository.save(user);
         return user;
@@ -1123,11 +1128,6 @@ public class AccountServiceImpl implements AccountService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (group != null) {
-            user.log("Create group " + group.getGroupName());
-            user.addGroup(group);
-            accountRepository.save(user);
-        }
         return group;
     }
 
@@ -1165,9 +1165,6 @@ public class AccountServiceImpl implements AccountService {
             log.info("Could not create broadcast event");
             return null;
         }
-        Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
-        leader.log("Create event for group " + group.getGroupName() + " for purpose " + purpose);
-        accountRepository.save(leader);
         return group;
     }
 
@@ -1791,8 +1788,6 @@ public class AccountServiceImpl implements AccountService {
 
         user.removeMessage(messageId);
         messageRepository.delete(message.getMessageID());
-        user.log("Rate user " + ratee.getFullName());
-        accountRepository.save(user);
 
         Map<String, Integer> map = null;
         try {
@@ -1903,11 +1898,14 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(mod);
         report.setRead(true);
         messageRepository.save(report);
+        if(user.getFlags() >= 5) {
+            suspendUser(modId, messageId);
+        }
         return;
     }
 
     @Override
-    public void suspendUser(String modId, String messageId, long minutes) {
+    public void suspendUser(String modId, String messageId) {
         if (!accountRepository.existsByAccountID(modId)) {
             log.info("User " + modId + " not found");
             return;
@@ -1933,7 +1931,12 @@ public class AccountServiceImpl implements AccountService {
             return;
         }
         if (user.isAccountEnabled()) {
-            user.suspend(minutes);
+            if(user.getSuspendTime() == 0)
+            {
+                user.setSuspendTime(24*60);
+            }
+            user.suspend(2*user.getSuspendTime());
+            user.setFlags(user.getFlags() - 5);
             accountRepository.save(user);
         }
         deleteMessageByParent(report.getParentID());
