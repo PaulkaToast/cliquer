@@ -38,6 +38,7 @@
     background-color: #A7C5BD;
     border-color: transparent;
     display:inline-block;
+    max-width: 80%;
 }
 
 .date-div-center{
@@ -57,5 +58,10 @@
 }
 
 .group-message-badge{
-    -webkit-text-fill-color: white;
+    color: white;
+}
+
+.select-a-group-warning{
+    margin-top: 10px;
+    text-align: center;
 }

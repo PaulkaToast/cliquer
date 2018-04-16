@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Alert, Badge, Button, InputGroupAddon, Input, InputGroup} from 'reactstrap'
+import { Alert, Badge, Button, InputGroupAddon, Input, InputGroup,
+        Card, CardImg, CardText, CardBody, CardTitle} from 'reactstrap'
 import SockJsClient from 'react-stomp'
 
 import '../../css/Chat.css'
 import { getChatLog, postChatMessage, updateChatLog } from '../../redux/actions'
 import url from '../../server'
+import Logo from '../../img/cliquerLogoWarn.png'
 
 const Message = ({message, sender, align, time}) => {
   if (!message) return <div></div>;
@@ -169,6 +171,23 @@ class Chat extends Component {
     const messages = this.state.messages;
     var passingDate = "";
 
+    if(!this.props.currentGroup){
+      return  <div className="select-a-group-warning">
+                <Card>
+                  <CardImg src={Logo} width="90%"/>
+                  <CardBody>
+                    <CardTitle>
+                      Ooops...
+                    </CardTitle>
+                    <CardText>
+                      You need to select a group from the left 
+                      or you need to create one using create a group.
+                    </CardText>
+                  </CardBody>
+                </Card>
+                <div ref={(el) => { this.messagesEnd = el; }}></div>
+              </div>
+    }
     return (
       <div className="Chat">
         <div className="message-container">
