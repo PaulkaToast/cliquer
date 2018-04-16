@@ -334,7 +334,9 @@ class Groups extends Component {
             <Form className="rate-group-form" id="rate-form" onSubmit={this.sendRating}>
               <FormGroup>
                 <Label check>
-                  <Input type="checkbox" name="endorse"/>{' '}Boost Reputation?
+                  {/*<Input type="checkbox" name="endorse"/>{' '}Boost Reputation?*/}
+                  <Toggle defaultChecked={false} name="endorse"/>
+                  <span> Boost Reputation?</span>
                 </Label>
               </FormGroup>
               {this.props.rateForm && Object.keys(this.props.rateForm).map((key, i) => {
