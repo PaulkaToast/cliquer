@@ -65,12 +65,12 @@ class Chat extends Component {
     } else {
       if (data[0]){
         this.state.messages = data.map( (m) => {
-          return {sender: m.senderName, message: m.content, id: m.senderId}
+          return {sender: m.senderName, message: m.content, id: m.senderID}
         })
         this.setState(this.state)
       } else {
         this.state.messages.push({
-          sender: data.senderName, message: data.content, id: data.senderId
+          sender: data.senderName, message: data.content, id: data.senderID
         })
         this.setState(this.state)
       }
