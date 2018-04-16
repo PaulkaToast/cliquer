@@ -68,7 +68,9 @@ class Chat extends Component {
   }
 
   handleMessage = (data) => {
-    if (data[0]){
+    if (data.length == 0) {
+      return;
+    } else if (data[0]){
       this.state.messages = data.map( (m) => {
         var hour = ""
         var minute = ""
