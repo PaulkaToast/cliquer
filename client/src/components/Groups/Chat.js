@@ -68,60 +68,55 @@ class Chat extends Component {
   }
 
   handleMessage = (data) => {
-    //if data is an array.
-    if(data.type) {
-      this.props.handleNotification(data)
-    } 
-      if (data[0]){
-        this.state.messages = data.map( (m) => {
-          var hour = ""
-          var minute = ""
-          var time = ""
-          var ampm = ""
-          if(m.creationTime["hour"] > 12){
-            hour = (m.creationTime["hour"] - 12) + ":" 
-            ampm = " PM"
-          }else{
-            hour = m.creationTime["hour"] + ":"
-            ampm = " AM"
-          }
-          if(Math.floor(m.creationTime["minute"] / 10) == 0){
-            minute = "0" + m.creationTime["minute"]
-          }else{
-            minute = m.creationTime["minute"]
-          }
-          time = hour + minute + ampm
-          return {sender: m.senderName, message: m.content, id: m.senderID, 
-            date: m.creationDate["dayOfWeek"] + " " + m.creationDate["month"] + 
-            " " + m.creationDate["dayOfMonth"], time: time}
-        })
-        this.setState(this.state)
-      } else {
-          var hour = ""
-          var minute = ""
-          var time = ""
-          var ampm = ""
-          if(data.creationTime["hour"] > 12){
-            hour = (data.creationTime["hour"] - 12) + ":" 
-            ampm = " PM"
-          }else{
-            hour = data.creationTime["hour"] + ":"
-            ampm = " AM"
-          }
-          if(Math.floor(data.creationTime["minute"] / 10) == 0){
-            minute = "0" + data.creationTime["minute"]
-          }else{
-            minute = data.creationTime["minute"]
-          }
-          time = hour + minute + ampm
-        this.state.messages.push({
-          sender: data.senderName, message: data.content, id: data.senderID, 
-          date: data.creationDate["dayOfWeek"] + " " + data.creationDate["month"] + 
-          " " + data.creationDate["dayOfMonth"], time: time
-        })
-        this.setState(this.state)
-      }
-    //}
+    if (data[0]){
+      this.state.messages = data.map( (m) => {
+        var hour = ""
+        var minute = ""
+        var time = ""
+        var ampm = ""
+        if(m.creationTime["hour"] > 12){
+          hour = (m.creationTime["hour"] - 12) + ":" 
+          ampm = " PM"
+        }else{
+          hour = m.creationTime["hour"] + ":"
+          ampm = " AM"
+        }
+        if(Math.floor(m.creationTime["minute"] / 10) == 0){
+          minute = "0" + m.creationTime["minute"]
+        }else{
+          minute = m.creationTime["minute"]
+        }
+        time = hour + minute + ampm
+        return {sender: m.senderName, message: m.content, id: m.senderID, 
+          date: m.creationDate["dayOfWeek"] + " " + m.creationDate["month"] + 
+          " " + m.creationDate["dayOfMonth"], time: time}
+      })
+      this.setState(this.state)
+    } else {
+        var hour = ""
+        var minute = ""
+        var time = ""
+        var ampm = ""
+        if(data.creationTime["hour"] > 12){
+          hour = (data.creationTime["hour"] - 12) + ":" 
+          ampm = " PM"
+        }else{
+          hour = data.creationTime["hour"] + ":"
+          ampm = " AM"
+        }
+        if(Math.floor(data.creationTime["minute"] / 10) == 0){
+          minute = "0" + data.creationTime["minute"]
+        }else{
+          minute = data.creationTime["minute"]
+        }
+        time = hour + minute + ampm
+      this.state.messages.push({
+        sender: data.senderName, message: data.content, id: data.senderID, 
+        date: data.creationDate["dayOfWeek"] + " " + data.creationDate["month"] + 
+        " " + data.creationDate["dayOfMonth"], time: time
+      })
+      this.setState(this.state)
+    }
   }
 
   scrollToBottom = () => {
