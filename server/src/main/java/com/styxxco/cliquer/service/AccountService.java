@@ -100,10 +100,10 @@ public interface AccountService extends UserDetailsService {
     Message reportGroupMember(String groupId, String reporterId, String messageId, String reason);
     List<Message> getReportContext(String modId, String messageId, String startId, String endId);
     List<Message> getMessageHistory(String modId, String userId);
-    void checkModStatus (String userId);
+    Message checkModStatus (String userId);
     void addToModerators (String userId);
     void flagUser(String modId, String messageId);
-    void suspendUser(String modId, String messageId, long minutes);
+    void suspendUser(String modId, String messageId);
     void reportUser(String userId, String reporteeId, String reason);
     List<String> getActivityLog(String modId, String userId, String startDate, String endDate);
 
@@ -118,4 +118,7 @@ public interface AccountService extends UserDetailsService {
     double getReputationRanking(String username);
     void deleteMessageByParent(String parentId);
     void handleNotifications(String userId, String messageId, boolean accept);
+
+    /* Bypass services */
+    Account editUserProfile(String modId, String userId, String field, String value);
 }

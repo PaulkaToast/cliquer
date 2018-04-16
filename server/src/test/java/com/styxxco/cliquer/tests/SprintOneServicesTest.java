@@ -245,6 +245,7 @@ public class SprintOneServicesTest {
 
         List<Group> groupsOne = accountService.getAllUserGroups(jordan.getUsername());
         List<Group> groupsTwo = accountService.getAllUserGroups(jordan.getUsername());
+        assertEquals(3, groupsOne.size());
         for(int i = 0; i < groupsOne.size(); i++)
         {
             assertEquals(groupsOne.get(i).getGroupID(), groupsTwo.get(i).getGroupID());

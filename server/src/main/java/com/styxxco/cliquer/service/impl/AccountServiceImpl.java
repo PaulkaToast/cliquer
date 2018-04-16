@@ -228,6 +228,11 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Account user = accountRepository.findByUsername(username);
+        if(!user.isAccountEnabled() && user.tryUnsuspend() > 0)
+        {
+            log.info("User " + username + " is currently suspended");
+            return null;
+        }
         user.setTimer();
         accountRepository.save(user);
         return user;
@@ -759,16 +764,6 @@ public class AccountServiceImpl implements AccountService {
         messageRepository.delete(messageId);
         user.removeMessage(messageId);
         accountRepository.save(user);
-        Message parent = messageRepository.findByParentIDAndAndSenderID(message.getParentID());
-        parent.decrement();
-        messageRepository.save(parent);
-
-        if (parent.getCounter() < -3) {
-            deleteMessageByParent(parent.getParentID());
-            user.deniedMod();
-            user.log("Deny mod request");
-            accountRepository.save(user);
-        }
         return message;
     }
 
@@ -789,8 +784,9 @@ public class AccountServiceImpl implements AccountService {
         user.log("Send mod request");
         accountRepository.save(user);
         String parentID = "modRequest[" + userId + "]";
-        Message request = new Message(parentID, user.getFullName(), "I would like to become a moderator. Care to look at my account?", Types.MOD_REQUEST);
-        request.setParentID(parentID);
+        Message request = new Message(userId, user.getFullName(), "I would like to become a moderator. Care to look at my account?", Types.MOD_REQUEST);
+        request.setParentID(request.getMessageID());
+        messageRepository.save(request);
         sendMessageToMods(userId, request);
         return request;
     }
@@ -810,14 +806,15 @@ public class AccountServiceImpl implements AccountService {
         messageRepository.delete(messageId);
         user.removeMessage(messageId);
         accountRepository.save(user);
-        Message parent = messageRepository.findByParentIDAndAndSenderID(message.getParentID());
+        Message parent = messageRepository.findByMessageID(message.getParentID());
         parent.increment();
         messageRepository.save(parent);
+        List<Account> moderators = accountRepository.findByIsModeratorTrue();
 
         // TODO: update for decided rules
-        if (parent.getCounter() > 5) {
-            deleteMessageByParent(parent.getParentID());
+        if (parent.getCounter() == Math.ceil(moderators.size()/2.0)) {
             addToModerators(parent.getSenderID());
+            deleteMessageByParent(parent.getMessageID());
         }
         return message;
     }
@@ -837,10 +834,6 @@ public class AccountServiceImpl implements AccountService {
         message.setRead(true);
         messageRepository.save(message);
         Group group = groupService.acceptVoteKick(message.getGroupID(), userId);
-        if (!group.getGroupMemberIDs().keySet().contains(message.getTopicID())) {
-            //The member has been kicked from the group so delete messages
-            deleteMessageByParent(message.getParentID());
-        }
         return message;
     }
 
@@ -1150,10 +1143,6 @@ public class AccountServiceImpl implements AccountService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (group != null) {
-            user.log("Create group " + group.getGroupName());
-            accountRepository.save(user);
-        }
         return group;
     }
 
@@ -1191,9 +1180,6 @@ public class AccountServiceImpl implements AccountService {
             log.info("Could not create broadcast event");
             return null;
         }
-        Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
-        leader.log("Create event for group " + group.getGroupName() + " for purpose " + purpose);
-        accountRepository.save(leader);
         return group;
     }
 
@@ -1817,8 +1803,6 @@ public class AccountServiceImpl implements AccountService {
 
         user.removeMessage(messageId);
         messageRepository.delete(message.getMessageID());
-        user.log("Rate user " + ratee.getFullName());
-        accountRepository.save(user);
 
         Map<String, Integer> map = null;
         try {
@@ -1864,17 +1848,17 @@ public class AccountServiceImpl implements AccountService {
 
     // TODO: update for decided rules
     @Override
-    public void checkModStatus (String userId) {
+    public Message checkModStatus (String userId) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
-            return;
+            return null;
         }
         Account user = accountRepository.findByAccountID(userId);
         if (!user.isModerator()) { //if user is not already a moderator
             if (!user.isDeniedMod()) { //if user already denied being a moderator
                 if (!user.isNewUser()) { //if user is not a new user
                     if (user.getReputation() >= 50) { //if user has reputation higher than 50
-                        if (user.getGroupIDs().keySet().size() > 5) { //user has to be in at least 5 groups
+                        if (user.getGroupIDs().keySet().size() >= 5) { //user has to be in at least 5 groups
                             Message offer = new Message(userId, user.getFullName(),"You are now able to apply to be a moderator!", Types.MOD_INVITE);
                             user.addMessage(offer);
                             messageRepository.save(offer);
@@ -1884,11 +1868,13 @@ public class AccountServiceImpl implements AccountService {
                             } catch (Exception e) {
                                 log.info("Could not send message");
                             }
+                            return offer;
                         }
                     }
                 }
             }
         }
+        return null;
     }
 
     @Override
@@ -1927,11 +1913,14 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.save(mod);
         report.setRead(true);
         messageRepository.save(report);
+        if(user.getFlags() >= 5) {
+            suspendUser(modId, messageId);
+        }
         return;
     }
 
     @Override
-    public void suspendUser(String modId, String messageId, long minutes) {
+    public void suspendUser(String modId, String messageId) {
         if (!accountRepository.existsByAccountID(modId)) {
             log.info("User " + modId + " not found");
             return;
@@ -1957,7 +1946,12 @@ public class AccountServiceImpl implements AccountService {
             return;
         }
         if (user.isAccountEnabled()) {
-            user.suspend(minutes);
+            if(user.getSuspendTime() == 0)
+            {
+                user.setSuspendTime(24*60);
+            }
+            user.suspend(2*user.getSuspendTime());
+            user.setFlags(user.getFlags() - 5);
             accountRepository.save(user);
         }
         deleteMessageByParent(report.getParentID());
@@ -2121,6 +2115,65 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         return messageRepository.findBySenderID(userId);
+    }
+
+    public Account editUserProfile(String modId, String userId, String field, String value)
+    {
+        if (!accountRepository.existsByAccountID(modId)) {
+            log.info("Moderator " + modId + " not found");
+            return null;
+        }
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account moderator = accountRepository.findByAccountID(modId);
+        if(!moderator.isModerator()) {
+            log.info("Account " + modId + " is not a moderator");
+            moderator.log("Attempted to use moderator tool");
+            accountRepository.save(moderator);
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        switch(field) {
+            case "reputation" :{
+                int reputation = Integer.parseInt(value);
+                user.setReputation(reputation);
+                break;
+            }
+            case "latitude" :{
+                double latitude = Double.parseDouble(value);
+                user.setLatitude(latitude);
+                break;
+            }
+            case "longitude" :{
+                double longitude = Double.parseDouble(value);
+                user.setLongitude(longitude);
+                break;
+            }
+            case "suspendTime" :{
+                int time = Integer.parseInt(value);
+                user.setSuspendTime(time);
+                break;
+            }
+            case "loggedInTime" :{
+                int time = Integer.parseInt(value);
+                user.setLoggedInTime(time);
+                break;
+            }
+            case "isModerator" :{
+                addToModerators(userId);
+                user = accountRepository.findByAccountID(userId);
+                break;
+            }
+            case "isNewUser" :{
+                boolean flag = Boolean.parseBoolean(value);
+                user.setNewUser(flag);
+                break;
+            }
+        }
+        accountRepository.save(user);
+        return user;
     }
 
     /* TODO: Finish upload picture once Jordan knows how it will be sent */

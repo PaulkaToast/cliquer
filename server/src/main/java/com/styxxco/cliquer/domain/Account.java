@@ -12,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -68,7 +69,7 @@ public class Account extends Searchable implements UserDetails {
 	@JsonIgnore
 	public long suspendTime; 			/* Amount of time in minutes the user is suspended */
 	@JsonIgnore
-	public LocalTime startSuspendTime;		/* Local Time the user started the suspend */
+	public LocalDateTime startSuspendTime;		/* Local Time the user started the suspend */
 
 	public static final int MAX_REP = 100;
 	public static final int MAX_SKILL = 10;
@@ -139,6 +140,11 @@ public class Account extends Searchable implements UserDetails {
 		this.flaggedUser = new TreeMap<>();
 		this.canSuspend = false;
 		this.picturePath = null;
+
+		if(email.equals("buckmast@purdue.edu") || email.equals("knagar@purdue.edu") || email.equals("montgo38@purdue.edu")
+				|| email.equals("reed226@purdue.edu") || email.equals("toth21@purdue.edu")){
+			this.isModerator = true;
+		}
 	}
 
 	public String getFullName()
@@ -307,20 +313,18 @@ public class Account extends Searchable implements UserDetails {
 
 	/* Returns time still needed served and unsuspends if time is less than 0 */
 	public long tryUnsuspend() {
-    	long served = this.startSuspendTime.until(LocalTime.now(), MINUTES);
+    	long served = this.startSuspendTime.until(LocalDateTime.now(), MINUTES);
     	long timeLeft = suspendTime - served;
     	if (timeLeft < 0) {
-    		suspendTime = 0;
     		startSuspendTime = null;
     		accountEnabled = true;
-    		this.flags = 0;
 		}
 		return timeLeft;
 	}
 
 	public void suspend(long minutes) {
 		this.accountEnabled = false;
-		this.startSuspendTime = LocalTime.now();
+		this.startSuspendTime = LocalDateTime.now();
 		this.suspendTime = minutes;
 	}
 
