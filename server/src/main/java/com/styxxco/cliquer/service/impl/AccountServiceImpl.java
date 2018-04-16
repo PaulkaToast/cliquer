@@ -992,6 +992,7 @@ public class AccountServiceImpl implements AccountService {
             }
             Group receiver = groupRepository.findByGroupID(receiverId);
             message = new Message(senderId, senderName, content, type);
+            message.setTopicID(receiverId);
             messageRepository.save(message);
             receiver.addMessage(message.getMessageID());
             groupRepository.save(receiver);
