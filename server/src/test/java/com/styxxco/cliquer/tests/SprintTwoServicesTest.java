@@ -612,7 +612,7 @@ public class SprintTwoServicesTest {
         accountService.sendMessage(kevin.getAccountID(), cliquer.getGroupID(), "Hey", Types.CHAT_MESSAGE);
         accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(), "Bye", Types.CHAT_MESSAGE);
 
-        List<Message> messages = accountService.getChatHistory(cliquer.getGroupID(), jordan.getAccountID());
+        List<Message> messages = accountService.getChatHistory(cliquer.getGroupID(), jordan.getUsername());
 
         assertEquals(3, messages.size());
 
