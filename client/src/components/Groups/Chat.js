@@ -132,7 +132,7 @@ class Chat extends Component {
   }
 
   scrollToBottom = () => {
-    this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+    this.messagesEnd.scrollIntoView({ behavior: "smooth", block: "end" });
   }
   
   componentDidMount() {
@@ -172,6 +172,7 @@ class Chat extends Component {
 
     if(!this.props.group){
       return  <div className="select-a-group-warning">
+                <div ref={(el) => { this.messagesEnd = el; }}></div>
                 <Card>
                   <CardImg src={Logo} width="90%"/>
                   <CardBody>
@@ -184,8 +185,6 @@ class Chat extends Component {
                     </CardText>
                   </CardBody>
                 </Card>
-                <div ref={(el) => { this.messagesEnd = el; }}></div>
-                
               </div>
     }
 
