@@ -1,6 +1,6 @@
 export { logIn, logOut, registerHasError, registerIsLoading, registerSuccess, registerUser, setToken } from './auth'
-export { updateUserData, addSkills, addNewSkill, deleteNewSkill, clearNewSkills, setLocation, setNewSkills,
-         addObjectID, clearObjectID } from './user'
+export { updateUserData, addSkills, addNewSkill, deleteNewSkill, clearNewSkills, setCity,
+         setNewSkills, addObjectID, clearObjectID } from './user'
 export { postSkillsHasError, postSkillsIsLoading, postSkillsDataSuccess, postSkills,
          getSkillsHasError, getSkillsIsLoading, getSkillsDataSuccess, getSkills,
          removeSkillHasError, removeSkillIsLoading, removeSkillDataSuccess, removeSkill,
@@ -8,6 +8,7 @@ export { postSkillsHasError, postSkillsIsLoading, postSkillsDataSuccess, postSki
 export { getProfileHasError, getProfileIsLoading, getProfileDataSuccess, getProfile,
          deleteProfileHasError, deleteProfileIsLoading, deleteProfileDataSuccess, deleteProfile,
          setSettingsHasError, setSettingsIsLoading, setSettingsDataSuccess, setSettings,
+         setLocationHasError, setLocationIsLoading, setLocationDataSuccess, setLocation,
          clearProfile } from './profile'
 export { getGroupsHasError, getGroupsIsLoading, getGroupsDataSuccess, getGroups,
          groupInviteHasError, groupInviteIsLoading, groupInviteDataSuccess, groupInvite,

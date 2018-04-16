@@ -46,6 +46,13 @@ export function setLocation(position) {
     }
 }
 
+export function setCity(city) {
+    return {
+        type: 'SET_CITY',
+        city
+    }
+}
+
 export function addObjectID(id) {
     return {
         type: 'ADD_OBJECT_ID',

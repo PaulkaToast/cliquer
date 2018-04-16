@@ -81,3 +81,28 @@ export function clearProfile() {
     }
 }
 
+export function setLocationHasError(hasError) {
+    return {
+        type: 'SET_LOCATION_HAS_ERROR',
+        hasError
+    }  
+}
+
+export function setLocationIsLoading(isLoading) {
+    return {
+        type: 'SET_LOCATION_IS_LOADING',
+        isLoading
+    }
+}
+
+export function setLocationDataSuccess(data) {
+    return {
+        type: 'SET_LOCATION_DATA_SUCCESS',
+        data
+    }
+}
+
+export const setLocation = genericDispatch(
+    setLocationHasError, setLocationIsLoading, setLocationDataSuccess, 'POST'
+)
+

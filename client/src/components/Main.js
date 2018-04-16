@@ -208,10 +208,6 @@ class Main extends Component {
     }
   }
 
-  rate = () => {
-
-  }
-
   acceptNotification = (messageID) => {
     this.clientRef.sendMessage(`/app/acceptNotification/${this.props.accountID}/${messageID}`)
   }

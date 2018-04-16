@@ -30,14 +30,6 @@ class App extends Component {
   }
 
   componentDidMount() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(position => {
-          this.props.setLocation(position)
-        })
-    } else {
-      //TODO: Geolocation is not supported
-    }
-
     firebase.onAuthStateChanged(authUser => {
       if(authUser) {
         this.props.logIn(authUser)
@@ -130,7 +122,6 @@ const mapDispatchToProps = (dispatch) => {
     logIn: (user) => dispatch(logIn(user)),
     logOut: () => dispatch(logOut()),
     setToken: (token) => dispatch(setToken(token)),
-    setLocation: (position) => dispatch(setLocation(position)),
     getProfile: (url, headers) => dispatch(getProfile(url, headers)),
     addObjectID: (id) => dispatch(addObjectID(id)),
     requestFriend: (url, headers) => dispatch(requestFriend(url, headers)),

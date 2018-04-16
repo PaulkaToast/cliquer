@@ -37,10 +37,10 @@ function user(state = {}, action) {
             return Object.assign({}, state, {
                 newSkills: action.skills
             })
-        case 'SET_LOCATION':
+        case 'SET_CITY':
             return Object.assign({}, state, {
-                position: action.position,
-            } )
+                city: action.city
+            })
         case 'ADD_OBJECT_ID':
             return Object.assign({}, state, {
                 accountID: action.id
