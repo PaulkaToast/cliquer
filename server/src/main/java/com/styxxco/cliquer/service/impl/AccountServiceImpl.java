@@ -1002,12 +1002,14 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Message sendMessage(String senderId, String receiverId, String content, int type) {
         String senderName;
+        Boolean groupName = false;
         if (accountRepository.existsByUsername(senderId)) {
             senderName = accountRepository.findByUsername(senderId).getFullName();
         } else if(accountRepository.existsByAccountID(senderId)){
             senderName = accountRepository.findByAccountID(senderId).getFullName();
         } else if (groupRepository.existsByGroupID(senderId)) {
             senderName = groupRepository.findByGroupID(senderId).getGroupName();
+            groupName = true;
         } else {
             log.info("Sender " + senderId + " not found");
             return null;
@@ -1017,6 +1019,9 @@ public class AccountServiceImpl implements AccountService {
             if (!groupRepository.existsByGroupID(receiverId)) {
                 log.info("Group " + receiverId + " not found");
                 return null;
+            }
+            if (groupName){
+                senderName = "this-is-a-group-message";
             }
             Group receiver = groupRepository.findByGroupID(receiverId);
             message = new Message(senderId, senderName, content, type);

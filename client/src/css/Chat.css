@@ -44,11 +44,18 @@
     width: 100%;
     text-align: center;
 }
-
-
 .time-stamp-right{
     margin-right: 3px;
 }
 .time-stamp-left{
     margin-left: 3px;
+}
+
+.group-message-div{
+    width: 100%;
+    text-align: center;
+}
+
+.group-message-badge{
+    -webkit-text-fill-color: white;
 }
