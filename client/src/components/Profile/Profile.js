@@ -98,6 +98,7 @@ class Profile extends Component {
   setCity = (lat, long) => {
     Geocode.fromLatLng(lat, long).then(
       response => {
+        console.log(response)
         const address = response.results[2].formatted_address
         this.props.setCity(address)
         this.setState({ loading: false })

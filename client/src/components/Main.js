@@ -271,7 +271,8 @@ class Main extends Component {
                 goToProfile={this.props.goToProfile} 
                 markAsRead={this.markAsRead} 
                 deleteNotification={this.deleteNotification} 
-                inviteToGroup={this.inviteToGroup} 
+                inviteToGroup={this.inviteToGroup}
+                isMod={this.props.isMod} 
               />}
             />
             <Route path="/groups" render={(navProps) => 
