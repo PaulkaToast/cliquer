@@ -40,10 +40,11 @@
     display:inline-block;
 }
 
-.date-badge-center{
+.date-div-center{
     width: 100%;
     text-align: center;
 }
+
 
 .time-stamp-right{
     margin-right: 3px;

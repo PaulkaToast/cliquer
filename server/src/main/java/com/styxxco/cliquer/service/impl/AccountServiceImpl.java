@@ -979,6 +979,8 @@ public class AccountServiceImpl implements AccountService {
         String senderName;
         if (accountRepository.existsByUsername(senderId)) {
             senderName = accountRepository.findByUsername(senderId).getFullName();
+        } else if(accountRepository.existsByAccountID(senderId)){
+            senderName = accountRepository.findByAccountID(senderId).getFullName();
         } else if (groupRepository.existsByGroupID(senderId)) {
             senderName = groupRepository.findByGroupID(senderId).getGroupName();
         } else {
@@ -997,6 +999,11 @@ public class AccountServiceImpl implements AccountService {
             messageRepository.save(message);
             receiver.addMessage(message.getMessageID());
             groupRepository.save(receiver);
+            try {
+                template.convertAndSend("/group/" + receiver.getGroupID(), message);
+            } catch (Exception e) {
+                log.info("Could not send message");
+            }
         } else {
             if (!accountRepository.existsByAccountID(receiverId)) {
                 log.info("Account " + receiverId + " not found");
