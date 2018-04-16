@@ -145,8 +145,7 @@ class Chat extends Component {
   }
 
   onWebsocketConnect() {
-    if (this.props.group && this.clientRef.state.connected) {
-      //YYYY-MM-DD
+    if (this.props.group && this.clientRef && this.clientRef.state.connected) {
       this.clientRef.sendMessage('/app/'+ this.props.user.uid + '/' + this.props.group.groupID + '/messageHistory', "");
     }
   }
@@ -171,7 +170,7 @@ class Chat extends Component {
     const messages = this.state.messages;
     var passingDate = "";
 
-    if(!this.props.currentGroup){
+    if(!this.props.group){
       return  <div className="select-a-group-warning">
                 <Card>
                   <CardImg src={Logo} width="90%"/>
@@ -186,8 +185,10 @@ class Chat extends Component {
                   </CardBody>
                 </Card>
                 <div ref={(el) => { this.messagesEnd = el; }}></div>
+                
               </div>
     }
+
     return (
       <div className="Chat">
         <div className="message-container">
