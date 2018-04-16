@@ -921,7 +921,8 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Group group = groupRepository.findByGroupID(groupId);
-        if(!group.hasGroupMember(userId)) {
+        Account acc = accountRepository.findByUsername(userId);
+        if(!group.hasGroupMember(acc.getAccountID())) {
             log.info("User " + userId + " is not in group " + groupId);
             return null;
         }
@@ -976,10 +977,14 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Message sendMessage(String senderId, String receiverId, String content, int type) {
         String senderName;
-        if (accountRepository.existsByAccountID(senderId)) {
+        Boolean groupName = false;
+        if (accountRepository.existsByUsername(senderId)) {
+            senderName = accountRepository.findByUsername(senderId).getFullName();
+        } else if(accountRepository.existsByAccountID(senderId)){
             senderName = accountRepository.findByAccountID(senderId).getFullName();
         } else if (groupRepository.existsByGroupID(senderId)) {
             senderName = groupRepository.findByGroupID(senderId).getGroupName();
+            groupName = true;
         } else {
             log.info("Sender " + senderId + " not found");
             return null;
@@ -990,12 +995,20 @@ public class AccountServiceImpl implements AccountService {
                 log.info("Group " + receiverId + " not found");
                 return null;
             }
+            if (groupName){
+                senderName = "this-is-a-group-message";
+            }
             Group receiver = groupRepository.findByGroupID(receiverId);
             message = new Message(senderId, senderName, content, type);
             message.setTopicID(receiverId);
             messageRepository.save(message);
             receiver.addMessage(message.getMessageID());
             groupRepository.save(receiver);
+            try {
+                template.convertAndSend("/group/" + receiver.getGroupID(), message);
+            } catch (Exception e) {
+                log.info("Could not send message");
+            }
         } else {
             if (!accountRepository.existsByAccountID(receiverId)) {
                 log.info("Account " + receiverId + " not found");
