@@ -171,6 +171,11 @@ class Chat extends Component {
                 var dateDiv = <div className="date-div-center"><Badge >{c.date}</Badge></div>
                 passingDate = c.date
               } 
+              if( c.sender == "this-is-a-group-message"){
+                return <div className="group-message-div" key={index}>
+                <Badge className="group-message-badge" color="primary">{c.message}</Badge>
+                </div>
+              }
               if( c.id === this.props.user.uid ){
                 return <div key={index}>{dateDiv}<Message align="sender-message-right" key={index} sender={c.sender} message={c.message} time={c.time}></Message></div>
               } else {
