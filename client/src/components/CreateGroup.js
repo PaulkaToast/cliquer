@@ -39,6 +39,7 @@ class CreateGroup extends Component {
                             proximityReq,
                             skillsReq
                           }))
+    window.location="/groups"
   }
   
   render() {
