@@ -921,7 +921,8 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Group group = groupRepository.findByGroupID(groupId);
-        if(!group.hasGroupMember(userId)) {
+        Account acc = accountRepository.findByUsername(userId);
+        if(!group.hasGroupMember(acc.getAccountID())) {
             log.info("User " + userId + " is not in group " + groupId);
             return null;
         }
@@ -976,8 +977,8 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Message sendMessage(String senderId, String receiverId, String content, int type) {
         String senderName;
-        if (accountRepository.existsByAccountID(senderId)) {
-            senderName = accountRepository.findByAccountID(senderId).getFullName();
+        if (accountRepository.existsByUsername(senderId)) {
+            senderName = accountRepository.findByUsername(senderId).getFullName();
         } else if (groupRepository.existsByGroupID(senderId)) {
             senderName = groupRepository.findByGroupID(senderId).getGroupName();
         } else {

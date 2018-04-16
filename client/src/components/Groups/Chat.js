@@ -52,7 +52,8 @@ class Chat extends Component {
       senderId: this.props.user.uid,
       content: this.state.msgInput,
     }
-    this.clientRef.sendMessage('/app/'+  this.props.group.groupID +'/sendMessage', JSON.stringify(msg));
+    this.clientRef.sendMessage('/app/' + this.props.user.uid + '/' 
+                               + this.props.group.groupID + '/' + this.state.msgInput +'/sendMessage');
     this.state.msgInput = "";
     event.target.reset();
   }
@@ -90,19 +91,21 @@ class Chat extends Component {
   }
 
   onWebsocketConnect() {
-    if (this.props.group) {
-      this.clientRef.sendMessage('/app/'+ this.props.user.uid + '/' + this.props.group.groupID +'/messageHistory', "");
+    if (this.props.group && this.clientRef.state.connected) {
+      //YYYY-MM-DD
+      this.clientRef.sendMessage('/app/'+ this.props.user.uid + '/' + this.props.group.groupID + '/messageHistory', "");
     }
   }
 
   getWebsocket() {
     if (this.props.group) {
-      return <SockJsClient url={`${url}/sockJS`} topics={['/group/'+ this.props.group.groupID, '/group/' + this.props.user.uid + '/' + this.props.group.groupID]}
+      return <SockJsClient url={`${url}/sockJS`} topics={['/group/'+ this.props.user.uid + '/' + this.props.group.groupID]}
           onMessage={this.handleMessage.bind(this)}
           onConnect={this.onWebsocketConnect.bind(this)}
           ref={ (client) => { this.clientRef = client }} 
           subscribeHeaders={{ 'X-Authorization-Firebase': this.props.token }}
           headers={{ 'X-Authorization-Firebase': this.props.token }}
+          debug
         />
     } else {
       return;
