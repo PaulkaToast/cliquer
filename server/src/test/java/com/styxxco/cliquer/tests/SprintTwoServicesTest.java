@@ -255,8 +255,8 @@ public class SprintTwoServicesTest {
         List<Account> results = accountService.searchByFirstName("UniqueJordan");
         assertEquals(1, results.size());
 
-        results = accountService.searchByFullName("UniqueJordan Reed");
-        assertEquals(0, results.size());
+        Map<String, Account> searchMap = accountService.searchByFullName("UniqueJordan Reed");
+        assertEquals(0, searchMap.size());
 
         results = accountService.searchByLastName("Reed");
         assertEquals(0, results.size());

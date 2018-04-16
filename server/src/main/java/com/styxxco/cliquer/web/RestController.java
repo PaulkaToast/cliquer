@@ -1,5 +1,6 @@
 package com.styxxco.cliquer.web;
 
+import com.google.api.Http;
 import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.security.FirebaseFilter;
 import lombok.extern.log4j.Log4j;
@@ -214,7 +215,9 @@ public class RestController {
     @RequestMapping(value = "/api/search", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<?> search(@RequestParam(value = "type") String type,
                                                   @RequestParam(value = "query") String query) {
+        System.out.println(type + " : " + query);
         Map<String, ? extends Searchable> map = accountService.searchWithFilter(type, query);
+
         if (map == null) {
             return new ResponseEntity<>("Could not find any results", HttpStatus.BAD_REQUEST);
         }
@@ -349,6 +352,24 @@ public class RestController {
             return new ResponseEntity<>("Could not upload image properly", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>("Profile picture uploaded successfully", HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/setLocation", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> setLocation(@RequestParam("userId") String userId,
+                                                          @RequestParam("latitude") String latitude,
+                                                          @RequestParam("longitude") String longitude) {
+        accountService.setLocation(userId, latitude, longitude);
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/mod/addNewSkill", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> addNewSkill(@RequestParam("modId") String modId,
+                                                       @RequestParam("skillName") String skillName) {
+        Skill skill = accountService.addSkillToDatabase(skillName);
+        if (skill == null) {
+            return new ResponseEntity<>("Could not add new skill", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(skill, HttpStatus.OK);
     }
 
 }

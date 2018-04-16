@@ -236,22 +236,12 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Map<String, ? extends Searchable> searchWithFilter(String type, String query) {
         if (type.contentEquals("profile")) {
-            Map<String, Account> results = new TreeMap<>();
-            Map<String, Account> firstName = searchByFirstName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            Map<String, Account> lastName = searchByLastName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            Map<String, Account> fullName = searchByFullName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            for (String key: firstName.keySet()) {
-                results.putIfAbsent(key, firstName.get(key));
-            }
-            for (String key: lastName.keySet()) {
-                results.putIfAbsent(key, lastName.get(key));
-            }
-            for (String key: fullName.keySet()) {
-                results.putIfAbsent(key, fullName.get(key));
-            }
+
+            Map<String, Account> results = searchByFullName(query);
+
             Account user = searchByUsername(query);
             if (user != null) {
-                results.putIfAbsent(user.getUsername(), user);
+                results.put(user.getUsername(), user);
             }
             List<Account> sorted = this.sortByReputation(new ArrayList<>(results.values()));
             results = new TreeMap<>();
@@ -262,23 +252,6 @@ public class AccountServiceImpl implements AccountService {
 
         } else if (type.contentEquals("group")) {
             return searchByGroupPublic(query).stream().collect(Collectors.toMap(Group::getGroupID, _it -> _it));
-        }
-
-        /* TODO: Deprecated once front end updates to new search type */
-        switch (type) {
-            case "firstname":
-                return searchByFirstName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "lastname":
-                return searchByLastName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "fullname":
-                return searchByFullName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "username":
-                Map<String, Account> map = new HashMap<>();
-                Account account = searchByUsername(query);
-                map.put(account.getUsername(), account);
-                return map;
-            case "isPublic":
-                return searchByGroupPublic(query).stream().collect(Collectors.toMap(Group::getGroupID, _it -> _it));
         }
         return null;
     }
@@ -359,24 +332,66 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Account> searchByFullName(String firstName, String lastName) {
-        List<Account> accounts = accountRepository.findByFirstNameContainsIgnoreCase(firstName);
-        List<Account> masked = new ArrayList<>();
-        for (Account account : accounts) {
-            if (account.getLastName().toLowerCase().equals(lastName.toLowerCase()) && !account.isOptedOut()) {
-                masked.add(this.maskPublicProfile(account));
+    public Map<String, Account> searchByFullName(String firstName, String lastName) {
+        List<Account> first = searchByFirstName(firstName);
+        List<Account> last = searchByLastName(lastName);
+        Map<String, Account> listOne = first.stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
+        Map<String, Account> listTwo = last.stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
+
+        Map<String, Account> masked = new TreeMap<>();
+        if (firstName.contentEquals(lastName)) { //The search did not contain a space
+            for (String key: listOne.keySet()) {
+                if (!listOne.get(key).isOptedOut()) {
+                    masked.put(key, maskPublicProfile(listOne.get(key)));
+                }
+            }
+
+            for (String key: listTwo.keySet()) {
+                if (!listTwo.get(key).isOptedOut()) {
+                    masked.put(key, maskPublicProfile(listTwo.get(key)));
+                }
+            }
+        } else {
+            for (String key: listOne.keySet()) {
+                if (listTwo.containsKey(key)) {
+                    if (!listOne.get(key).isOptedOut()) {
+                        masked.put(key, maskPublicProfile(listOne.get(key)));
+                    }
+                }
             }
         }
+
         return masked;
     }
 
     @Override
-    public List<Account> searchByFullName(String fullName) {
+    public void setLocation(String userId, String latitude, String longitude) {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        try {
+            double lat = Double.parseDouble(latitude);
+            double lon = Double.parseDouble(longitude);
+            user.setLatitude(lat);
+            user.setLongitude(lon);
+            accountRepository.save(user);
+        } catch (NumberFormatException e) {
+            log.info("Could not parse location");
+            return;
+        }
+    }
+
+
+    @Override
+    public Map<String, Account> searchByFullName(String fullName) {
         String arr[] = fullName.split(" ");
         if (arr.length == 2) {
             return searchByFullName(arr[0], arr[1]);
+        } else {
+            return searchByFullName(arr[0], arr[0]);
         }
-        return null;
     }
 
 

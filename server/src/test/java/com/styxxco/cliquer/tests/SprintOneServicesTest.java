@@ -22,6 +22,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -168,15 +169,17 @@ public class SprintOneServicesTest {
 		assertEquals(2, search.size());
         assertEquals("Rhys", search.get(1).getFirstName());
 
-		search = accountService.searchByFullName("Jordan", "Buckmaster");
-		assertEquals(1, search.size());
-		assertEquals("Jordan", search.get(0).getFirstName());
-		assertEquals("Buckmaster", search.get(0).getLastName());
+		Map<String, Account> searchMap = accountService.searchByFullName("Jordan", "Buckmaster");
+		assertEquals(1, searchMap.size());
 
-		search = accountService.searchByFullName("jOrDan", "bUckMaster");
-		assertEquals(1, search.size());
-		assertEquals("Jordan", search.get(0).getFirstName());
-		assertEquals("Buckmaster", search.get(0).getLastName());
+		assertEquals("Jordan", searchMap.get(buckmaster.getUsername()).getFirstName());
+		assertEquals("Buckmaster", searchMap.get(buckmaster.getUsername()).getLastName());
+
+		searchMap = accountService.searchByFullName("jOrDan", "bUckMaster");
+		assertEquals(1, searchMap.size());
+
+		assertEquals("Jordan", searchMap.get(buckmaster.getUsername()).getFirstName());
+		assertEquals("Buckmaster", searchMap.get(buckmaster.getUsername()).getLastName());
 
 		search = accountService.searchByReputation(6, false, false);
 		assertEquals(3, search.size());

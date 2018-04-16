@@ -31,6 +31,7 @@ public interface AccountService extends UserDetailsService {
     Account rateUser(String userId, String rateeId, String messageId, String json, boolean endorse);
     void uploadPicture(String userId, MultipartFile file) throws Exception;
     void requestRating(String userId, String groupId);
+    void setLocation(String userId, String latitude, String longitude);
 
     /* Account Searching */
     Map<String, ? extends Searchable> searchWithFilter(String type, String query);
@@ -38,8 +39,8 @@ public interface AccountService extends UserDetailsService {
     Group setGroupSettings(String username, String groupId, String json);
     List<Account> searchByFirstName(String firstName);
     List<Account> searchByLastName(String lastName);
-    List<Account> searchByFullName(String firstName, String lastName);
-    List<Account> searchByFullName(String fullName);
+    Map<String, Account> searchByFullName(String firstName, String lastName);
+    Map<String, Account> searchByFullName(String fullName);
     List<Account> searchByReputation(int minimumRep, boolean includeSuggested, boolean includeWeights);
     List<Account> searchBySkill(String skillName);
     Account searchByUsername(String username);
