@@ -1154,13 +1154,16 @@ public class AccountServiceImpl implements AccountService {
         }
         Group group = groupRepository.findByGroupID(groupId);
         String purpose = null;
+        String name = null;
         int proximity = -1;
         List<String> skillNames = new ArrayList<>();
 
         try {
             JSONObject obj = new JSONObject(json);
+            name = obj.getString("name");
             purpose = obj.getString("purpose");
             proximity = obj.getInt("proximity");
+
             for (Object k : obj.keySet()) {
                 String key = k.toString();
                 if (key.contentEquals("skillsReq")) {
