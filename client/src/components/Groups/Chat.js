@@ -71,7 +71,7 @@ class Chat extends Component {
     //if data is an array.
     if(data.type) {
       this.props.handleNotification(data)
-    } else {
+    } 
       if (data[0]){
         this.state.messages = data.map( (m) => {
           var hour = ""
@@ -121,7 +121,7 @@ class Chat extends Component {
         })
         this.setState(this.state)
       }
-    }
+    //}
   }
 
   scrollToBottom = () => {
@@ -146,7 +146,8 @@ class Chat extends Component {
 
   getWebsocket() {
     if (this.props.group) {
-      return <SockJsClient url={`${url}/sockJS`} topics={['/group/'+ this.props.user.uid + '/' + this.props.group.groupID]}
+      return <SockJsClient url={`${url}/sockJS`} topics={['/group/'+ this.props.user.uid + '/' + this.props.group.groupID, 
+    '/group/' + this.props.group.groupID] }
           onMessage={this.handleMessage.bind(this)}
           onConnect={this.onWebsocketConnect.bind(this)}
           ref={ (client) => { this.clientRef = client }} 
@@ -170,13 +171,13 @@ class Chat extends Component {
             messages.map((c, index) => {
               var dateDiv = <div></div>
               if( c.date != passingDate){
-                var dateDiv = <div className="date-badge-center"><Badge>{c.date}</Badge></div>
+                var dateDiv = <div className="date-div-center"><Badge >{c.date}</Badge></div>
                 passingDate = c.date
               } 
               if( c.id === this.props.user.uid ){
-                return <div>{dateDiv}<Message align="sender-message-right" key={index} sender={c.sender} message={c.message} time={c.time}></Message></div>
+                return <div key={index}>{dateDiv}<Message align="sender-message-right" key={index} sender={c.sender} message={c.message} time={c.time}></Message></div>
               } else {
-                return <div>{dateDiv}<Message align="sender-message-left" key={index} sender={c.sender} message={c.message} time={c.time}></Message></div>
+                return <div key={index}>{dateDiv}<Message align="sender-message-left" key={index} sender={c.sender} message={c.message} time={c.time}></Message></div>
               }
             })
           }
