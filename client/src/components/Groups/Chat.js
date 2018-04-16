@@ -80,7 +80,11 @@ class Chat extends Component {
           hour = (m.creationTime["hour"] - 12) + ":" 
           ampm = " PM"
         }else{
-          hour = m.creationTime["hour"] + ":"
+          if(m.creationTime["hour"] == 0){
+            hour = 12 + ":"
+          }else{
+            hour = m.creationTime["hour"] + ":"
+          }
           ampm = " AM"
         }
         if(Math.floor(m.creationTime["minute"] / 10) == 0){
@@ -103,7 +107,11 @@ class Chat extends Component {
           hour = (data.creationTime["hour"] - 12) + ":" 
           ampm = " PM"
         }else{
-          hour = data.creationTime["hour"] + ":"
+          if(data.creationTime["hour"] == 0){
+            hour = 12 + ":"
+          }else{
+            hour = data.creationTime["hour"] + ":"
+          }
           ampm = " AM"
         }
         if(Math.floor(data.creationTime["minute"] / 10) == 0){
