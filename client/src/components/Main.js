@@ -196,10 +196,9 @@ class Main extends Component {
         break
         case 14:
           //Mod report
-          //Todo all mod to respond
           this._notificationSystem.addNotification({
             title: 'Report',
-            message: data.content,
+            message: `${data.senderName} has reported ${data.topicName} for the following reason: ${data.content}`,
             level: 'error',
             action: {
               label: 'OK',
@@ -246,7 +245,7 @@ class Main extends Component {
     this.clientRef.sendMessage(`/app/${this.props.accountID}/${groupID}/rate`) 
   }
 
-  onWebsocketConnect = () => {
+  getAllMessages = (clientRef) => {
     this.clientRef.sendMessage(`/app/${this.props.accountID}/true/1970-01-01/allMessages`)
   }
 
@@ -254,7 +253,7 @@ class Main extends Component {
     if(this.props.accountID) {
       return <SockJsClient url={`${url}/sockJS`} topics={[`/notification/${this.props.accountID}`]}
           onMessage={this.handleNotification}
-          onConnect={this.onWebsocketConnect}
+          onConnect={this.getAllMessages}
           ref={ (client) => { this.clientRef = client }} 
           subscribeHeaders={{ 'X-Authorization-Firebase': this.props.token }}
           headers={{ 'X-Authorization-Firebase': this.props.token }}
@@ -267,6 +266,7 @@ class Main extends Component {
   render() {
     return (
       <div className="Main h-100">
+        {this.getWebsocket()}
         <Navbar {...this.props} />
         <Switch>
             <Route path="/create" render={(navProps) => <CreateGroup {...navProps} />}/>
@@ -292,14 +292,13 @@ class Main extends Component {
             <Route path="/settings" render={(navProps) => <Settings {...navProps} />}/>
             <Route path="/mod" render={(navProps) => 
               this.props.isMod()
-              ? <ModPanel {...navProps} handleNotification={this.handleNotification} />
+              ? <ModPanel {...navProps} deleteNotification={this.deleteNotification} goToProfile={this.props.goToProfile}/>
               : <Redirect to="/groups" />
             }/>
             <Route path="/search/:category/:query" render={(navProps) => <SearchResults {...navProps} sendFriendRequest={this.sendFriendRequest} goToProfile={this.props.goToProfile} requestToJoin={this.requestToJoin}/>}/>
             <Route path='/' render={(navProps) => <Redirect to="/groups" />}/>
         </Switch>
-        
-        {this.getWebsocket()}
+      
         <NotificationSystem ref="notificationSystem" allowHTML={this.props.allowHTML} />
       </div>
     )
