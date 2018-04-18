@@ -47,8 +47,8 @@ public class SprintOneServicesTest {
 	/* Test basic storage of data in MongoDB */
 	@Test
 	public void testDatabase() {
-		Account jordan = new Account("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-		Account shawn = new Account("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+		Account jordan = new Account("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+		Account shawn = new Account("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
 		String id = shawn.getAccountID();
 
 		accountRepository.save(jordan);
@@ -63,10 +63,10 @@ public class SprintOneServicesTest {
 	/* Test account creation and retrieval accountServices */
 	@Test
 	public void testAccountCreationAndRetrieval() {
-		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+		Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
 		assertNotNull(jordan);
 
-		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+		Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
 		assertNotNull(shawn);
 
 		Account retrieve = accountService.getUserProfile(shawn.getUsername());
@@ -97,8 +97,8 @@ public class SprintOneServicesTest {
 	/* Test account modification accountServices */
 	@Test
 	public void testAccountModification() {
-		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+		Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+		Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
 
 		Skill programming = new Skill("Programming", 0);
 		skillRepository.save(programming);
@@ -127,10 +127,10 @@ public class SprintOneServicesTest {
 	/* Test account searching accountServices and ranking */
 	@Test
 	public void testAccountSearchingAndRanking() {
-		Account reed = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-		Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu","Jordan", "Buckmaster");
-		Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@purdue.edu",  "Rhys", "Buckmaster");
-		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+		Account reed = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+		Account buckmaster = accountService.createAccount("buckmast", "buckmast@pdue.edu","Jordan", "Buckmaster");
+		Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@pdue.edu",  "Rhys", "Buckmaster");
+		Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
 
 		reed.setReputation(7);
 		buckmaster.setReputation(69);
@@ -198,9 +198,9 @@ public class SprintOneServicesTest {
 	/* Test group retrieval accountServices */
 	@Test
 	public void testGroupRetrieval() {
-		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
-		Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+		Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+		Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
+		Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
 
 		Group cliquer = groupService.createGroup(
 				"Cliquer",
@@ -228,7 +228,7 @@ public class SprintOneServicesTest {
 
 	@Test
     public void testRetrieveAllGroups() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
 
         Group cliquer = groupService.createGroup(
                 "Cliquer",
@@ -255,9 +255,9 @@ public class SprintOneServicesTest {
 	/* Test group modification accountServices */
 	@Test
 	public void testGroupModification() {
-		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
-		Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+		Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+		Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
+		Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
 
 		Group cliquer = groupService.createGroup(
 				"Cliquer",
@@ -314,8 +314,8 @@ public class SprintOneServicesTest {
 
 	@Test
 	public void testAccountMessaging() {
-		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+		Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+		Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
 
 		Message first = accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Be my friend?", Message.Types.FRIEND_INVITE);
 		Message second = accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Please be my friend?", Message.Types.FRIEND_INVITE);
@@ -336,9 +336,9 @@ public class SprintOneServicesTest {
 
 	@Test
 	public void testAccountDeletion() {
-		Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-		Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
-		Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+		Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+		Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
+		Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
 
 		Group cliquer = groupService.createGroup(
 				"Cliquer",
