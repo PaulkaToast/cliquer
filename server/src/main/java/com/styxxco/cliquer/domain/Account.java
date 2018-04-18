@@ -113,36 +113,56 @@ public class Account extends Searchable implements UserDetails {
 		this.email = email;
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.isModerator = false;
-		this.isPublic = false;
-		this.isOptedOut = false;
-		this.isNewUser = true;
-		this.reputationReq = 0;
-		this.proximityReq = 50;
-		this.loggedInTime = 0;
 		this.intervalTimer = LocalTime.now();
-		this.reputation = 1;
-		this.rank = 0;
-		this.latitude = 0.0;//360.00;
-		this.longitude = 0.0;//360.00;
 		this.skillIDs = new TreeMap<>();
 		this.groupIDs = new TreeMap<>();
 		this.friendIDs = new TreeMap<>();
 		this.messageIDs = new TreeMap<>();
-		this.accountLocked = false;
-		this.accountExpired = false;
-		this.accountEnabled = true;
-		this.credentialsExpired = false;
 		this.numRatings = new TreeMap<>();
 		this.totalRating = new TreeMap<>();
-		this.deniedMod = false;
-		this.logs = new ArrayList<>();
 		this.flaggedUser = new TreeMap<>();
-		this.canSuspend = false;
-		this.picturePath = null;
-
-		if(email.equals("buckmast@purdue.edu") || email.equals("knagar@purdue.edu") || email.equals("montgo38@purdue.edu")
-				|| email.equals("reed226@purdue.edu") || email.equals("toth21@purdue.edu")){
+		this.logs = new ArrayList<>();
+    	switch(email) {
+			case "buckmast@email.com":
+				createAccountBuckmast();
+				break;
+			case "knagar@email.com":
+				createAccountKnagar();
+				break;
+			case "montgo38@email.com":
+				createAccountMontgo();
+				break;
+			case "reed226@email.com":
+				createAccountReed();
+				break;
+			case "toth21@email.com":
+				createAccountToth();
+				break;
+			default: {
+				this.isModerator = false;
+				this.isPublic = false;
+				this.isOptedOut = false;
+				this.isNewUser = true;
+				this.reputationReq = 0;
+				this.proximityReq = 50;
+				this.loggedInTime = 0;
+				this.suspendTime = 0;
+				this.reputation = 1;
+				this.flags = 0;
+				this.rank = 0;
+				this.latitude = 0.0;//360.00;
+				this.longitude = 0.0;//360.00;
+				this.accountLocked = false;
+				this.accountExpired = false;
+				this.accountEnabled = true;
+				this.credentialsExpired = false;
+				this.deniedMod = false;
+				this.canSuspend = false;
+				this.picturePath = null;
+			}
+		}
+		if (email.equals("buckmast@purdue.edu") || email.equals("knagar@purdue.edu") || email.equals("montgo38@purdue.edu")
+				|| email.equals("reed226@purdue.edu") || email.equals("toth21@purdue.edu")) {
 			this.isModerator = true;
 		}
 	}
@@ -345,5 +365,119 @@ public class Account extends Searchable implements UserDetails {
 
 	public boolean canSuspend() {
     	return canSuspend;
+	}
+
+	/* One flag away from suspension */
+	private void createAccountBuckmast() {
+		this.isModerator = false;
+		this.isPublic = true;
+		this.isOptedOut = false;
+		this.isNewUser = true;
+		this.reputationReq = 0;
+		this.proximityReq = 50;
+		this.loggedInTime = 0;
+		this.suspendTime = 0;
+		this.reputation =10;
+		this.flags = 4;
+		this.rank = 0;
+		this.latitude = 0.0;//360.00;
+		this.longitude = 0.0;//360.00;
+		this.accountLocked = false;
+		this.accountExpired = false;
+		this.accountEnabled = true;
+		this.credentialsExpired = false;
+		this.deniedMod = false;
+		this.canSuspend = false;
+		this.picturePath = null;
+	}
+
+	/* About to not be a new user */
+	private void createAccountKnagar() {
+		this.isModerator = false;
+		this.isPublic = false;
+		this.isOptedOut = false;
+		this.isNewUser = true;
+		this.reputationReq = 0;
+		this.proximityReq = 50;
+		this.loggedInTime = NEW_USER_HOURS*60 - 5;
+		this.suspendTime = 0;
+		this.reputation = 50;
+		this.flags = 0;
+		this.rank = 0;
+		this.latitude = 0.0;//360.00;
+		this.longitude = 0.0;//360.00;
+		this.accountLocked = false;
+		this.accountExpired = false;
+		this.accountEnabled = true;
+		this.credentialsExpired = false;
+		this.deniedMod = false;
+		this.canSuspend = false;
+		this.picturePath = null;
+	}
+	private void createAccountMontgo() {
+		this.isModerator = false;
+		this.isPublic = false;
+		this.isOptedOut = false;
+		this.isNewUser = true;
+		this.reputationReq = 0;
+		this.proximityReq = 50;
+		this.loggedInTime = 0;
+		this.suspendTime = 0;
+		this.reputation = 1;
+		this.flags = 0;
+		this.rank = 0;
+		this.latitude = 0.0;//360.00;
+		this.longitude = 0.0;//360.00;
+		this.accountLocked = false;
+		this.accountExpired = false;
+		this.accountEnabled = true;
+		this.credentialsExpired = false;
+		this.deniedMod = false;
+		this.canSuspend = false;
+		this.picturePath = null;
+	}
+	private void createAccountReed() {
+		this.isModerator = false;
+		this.isPublic = false;
+		this.isOptedOut = false;
+		this.isNewUser = true;
+		this.reputationReq = 0;
+		this.proximityReq = 50;
+		this.loggedInTime = 0;
+		this.suspendTime = 0;
+		this.reputation = 1;
+		this.flags = 0;
+		this.rank = 0;
+		this.latitude = 0.0;//360.00;
+		this.longitude = 0.0;//360.00;
+		this.accountLocked = false;
+		this.accountExpired = false;
+		this.accountEnabled = true;
+		this.credentialsExpired = false;
+		this.deniedMod = false;
+		this.canSuspend = false;
+		this.picturePath = null;
+	}
+	private void createAccountToth() {
+		this.isModerator = false;
+		this.isPublic = false;
+		this.isOptedOut = false;
+		this.isNewUser = true;
+		this.reputationReq = 0;
+		this.proximityReq = 50;
+		this.loggedInTime = 0;
+		this.suspendTime = 0;
+		this.reputation = 1;
+		this.flags = 0;
+		this.rank = 0;
+		this.latitude = 0.0;//360.00;
+		this.longitude = 0.0;//360.00;
+		this.accountLocked = false;
+		this.accountExpired = false;
+		this.accountEnabled = true;
+		this.credentialsExpired = false;
+		this.deniedMod = false;
+		this.canSuspend = false;
+		this.picturePath = null;
 	}
 }
