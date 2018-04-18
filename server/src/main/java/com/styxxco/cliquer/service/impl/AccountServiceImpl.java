@@ -102,6 +102,9 @@ public class AccountServiceImpl implements AccountService {
         }
         Account user = new Account(username, email, firstName, lastName);
         user.log("Account created");
+        if (user.isModerator()) {
+            user.setAuthorities(getModRoles());
+        }
         this.accountRepository.save(user);
         return user;
     }
@@ -781,6 +784,13 @@ public class AccountServiceImpl implements AccountService {
         Message message = messageRepository.findByMessageID(messageId);
         messageRepository.delete(messageId);
         user.removeMessage(messageId);
+
+        List<Account> moderators = accountRepository.findByIsModeratorTrue();
+        if (moderators.size() == 0) {
+            addToModerators(userId);
+            return message;
+        }
+
         user.log("Send mod request");
         accountRepository.save(user);
         String parentID = "modRequest[" + userId + "]";
@@ -1032,15 +1042,16 @@ public class AccountServiceImpl implements AccountService {
             copy.setParentID(message.getParentID());
             copy.setGroupID(message.getGroupID());
             copy.setTopicID(message.getTopicID());
+            copy.setTopicName(message.getTopicName());
             copy.setChatMessageID(message.getChatMessageID());
             mod.addMessage(copy);
             messageRepository.save(copy);
             accountRepository.save(mod);
-        }
-        try {
-            template.convertAndSend("/moderators", message);
-        } catch (Exception e) {
-            log.info("Could not send message");
+            try {
+                template.convertAndSend("/notification/" + mod.getAccountID(), message);
+            } catch (Exception e) {
+                log.info("Could not send message");
+            }
         }
         return message;
     }
@@ -1143,6 +1154,7 @@ public class AccountServiceImpl implements AccountService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return group;
     }
 
@@ -1387,7 +1399,8 @@ public class AccountServiceImpl implements AccountService {
             if (memberId.contentEquals(kickee.getAccountID())) continue;
             Account member = accountRepository.findByAccountID(memberId);
             Message voteTicket = new Message(leader.getAccountID(), leader.getFullName(), "You can now vote to kick " + kickee.getFullName() + " from group " + group.getGroupName(), Types.KICK_REQUEST);
-            voteTicket.setTopicID(kickedId);
+            voteTicket.setTopicID(kickee.getAccountID());
+            voteTicket.setTopicName(kickee.getFullName());
             voteTicket.setParentID("VoteToKick:" + kickedId + ":FromGroup:" + groupId);
             voteTicket.setGroupID(groupId);
             member.addMessage(voteTicket);
@@ -1787,7 +1800,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account rateUser(String userId, String rateeId, String messageId, String json, boolean endorse) {
+    public Account rateUser(String userId, String rateeId, String groupId, String json, boolean endorse) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
@@ -1796,16 +1809,13 @@ public class AccountServiceImpl implements AccountService {
             log.info("User " + rateeId + " not found");
             return null;
         }
-        if (!messageRepository.existsByMessageID(messageId)) {
-            log.info("Could not find rate request");
+        if (!groupRepository.existsByGroupID(groupId)) {
+            log.info("Group " + groupId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
         Account ratee = accountRepository.findByAccountID(rateeId);
-        Message message = messageRepository.findByMessageID(messageId);
-
-        user.removeMessage(messageId);
-        messageRepository.delete(message.getMessageID());
+        Group group = groupRepository.findByGroupID(groupId);
 
         Map<String, Integer> map = null;
         try {
@@ -1823,7 +1833,7 @@ public class AccountServiceImpl implements AccountService {
             log.info("Map is null");
             return null;
         }
-        groupService.rateGroupMember(message.getGroupID(), userId, rateeId, endorse, map);
+        groupService.rateGroupMember(group.getGroupID(), userId, rateeId, endorse, map);
         ratee.setRank(getReputationRanking(ratee.getUsername()));
         checkModStatus(ratee.getAccountID());
         return ratee;
@@ -1979,6 +1989,7 @@ public class AccountServiceImpl implements AccountService {
         Message message = new Message(user.getAccountID(), user.getFullName(), reason, Types.MOD_REPORT);
         message.setParentID("Report:" + reportee.getAccountID());
         message.setTopicID(reportee.getAccountID());
+        message.setTopicName(reportee.getFullName());
         sendMessageToMods(user.getAccountID(), message);
     }
 
@@ -2048,6 +2059,7 @@ public class AccountServiceImpl implements AccountService {
         report.setParentID("Report:" + reportee.getAccountID());
         report.setGroupID(groupId);
         report.setTopicID(reportee.getAccountID());
+        report.setTopicName(reportee.getFullName());
         report.setChatMessageID(messageId);
         sendMessageToMods(reporterId, report);
         return report;

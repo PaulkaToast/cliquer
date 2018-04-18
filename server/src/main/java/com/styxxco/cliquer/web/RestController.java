@@ -31,7 +31,7 @@ public class RestController {
 
     private final String OKAY = "{\"status\": \"OK\"}";
 
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    @RequestMapping(value = "/", method = RequestMethod.GET)
     public String index() {
         log.info("Index called");
         return "index";
@@ -202,10 +202,10 @@ public class RestController {
     @RequestMapping(value = "/api/rateUser", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> rateUser(@RequestParam(value = "userId") String userId,
                                                     @RequestParam(value = "rateeId") String rateeId,
-                                                    @RequestParam(value = "messageId") String messageId,
+                                                    @RequestParam(value = "groupId") String groupId,
                                                     @RequestParam(value = "endorse", required = false, defaultValue = "false") boolean endorse,
                                                     @RequestBody String json) {
-        Account user = accountService.rateUser(userId, rateeId, messageId, json, endorse);
+        Account user = accountService.rateUser(userId, rateeId, groupId, json, endorse);
         if (user == null) {
             return new ResponseEntity<>("Could not rate user", HttpStatus.BAD_REQUEST);
         }
@@ -364,8 +364,8 @@ public class RestController {
         return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/mod/addNewSkill", method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<?> addNewSkill(@RequestParam("modId") String modId,
+    @RequestMapping(value = "/mod/submitSkill", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> submitSkill(@RequestParam("modId") String modId,
                                                        @RequestParam("skillName") String skillName) {
         Skill skill = accountService.addSkillToDatabase(skillName);
         if (skill == null) {

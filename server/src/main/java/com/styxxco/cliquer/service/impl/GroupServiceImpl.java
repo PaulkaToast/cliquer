@@ -730,6 +730,7 @@ public class GroupServiceImpl implements GroupService {
             log.info("Group " + groupId + " has maxed out the limit for group ratings");
             return;
         }
+        groupRepository.save(group);
 
         for(String accountID : group.getGroupMemberIDs().keySet()) {
             if(accountID.equals(groupLeaderId)) {
@@ -749,7 +750,6 @@ public class GroupServiceImpl implements GroupService {
                 log.info("Could not send message");
             }
         }
-        groupRepository.save(group);
     }
 
     @Override
