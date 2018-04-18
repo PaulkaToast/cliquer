@@ -46,6 +46,35 @@ public class SprintThreeServicesTest {
     @Autowired
     public GroupService groupService;
 
+    /* Back end Unit Test for User Story 5 */
+    @Test
+    public void testAddSkillToDatabase() {
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
+
+        accountService.addToModerators(kevin.getAccountID());
+
+        Skill result = accountService.addSkillToDatabase(kevin.getAccountID(), "Surfing");
+        assertEquals(0, result.getSkillLevel());
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 0));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 1));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 2));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 3));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 4));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 5));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 6));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 7));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 8));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 9));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 10));
+        assertNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 11));
+
+        result = accountService.addSkillToDatabase(jordan.getAccountID(), "Chess");
+        assertNull(result);
+        result = accountService.addSkillToDatabase(kevin.getAccountID(), "Java");
+        assertNull(result);
+    }
+
     /* Back end Unit Test for User Story 8 */
     @Test
     public void testGetMessages() {
