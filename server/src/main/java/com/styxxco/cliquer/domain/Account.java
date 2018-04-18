@@ -140,11 +140,6 @@ public class Account extends Searchable implements UserDetails {
 		this.flaggedUser = new TreeMap<>();
 		this.canSuspend = false;
 		this.picturePath = null;
-
-		if(email.equals("buckmast@purdue.edu") || email.equals("knagar@purdue.edu") || email.equals("montgo38@purdue.edu")
-				|| email.equals("reed226@purdue.edu") || email.equals("toth21@purdue.edu")){
-			this.isModerator = true;
-		}
 	}
 
 	public String getFullName()
