@@ -334,6 +334,18 @@ public class RestController {
         return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/mod/editUser", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> editUser(@RequestParam(value = "modId") String modId,
+                                                   @RequestParam(value = "userId") String userId,
+                                                   @RequestParam(value = "field") String field,
+                                                   @RequestParam(value = "value") String value) {
+        Account user = accountService.editUserProfile(modId, userId, field, value);
+        if (user == null) {
+            return new ResponseEntity<>("Could not modify account", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/api/react", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> react(@RequestParam(value = "userId") String userId,
                                                  @RequestParam(value = "groupId") String groupId,
