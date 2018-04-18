@@ -55,7 +55,7 @@ class Main extends Component {
               </ButtonGroup>
             )
           })
-          break
+        break
         case 1:
           // Friend invite
           this._notificationSystem.addNotification({
@@ -137,9 +137,10 @@ class Main extends Component {
             level: 'success',
             action: {
               label: 'OK',
-              callback: () => this.acceptNotification(data.messageID)
+              callback: () => this.deleteNotification(data.messageID)
             }
           })
+        break
         case 8:
           // Event invite
           this._notificationSystem.addNotification({
@@ -154,6 +155,7 @@ class Main extends Component {
               </ButtonGroup>
             )
           })
+        break
         case 9:
           // Mod request
           // TODO: Show mod application
@@ -166,6 +168,7 @@ class Main extends Component {
               callback: () => this.acceptNotification(data.messageID)
             }
           })
+        break
         case 10:
           // Mod request accepted
           this._notificationSystem.addNotification({
@@ -177,6 +180,7 @@ class Main extends Component {
               callback: () => this.acceptNotification(data.messageID)
             }
           })
+        break
         case 11:
           // Mod invite
           // TODO: Show mod application
@@ -189,7 +193,8 @@ class Main extends Component {
               callback: () => this.acceptNotification(data.messageID)
             }
           })
-        case 13:
+        break
+        case 14:
           //Mod report
           //Todo all mod to respond
           this._notificationSystem.addNotification({
@@ -201,6 +206,7 @@ class Main extends Component {
               callback: () => this.acceptNotification(data.messageID)
             }
           })
+        break
         default:
           // Basic Notification
           // Add basic messages here if necessary
@@ -241,7 +247,7 @@ class Main extends Component {
   }
 
   onWebsocketConnect = () => {
-    this.clientRef.sendMessage(`/app/${this.props.accountID}/allMessages`)
+    this.clientRef.sendMessage(`/app/${this.props.accountID}/true/1970-01-01/allMessages`)
   }
 
   getWebsocket = () => {
@@ -282,11 +288,11 @@ class Main extends Component {
                 allowRating={this.allowRating} 
               />}
             />
-            <Route path="/public" render={(navProps) => <PublicGroups {...navProps} accountID={this.props.accountID}/>}/>
+            <Route path="/public" render={(navProps) => <PublicGroups {...navProps} accountID={this.props.accountID} requestToJoin={this.requestToJoin} />}/>
             <Route path="/settings" render={(navProps) => <Settings {...navProps} />}/>
             <Route path="/mod" render={(navProps) => 
               this.props.isMod()
-              ? <ModPanel {...navProps} />
+              ? <ModPanel {...navProps} handleNotification={this.handleNotification} />
               : <Redirect to="/groups" />
             }/>
             <Route path="/search/:category/:query" render={(navProps) => <SearchResults {...navProps} sendFriendRequest={this.sendFriendRequest} goToProfile={this.props.goToProfile} requestToJoin={this.requestToJoin}/>}/>
