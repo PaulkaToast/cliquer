@@ -71,7 +71,7 @@ public class SprintThreeServicesTest {
 
         result = accountService.addSkillToDatabase(jordan.getAccountID(), "Chess");
         assertNull(result);
-        Skill skill = skillRepository.findBySkillNameAndSkillLevel("Java", 1));
+        Skill skill = skillRepository.findBySkillNameAndSkillLevel("Java", 1);
         result = accountService.addSkillToDatabase(kevin.getAccountID(), "Java");
         assertEquals(0, result.getSkillLevel());
         assertEquals(skill.getSkillID(), skillRepository.findBySkillNameAndSkillLevel("Java", 1).getSkillID());
