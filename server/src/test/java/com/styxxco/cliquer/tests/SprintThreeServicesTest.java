@@ -471,7 +471,7 @@ public class SprintThreeServicesTest {
     public void testReportGroupMembers() {
         Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
-        Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
 
         Group cliquer = groupService.createGroup(
                 "Cliquer",
@@ -479,9 +479,7 @@ public class SprintThreeServicesTest {
                 jordan.getAccountID());
 
         groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID());
-        accountService.addToModerators(kevin.getAccountID());
-
-        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        
         kevin.setMessageIDs(new TreeMap<>());
         accountRepository.save(kevin);
 
@@ -532,10 +530,8 @@ public class SprintThreeServicesTest {
     public void testModeratorReview() {
         Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
-        Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
 
-        accountService.addToModerators(kevin.getAccountID());
-        kevin = accountRepository.findByAccountID(kevin.getAccountID());
         kevin.setMessageIDs(new TreeMap<>());
         accountRepository.save(kevin);
 
@@ -614,10 +610,8 @@ public class SprintThreeServicesTest {
     public void testSuspendUsers() {
         Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
         Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
-        Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
 
-        accountService.addToModerators(kevin.getAccountID());
-        kevin = accountRepository.findByAccountID(kevin.getAccountID());
         kevin.setMessageIDs(new TreeMap<>());
         accountRepository.save(kevin);
 
