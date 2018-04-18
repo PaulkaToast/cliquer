@@ -258,7 +258,10 @@ public class RestController {
     public @ResponseBody ResponseEntity<?> reportUser(@RequestParam(value = "userId") String userId,
                                                       @RequestParam(value = "reporteeId") String reporteeId,
                                                       @RequestParam(value = "reason") String reason) {
-        accountService.reportUser(userId, reporteeId, reason);
+        Message message = accountService.reportUser(userId, reporteeId, reason);
+        if(message == null){
+            return new ResponseEntity<>("Could not report user", HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
 
@@ -267,14 +270,20 @@ public class RestController {
                                                         @RequestParam(value = "groupId") String groupId,
                                                         @RequestParam(value = "messageId") String messageId,
                                                         @RequestBody String reason) {
-        accountService.reportGroupMember(groupId, userId, messageId, reason);
+        Message message = accountService.reportGroupMember(groupId, userId, messageId, reason);
+        if(message == null){
+            return new ResponseEntity<>("Could not report group member", HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/mod/flagUser", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> flagUser(@RequestParam(value = "modId") String modId,
                                                     @RequestParam(value = "messageId") String messageId) {
-        accountService.flagUser(modId, messageId);
+        Account user = accountService.flagUser(modId, messageId);
+        if(user == null){
+            return new ResponseEntity<>("Could not flag user", HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
 
@@ -284,7 +293,10 @@ public class RestController {
     public @ResponseBody ResponseEntity<?> suspendUser(@RequestParam(value = "modId") String modId,
                                                        @RequestParam(value = "messageId") String messageId,
                                                        @RequestParam(value = "time") long time) {
-        accountService.suspendUser(modId, messageId);
+        Account user = accountService.suspendUser(modId, messageId);
+        if(user == null){
+            return new ResponseEntity<>("Could not suspend user", HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
 
@@ -310,6 +322,16 @@ public class RestController {
             return new ResponseEntity<>("Could not retrieve chat context", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(log, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/mod/addSkill", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> addSkill(@RequestParam(value = "modId") String modId,
+                                                    @RequestParam(value = "skillName") String skillName) {
+        Skill skill = accountService.addSkillToDatabase(modId, skillName);
+        if (skill == null) {
+            return new ResponseEntity<>("Could not add skill to database", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/react", method = RequestMethod.POST)

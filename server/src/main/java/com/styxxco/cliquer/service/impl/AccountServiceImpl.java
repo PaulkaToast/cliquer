@@ -566,6 +566,22 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Skill addSkillToDatabase(String modId, String skillName) {
+        if (!accountRepository.existsByAccountID(modId)) {
+            log.info("Moderator " + modId + " not found");
+            return null;
+        }
+        Account moderator = accountRepository.findByAccountID(modId);
+        if(!moderator.isModerator()) {
+            log.info("Account " + modId + " is not a moderator");
+            moderator.log("Attempted to use moderator tool");
+            accountRepository.save(moderator);
+            return null;
+        }
+        return addSkillToDatabase(skillName);
+    }
+
+    @Override
     public List<Skill> getAllValidSkills() {
         List<Skill> skills = skillRepository.findBySkillLevel(0);
         System.out.println(skills);
@@ -1249,6 +1265,9 @@ public class AccountServiceImpl implements AccountService {
         if (group.getGroupLeaderID().equals(user.getAccountID())) {
             if (group.getGroupMemberIDs().size() == 1) {
                 user.removeGroup(groupId);
+                for(String messageID : group.getChatMessageIDs()) {
+                    messageRepository.delete(messageID);
+                }
                 groupRepository.delete(group);
                 accountRepository.save(user);
                 return user;
@@ -1854,10 +1873,10 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void addToModerators (String userId){
+    public Account addToModerators (String userId){
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
-            return;
+            return null;
         }
         Account user = accountRepository.findByAccountID(userId);
         Message congrats = new Message(userId, user.getFullName(),"Congratulations! You're a moderator now!", Types.MOD_ACCEPTED);
@@ -1871,6 +1890,7 @@ public class AccountServiceImpl implements AccountService {
         } catch (Exception e) {
             log.info("Could not send message");
         }
+        return user;
     }
 
     // TODO: update for decided rules
@@ -1905,22 +1925,22 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void flagUser(String modId, String messageId) {
+    public Account flagUser(String modId, String messageId) {
         if (!messageRepository.existsByMessageID(messageId)) {
             log.info("Message " + messageId + " not found");
-            return;
+            return null;
         }
         Message report = messageRepository.findByMessageID(messageId);
 
         if (!accountRepository.existsByAccountID(modId)) {
             log.info("User " + modId + " not found");
-            return;
+            return null;
         }
         Account mod = accountRepository.findByAccountID(modId);
 
         if (!accountRepository.existsByAccountID(report.getTopicID())) {
             log.info("User " + report.getTopicID() + " not found");
-            return;
+            return null;
         }
         Account user = accountRepository.findByAccountID(report.getTopicID());
 
@@ -1928,7 +1948,7 @@ public class AccountServiceImpl implements AccountService {
             log.info(mod.getFullName() + " is not a moderator");
             mod.log("Attempted to use moderator tool");
             accountRepository.save(mod);
-            return;
+            return null;
         }
         if (mod.haveFlagged(user.getAccountID())) {
             user.removeFlag();
@@ -1941,28 +1961,28 @@ public class AccountServiceImpl implements AccountService {
         report.setRead(true);
         messageRepository.save(report);
         if(user.getFlags() >= 5) {
-            suspendUser(modId, messageId);
+            return suspendUser(modId, messageId);
         }
-        return;
+        return user;
     }
 
     @Override
-    public void suspendUser(String modId, String messageId) {
+    public Account suspendUser(String modId, String messageId) {
         if (!accountRepository.existsByAccountID(modId)) {
             log.info("User " + modId + " not found");
-            return;
+            return null;
         }
         Account mod = accountRepository.findByAccountID(modId);
 
         if (!messageRepository.existsByMessageID(messageId)) {
             log.info("Message " + messageId + " not found");
-            return;
+            return null;
         }
         Message report = messageRepository.findByMessageID(messageId);
 
         if (!accountRepository.existsByAccountID(report.getTopicID())) {
             log.info("User " + report.getTopicID() + " not found");
-            return;
+            return null;
         }
         Account user = accountRepository.findByAccountID(report.getTopicID());
 
@@ -1970,7 +1990,7 @@ public class AccountServiceImpl implements AccountService {
             log.info(mod.getFullName() + " is not a moderator");
             mod.log("Attempted to use moderator tool");
             accountRepository.save(mod);
-            return;
+            return null;
         }
         if (user.isAccountEnabled()) {
             if(user.getSuspendTime() == 0)
@@ -1982,17 +2002,18 @@ public class AccountServiceImpl implements AccountService {
             accountRepository.save(user);
         }
         deleteMessageByParent(report.getParentID());
+        return user;
     }
 
     @Override
-    public void reportUser(String userId, String reporteeId, String reason) {
+    public Message reportUser(String userId, String reporteeId, String reason) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
-            return;
+            return null;
         }
         if (!accountRepository.existsByAccountID(reporteeId)) {
             log.info("User " + reporteeId + " not found");
-            return;
+            return null;
         }
         Account user = accountRepository.findByAccountID(userId);
         Account reportee = accountRepository.findByAccountID(reporteeId);
@@ -2005,6 +2026,7 @@ public class AccountServiceImpl implements AccountService {
         message.setTopicID(reportee.getAccountID());
         message.setTopicName(reportee.getFullName());
         sendMessageToMods(user.getAccountID(), message);
+        return message;
     }
 
     @Override

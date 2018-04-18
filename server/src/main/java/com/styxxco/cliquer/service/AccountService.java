@@ -49,6 +49,7 @@ public interface AccountService extends UserDetailsService {
 
     /* Skill centered services */
     Skill addSkillToDatabase(String skillName);
+    Skill addSkillToDatabase(String modId, String skillName);
     List<Skill> getAllValidSkills();
     List<Skill> getAllUserSkills(String userId);
     List<Group> getAllUserGroups(String username);
@@ -101,10 +102,10 @@ public interface AccountService extends UserDetailsService {
     List<Message> getReportContext(String modId, String messageId, String startId, String endId);
     List<Message> getMessageHistory(String modId, String userId);
     Message checkModStatus (String userId);
-    void addToModerators (String userId);
-    void flagUser(String modId, String messageId);
-    void suspendUser(String modId, String messageId);
-    void reportUser(String userId, String reporteeId, String reason);
+    Account addToModerators (String userId);
+    Account flagUser(String modId, String messageId);
+    Account suspendUser(String modId, String messageId);
+    Message reportUser(String userId, String reporteeId, String reason);
     List<String> getActivityLog(String modId, String userId, String startDate, String endDate);
 
     /* Role services */
