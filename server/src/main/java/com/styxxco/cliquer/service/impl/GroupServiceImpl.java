@@ -78,6 +78,9 @@ public class GroupServiceImpl implements GroupService {
             account.removeGroup(groupId);
             accountRepository.save(account);
         }
+        for(String messageID : group.getChatMessageIDs()){
+            messageRepository.delete(messageID);
+        }
         groupRepository.delete(group);
         leader.log("Delete group " + group.getGroupName());
         leader.removeGroup(groupId);
