@@ -354,7 +354,7 @@ export function inviteAllDataSuccess(data) {
 }
 
 export const inviteAll = genericDispatch(
-    inviteAllHasError, inviteAllIsLoading, inviteAllDataSuccess, 'GET'
+    inviteAllHasError, inviteAllIsLoading, inviteAllDataSuccess, 'POST'
 )
 
 export function createEventHasError(hasError) {

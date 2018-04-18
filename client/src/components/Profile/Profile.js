@@ -11,7 +11,7 @@ import SkillsPanel from './SkillsPanel'
 import FriendsPanel from './FriendsPanel'
 import UserInfo from './UserInfo'
 import NotificationPanel from './NotificationPanel'
-import { getSkills, getProfile, getGroups, flagUser, setLocation, setCity } from '../../redux/actions'
+import { getSkills, getProfile, getGroups, flagUser, setLocation, setCity, reportUser } from '../../redux/actions'
 import url from '../../server.js'
 import nFlag from '../../img/newUser.png'
 
@@ -57,7 +57,6 @@ class Profile extends Component {
       }
 
       if(props.profile && !props.profileIsLoading && !props.city) {
-        console.log('here3')
         this.setCity(props.profile.latitude, props.profile.longitude)
       }
     }
@@ -88,11 +87,9 @@ class Profile extends Component {
     this.toggleM()
   }
 
-  flagUser = (ownerID) => {
-    if(this.props.isMod()) {
-      this.props.flagUser(`${url}/mod/flagUser?modId=${this.props.accountID}&userId=${ownerID}`, { 'X-Authorization-Firebase': this.props.token})
-      this.setState({ flagged: true })
-    }
+  reportUser = (ownerID) => {
+    console.log('report')
+    this.props.reportUser(`${url}/api/reportUser?userId=${this.props.accountID}&reporteeId=${ownerID}&reason=none`, { 'X-Authorization-Firebase': this.props.token})
   }
 
   setCity = (lat, long) => {
@@ -207,8 +204,8 @@ class Profile extends Component {
             {!this.isOwner(ownerID) && <Button type="button" size="lg" onClick={() => this.props.sendFriendRequest(ownerID)}>Send Friend Request</Button>}
             {!this.isOwner(ownerID) && groups && Object.keys(groups).length > 0 && 
               <Button type="button" size="lg" onClick={this.toggleM}>Invite To Group</Button>}
-            {!this.isOwner(ownerID) && this.props.isMod() && 
-              <Button type="button" color="warning" size="lg" onClick={!this.state.flagged ? this.flagUser(ownerID) : null}>{!this.state.flagged ? 'Flag User' : 'Flagged'}</Button>}
+            {!this.isOwner(ownerID) && 
+              <Button type="button" color="warning" size="lg" onClick={() => this.reportUser(ownerID)}>Report User</Button>}
             <hr/>
             <h4>
               Skills:
@@ -270,6 +267,7 @@ const mapDispatchToProps = (dispatch) => {
     getGroups: (url, headers) => dispatch(getGroups(url, headers)),
     flagUser: (url, headers) => dispatch(flagUser(url, headers)),
     setLocation: (url, headers) => dispatch(setLocation(url, headers)),
+    reportUser: (url, headers) => dispatch(reportUser(url, headers)),
     setCity: (city) => dispatch(setCity(city)),
   }
 }
