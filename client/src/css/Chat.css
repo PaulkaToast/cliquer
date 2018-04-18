@@ -6,7 +6,7 @@
     background-position: right bottom;
 }
 .message-container{
-    height: 80vh;
+    height: 81vh;
     overflow-y: scroll;
 }
 
@@ -26,6 +26,7 @@
     background-color: #dbdbdb;
     border-color: transparent;
     display:inline-block;
+    max-width: 80%;
 }
 
 .sender-message-left-badge{
@@ -37,4 +38,30 @@
     background-color: #A7C5BD;
     border-color: transparent;
     display:inline-block;
+    max-width: 80%;
+}
+
+.date-div-center{
+    width: 100%;
+    text-align: center;
+}
+.time-stamp-right{
+    margin-right: 3px;
+}
+.time-stamp-left{
+    margin-left: 3px;
+}
+
+.group-message-div{
+    width: 100%;
+    text-align: center;
+}
+
+.group-message-badge{
+    color: white;
+}
+
+.select-a-group-warning{
+    margin-top: 10px;
+    text-align: center;
 }
