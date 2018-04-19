@@ -114,6 +114,7 @@ public class Account extends Searchable implements UserDetails {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.intervalTimer = LocalTime.now();
+		this.isModerator = false;
 		this.skillIDs = new TreeMap<>();
 		this.groupIDs = new TreeMap<>();
 		this.friendIDs = new TreeMap<>();
@@ -139,7 +140,6 @@ public class Account extends Searchable implements UserDetails {
 				createAccountToth();
 				break;
 			default: {
-				this.isModerator = false;
 				this.isPublic = false;
 				this.isOptedOut = false;
 				this.isNewUser = true;
@@ -160,10 +160,6 @@ public class Account extends Searchable implements UserDetails {
 				this.canSuspend = false;
 				this.picturePath = null;
 			}
-		}
-		if (email.equals("buckmast@purdue.edu") || email.equals("knagar@purdue.edu") || email.equals("montgo38@purdue.edu")
-				|| email.equals("reed226@purdue.edu") || email.equals("toth21@purdue.edu")) {
-			this.isModerator = true;
 		}
 	}
 
@@ -369,7 +365,6 @@ public class Account extends Searchable implements UserDetails {
 
 	/* One flag away from suspension */
 	private void createAccountBuckmast() {
-		this.isModerator = false;
 		this.isPublic = true;
 		this.isOptedOut = false;
 		this.isNewUser = true;
@@ -393,16 +388,15 @@ public class Account extends Searchable implements UserDetails {
 
 	/* About to not be a new user */
 	private void createAccountKnagar() {
-		this.isModerator = false;
-		this.isPublic = false;
+		this.isPublic = true;
 		this.isOptedOut = false;
 		this.isNewUser = true;
 		this.reputationReq = 0;
 		this.proximityReq = 50;
 		this.loggedInTime = NEW_USER_HOURS*60 - 5;
 		this.suspendTime = 0;
-		this.reputation = 50;
-		this.flags = 0;
+		this.reputation = 40;
+		this.flags = 3;
 		this.rank = 0;
 		this.latitude = 0.0;//360.00;
 		this.longitude = 0.0;//360.00;
@@ -414,17 +408,18 @@ public class Account extends Searchable implements UserDetails {
 		this.canSuspend = false;
 		this.picturePath = null;
 	}
+
+	/* Most average user on the planet */
 	private void createAccountMontgo() {
-		this.isModerator = false;
-		this.isPublic = false;
+		this.isPublic = true;
 		this.isOptedOut = false;
-		this.isNewUser = true;
+		this.isNewUser = false;
 		this.reputationReq = 0;
-		this.proximityReq = 50;
-		this.loggedInTime = 0;
+		this.proximityReq = 55;
+		this.loggedInTime = NEW_USER_HOURS*80;
 		this.suspendTime = 0;
-		this.reputation = 1;
-		this.flags = 0;
+		this.reputation = 50;
+		this.flags = 2;
 		this.rank = 0;
 		this.latitude = 0.0;//360.00;
 		this.longitude = 0.0;//360.00;
@@ -436,16 +431,17 @@ public class Account extends Searchable implements UserDetails {
 		this.canSuspend = false;
 		this.picturePath = null;
 	}
+
+	/* The Most Interesting Man in the World, even turned down being a moderator */
 	private void createAccountReed() {
-		this.isModerator = false;
-		this.isPublic = false;
+		this.isPublic = true;
 		this.isOptedOut = false;
-		this.isNewUser = true;
+		this.isNewUser = false;
 		this.reputationReq = 0;
 		this.proximityReq = 50;
-		this.loggedInTime = 0;
+		this.loggedInTime = NEW_USER_HOURS*120;
 		this.suspendTime = 0;
-		this.reputation = 1;
+		this.reputation = 100;
 		this.flags = 0;
 		this.rank = 0;
 		this.latitude = 0.0;//360.00;
@@ -454,21 +450,22 @@ public class Account extends Searchable implements UserDetails {
 		this.accountExpired = false;
 		this.accountEnabled = true;
 		this.credentialsExpired = false;
-		this.deniedMod = false;
+		this.deniedMod = true;
 		this.canSuspend = false;
 		this.picturePath = null;
 	}
+
+	/* Some experience with Cliquer, still new */
 	private void createAccountToth() {
-		this.isModerator = false;
 		this.isPublic = false;
 		this.isOptedOut = false;
 		this.isNewUser = true;
 		this.reputationReq = 0;
 		this.proximityReq = 50;
-		this.loggedInTime = 0;
+		this.loggedInTime = NEW_USER_HOURS*30;
 		this.suspendTime = 0;
-		this.reputation = 1;
-		this.flags = 0;
+		this.reputation = 25;
+		this.flags = 1;
 		this.rank = 0;
 		this.latitude = 0.0;//360.00;
 		this.longitude = 0.0;//360.00;
