@@ -28,9 +28,8 @@ class Message extends Component{
       this.state.reaction = true
       this.state.up = true
     }else if(this.state.reaction && this.state.up){
-      //this.state.reaction = false
-      //this.state.up = false
-      return;
+      this.state.reaction = false
+      this.state.up = false
     }else if(this.state.reaction && this.state.down){
       this.state.down = false
       this.state.up = true
@@ -38,7 +37,18 @@ class Message extends Component{
     this.props.sendReaction(this.props.messageId, 0);
   }
   sendDownVote = (event) => {
-    event.preventDefault();
+    event.preventDefault(); 
+    if(!this.state.reaction){
+      this.state.reaction = true
+      this.state.down = true
+    }else if(this.state.reaction && this.state.down){
+      this.state.reaction = false
+      this.state.down = false
+    }else if(this.state.reaction && this.state.up){
+      this.state.up = false
+      this.state.down = true
+    }
+    this.props.sendReaction(this.props.messageId, 1);
   }
   render() {
   var {message, sender, align, time, up, down, 
@@ -55,7 +65,8 @@ class Message extends Component{
                   onClick={this.sendUpVote}></i>
                 <span>{votes}</span>
                 <div className="thumbs-down-flip">
-                  <i className={down.concat("vote fas fa-thumbs-down")}></i>
+                  <i className={down.concat("vote fas fa-thumbs-down")}
+                  onClick={this.sendDownVote}></i>
                 </div>
               </ButtonGroup>
               <span className="time-stamp-left">{time}</span>
