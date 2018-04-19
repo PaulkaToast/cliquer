@@ -140,7 +140,6 @@ public class AccountServiceImpl implements AccountService {
             Account account = createAccount(tokenHolder.getUid(), tokenHolder.getEmail(), firstName, lastName);
             account.setAuthorities(getUserRoles());
             account.setPassword(UUID.randomUUID().toString());
-            System.out.println(account.toString());
             accountRepository.save(account);
             log.info("registerUser -> user \"" + account.getFirstName() + " " + account.getLastName() + "\" created");
             return account;
@@ -590,7 +589,6 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<Skill> getAllValidSkills() {
         List<Skill> skills = skillRepository.findBySkillLevel(0);
-        System.out.println(skills);
         Collections.sort(skills);
         return skills;
     }
@@ -1311,7 +1309,6 @@ public class AccountServiceImpl implements AccountService {
             return;
         }
         Message message = messageRepository.findByMessageID(messageId);
-        System.out.println("MESSAGE: " + message.getContent() + "[" + message.getType() + "]");
         switch (message.getType()) {
             /* RATE_REQUEST HANDLED ELSEWHERE */
             case Types.GROUP_INVITE:
@@ -1957,16 +1954,12 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
 
-        System.out.println("User flags: " + user.getFlags());
-        System.out.println("Mod has flagged: " + mod.hasFlagged(user.getAccountID()));
         if (mod.hasFlagged(user.getAccountID())) {
             user.removeFlag();
         } else {
             user.addFlag();
         }
         mod.toggleFlag(user.getAccountID());
-        System.out.println("User flags after: " + user.getFlags());
-        System.out.println("Mod has flagged after: " + mod.hasFlagged(user.getAccountID()));
 
         accountRepository.save(user);
         accountRepository.save(mod);
