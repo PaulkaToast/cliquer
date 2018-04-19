@@ -85,4 +85,11 @@ public class SocketController {
         accountService.readMessage(userId, messageId);
     }
 
+    @MessageMapping("reactChatMessage/{userId}/{messageId}/{groupId}/{reaction}")
+    public void reactToChatMessage(@DestinationVariable String userId,
+                                   @DestinationVariable String messageId,
+                                   @DestinationVariable String groupId,
+                                   @DestinationVariable String reaction) {
+        accountService.reactToChatMessage(groupId, userId, messageId, reaction);
+    }
 }
