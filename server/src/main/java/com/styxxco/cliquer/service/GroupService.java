@@ -53,7 +53,7 @@ public interface GroupService {
     String rateGroupMember(String groupId, String raterId, String rateeId, boolean endorse, Map<String, Integer> skillRatings);
 
     /* Event broadcast services */
-    List<Account> broadcastEvent(String groupId, String groupLeaderId, String description, int proximity, List<String> skillNames);
+    List<Account> broadcastEvent(String groupId, String groupLeaderId, String eventName, String description, int proximity, List<String> skillNames);
 
     /* Group member search services */
     List<Account> inviteEligibleUsers(String groupId, String groupLeaderId);

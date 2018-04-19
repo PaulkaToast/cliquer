@@ -198,6 +198,22 @@ function groups(state = {}, action) {
             return Object.assign({}, state, {
                 inviteAllIsLoading: action.isLoading,
             })
+        case 'CREATE_EVENT_HAS_ERROR':
+            return Object.assign({}, state, {
+                createEventHasError: action.hasError,
+            })
+        case 'CREATE_EVENT_DATA_SUCCESS':
+            return Object.assign({}, state, {
+                createEventData: action.data,
+            })
+        case 'CREATE_EVENT_IS_LOADING':
+            return Object.assign({}, state, {
+                createEventIsLoading: action.isLoading,
+            })
+        case 'CLEAR_GROUPS':
+            return Object.assign({}, state, {
+                getGroupsData: null,
+            })
         default:
             return state
     }

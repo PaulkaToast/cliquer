@@ -1,19 +1,30 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Alert, Badge, Button, InputGroupAddon, Input, InputGroup} from 'reactstrap'
+import { Alert, Badge, Button, InputGroupAddon, Input, InputGroup,
+        Card, CardImg, CardText, CardBody, CardTitle} from 'reactstrap'
 import SockJsClient from 'react-stomp'
 
 import '../../css/Chat.css'
 import { getChatLog, postChatMessage, updateChatLog } from '../../redux/actions'
 import url from '../../server'
+import Logo from '../../img/cliquerLogoWarn.png'
 
-const Message = ({message, sender, align}) => {
+const Message = ({message, sender, align, time}) => {
   if (!message) return <div></div>;
+  var time1 = ""
+  var time2 = ""
+  if (align == "sender-message-right"){
+    time1 = time
+  }else{
+    time2 = time
+  }
   return (
     <div className={align}>
       <Badge className={align.concat("-badge")}>{sender}</Badge>
       <br/>
+      <span className="time-stamp-right">{time1}</span>
       <Alert className="single-message" className={align.concat("-alert")}> {message} </Alert>
+      <span className="time-stamp-left">{time2}</span>
     </div>);
 };
 
@@ -52,32 +63,76 @@ class Chat extends Component {
       senderId: this.props.user.uid,
       content: this.state.msgInput,
     }
-    this.clientRef.sendMessage('/app/'+  this.props.group.groupID +'/sendMessage', JSON.stringify(msg));
+    this.clientRef.sendMessage('/app/' + this.props.user.uid + '/' 
+                               + this.props.group.groupID + '/sendMessage', this.state.msgInput)
     this.state.msgInput = "";
-    event.target.reset();
+    event.target.reset()
   }
 
   handleMessage = (data) => {
-    //if data is an array.
-    if(data.type) {
-      this.props.handleNotification(data)
+    if (data.length == 0) {
+      return;
+    } else if (data[0]){
+      this.state.messages = data.map( (m) => {
+        var hour = ""
+        var minute = ""
+        var time = ""
+        var ampm = ""
+        if(m.creationTime["hour"] > 12){
+          hour = (m.creationTime["hour"] - 12) + ":" 
+          ampm = " PM"
+        }else{
+          if(m.creationTime["hour"] == 0){
+            hour = 12 + ":"
+          }else{
+            hour = m.creationTime["hour"] + ":"
+          }
+          ampm = " AM"
+        }
+        if(Math.floor(m.creationTime["minute"] / 10) == 0){
+          minute = "0" + m.creationTime["minute"]
+        }else{
+          minute = m.creationTime["minute"]
+        }
+        time = hour + minute + ampm
+        return {sender: m.senderName, message: m.content, id: m.senderID, 
+          date: m.creationDate["dayOfWeek"] + " " + m.creationDate["month"] + 
+          " " + m.creationDate["dayOfMonth"], time: time}
+      })
+      this.setState(this.state)
     } else {
-      if (data[0]){
-        this.state.messages = data.map( (m) => {
-          return {sender: m.senderName, message: m.content, id: m.senderId}
-        })
-        this.setState(this.state)
-      } else {
-        this.state.messages.push({
-          sender: data.senderName, message: data.content, id: data.senderId
-        })
-        this.setState(this.state)
-      }
+        var hour = ""
+        var minute = ""
+        var time = ""
+        var ampm = ""
+        if(data.creationTime["hour"] > 12){
+          hour = (data.creationTime["hour"] - 12) + ":" 
+          ampm = " PM"
+        }else{
+          if(data.creationTime["hour"] == 0){
+            hour = 12 + ":"
+          }else{
+            hour = data.creationTime["hour"] + ":"
+          }
+          ampm = " AM"
+        }
+        if(Math.floor(data.creationTime["minute"] / 10) == 0){
+          minute = "0" + data.creationTime["minute"]
+        }else{
+          minute = data.creationTime["minute"]
+        }
+        time = hour + minute + ampm
+      this.state.messages.push({
+        sender: data.senderName, message: data.content, id: data.senderID, 
+        date: data.creationDate["dayOfWeek"] + " " + data.creationDate["month"] + 
+        " " + data.creationDate["dayOfMonth"], time: time
+      })
+      this.setState(this.state)
     }
   }
 
   scrollToBottom = () => {
-    this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+    this.messagesEnd.scrollIntoView({ behavior: "smooth", block: "end" });
   }
   
   componentDidMount() {
@@ -90,19 +145,21 @@ class Chat extends Component {
   }
 
   onWebsocketConnect() {
-    if (this.props.group) {
-      this.clientRef.sendMessage('/app/'+ this.props.user.uid + '/' + this.props.group.groupID +'/messageHistory', "");
+    if (this.props.group && this.clientRef && this.clientRef.state.connected) {
+      this.clientRef.sendMessage('/app/'+ this.props.user.uid + '/' + this.props.group.groupID + '/messageHistory', "");
     }
   }
 
   getWebsocket() {
     if (this.props.group) {
-      return <SockJsClient url={`${url}/sockJS`} topics={['/group/'+ this.props.group.groupID, '/group/' + this.props.user.uid + '/' + this.props.group.groupID]}
+      return <SockJsClient url={`${url}/sockJS`} topics={['/group/'+ this.props.user.uid + '/' + this.props.group.groupID, 
+    '/group/' + this.props.group.groupID] }
           onMessage={this.handleMessage.bind(this)}
           onConnect={this.onWebsocketConnect.bind(this)}
           ref={ (client) => { this.clientRef = client }} 
           subscribeHeaders={{ 'X-Authorization-Firebase': this.props.token }}
           headers={{ 'X-Authorization-Firebase': this.props.token }}
+          debug
         />
     } else {
       return;
@@ -111,16 +168,45 @@ class Chat extends Component {
 
   render() {
     const messages = this.state.messages;
+    var passingDate = "";
+
+    if(!this.props.group){
+      return  <div className="select-a-group-warning">
+                <div ref={(el) => { this.messagesEnd = el; }}></div>
+                <Card>
+                  <CardImg src={Logo} width="90%"/>
+                  <CardBody>
+                    <CardTitle>
+                      Ooops...
+                    </CardTitle>
+                    <CardText>
+                      You need to select a group from the left 
+                      or you need to create one using create a group.
+                    </CardText>
+                  </CardBody>
+                </Card>
+              </div>
+    }
 
     return (
       <div className="Chat">
         <div className="message-container">
           {
-            messages.map((c, index) => { 
+            messages.map((c, index) => {
+              var dateDiv = <div></div>
+              if( c.date != passingDate){
+                var dateDiv = <div className="date-div-center"><Badge >{c.date}</Badge></div>
+                passingDate = c.date
+              } 
+              if( c.sender == "this-is-a-group-message"){
+                return <div className="group-message-div" key={index}>
+                <Badge className="group-message-badge" color="primary">{c.message}</Badge>
+                </div>
+              }
               if( c.id === this.props.user.uid ){
-                return <Message align="sender-message-right" key={index} sender={c.sender} message={c.message}></Message>
+                return <div key={index}>{dateDiv}<Message align="sender-message-right" key={index} sender={c.sender} message={c.message} time={c.time}></Message></div>
               } else {
-                return <Message align="sender-message-left" key={index} sender={c.sender} message={c.message}></Message> 
+                return <div key={index}>{dateDiv}<Message align="sender-message-left" key={index} sender={c.sender} message={c.message} time={c.time}></Message></div>
               }
             })
           }

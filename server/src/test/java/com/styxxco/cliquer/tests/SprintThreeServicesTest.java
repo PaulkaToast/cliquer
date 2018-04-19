@@ -18,7 +18,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,11 +46,42 @@ public class SprintThreeServicesTest {
     @Autowired
     public GroupService groupService;
 
+    /* Back end Unit Test for User Story 5 */
+    @Test
+    public void testAddSkillToDatabase() {
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
+
+        accountService.addToModerators(kevin.getAccountID());
+
+        Skill result = accountService.addSkillToDatabase(kevin.getAccountID(), "Surfing");
+        assertEquals(0, result.getSkillLevel());
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 0));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 1));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 2));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 3));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 4));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 5));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 6));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 7));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 8));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 9));
+        assertNotNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 10));
+        assertNull(skillRepository.findBySkillNameAndSkillLevel("Surfing", 11));
+
+        result = accountService.addSkillToDatabase(jordan.getAccountID(), "Chess");
+        assertNull(result);
+        Skill skill = skillRepository.findBySkillNameAndSkillLevel("Java", 1);
+        result = accountService.addSkillToDatabase(kevin.getAccountID(), "Java");
+        assertEquals(0, result.getSkillLevel());
+        assertEquals(skill.getSkillID(), skillRepository.findBySkillNameAndSkillLevel("Java", 1).getSkillID());
+}
+
     /* Back end Unit Test for User Story 8 */
     @Test
     public void testGetMessages() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
 
         Message first = accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Be my friend?", Message.Types.FRIEND_INVITE);
         Message second = accountService.sendMessage(jordan.getAccountID(), shawn.getAccountID(), "Please be my friend?", Message.Types.FRIEND_INVITE);
@@ -113,9 +146,9 @@ public class SprintThreeServicesTest {
     /* Back end Unit Test for User Story 11 */
     @Test
     public void testGroupEventBroadcast() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
-        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
 
         Group cliquer = groupService.createGroup(
                 "Cliquer",
@@ -143,27 +176,30 @@ public class SprintThreeServicesTest {
         jordan.setLatitude(40.0);
         jordan.setLongitude(-80.0);
         jordan.addSkill(java);
+        jordan.setPublic(true);
         accountRepository.save(jordan);
 
         shawn.setLatitude(40.2);
         shawn.setLongitude(-80.4);
         shawn.addSkill(java);
         shawn.addSkill(ball);
+        shawn.setPublic(true);
         accountRepository.save(shawn);
 
         kevin.setLatitude(40.4);
         kevin.setLongitude(-80.8);
         kevin.addSkill(ball);
+        kevin.setPublic(true);
         accountRepository.save(kevin);
 
-        List<Account> result = groupService.broadcastEvent(cliquer.getGroupID(), jordan.getAccountID(),
+        List<Account> result = groupService.broadcastEvent(cliquer.getGroupID(), jordan.getAccountID(), "Cliquer",
                 "Test run for Cliquer", 200, new ArrayList<>());
         assertEquals(1, result.size());
         assertEquals("Kevin", result.get(0).getFirstName());
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
         assertEquals(1, kevin.getMessageIDs().keySet().size());
 
-        result = groupService.broadcastEvent(cliquer.getGroupID(), jordan.getAccountID(),
+        result = groupService.broadcastEvent(cliquer.getGroupID(), jordan.getAccountID(), "Cliquer",
                 "Test run for Cliquer", 30, new ArrayList<>());
         assertEquals(0, result.size());
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
@@ -171,7 +207,7 @@ public class SprintThreeServicesTest {
 
         List<String> reqs = new ArrayList<>();
         reqs.add(ball.getSkillName());
-        result = groupService.broadcastEvent(hoops.getGroupID(), shawn.getAccountID(),
+        result = groupService.broadcastEvent(hoops.getGroupID(), shawn.getAccountID(), "Cliquer",
                 "Basketball tournament", 100, reqs);
         assertEquals(1, result.size());
         assertEquals("Kevin", result.get(0).getFirstName());
@@ -179,13 +215,112 @@ public class SprintThreeServicesTest {
         assertEquals(2, kevin.getMessageIDs().keySet().size());
     }
 
+    /* Back end Unit Test for User Story 19 */
+    @Test
+    public void testBecomingModerator() {
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
+        Account buckmaster = accountService.createAccount("buckmast", "buckmast@pdue.edu", "Jordan", "Buckmaster");
+        Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@pdue.edu", "Rhys", "Buckmaster");
+
+        accountService.addToModerators(jordan.getAccountID());
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        jordan.setMessageIDs(new TreeMap<>());
+        accountRepository.save(jordan);
+
+        accountService.addToModerators(shawn.getAccountID());
+        shawn = accountRepository.findByAccountID(shawn.getAccountID());
+        shawn.setMessageIDs(new TreeMap<>());
+        accountRepository.save(shawn);
+
+        accountService.addToModerators(kevin.getAccountID());
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        kevin.setMessageIDs(new TreeMap<>());
+        accountRepository.save(kevin);
+
+        buckmaster.setReputation(55);
+        buckmaster.setNewUser(false);
+        buckmaster.getGroupIDs().put("group1", "group1");
+        buckmaster.getGroupIDs().put("group2", "group2");
+        buckmaster.getGroupIDs().put("group3", "group3");
+        buckmaster.getGroupIDs().put("group4", "group4");
+        accountRepository.save(buckmaster);
+
+        Message result = accountService.checkModStatus(buckmaster.getAccountID());
+        assertNull(result);
+
+        buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
+        buckmaster.getGroupIDs().put("group5", "group5");
+        accountRepository.save(buckmaster);
+        result = accountService.checkModStatus(buckmaster.getAccountID());
+        assertEquals("You are now able to apply to be a moderator!", result.getContent());
+        buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
+        assertEquals(Types.MOD_INVITE, (int)buckmaster.getMessageIDs().get(result.getMessageID()));
+
+        accountService.acceptModInvite(buckmaster.getAccountID(), result.getMessageID(), "No particular reason");
+
+        String messageID = null;
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        for(String id : jordan.getMessageIDs().keySet()){
+            assertEquals(Types.MOD_REQUEST, (int)jordan.getMessageIDs().get(id));
+            messageID = id;
+        }
+        accountService.acceptModRequest(jordan.getAccountID(), messageID);
+        buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
+        assertEquals(false, buckmaster.isModerator());
+
+        shawn = accountRepository.findByAccountID(shawn.getAccountID());
+        for(String id : shawn.getMessageIDs().keySet()){
+            assertEquals(Types.MOD_REQUEST, (int)shawn.getMessageIDs().get(id));
+            messageID = id;
+        }
+        accountService.rejectModRequest(shawn.getAccountID(), messageID);
+        buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
+        assertEquals(false, buckmaster.isModerator());
+
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        for(String id : kevin.getMessageIDs().keySet()){
+            assertEquals(Types.MOD_REQUEST, (int)kevin.getMessageIDs().get(id));
+            messageID = id;
+        }
+        accountService.acceptModRequest(kevin.getAccountID(), messageID);
+        buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
+        assertEquals(true, buckmaster.isModerator());
+
+        rhys.setReputation(60);
+        rhys.setNewUser(false);
+        rhys.getGroupIDs().put("group1", "group1");
+        rhys.getGroupIDs().put("group2", "group2");
+        rhys.getGroupIDs().put("group3", "group3");
+        rhys.getGroupIDs().put("group4", "group4");
+        rhys.getGroupIDs().put("group5", "group5");
+        accountRepository.save(rhys);
+
+        result = accountService.checkModStatus(rhys.getAccountID());
+        assertEquals("You are now able to apply to be a moderator!", result.getContent());
+        rhys = accountRepository.findByAccountID(rhys.getAccountID());
+        assertEquals(Types.MOD_INVITE, (int)rhys.getMessageIDs().get(result.getMessageID()));
+
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        jordan.setMessageIDs(new TreeMap<>());
+        accountRepository.save(jordan);
+
+        accountService.rejectModInvite(rhys.getAccountID(), result.getMessageID());
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        assertEquals(true, jordan.getMessageIDs().isEmpty());
+
+        result = accountService.checkModStatus(rhys.getAccountID());
+        assertNull(result);
+    }
+
     /* Back end Unit Test for User Story 26 */
     @Test
     public void testGroupMemberSearch() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
-        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
-        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
+        Account buckmaster = accountService.createAccount("buckmast", "buckmast@pdue.edu", "Jordan", "Buckmaster");
 
         Group cliquer = groupService.createGroup(
                 "Cliquer",
@@ -292,8 +427,8 @@ public class SprintThreeServicesTest {
     /* Back end Unit Test for User Story 31 */
     @Test
     public void testChatHistory() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
 
         Group cliquer = groupService.createGroup(
                 "Cliquer",
@@ -302,31 +437,31 @@ public class SprintThreeServicesTest {
 
         groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), kevin.getAccountID());
 
-        accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(), "Hello", Types.CHAT_MESSAGE);
-        accountService.sendMessage(kevin.getAccountID(), cliquer.getGroupID(), "Hey", Types.CHAT_MESSAGE);
-        accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(), "Bye", Types.CHAT_MESSAGE);
+        accountService.sendMessage(jordan.getUsername(), cliquer.getGroupID(), "Hello", Types.CHAT_MESSAGE);
+        accountService.sendMessage(kevin.getUsername(), cliquer.getGroupID(), "Hey", Types.CHAT_MESSAGE);
+        accountService.sendMessage(jordan.getUsername(), cliquer.getGroupID(), "Bye", Types.CHAT_MESSAGE);
 
-        List<Message> messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getAccountID());
+        List<Message> messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getUsername());
 
         assertEquals(3, messages.size());
 
         accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getAccountID(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.UP_VOTE));
-        messages = accountService.getChatHistory(cliquer.getGroupID(), jordan.getAccountID());
+        messages = accountService.getChatHistory(cliquer.getGroupID(), jordan.getUsername());
         assertEquals(1, messages.get(0).getReactions().size());
         assertEquals(Message.Reactions.UP_VOTE, messages.get(0).getReaction(kevin.getAccountID()));
 
         accountService.reactToChatMessage(cliquer.getGroupID(), jordan.getAccountID(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.UP_VOTE));
-        messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getAccountID());
+        messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getUsername());
         assertEquals(2, messages.get(0).getReactions().size());
         assertEquals(Message.Reactions.UP_VOTE, messages.get(0).getReaction(jordan.getAccountID()));
 
         accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getAccountID(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.DOWN_VOTE));
-        messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getAccountID());
+        messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getUsername());
         assertEquals(2, messages.get(0).getReactions().size());
         assertEquals(Message.Reactions.DOWN_VOTE, messages.get(0).getReaction(kevin.getAccountID()));
 
         accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getAccountID(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.DOWN_VOTE));
-        messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getAccountID());
+        messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getUsername());
         assertEquals(1, messages.get(0).getReactions().size());
         assertEquals(-1, messages.get(0).getReaction(kevin.getAccountID()));
     }
@@ -334,8 +469,8 @@ public class SprintThreeServicesTest {
     /* Back end Unit Test for User Story 34 */
     @Test
     public void testReportGroupMembers() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
 
         Group cliquer = groupService.createGroup(
@@ -344,9 +479,7 @@ public class SprintThreeServicesTest {
                 jordan.getAccountID());
 
         groupService.addGroupMember(cliquer.getGroupID(), jordan.getAccountID(), shawn.getAccountID());
-        accountService.addToModerators(kevin.getAccountID());
-
-        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        
         kevin.setMessageIDs(new TreeMap<>());
         accountRepository.save(kevin);
 
@@ -392,15 +525,13 @@ public class SprintThreeServicesTest {
         assertEquals(1, shawn.getFlags());
     }
 
-    /* Back end Unit Test for User Story 38 */
+    /* Back end Unit Test for User Story 38 and 39*/
     @Test
     public void testModeratorReview() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
         Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
 
-        accountService.addToModerators(kevin.getAccountID());
-        kevin = accountRepository.findByAccountID(kevin.getAccountID());
         kevin.setMessageIDs(new TreeMap<>());
         accountRepository.save(kevin);
 
@@ -473,6 +604,82 @@ public class SprintThreeServicesTest {
         assertEquals(true, log.get(log.size()-3).contains("Attempted to use moderator tool"));
         assertEquals(true, log.get(log.size()-2).contains("Attempted to use moderator tool"));
         assertEquals(true, log.get(log.size()-1).contains("Reported by user Shawn Montgomery"));
+    }
+
+    @Test
+    public void testSuspendUsers() {
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+
+        kevin.setMessageIDs(new TreeMap<>());
+        accountRepository.save(kevin);
+
+        jordan.setFlags(3);
+        accountRepository.save(jordan);
+
+        accountService.reportUser(shawn.getAccountID(), jordan.getAccountID(), "Spamming friend invites.");
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        assertEquals(1, kevin.getMessageIDs().size());
+        String messageID = null;
+        for(String id : kevin.getMessageIDs().keySet()){
+            assertEquals(Types.MOD_REPORT, (int)kevin.getMessageIDs().get(id));
+            messageID = id;
+        }
+        Message message = messageRepository.findByMessageID(messageID);
+        assertEquals("Spamming friend invites.", message.getContent());
+        accountService.flagUser(kevin.getAccountID(), messageID);
+        kevin.setMessageIDs(new TreeMap<>());
+        accountRepository.save(kevin);
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        assertEquals(true, jordan.isAccountEnabled());
+
+        accountService.reportUser(shawn.getAccountID(), jordan.getAccountID(), "Spamming friend invites.");
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        assertEquals(1, kevin.getMessageIDs().size());
+        for(String id : kevin.getMessageIDs().keySet()){
+            assertEquals(Types.MOD_REPORT, (int)kevin.getMessageIDs().get(id));
+            messageID = id;
+        }
+        message = messageRepository.findByMessageID(messageID);
+        assertEquals("Spamming friend invites.", message.getContent());
+        accountService.flagUser(kevin.getAccountID(), messageID);
+        accountService.suspendUser(kevin.getAccountID(), messageID);
+        kevin.setMessageIDs(new TreeMap<>());
+        accountRepository.save(kevin);
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        assertEquals(false, jordan.isAccountEnabled());
+
+        Account result = accountService.getUserProfile(jordan.getUsername());
+        assertNull(result);
+
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        assertEquals(2*24*60, jordan.getSuspendTime());
+        jordan.setStartSuspendTime(LocalDateTime.of(2017, Month.JANUARY, 1, 12, 30));
+        jordan.setFlags(4);
+        accountRepository.save(jordan);
+
+        result = accountService.getUserProfile(jordan.getUsername());
+        assertNotNull(result);
+
+        accountService.reportUser(shawn.getAccountID(), jordan.getAccountID(), "Spamming friend invites.");
+        kevin = accountRepository.findByAccountID(kevin.getAccountID());
+        assertEquals(1, kevin.getMessageIDs().size());
+        for(String id : kevin.getMessageIDs().keySet()){
+            assertEquals(Types.MOD_REPORT, (int)kevin.getMessageIDs().get(id));
+            messageID = id;
+        }
+        message = messageRepository.findByMessageID(messageID);
+        assertEquals("Spamming friend invites.", message.getContent());
+        accountService.flagUser(kevin.getAccountID(), messageID);
+        accountService.suspendUser(kevin.getAccountID(), messageID);
+        kevin.setMessageIDs(new TreeMap<>());
+        accountRepository.save(kevin);
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        assertEquals(false, jordan.isAccountEnabled());
+
+        jordan = accountRepository.findByAccountID(jordan.getAccountID());
+        assertEquals(4*24*60, jordan.getSuspendTime());
     }
 
     /* Populates valid skills into database, in case they were deleted */

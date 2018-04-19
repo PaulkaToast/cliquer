@@ -2,15 +2,16 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { TabContent, TabPane, Nav, NavItem, NavLink, 
   Card, Button, CardTitle, CardText, Row, Col, ListGroup, ListGroupItem,
-  Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+  Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import classnames from 'classnames';
+import Geocode from "react-geocode"
 
 import '../../css/Profile.css'
 import SkillsPanel from './SkillsPanel'
 import FriendsPanel from './FriendsPanel'
 import UserInfo from './UserInfo'
 import NotificationPanel from './NotificationPanel'
-import { getSkills, getProfile, getGroups, flagUser } from '../../redux/actions'
+import { getSkills, getProfile, getGroups, flagUser, setLocation, setCity, reportUser } from '../../redux/actions'
 import url from '../../server.js'
 import nFlag from '../../img/newUser.png'
 
@@ -22,6 +23,7 @@ class Profile extends Component {
       activeTab: '1',
       modal: false,
       flagged: false,
+      loading: false
     }
   }
 
@@ -53,6 +55,10 @@ class Profile extends Component {
       if(!props.groups && !this.isOwner(ownerID)) {
         this.props.getGroups(`${url}/api/getUserGroups?username=${props.uid}`, { 'X-Authorization-Firebase': props.token })
       }
+
+      if(props.profile && !props.profileIsLoading && !props.city) {
+        this.setCity(props.profile.latitude, props.profile.longitude)
+      }
     }
   }
 
@@ -81,11 +87,21 @@ class Profile extends Component {
     this.toggleM()
   }
 
-  flagUser = (ownerID) => {
-    if(this.props.isMod()) {
-      this.props.flagUser(`${url}/mod/flagUser?modId=${this.props.accountID}&userId=${ownerID}`, { 'X-Authorization-Firebase': this.props.token})
-      this.setState({ flagged: true })
-    }
+  reportUser = (ownerID) => {
+    this.props.reportUser(`${url}/api/reportUser?userId=${this.props.accountID}&reporteeId=${ownerID}&reason=none`, { 'X-Authorization-Firebase': this.props.token})
+  }
+
+  setCity = (lat, long) => {
+    Geocode.fromLatLng(lat, long).then(
+      response => {
+        const address = response.results[2].formatted_address
+        this.props.setCity(address)
+        this.setState({ loading: false })
+      },
+      error => {
+        console.error(error)
+      }
+    )
   }
 
   renderGroupList = () => {
@@ -155,20 +171,44 @@ class Profile extends Component {
                 <i className="fa fa-user-circle" style="font-size:32px"></i>
               </div>
               <h1>
-                {profile.fullName}<img className="profile-user-flag" src={flag} alt=""></img>
+                {profile.moderator && <i className="fas fa-user-secret"></i>} {profile.fullName}<img className="profile-user-flag" src={flag} alt=""></img>
               </h1>
             </div>
             <hr/>
             <h4>
               Reputation: {profile.reputation}
             </h4>
+            <h4>
+              Location: {this.state.loading
+                        ? 'Loading...'
+                        : this.props.city
+                        ? this.props.city
+                        : 'Location not set'}
+             {this.isOwner(ownerID) && <i className="fa fa-pencil-alt" onClick={() => {
+                   if (navigator.geolocation) {
+                        this.setState({ loading: true })
+                        navigator.geolocation.getCurrentPosition(position => {
+                          const lat = position.coords.latitude
+                          const long = position.coords.longitude
+                          this.props.setLocation(`${url}/api/setLocation?userId=${ownerID}&latitude=${lat}&longitude=${long}`, { 'X-Authorization-Firebase': this.props.token})
+                          this.setCity(lat, long)
+                        },
+                        error => {
+                          console.log(error)
+                        })
+                    } else {
+                      //TODO: Geolocation is not supported
+                      alert('Geolocation is not supported in your browser. Please switch to a browser that does, such as Chrome or Firefox.')
+                    } 
+                }}></i> }
+            </h4>
             <hr/>
             
             {!this.isOwner(ownerID) && <Button type="button" size="lg" onClick={() => this.props.sendFriendRequest(ownerID)}>Send Friend Request</Button>}
             {!this.isOwner(ownerID) && groups && Object.keys(groups).length > 0 && 
               <Button type="button" size="lg" onClick={this.toggleM}>Invite To Group</Button>}
-            {!this.isOwner(ownerID) && this.props.isMod() && 
-              <Button type="button" color="warning" size="lg" onClick={!this.state.flagged ? this.flagUser(ownerID) : null}>{!this.state.flagged ? 'Flag User' : 'Flagged'}</Button>}
+            {!this.isOwner(ownerID) && 
+              <Button type="button" color="warning" size="lg" onClick={() => this.reportUser(ownerID)}>Report User</Button>}
             <hr/>
             <h4>
               Skills:
@@ -188,7 +228,12 @@ class Profile extends Component {
             </ListGroup>
           </TabPane>
           <TabPane tabId="3">
-            <NotificationPanel deleteNotification={this.props.deleteNotification} />
+            <NotificationPanel 
+              deleteNotification={this.props.deleteNotification} 
+              markAsRead={this.props.markAsRead} 
+              acceptNotification={this.props.acceptNotification}
+              rejectNotification={this.props.rejectNotification}
+            />
           </TabPane>
         </TabContent>
 
@@ -210,6 +255,7 @@ const mapStateToProps = (state) => {
   return {
     user: state.user && state.user.data ? state.user.data : null,
     uid: state.user && state.user.data ? state.user.data.uid : null,
+    city: state.user && state.user.city ? state.user.city : null,
     profileIsLoading: state.profile && state.profile.getIsLoading ? state.profile.getIsLoading : null,
     profile: state.profile && state.profile.getData ? state.profile.getData : null,
     skills: state.skills && state.skills.getData ? state.skills.getData : null,
@@ -228,6 +274,9 @@ const mapDispatchToProps = (dispatch) => {
     getProfile: (url, headers) => dispatch(getProfile(url, headers)),
     getGroups: (url, headers) => dispatch(getGroups(url, headers)),
     flagUser: (url, headers) => dispatch(flagUser(url, headers)),
+    setLocation: (url, headers) => dispatch(setLocation(url, headers)),
+    reportUser: (url, headers) => dispatch(reportUser(url, headers)),
+    setCity: (city) => dispatch(setCity(city)),
   }
 }
 

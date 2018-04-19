@@ -55,7 +55,7 @@ class Main extends Component {
               </ButtonGroup>
             )
           })
-          break
+        break
         case 1:
           // Friend invite
           this._notificationSystem.addNotification({
@@ -137,9 +137,10 @@ class Main extends Component {
             level: 'success',
             action: {
               label: 'OK',
-              callback: () => this.acceptNotification(data.messageID)
+              callback: () => this.deleteNotification(data.messageID)
             }
           })
+        break
         case 8:
           // Event invite
           this._notificationSystem.addNotification({
@@ -154,6 +155,7 @@ class Main extends Component {
               </ButtonGroup>
             )
           })
+        break
         case 9:
           // Mod request
           // TODO: Show mod application
@@ -166,6 +168,7 @@ class Main extends Component {
               callback: () => this.acceptNotification(data.messageID)
             }
           })
+        break
         case 10:
           // Mod request accepted
           this._notificationSystem.addNotification({
@@ -177,6 +180,7 @@ class Main extends Component {
               callback: () => this.acceptNotification(data.messageID)
             }
           })
+        break
         case 11:
           // Mod invite
           // TODO: Show mod application
@@ -189,27 +193,24 @@ class Main extends Component {
               callback: () => this.acceptNotification(data.messageID)
             }
           })
-        case 13:
+        break
+        case 14:
           //Mod report
-          //Todo all mod to respond
           this._notificationSystem.addNotification({
             title: 'Report',
-            message: data.content,
+            message: `${data.senderName} has reported ${data.topicName} for the following reason: ${data.content}`,
             level: 'error',
             action: {
               label: 'OK',
               callback: () => this.acceptNotification(data.messageID)
             }
           })
+        break
         default:
           // Basic Notification
           // Add basic messages here if necessary
       }
     }
-  }
-
-  rate = () => {
-
   }
 
   acceptNotification = (messageID) => {
@@ -244,15 +245,15 @@ class Main extends Component {
     this.clientRef.sendMessage(`/app/${this.props.accountID}/${groupID}/rate`) 
   }
 
-  onWebsocketConnect = () => {
-    this.clientRef.sendMessage(`/app/${this.props.accountID}/allMessages`)
+  getAllMessages = (clientRef) => {
+    this.clientRef.sendMessage(`/app/${this.props.accountID}/true/1970-01-01/allMessages`)
   }
 
   getWebsocket = () => {
     if(this.props.accountID) {
       return <SockJsClient url={`${url}/sockJS`} topics={[`/notification/${this.props.accountID}`]}
           onMessage={this.handleNotification}
-          onConnect={this.onWebsocketConnect}
+          onConnect={this.getAllMessages}
           ref={ (client) => { this.clientRef = client }} 
           subscribeHeaders={{ 'X-Authorization-Firebase': this.props.token }}
           headers={{ 'X-Authorization-Firebase': this.props.token }}
@@ -265,6 +266,7 @@ class Main extends Component {
   render() {
     return (
       <div className="Main h-100">
+        {this.getWebsocket()}
         <Navbar {...this.props} />
         <Switch>
             <Route path="/create" render={(navProps) => <CreateGroup {...navProps} />}/>
@@ -276,7 +278,10 @@ class Main extends Component {
                 goToProfile={this.props.goToProfile} 
                 markAsRead={this.markAsRead} 
                 deleteNotification={this.deleteNotification} 
-                inviteToGroup={this.inviteToGroup} 
+                acceptNotification={this.acceptNotification}
+                rejectNotification={this.rejectNotification}
+                inviteToGroup={this.inviteToGroup}
+                isMod={this.props.isMod} 
               />}
             />
             <Route path="/groups" render={(navProps) => 
@@ -287,18 +292,13 @@ class Main extends Component {
                 allowRating={this.allowRating} 
               />}
             />
-            <Route path="/public" render={(navProps) => <PublicGroups {...navProps} accountID={this.props.accountID}/>}/>
+            <Route path="/public" render={(navProps) => <PublicGroups {...navProps} accountID={this.props.accountID} requestToJoin={this.requestToJoin} />}/>
             <Route path="/settings" render={(navProps) => <Settings {...navProps} />}/>
-            <Route path="/mod" render={(navProps) => 
-              this.props.isMod()
-              ? <ModPanel {...navProps} />
-              : <Redirect to="/groups" />
-            }/>
+            <Route path="/mod" render={(navProps) => <ModPanel {...navProps} deleteNotification={this.deleteNotification} goToProfile={this.props.goToProfile}/>}/>
             <Route path="/search/:category/:query" render={(navProps) => <SearchResults {...navProps} sendFriendRequest={this.sendFriendRequest} goToProfile={this.props.goToProfile} requestToJoin={this.requestToJoin}/>}/>
             <Route path='/' render={(navProps) => <Redirect to="/groups" />}/>
         </Switch>
-        
-        {this.getWebsocket()}
+      
         <NotificationSystem ref="notificationSystem" allowHTML={this.props.allowHTML} />
       </div>
     )

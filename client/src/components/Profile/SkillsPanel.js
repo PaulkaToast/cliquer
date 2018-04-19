@@ -18,7 +18,7 @@ class SkillsPanel extends Component {
   }
   
   addSkills = () => {
-    this.props.postSkills(`${url}/api/addSkills?username=${this.props.uid}`, { 'X-Authorization-Firebase': this.props.token }, JSON.stringify(this.props.newSkills))
+    this.props.postSkills(`${url}/api/addSkills?username=${this.props.uid}`, { 'X-Authorization-Firebase': this.props.token }, JSON.stringify(this.props.newSkills ? this.props.newSkills : []))
     this.toggle()
   }
 

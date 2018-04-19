@@ -31,15 +31,16 @@ public interface AccountService extends UserDetailsService {
     Account rateUser(String userId, String rateeId, String messageId, String json, boolean endorse);
     void uploadPicture(String userId, MultipartFile file) throws Exception;
     void requestRating(String userId, String groupId);
+    void setLocation(String userId, String latitude, String longitude);
 
     /* Account Searching */
-    Map<String, ? extends Searchable> searchWithFilter(String type, String query);
+    Map<String, ? extends Searchable> searchWithFilter(String userId, String type, String query);
     Account setAccountSettings(String username, String json);
     Group setGroupSettings(String username, String groupId, String json);
     List<Account> searchByFirstName(String firstName);
     List<Account> searchByLastName(String lastName);
-    List<Account> searchByFullName(String firstName, String lastName);
-    List<Account> searchByFullName(String fullName);
+    Map<String, Account> searchByFullName(String firstName, String lastName);
+    Map<String, Account> searchByFullName(String fullName);
     List<Account> searchByReputation(int minimumRep, boolean includeSuggested, boolean includeWeights);
     List<Account> searchBySkill(String skillName);
     Account searchByUsername(String username);
@@ -48,6 +49,7 @@ public interface AccountService extends UserDetailsService {
 
     /* Skill centered services */
     Skill addSkillToDatabase(String skillName);
+    Skill addSkillToDatabase(String modId, String skillName);
     List<Skill> getAllValidSkills();
     List<Skill> getAllUserSkills(String userId);
     List<Group> getAllUserGroups(String username);
@@ -88,22 +90,22 @@ public interface AccountService extends UserDetailsService {
     Message acceptFriendInvite(String userId, String inviteId);
     Message rejectInvite(String userId, String inviteId);
     Account addFriend(String userId, String friendId);
-    Account removeFriend(String username, String friendId);
+    Account removeFriend(String userId, String friendId);
 
     /* Moderator related services */
     Message sendMessageToMods(String senderId, Message message);
-    Message acceptModInvite(String userId, String messageId);
+    Message acceptModInvite(String userId, String messageId, String reason);
     Message acceptModRequest(String userId, String messageId);
     Message rejectModInvite(String userId, String messageId);
     Message rejectModRequest(String userId, String messageId);
     Message reportGroupMember(String groupId, String reporterId, String messageId, String reason);
     List<Message> getReportContext(String modId, String messageId, String startId, String endId);
     List<Message> getMessageHistory(String modId, String userId);
-    void checkModStatus (String userId);
-    void addToModerators (String userId);
-    void flagUser(String modId, String messageId);
-    void suspendUser(String modId, String messageId, long minutes);
-    void reportUser(String userId, String reporteeId, String reason);
+    Message checkModStatus (String userId);
+    Account addToModerators (String userId);
+    Account flagUser(String modId, String messageId);
+    Account suspendUser(String modId, String messageId);
+    Message reportUser(String userId, String reporteeId, String reason);
     List<String> getActivityLog(String modId, String userId, String startDate, String endDate);
 
     /* Role services */
@@ -117,4 +119,7 @@ public interface AccountService extends UserDetailsService {
     double getReputationRanking(String username);
     void deleteMessageByParent(String parentId);
     void handleNotifications(String userId, String messageId, boolean accept);
+
+    /* Bypass services */
+    Account editUserProfile(String modId, String userId, String field, String value);
 }

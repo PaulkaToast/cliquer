@@ -34,12 +34,11 @@ public class Message
 
 	private String groupID;			/* ID of group that message refers to, if applicable	*/
 	private String topicID; 		/* ID if message is about another user */
+	private String topicName;		/* Name for the topicID */
 	private String chatMessageID;	/* ID of chat message that message refers to, if applicable	*/
 	private boolean read;
 
-	@JsonIgnore
 	private String parentID; /* ID if multiple messages belong to a particular action */
-	@JsonIgnore
 	private int counter; /* counter for votes */
 
     private Map<String, Integer> reactions;
@@ -82,6 +81,7 @@ public class Message
 		this.read = false;
 		this.parentID = null;
 		this.reactions = new TreeMap<>();
+		this.topicName = null;
 	}
 
 	public void addReaction(String accountID, int reaction)

@@ -15,21 +15,12 @@ class NavigationBar extends Component {
 
     this.state = {
       splitButtonOpen: false,
-      current: 'First Name',
-      url: 'firstname',
+      url: 'profile',
       value: '',
       isOpen: false
     }
-    this.toggle = this.toggle.bind(this)
   }
 
-  toggleSplit = () => {
-    this.setState({ splitButtonOpen: !this.state.splitButtonOpen })
-  }
-
-  changeButton = (current) => {
-    this.setState({ current, url: current.toLowerCase().replace(/ /g, '') })
-  }
 
   onChange = (ev) => {
     this.setState({value: ev.target.value})
@@ -43,10 +34,10 @@ class NavigationBar extends Component {
   }
   
   search = () => {
-    history.push(`/search/${this.state.url}/${this.state.value}`)
+    history.push(`/search/profile/${this.state.value}`)
   }
 
-  toggle() {
+  toggle = () => {
     this.setState({ isOpen: !this.state.isOpen })
   }
 
@@ -81,19 +72,6 @@ class NavigationBar extends Component {
             </Nav>
             <Col sm={5}>
               <InputGroup>
-                <InputGroupButtonDropdown addonType="prepend" isOpen={this.state.splitButtonOpen} toggle={this.toggleSplit}>
-                  <Button>{this.state.current}</Button>
-                  <DropdownToggle split />
-                  <DropdownMenu>
-                    <DropdownItem onClick={() => this.changeButton('First Name')}>First Name</DropdownItem>
-                    <DropdownItem onClick={() => this.changeButton('Last Name')}>Last Name</DropdownItem>
-                    <DropdownItem divider />
-                    <DropdownItem onClick={() => this.changeButton('Skill')}>Skill</DropdownItem>
-                    <DropdownItem onClick={() => this.changeButton('Reputation')}>Reputation</DropdownItem>
-                    <DropdownItem divider />
-                    <DropdownItem onClick={() => this.changeButton('Group')}>Group</DropdownItem>
-                  </DropdownMenu>
-                </InputGroupButtonDropdown>
                 <Input placeholder="Search for friends" value={this.state.value} onKeyPress={this.checkEnterPress} onChange={this.onChange} />
                 <InputGroupAddon addonType="append"><Button color="secondary" onClick={this.search}>Search</Button></InputGroupAddon>
               </InputGroup>
