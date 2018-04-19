@@ -48,6 +48,18 @@ function mod(state = {}, action) {
             return Object.assign({}, state, {
                 submitSkillIsLoading: action.isLoading,
             })
+        case 'SUSPEND_USER_HAS_ERROR':
+            return Object.assign({}, state, {
+                suspendUserHasError: action.hasError,
+            })
+        case 'SUSPEND_USER_DATA_SUCCESS':
+            return Object.assign({}, state, {
+                suspendUserData: action.data,
+            })
+        case 'SUSPEND_USER_IS_LOADING':
+            return Object.assign({}, state, {
+                suspendUserIsLoading: action.isLoading,
+            })
         default:
             return state
     }

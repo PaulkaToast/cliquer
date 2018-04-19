@@ -35,4 +35,5 @@ export { searchHasError, searchIsLoading, searchDataSuccess, search } from './se
 export { flagUserHasError, flagUserIsLoading, flagUserDataSuccess, flagUser,
          reportUserHasError, reportUserIsLoading, reportUserDataSuccess, reportUser,
          reportMemberHasError, reportMemberIsLoading, reportMemberDataSuccess, reportMember,
-         submitSkillHasError, submitSkillIsLoading, submitSkillDataSuccess, submitSkill } from './mod'
+         submitSkillHasError, submitSkillIsLoading, submitSkillDataSuccess, submitSkill,
+         suspendUserHasError, suspendUserIsLoading, suspendUserDataSuccess, suspendUser  } from './mod'
