@@ -70,9 +70,9 @@ public class RestController {
     }
 
     @RequestMapping(value = "/api/removeFriend", method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<?> removeFriend(@RequestParam(value = "username") String username,
+    public @ResponseBody ResponseEntity<?> removeFriend(@RequestParam(value = "userId") String userId,
                                                         @RequestParam(value = "friend") String friend) {
-        Account account = accountService.removeFriend(username, friend);
+        Account account = accountService.removeFriend(userId, friend);
         if (account == null) {
             return new ResponseEntity<>("Could not remove friend", HttpStatus.BAD_REQUEST);
         }
