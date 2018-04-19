@@ -9,8 +9,10 @@ import groups from './groups'
 import friends from './friends'
 import messages from './messages'
 import search from './search'
+import mod from './mod'
 
 const rootReducer = combineReducers({ auth, user, skills, profile, groups,
-                                      friends, messages,  search, router: routerReducer })
+                                      friends, messages, search, mod,
+                                      router: routerReducer })
 
 export default rootReducer

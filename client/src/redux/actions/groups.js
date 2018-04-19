@@ -354,7 +354,7 @@ export function inviteAllDataSuccess(data) {
 }
 
 export const inviteAll = genericDispatch(
-    inviteAllHasError, inviteAllIsLoading, inviteAllDataSuccess, 'GET'
+    inviteAllHasError, inviteAllIsLoading, inviteAllDataSuccess, 'POST'
 )
 
 export function createEventHasError(hasError) {
@@ -382,3 +382,8 @@ export const createEvent = genericDispatch(
     createEventHasError, createEventIsLoading, createEventDataSuccess, 'POST'
 )
 
+export function clearGroups() {
+    return {
+        type: 'CLEAR_GROUPS'
+    }
+}

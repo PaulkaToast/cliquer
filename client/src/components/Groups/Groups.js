@@ -125,8 +125,17 @@ class Groups extends Component {
     return group && this.props.accountID === group.groupLeaderID
   }
 
-  canRate = (groupID) => {
-    return true
+  canRate = (accountID, memberID) => {
+    let canRate = false
+    
+    if(this.props.currentGroup.ratingsToGive[accountID] && Object.keys(this.props.currentGroup.ratingsToGive).length > 0) {
+      this.props.currentGroup.ratingsToGive[accountID].forEach((element) => {
+        if(memberID === element) {
+          canRate = true
+        }
+      })
+    }
+    return canRate
   }
 
   getRateForm = (group, memberID) => {
@@ -189,7 +198,7 @@ class Groups extends Component {
                 <ListGroupItem onClick={(ev) => this.props.goToProfile(ev, memberID, document.querySelector('.kick-button'), document.querySelector('.rate-button'))} key={memberID} className="d-flex justify-content-between align-items-center" action> 
                   {this.props.currentGroup.groupMemberIDs[memberID]}
                   {this.isOwner(this.props.currentGroup) && <Button type="button" className="kick-button" size="lg" onClick={() => this.kickUser(this.props.currentGroup, memberID)}>Kick</Button>}
-                  {this.canRate(this.props.currentGroup.groupID) && <Button type="button" className="rate-button" size="lg" onClick={() => this.getRateForm(this.props.currentGroup, memberID)}>Rate</Button>}
+                  {this.canRate(this.props.accountID, memberID) && <Button type="button" className="rate-button" size="lg" onClick={() => this.getRateForm(this.props.currentGroup, memberID)}>Rate</Button>}
                 </ListGroupItem>
               )
             }

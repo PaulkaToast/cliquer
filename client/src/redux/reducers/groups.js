@@ -210,6 +210,10 @@ function groups(state = {}, action) {
             return Object.assign({}, state, {
                 createEventIsLoading: action.isLoading,
             })
+        case 'CLEAR_GROUPS':
+            return Object.assign({}, state, {
+                getGroupsData: null,
+            })
         default:
             return state
     }

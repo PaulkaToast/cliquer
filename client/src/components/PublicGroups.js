@@ -25,7 +25,7 @@ class PublicGroups extends Component {
   render() {
     return (
       <div className="PublicGroups">
-        <SearchResults category={'isPublic'} query={this.props.accountID} requestToJoin={this.props.requestToJoin} />
+        <SearchResults category={'group'} query={this.props.accountID} requestToJoin={this.props.requestToJoin} />
       </div>
     )
   }

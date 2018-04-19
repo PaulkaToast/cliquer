@@ -64,9 +64,9 @@ class Chat extends Component {
       content: this.state.msgInput,
     }
     this.clientRef.sendMessage('/app/' + this.props.user.uid + '/' 
-                               + this.props.group.groupID + '/' + this.state.msgInput +'/sendMessage');
+                               + this.props.group.groupID + '/sendMessage', this.state.msgInput)
     this.state.msgInput = "";
-    event.target.reset();
+    event.target.reset()
   }
 
   handleMessage = (data) => {
