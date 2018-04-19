@@ -100,27 +100,27 @@ export const submitSkill = genericDispatch(
     submitSkillHasError, submitSkillIsLoading, submitSkillDataSuccess, 'POST'
 )
 
-export function submitSkillHasError(hasError) {
+export function suspendUserHasError(hasError) {
     return {
         type: 'SUSPEND_USER_HAS_ERROR',
         hasError
     }
 }
 
-export function submitSkillIsLoading(isLoading) {
+export function suspendUserIsLoading(isLoading) {
     return {
         type: 'SUSPEND_USER_IS_LOADING',
         isLoading
     }
 }
 
-export function submitSkillDataSuccess(data) {
+export function suspendUserDataSuccess(data) {
     return {
         type: 'SUSPEND_USER_DATA_SUCCESS',
         data
     }
 }
 
-export const submitSkill = genericDispatch(
-    submitSkillHasError, submitSkillIsLoading, submitSkillDataSuccess, 'POST'
+export const suspendUser = genericDispatch(
+    suspendUserHasError, suspendUserIsLoading, suspendUserDataSuccess, 'POST'
 )
