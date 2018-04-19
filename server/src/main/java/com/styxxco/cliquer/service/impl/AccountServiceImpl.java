@@ -103,7 +103,7 @@ public class AccountServiceImpl implements AccountService {
         Account user = new Account(username, email, firstName, lastName);
         user.log("Account created");
         if (user.isModerator()) {
-            user.setAuthorities(getModRoles());
+            addToModerators(user.getAccountID());
         }
         this.accountRepository.save(user);
         return user;
@@ -242,7 +242,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Map<String, ? extends Searchable> searchWithFilter(String type, String query) {
+    public Map<String, ? extends Searchable> searchWithFilter(String userId, String type, String query) {
         if (type.contentEquals("profile")) {
 
             Map<String, Account> results = searchByFullName(query);
@@ -256,6 +256,12 @@ public class AccountServiceImpl implements AccountService {
             for (Account a: sorted) {
                 results.put(a.getUsername(), a);
             }
+            if (!accountRepository.existsByAccountID(userId)) {
+                log.info("User " + userId + " not found");
+                return null;
+            }
+            user = accountRepository.findByAccountID(userId);
+            results.remove(user.getUsername());
             return results;
 
         } else if (type.contentEquals("group")) {
@@ -787,7 +793,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Message acceptModInvite(String userId, String messageId) {
+    public Message acceptModInvite(String userId, String messageId, String reason) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
@@ -810,7 +816,7 @@ public class AccountServiceImpl implements AccountService {
         user.log("Send mod request");
         accountRepository.save(user);
         String parentID = "modRequest[" + userId + "]";
-        Message request = new Message(userId, user.getFullName(), "I would like to become a moderator. Care to look at my account?", Types.MOD_REQUEST);
+        Message request = new Message(userId, user.getFullName(), "Care to look at my account? I would like to become a moderator for the following reason: " + reason, Types.MOD_REQUEST);
         request.setParentID(request.getMessageID());
         messageRepository.save(request);
         sendMessageToMods(userId, request);
@@ -941,7 +947,7 @@ public class AccountServiceImpl implements AccountService {
                 acceptJoinRequest(userId, messageId);
                 break;
             case Types.MOD_INVITE:
-                acceptModInvite(userId, messageId);
+                acceptModInvite(userId, messageId, "No particular reason");
                 break;
             case Types.MOD_REQUEST:
                 acceptModRequest(userId, messageId);
@@ -1593,7 +1599,7 @@ public class AccountServiceImpl implements AccountService {
         }
         Group group = groupRepository.findByGroupID(invite.getGroupID());
         Message accepted = groupService.acceptJoinRequest(userId, inviteId);
-        Message chatMessage = sendMessage(group.getGroupID(), group.getGroupID(), user.getFullName() + " has joined the group!", Types.CHAT_MESSAGE);
+        Message chatMessage = sendMessage(group.getGroupID(), group.getGroupID(), invite.getSenderName() + " has joined the group!", Types.CHAT_MESSAGE);
 
         try {
             template.convertAndSend("/notification/" + invite.getSenderID(), accepted);
@@ -1950,19 +1956,24 @@ public class AccountServiceImpl implements AccountService {
             accountRepository.save(mod);
             return null;
         }
-        if (mod.haveFlagged(user.getAccountID())) {
+
+        System.out.println("User flags: " + user.getFlags());
+        System.out.println("Mod has flagged: " + mod.hasFlagged(user.getAccountID()));
+        if (mod.hasFlagged(user.getAccountID())) {
             user.removeFlag();
         } else {
             user.addFlag();
         }
         mod.toggleFlag(user.getAccountID());
+        System.out.println("User flags after: " + user.getFlags());
+        System.out.println("Mod has flagged after: " + mod.hasFlagged(user.getAccountID()));
+
         accountRepository.save(user);
         accountRepository.save(mod);
+
         report.setRead(true);
         messageRepository.save(report);
-        if(user.getFlags() >= 5) {
-            return suspendUser(modId, messageId);
-        }
+
         return user;
     }
 

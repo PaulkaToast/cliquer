@@ -258,7 +258,7 @@ public class SprintThreeServicesTest {
         buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
         assertEquals(Types.MOD_INVITE, (int)buckmaster.getMessageIDs().get(result.getMessageID()));
 
-        accountService.acceptModInvite(buckmaster.getAccountID(), result.getMessageID());
+        accountService.acceptModInvite(buckmaster.getAccountID(), result.getMessageID(), "No particular reason");
 
         String messageID = null;
         jordan = accountRepository.findByAccountID(jordan.getAccountID());

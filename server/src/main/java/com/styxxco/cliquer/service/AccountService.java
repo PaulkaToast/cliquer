@@ -34,7 +34,7 @@ public interface AccountService extends UserDetailsService {
     void setLocation(String userId, String latitude, String longitude);
 
     /* Account Searching */
-    Map<String, ? extends Searchable> searchWithFilter(String type, String query);
+    Map<String, ? extends Searchable> searchWithFilter(String userId, String type, String query);
     Account setAccountSettings(String username, String json);
     Group setGroupSettings(String username, String groupId, String json);
     List<Account> searchByFirstName(String firstName);
@@ -94,7 +94,7 @@ public interface AccountService extends UserDetailsService {
 
     /* Moderator related services */
     Message sendMessageToMods(String senderId, Message message);
-    Message acceptModInvite(String userId, String messageId);
+    Message acceptModInvite(String userId, String messageId, String reason);
     Message acceptModRequest(String userId, String messageId);
     Message rejectModInvite(String userId, String messageId);
     Message rejectModRequest(String userId, String messageId);

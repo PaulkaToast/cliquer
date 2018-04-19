@@ -15,10 +15,10 @@ public class SocketController {
     @Autowired
     private AccountService accountService;
 
-    // TODO: Account for change on frontend
     @MessageMapping("/{userId}/{groupId}/sendMessage")
     public void send(@DestinationVariable String userId,
                      @DestinationVariable String groupId, String content) {
+        System.out.println(content);
         accountService.sendMessage(userId, groupId, content, Message.Types.CHAT_MESSAGE);
     }
 

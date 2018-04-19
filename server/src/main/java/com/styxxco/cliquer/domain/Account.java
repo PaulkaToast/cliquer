@@ -44,7 +44,6 @@ public class Account extends Searchable implements UserDetails {
 	private boolean isModerator;
 	private boolean deniedMod;
 	private boolean isNewUser;
-	@JsonIgnore
 	private boolean canSuspend;
 	@JsonIgnore
 	private int loggedInTime;			/* Minutes that user has spent logged in */
@@ -302,7 +301,7 @@ public class Account extends Searchable implements UserDetails {
 
 	public void addFlag() {
 		this.flags++;
-		if (this.flags > 5) {
+		if (this.flags > 2) {
 			this.canSuspend = true;
 		}
 	}
@@ -332,7 +331,7 @@ public class Account extends Searchable implements UserDetails {
 		this.logs.add(log + " at " + LocalTime.now() + " on " + LocalDate.now());
 	}
 
-	public Boolean haveFlagged(String userId) {
+	public boolean hasFlagged(String userId) {
     	if (!this.flaggedUser.containsKey(userId)) {
 			this.flaggedUser.put(userId, false);
 		}
@@ -340,7 +339,8 @@ public class Account extends Searchable implements UserDetails {
 	}
 
 	public void toggleFlag(String userId) {
-    	this.flaggedUser.replace(userId, !this.flaggedUser.get(userId));
+		boolean curr = this.flaggedUser.get(userId);
+    	this.flaggedUser.put(userId, !curr);
 	}
 
 	public boolean canSuspend() {

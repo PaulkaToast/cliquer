@@ -213,10 +213,11 @@ public class RestController {
     }
 
     @RequestMapping(value = "/api/search", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<?> search(@RequestParam(value = "type") String type,
+    public @ResponseBody ResponseEntity<?> search(@RequestParam(value = "userId") String userId,
+                                                  @RequestParam(value = "type") String type,
                                                   @RequestParam(value = "query") String query) {
         System.out.println(type + " : " + query);
-        Map<String, ? extends Searchable> map = accountService.searchWithFilter(type, query);
+        Map<String, ? extends Searchable> map = accountService.searchWithFilter(userId, type, query);
 
         if (map == null) {
             return new ResponseEntity<>("Could not find any results", HttpStatus.BAD_REQUEST);
@@ -273,6 +274,17 @@ public class RestController {
         Message message = accountService.reportGroupMember(groupId, userId, messageId, reason);
         if(message == null){
             return new ResponseEntity<>("Could not report group member", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/applyForMod", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> applyForMod(@RequestParam(value = "userId") String userId,
+                                                       @RequestParam(value = "messageId") String messageId,
+                                                       @RequestBody String reason) {
+        Message message = accountService.acceptModInvite(userId, messageId, reason);
+        if (message == null) {
+            return new ResponseEntity<>("Could not apply for moderator", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
