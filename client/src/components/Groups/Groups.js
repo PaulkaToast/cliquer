@@ -259,7 +259,7 @@ class Groups extends Component {
             {this.renderGroupsList()}
           </Col>
           <Col xs="9">
-            <Chat group={this.props.currentGroup} handleNotification={this.props.handleNotification}/>
+            <Chat group={this.props.currentGroup} accountID={this.props.accountID} handleNotification={this.props.handleNotification}/>
           </Col>
         </Row>
         { this.props.currentGroup &&

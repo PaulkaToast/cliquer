@@ -1028,10 +1028,10 @@ public class AccountServiceImpl implements AccountService {
             log.info("Could not parse reaction string");
         }
 
-        if(message.getReaction(userId) == react) {
-            message.removeReaction(userId);
+        if(message.getReaction(acc.getAccountID()) == react) {
+            message.removeReaction(acc.getAccountID());
         } else {
-            message.addReaction(userId, react);
+            message.addReaction(acc.getAccountID(), react);
         }
 
         try {

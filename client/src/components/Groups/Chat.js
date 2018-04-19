@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Alert, Badge, Button, InputGroupAddon, Input, InputGroup,
         Card, CardImg, CardText, CardBody, CardTitle, Row,
-        ButtonGroup} from 'reactstrap'
+        ButtonGroup, Tooltip} from 'reactstrap'
 import SockJsClient from 'react-stomp'
 
 import '../../css/Chat.css'
@@ -173,18 +173,18 @@ class Chat extends Component {
         var votes = 0
         Object.keys(m.reactions).map((key) => {
           if (m.reactions[key] == 0){
-            if(key == this.props.user.uid){
+            if(key == this.props.accountID){
               upMe = true
               votes = 1
             }else{
-              upList.push(key)
+              upList.push(this.props.group.groupMemberIDs[key])
             }
           }else{
-            if(key == this.props.user.uid){
+            if(key == this.props.accountID){
               downMe = true
               votes = -1
             }else{
-              downList.push(key)
+              downList.push(this.props.group.groupMemberIDs[key])
             }
           }
         })
@@ -227,18 +227,18 @@ class Chat extends Component {
         var votes = 0
         Object.keys(data.reactions).map((key) => {
           if (data.reactions[key] == 0){
-            if(key == this.props.user.uid){
+            if(key == this.props.accountID){
               upMe = true
               votes = 1
             }else{
-              upList.push(key)
+              upList.push(this.props.group.groupMemberIDs[key])
             }
           }else{
-            if(key == this.props.user.uid){
+            if(key == this.props.accountID){
               downMe = true
               votes = -1
             }else{
-              downList.push(key)
+              downList.push(this.props.group.groupMemberIDs[key])
             }
           }
         })
