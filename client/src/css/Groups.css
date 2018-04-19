@@ -15,7 +15,8 @@
 .Groups.container-fluid {
     margin: 0;
     padding: 0;
-    
+    overflow-y: hidden;
+    height: 94%;
 }
 
 .Groups .row {

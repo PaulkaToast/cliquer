@@ -234,7 +234,7 @@ class Groups extends Component {
     const proximity = this.props.currentGroup ? this.props.currentGroup.proximityReq : null
     
     return (
-        <Container fluid className="Groups h-100">
+        <Container fluid className="Groups">
           <Navbar className="group-nav" color="primary" dark expand="md">
             <NavbarBrand> Groups </NavbarBrand>
               <Nav hidden={!this.props.currentGroup} className="ml-auto" navbar>
