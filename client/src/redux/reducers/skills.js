@@ -51,6 +51,10 @@ function skills(state = {}, action) {
             return Object.assign({}, state, {
                 getListIsLoading: action.isLoading,
             })
+        case 'CLEAR_SKILLS':
+            return Object.assign({}, state, {
+                getData: null,
+            })
         default:
             return state
     }

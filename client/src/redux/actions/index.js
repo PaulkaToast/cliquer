@@ -4,7 +4,8 @@ export { updateUserData, addSkills, addNewSkill, deleteNewSkill, clearNewSkills,
 export { postSkillsHasError, postSkillsIsLoading, postSkillsDataSuccess, postSkills,
          getSkillsHasError, getSkillsIsLoading, getSkillsDataSuccess, getSkills,
          removeSkillHasError, removeSkillIsLoading, removeSkillDataSuccess, removeSkill,
-         getSkillsListHasError, getSkillsListIsLoading, getSkillsListDataSuccess, getSkillsList } from './skills'
+         getSkillsListHasError, getSkillsListIsLoading, getSkillsListDataSuccess, getSkillsList,
+         clearSkills } from './skills'
 export { getProfileHasError, getProfileIsLoading, getProfileDataSuccess, getProfile,
          deleteProfileHasError, deleteProfileIsLoading, deleteProfileDataSuccess, deleteProfile,
          setSettingsHasError, setSettingsIsLoading, setSettingsDataSuccess, setSettings,
