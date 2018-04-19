@@ -15,7 +15,6 @@ public class SocketController {
     @Autowired
     private AccountService accountService;
 
-    // TODO: Account for change on frontend
     @MessageMapping("/{userId}/{groupId}/sendMessage")
     public void send(@DestinationVariable String userId,
                      @DestinationVariable String groupId, String content) {

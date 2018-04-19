@@ -258,7 +258,7 @@ public class SprintThreeServicesTest {
         buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
         assertEquals(Types.MOD_INVITE, (int)buckmaster.getMessageIDs().get(result.getMessageID()));
 
-        accountService.acceptModInvite(buckmaster.getAccountID(), result.getMessageID());
+        accountService.acceptModInvite(buckmaster.getAccountID(), result.getMessageID(), "No particular reason");
 
         String messageID = null;
         jordan = accountRepository.findByAccountID(jordan.getAccountID());
@@ -644,6 +644,7 @@ public class SprintThreeServicesTest {
         message = messageRepository.findByMessageID(messageID);
         assertEquals("Spamming friend invites.", message.getContent());
         accountService.flagUser(kevin.getAccountID(), messageID);
+        accountService.suspendUser(kevin.getAccountID(), messageID);
         kevin.setMessageIDs(new TreeMap<>());
         accountRepository.save(kevin);
         jordan = accountRepository.findByAccountID(jordan.getAccountID());
@@ -671,6 +672,7 @@ public class SprintThreeServicesTest {
         message = messageRepository.findByMessageID(messageID);
         assertEquals("Spamming friend invites.", message.getContent());
         accountService.flagUser(kevin.getAccountID(), messageID);
+        accountService.suspendUser(kevin.getAccountID(), messageID);
         kevin.setMessageIDs(new TreeMap<>());
         accountRepository.save(kevin);
         jordan = accountRepository.findByAccountID(jordan.getAccountID());

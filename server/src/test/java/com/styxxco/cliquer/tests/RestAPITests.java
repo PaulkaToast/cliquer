@@ -40,7 +40,7 @@ public class RestAPITests {
     @Test
     public void testLoginPage() throws Exception {
         RequestBuilder requestBuilder = MockMvcRequestBuilders
-                .get("/login");
+                .get("/");
 
         MvcResult result = mockMvc.perform(requestBuilder).andReturn();
         assertEquals(result.getResponse().getStatus(), 200);
