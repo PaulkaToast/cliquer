@@ -5,10 +5,6 @@ import '../../css/Notification.css'
 
 class Notification extends Component {
   
-<<<<<<< Updated upstream
-  render() {
-    const { notification } = this.props
-=======
 
   getResponse = (notification) => {
     switch (notification.type) {
@@ -47,7 +43,6 @@ class Notification extends Component {
       return null
     }
 
->>>>>>> Stashed changes
     return (
       <div className="Notification">
         <div className="notification-info">
@@ -55,6 +50,7 @@ class Notification extends Component {
         </div>
         <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(notification.messageID)}></i> 
         <i className="fa fa-envelope" onClick={() => this.props.markAsRead(notification.messageID)}></i> 
+        {this.getResponse(notification)}
       </div>
     )
   }
