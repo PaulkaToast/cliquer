@@ -1,6 +1,5 @@
 export default function genericDispatch(hasError, isLoading, success, method) {
     function specificDispatch(url, headers, body, extra) {
-        console.log(body)
         return (dispatch) => {
             dispatch(isLoading(true))
             fetch(url, { headers, method, body, mode: 'cors'})

@@ -11,6 +11,7 @@ public interface MessageRepository extends MongoRepository<Message, String>
 {
 	boolean existsByMessageID(String messageID);
 	Message findByMessageID(String messageID);
+	List<Message> findBySenderID(String senderID);
 	List<Message> findByParentID(String parentID);
-	Message findByParentIDAndAndSenderID(String parentID);
+	Message findByParentIDAndSenderID(String parentID);
 }

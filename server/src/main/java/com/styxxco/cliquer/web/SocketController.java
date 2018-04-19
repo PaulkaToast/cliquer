@@ -15,11 +15,9 @@ public class SocketController {
     @Autowired
     private AccountService accountService;
 
-    // TODO: Account for change on frontend
-    @MessageMapping("/{userId}/{groupId}/{content}/sendMessage")
+    @MessageMapping("/{userId}/{groupId}/sendMessage")
     public void send(@DestinationVariable String userId,
-                     @DestinationVariable String groupId,
-                     @DestinationVariable String content) {
+                     @DestinationVariable String groupId, String content) {
         accountService.sendMessage(userId, groupId, content, Message.Types.CHAT_MESSAGE);
     }
 
@@ -60,7 +58,7 @@ public class SocketController {
     public void getAllMessages(@DestinationVariable String userId,
                                @DestinationVariable String includeRead,
                                @DestinationVariable String startDate) {
-        accountService.getMessages(userId, Boolean.parseBoolean(includeRead), startDate);
+        accountService.getMessages(userId, includeRead, startDate);
     }
 
     @MessageMapping("acceptNotification/{userId}/{messageId}")

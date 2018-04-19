@@ -1,27 +1,20 @@
 package com.styxxco.cliquer.web;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.InjectableValues;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.Http;
 import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.security.FirebaseFilter;
 import lombok.extern.log4j.Log4j;
-import org.bson.types.ObjectId;
 import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.FirebaseService;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -38,7 +31,7 @@ public class RestController {
 
     private final String OKAY = "{\"status\": \"OK\"}";
 
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    @RequestMapping(value = "/", method = RequestMethod.GET)
     public String index() {
         log.info("Index called");
         return "index";
@@ -60,7 +53,11 @@ public class RestController {
         if (user == null) {
             return new ResponseEntity<>("Could not fetch profile with the query", HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        if (user.isAccountEnabled()) {
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(user.getFullName() + "'s account is disabled until ", HttpStatus.OK);
+        }
     }
 
     @RequestMapping(value = "/api/deleteProfile", method = RequestMethod.POST)
@@ -73,9 +70,9 @@ public class RestController {
     }
 
     @RequestMapping(value = "/api/removeFriend", method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<?> removeFriend(@RequestParam(value = "username") String username,
+    public @ResponseBody ResponseEntity<?> removeFriend(@RequestParam(value = "userId") String userId,
                                                         @RequestParam(value = "friend") String friend) {
-        Account account = accountService.removeFriend(username, friend);
+        Account account = accountService.removeFriend(userId, friend);
         if (account == null) {
             return new ResponseEntity<>("Could not remove friend", HttpStatus.BAD_REQUEST);
         }
@@ -144,6 +141,14 @@ public class RestController {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/api/startKickVote", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> startKickVote(@RequestParam(value = "userId") String userId,
+                                                         @RequestParam(value = "kickedId") String kickedId,
+                                                         @RequestParam(value = "groupId") String groupId) {
+        accountService.startKickVote(userId, kickedId, groupId);
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/api/getUserGroups", method = RequestMethod.GET)
     public @ResponseBody ResponseEntity<?> getUserGroups(@RequestParam(value = "username") String username) {
         List<Group> groups = accountService.getAllUserGroups(username);
@@ -197,10 +202,10 @@ public class RestController {
     @RequestMapping(value = "/api/rateUser", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> rateUser(@RequestParam(value = "userId") String userId,
                                                     @RequestParam(value = "rateeId") String rateeId,
-                                                    @RequestParam(value = "messageId") String messageId,
+                                                    @RequestParam(value = "groupId") String groupId,
                                                     @RequestParam(value = "endorse", required = false, defaultValue = "false") boolean endorse,
                                                     @RequestBody String json) {
-        Account user = accountService.rateUser(userId, rateeId, messageId, json, endorse);
+        Account user = accountService.rateUser(userId, rateeId, groupId, json, endorse);
         if (user == null) {
             return new ResponseEntity<>("Could not rate user", HttpStatus.BAD_REQUEST);
         }
@@ -208,11 +213,12 @@ public class RestController {
     }
 
     @RequestMapping(value = "/api/search", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<?> search(@RequestParam(value = "type") String type,
-                                                  @RequestParam(value = "query", required = false, defaultValue = "null") String query,
-                                                  @RequestParam(value = "suggestions", required = false, defaultValue = "true") boolean suggestions,
-                                                  @RequestParam(value = "weights", required = false, defaultValue = "true") boolean weights) {
-        Map<String, ? extends Searchable> map = accountService.searchWithFilter(type, query, suggestions, weights);
+    public @ResponseBody ResponseEntity<?> search(@RequestParam(value = "userId") String userId,
+                                                  @RequestParam(value = "type") String type,
+                                                  @RequestParam(value = "query") String query) {
+        System.out.println(type + " : " + query);
+        Map<String, ? extends Searchable> map = accountService.searchWithFilter(userId, type, query);
+
         if (map == null) {
             return new ResponseEntity<>("Could not find any results", HttpStatus.BAD_REQUEST);
         }
@@ -229,6 +235,7 @@ public class RestController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    /* TODO: Remove after completely deprecated by sockets */
     @RequestMapping(value = "/api/handleNotification", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> handleNotification(@RequestParam(value = "userId") String userId,
                                                               @RequestParam(value = "messageId") String messageId,
@@ -248,15 +255,119 @@ public class RestController {
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
-    // TODO: may need to take in messageId instead
+    @RequestMapping(value = "/api/reportUser", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> reportUser(@RequestParam(value = "userId") String userId,
+                                                      @RequestParam(value = "reporteeId") String reporteeId,
+                                                      @RequestParam(value = "reason") String reason) {
+        Message message = accountService.reportUser(userId, reporteeId, reason);
+        if(message == null){
+            return new ResponseEntity<>("Could not report user", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/reportMember", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> reportMember(@RequestParam(value = "userId") String userId,
+                                                        @RequestParam(value = "groupId") String groupId,
+                                                        @RequestParam(value = "messageId") String messageId,
+                                                        @RequestBody String reason) {
+        Message message = accountService.reportGroupMember(groupId, userId, messageId, reason);
+        if(message == null){
+            return new ResponseEntity<>("Could not report group member", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/applyForMod", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> applyForMod(@RequestParam(value = "userId") String userId,
+                                                       @RequestParam(value = "messageId") String messageId,
+                                                       @RequestBody String reason) {
+        Message message = accountService.acceptModInvite(userId, messageId, reason);
+        if (message == null) {
+            return new ResponseEntity<>("Could not apply for moderator", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/mod/flagUser", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> flagUser(@RequestParam(value = "modId") String modId,
-                                                       @RequestParam(value = "userId") String userId) {
-        int flagCount = accountService.flagUser(modId, userId);
-        if (flagCount <= 0) {
+                                                    @RequestParam(value = "messageId") String messageId) {
+        Account user = accountService.flagUser(modId, messageId);
+        if(user == null){
             return new ResponseEntity<>("Could not flag user", HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(flagCount, HttpStatus.OK);
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
+    }
+
+    // TODO: Determine if this call could be removed
+    @Deprecated
+    @RequestMapping(value = "/mod/suspendUser", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> suspendUser(@RequestParam(value = "modId") String modId,
+                                                       @RequestParam(value = "messageId") String messageId,
+                                                       @RequestParam(value = "time") long time) {
+        Account user = accountService.suspendUser(modId, messageId);
+        if(user == null){
+            return new ResponseEntity<>("Could not suspend user", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/mod/activityLog", method = RequestMethod.GET)
+    public @ResponseBody ResponseEntity<?> activityLog(@RequestParam(value = "modId") String modId,
+                                                       @RequestParam(value = "userId") String userId,
+                                                       @RequestParam(value = "startDate", required = false) String startDate,
+                                                       @RequestParam(value = "endDate", required = false) String endDate) {
+        List<String> log = accountService.getActivityLog(modId, userId, startDate, endDate);
+        if (log == null) {
+            return new ResponseEntity<>("Could not retrieve logs", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(log, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/mod/chatContext", method = RequestMethod.GET)
+    public @ResponseBody ResponseEntity<?> chatContext(@RequestParam(value = "modId") String modId,
+                                                       @RequestParam(value = "messageId") String messageId,
+                                                       @RequestParam(value = "startId", required = false) String startId,
+                                                       @RequestParam(value = "endId", required = false) String endId) {
+        List<Message> log = accountService.getReportContext(modId, messageId, startId, endId);
+        if (log == null) {
+            return new ResponseEntity<>("Could not retrieve chat context", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(log, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/mod/addSkill", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> addSkill(@RequestParam(value = "modId") String modId,
+                                                    @RequestParam(value = "skillName") String skillName) {
+        Skill skill = accountService.addSkillToDatabase(modId, skillName);
+        if (skill == null) {
+            return new ResponseEntity<>("Could not add skill to database", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/mod/editUser", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> editUser(@RequestParam(value = "modId") String modId,
+                                                   @RequestParam(value = "userId") String userId,
+                                                   @RequestParam(value = "field") String field,
+                                                   @RequestParam(value = "value") String value) {
+        Account user = accountService.editUserProfile(modId, userId, field, value);
+        if (user == null) {
+            return new ResponseEntity<>("Could not modify account", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/react", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> react(@RequestParam(value = "userId") String userId,
+                                                 @RequestParam(value = "groupId") String groupId,
+                                                 @RequestParam(value = "messageId") String messageId,
+                                                 @RequestParam(value = "reaction") String reaction) {
+        Message message = accountService.reactToChatMessage(groupId, userId, messageId, reaction);
+        if (message == null) {
+            return new ResponseEntity<>("Could not react to chat message", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/createEvent", method = RequestMethod.POST)
@@ -278,4 +389,35 @@ public class RestController {
         }
         return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/api/uploadFile", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> uploadFile(@RequestParam("userId") String userId,
+                                                      @RequestParam("file") MultipartFile file) {
+        try {
+            accountService.uploadPicture(userId, file);
+        } catch (Exception e) {
+            log.info("Could not upload image properly");
+            return new ResponseEntity<>("Could not upload image properly", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>("Profile picture uploaded successfully", HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/api/setLocation", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> setLocation(@RequestParam("userId") String userId,
+                                                          @RequestParam("latitude") String latitude,
+                                                          @RequestParam("longitude") String longitude) {
+        accountService.setLocation(userId, latitude, longitude);
+        return new ResponseEntity<>(OKAY, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/mod/submitSkill", method = RequestMethod.POST)
+    public @ResponseBody ResponseEntity<?> submitSkill(@RequestParam("modId") String modId,
+                                                       @RequestParam("skillName") String skillName) {
+        Skill skill = accountService.addSkillToDatabase(skillName);
+        if (skill == null) {
+            return new ResponseEntity<>("Could not add new skill", HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(skill, HttpStatus.OK);
+    }
+
 }

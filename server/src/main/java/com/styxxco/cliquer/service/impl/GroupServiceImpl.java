@@ -56,6 +56,7 @@ public class GroupServiceImpl implements GroupService {
         Group group = new Group(groupName, groupPurpose, user.getAccountID(), user.getFullName());
         this.groupRepository.save(group);
         user.addGroup(group);
+        user.log("Create group " + group.getGroupName());
         this.accountRepository.save(user);
         return group;
     }
@@ -76,6 +77,9 @@ public class GroupServiceImpl implements GroupService {
             Account account = accountRepository.findByAccountID(accountID);
             account.removeGroup(groupId);
             accountRepository.save(account);
+        }
+        for(String messageID : group.getChatMessageIDs()){
+            messageRepository.delete(messageID);
         }
         groupRepository.delete(group);
         leader.log("Delete group " + group.getGroupName());
@@ -729,6 +733,7 @@ public class GroupServiceImpl implements GroupService {
             log.info("Group " + groupId + " has maxed out the limit for group ratings");
             return;
         }
+        groupRepository.save(group);
 
         for(String accountID : group.getGroupMemberIDs().keySet()) {
             if(accountID.equals(groupLeaderId)) {
@@ -748,7 +753,6 @@ public class GroupServiceImpl implements GroupService {
                 log.info("Could not send message");
             }
         }
-        groupRepository.save(group);
     }
 
     @Override
@@ -815,20 +819,22 @@ public class GroupServiceImpl implements GroupService {
             Skill skill = skillRepository.findBySkillNameAndSkillLevel(entry.getKey(), entry.getValue());
             member.addSkill(skill);
         }
+        Account rater = accountRepository.findByAccountID(raterId);
         if(endorse) {
-            Account rater = accountRepository.findByAccountID(raterId);
             int reputation = member.getReputation();
             reputation += (2 + rater.getReputation()/15);
             reputation = Math.min(reputation, 100);
             member.setReputation(reputation);
         }
+        rater.log("Rate user " + member.getFullName());
+        accountRepository.save(rater);
         accountRepository.save(member);
         groupRepository.save(group);
         return "Success";
     }
 
     @Override
-    public List<Account> broadcastEvent(String groupId, String groupLeaderId, String description, int proximity, List<String> skillNames) {
+    public List<Account> broadcastEvent(String groupId, String groupLeaderId, String eventName, String description, int proximity, List<String> skillNames) {
         if(!groupRepository.existsByGroupID(groupId)) {
             log.info("Group " + groupId + " not found");
             return null;
@@ -845,6 +851,9 @@ public class GroupServiceImpl implements GroupService {
             if(group.getGroupMemberIDs().containsKey(account.getAccountID())) {
                 continue;
             }
+            if(account.isOptedOut()) {
+                continue;
+            }
             if(account.distanceTo(leader.getLatitude(), leader.getLongitude()) > proximity) {
                 continue;
             }
@@ -859,19 +868,23 @@ public class GroupServiceImpl implements GroupService {
                 continue;
             }
             Message invite = new Message(groupLeaderId, leader.getFullName(),
-                    "You have been invited to an event hosted by group " + group.getGroupName() + "! Here are the details: " + description,
+                    "You have been invited to the event " + eventName + " hosted by group " + group.getGroupName() + "! Here are the details: " + description,
                     Message.Types.EVENT_INVITE);
             invite.setGroupID(groupId);
+            messageRepository.save(invite);
             account.addMessage(invite);
             accountRepository.save(account);
             qualified.add(account);
 
             try {
                 template.convertAndSend("/notification/" + account.getAccountID(), invite);
+                System.out.println("SENT EVENT INVITE TO: " + account.getFullName());
             } catch (Exception e) {
                 log.info("Could not send message");
             }
         }
+        leader.log("Create event for group " + group.getGroupName() + " for purpose " + description);
+        accountRepository.save(leader);
         return qualified;
     }
 
@@ -893,13 +906,16 @@ public class GroupServiceImpl implements GroupService {
             if(group.getGroupMemberIDs().containsKey(account.getAccountID())) {
                 continue;
             }
-            if(!meetsGroupRequirements(groupId, account.getAccountID())) {
+            if(account.isOptedOut()) {
                 continue;
             }
             if(leader.getReputation() < account.getReputation() * account.getReputationReq()) {
                 continue;
             }
             if(account.distanceTo(leader.getLatitude(), leader.getLongitude()) > account.getProximityReq()) {
+                continue;
+            }
+            if(!meetsGroupRequirements(groupId, account.getAccountID())) {
                 continue;
             }
             Message invite = new Message(groupLeaderId, leader.getFullName(),

@@ -2,15 +2,16 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { TabContent, TabPane, Nav, NavItem, NavLink, 
   Card, Button, CardTitle, CardText, Row, Col, ListGroup, ListGroupItem,
-  Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+  Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import classnames from 'classnames';
+import Geocode from "react-geocode"
 
 import '../../css/Profile.css'
 import SkillsPanel from './SkillsPanel'
 import FriendsPanel from './FriendsPanel'
 import UserInfo from './UserInfo'
 import NotificationPanel from './NotificationPanel'
-import { getSkills, getProfile, getGroups } from '../../redux/actions'
+import { getSkills, getProfile, getGroups, flagUser, setLocation, setCity, reportUser } from '../../redux/actions'
 import url from '../../server.js'
 import nFlag from '../../img/newUser.png'
 import mFlag from '../../img/moderator.png'
@@ -22,6 +23,8 @@ class Profile extends Component {
     this.state = {
       activeTab: '1',
       modal: false,
+      flagged: false,
+      loading: false
     }
   }
 
@@ -40,7 +43,7 @@ class Profile extends Component {
       const type = ownerID === props.accountID ? 'user' : 'public'
 
       // Get profile data
-      if(!props.profile && !props.profileIsLoading || props.profile.accountID !== ownerID) {
+      if((!props.profile && !props.profileIsLoading) || (props.profile && props.profile.accountID !== ownerID)) {
         this.props.getProfile(`${url}/api/getProfile?userId=${ownerID}&type=${type}`, { 'X-Authorization-Firebase': props.token})
       }
 
@@ -52,6 +55,10 @@ class Profile extends Component {
       // Get groups
       if(!props.groups && !this.isOwner(ownerID)) {
         this.props.getGroups(`${url}/api/getUserGroups?username=${props.uid}`, { 'X-Authorization-Firebase': props.token })
+      }
+
+      if(props.profile && !props.profileIsLoading && !props.city) {
+        this.setCity(props.profile.latitude, props.profile.longitude)
       }
     }
   }
@@ -76,6 +83,28 @@ class Profile extends Component {
     return accountID === this.props.accountID || !this.props.accountID
   } 
 
+  inviteAndToggle = (gid, ownerID) => {
+    this.props.inviteToGroup(gid, ownerID)
+    this.toggleM()
+  }
+
+  reportUser = (ownerID) => {
+    this.props.reportUser(`${url}/api/reportUser?userId=${this.props.accountID}&reporteeId=${ownerID}&reason=none`, { 'X-Authorization-Firebase': this.props.token})
+  }
+
+  setCity = (lat, long) => {
+    Geocode.fromLatLng(lat, long).then(
+      response => {
+        const address = response.results[2].formatted_address
+        this.props.setCity(address)
+        this.setState({ loading: false })
+      },
+      error => {
+        console.error(error)
+      }
+    )
+  }
+
   renderGroupList = () => {
     const groups = this.props.groups
     const ownerID = this.props.match.params.ownerID
@@ -85,7 +114,8 @@ class Profile extends Component {
         {groups && Object.keys(groups).length > 0
         && Object.keys(groups).map((gid, i) => {
           return (<ListGroupItem>
-            {groups[gid].groupName} <Button type="button" size="lg" onClick={() => this.props.inviteToGroup(gid, ownerID)}>Invite</Button>
+            {groups[gid].groupName} <Button className="invite-to-group-button" type="button" size="lg" 
+            onClick={() => this.inviteAndToggle(gid, ownerID)}>Invite</Button>
           </ListGroupItem>)
         })}
       </ListGroup>
@@ -111,7 +141,7 @@ class Profile extends Component {
               className={classnames({ active: this.state.activeTab === '1' })}
               onClick={() => { this.toggle('1'); }}
             >
-              My Profile
+              Profile
             </NavLink>
           </NavItem>
           <NavItem>
@@ -119,34 +149,61 @@ class Profile extends Component {
               className={classnames({ active: this.state.activeTab === '2' })}
               onClick={() => { this.toggle('2'); }}
             >
-              My Friends
+              Friends
             </NavLink>
           </NavItem>
-          <NavItem>
-            <NavLink
-              className={classnames({ active: this.state.activeTab === '2' })}
-              onClick={() => { this.toggle('3'); }}
-            >
-              Notifications
-            </NavLink>
-          </NavItem>
+          {this.isOwner(ownerID) && 
+            <NavItem>
+              <NavLink
+                className={classnames({ active: this.state.activeTab === '2' })}
+                onClick={() => { this.toggle('3'); }}
+              >
+                Notifications
+              </NavLink>
+            </NavItem>
+          }
         </Nav>
         <TabContent activeTab={this.state.activeTab}>
           <TabPane className="profile-tab" tabId="1">
             <hr/>
             <h1>
-              {profile.fullName}<img className="profile-user-flag" src={flag} alt=""></img>
-              <img className="profile-moderator-flag" src={flag} alt=""></img>
+              {profile.moderator && <i className="fas fa-user-secret"></i>} {profile.fullName}<img className="profile-user-flag" src={flag} alt=""></img>
             </h1>
             <hr/>
             <h4>
               Reputation: {profile.reputation}
+            </h4>
+            <h4>
+              Location: {this.state.loading
+                        ? 'Loading...'
+                        : this.props.city
+                        ? this.props.city
+                        : 'Location not set'}
+             {this.isOwner(ownerID) && <i className="fa fa-pencil-alt" onClick={() => {
+                   if (navigator.geolocation) {
+                        this.setState({ loading: true })
+                        navigator.geolocation.getCurrentPosition(position => {
+                          const lat = position.coords.latitude
+                          const long = position.coords.longitude
+                          this.props.setLocation(`${url}/api/setLocation?userId=${ownerID}&latitude=${lat}&longitude=${long}`, { 'X-Authorization-Firebase': this.props.token})
+                          this.setCity(lat, long)
+                        },
+                        error => {
+                          console.log(error)
+                        })
+                    } else {
+                      //TODO: Geolocation is not supported
+                      alert('Geolocation is not supported in your browser. Please switch to a browser that does, such as Chrome or Firefox.')
+                    } 
+                }}></i> }
             </h4>
             <hr/>
             
             {!this.isOwner(ownerID) && <Button type="button" size="lg" onClick={() => this.props.sendFriendRequest(ownerID)}>Send Friend Request</Button>}
             {!this.isOwner(ownerID) && groups && Object.keys(groups).length > 0 && 
               <Button type="button" size="lg" onClick={this.toggleM}>Invite To Group</Button>}
+            {!this.isOwner(ownerID) && 
+              <Button type="button" color="warning" size="lg" onClick={() => this.reportUser(ownerID)}>Report User</Button>}
             <hr/>
             <h4>
               Skills:
@@ -166,7 +223,12 @@ class Profile extends Component {
             </ListGroup>
           </TabPane>
           <TabPane tabId="3">
-            <NotificationPanel deleteNotification={this.props.deleteNotification} />
+            <NotificationPanel 
+              deleteNotification={this.props.deleteNotification} 
+              markAsRead={this.props.markAsRead} 
+              acceptNotification={this.props.acceptNotification}
+              rejectNotification={this.props.rejectNotification}
+            />
           </TabPane>
         </TabContent>
 
@@ -188,6 +250,7 @@ const mapStateToProps = (state) => {
   return {
     user: state.user && state.user.data ? state.user.data : null,
     uid: state.user && state.user.data ? state.user.data.uid : null,
+    city: state.user && state.user.city ? state.user.city : null,
     profileIsLoading: state.profile && state.profile.getIsLoading ? state.profile.getIsLoading : null,
     profile: state.profile && state.profile.getData ? state.profile.getData : null,
     skills: state.skills && state.skills.getData ? state.skills.getData : null,
@@ -205,6 +268,10 @@ const mapDispatchToProps = (dispatch) => {
     getSkills: (url, headers) => dispatch(getSkills(url, headers)),
     getProfile: (url, headers) => dispatch(getProfile(url, headers)),
     getGroups: (url, headers) => dispatch(getGroups(url, headers)),
+    flagUser: (url, headers) => dispatch(flagUser(url, headers)),
+    setLocation: (url, headers) => dispatch(setLocation(url, headers)),
+    reportUser: (url, headers) => dispatch(reportUser(url, headers)),
+    setCity: (city) => dispatch(setCity(city)),
   }
 }
 

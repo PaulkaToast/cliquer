@@ -11,7 +11,6 @@ class NotificationPanel extends Component {
 
   render() {
     const { notifications } = this.props
-    console.log(notifications)
     return (
       <div className="NotificationPanel">
         { notifications 
@@ -21,6 +20,9 @@ class NotificationPanel extends Component {
                   notification={notifications[key]}
                   i={i}
                   deleteNotification={this.props.deleteNotification}
+                  acceptNotification={this.props.acceptNotification}
+                  rejectNotification={this.props.rejectNotification}
+                  markAsRead={this.props.markAsRead}
                   key={notifications[key].messageID}
                 />
               })}

@@ -22,6 +22,9 @@
 .friend-cancel-button{
     float: right;
 }
+.invite-to-group-button{
+    float: right;
+}
 
 .loader,
 .loader:before,

@@ -36,6 +36,22 @@ function profile(state = {}, action) {
             return Object.assign({}, state, {
                 setSettingsIsLoading: action.isLoading,
             })
+        case 'SET_LOCATION_HAS_ERROR':
+            return Object.assign({}, state, {
+                setLocationHasError: action.hasError,
+            })
+        case 'SET_LOCATION_DATA_SUCCESS':
+            return Object.assign({}, state, {
+                setLocationData: action.data,
+            })
+        case 'SET_LOCATION_IS_LOADING':
+            return Object.assign({}, state, {
+                setLocationIsLoading: action.isLoading,
+            })
+        case 'CLEAR_PROFILE':
+            return Object.assign({}, state, {
+                getData: null,
+            })
         default:
             return state
     }

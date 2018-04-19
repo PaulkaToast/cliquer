@@ -46,9 +46,29 @@ export function setLocation(position) {
     }
 }
 
+export function setCity(city) {
+    return {
+        type: 'SET_CITY',
+        city
+    }
+}
+
 export function addObjectID(id) {
     return {
         type: 'ADD_OBJECT_ID',
         id
+    }
+}
+
+export function addIsMod(isMod) {
+    return {
+        type: 'ADD_IS_MOD',
+        isMod 
+    }
+}
+
+export function clearObjectID() {
+    return {
+        type: 'CLEAR_OBJECT_ID',
     }
 }

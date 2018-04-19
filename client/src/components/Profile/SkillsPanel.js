@@ -18,7 +18,7 @@ class SkillsPanel extends Component {
   }
   
   addSkills = () => {
-    this.props.postSkills(`${url}/api/addSkills?username=${this.props.uid}`, { 'X-Authorization-Firebase': this.props.token }, JSON.stringify(this.props.newSkills))
+    this.props.postSkills(`${url}/api/addSkills?username=${this.props.uid}`, { 'X-Authorization-Firebase': this.props.token }, JSON.stringify(this.props.newSkills ? this.props.newSkills : []))
     this.toggle()
   }
 
@@ -51,7 +51,7 @@ class SkillsPanel extends Component {
           </div>
         })}
         </ListGroup>
-        {this.props.isOwner && <Button color="primary" onClick={this.toggle}>Add skills</Button>}
+        {this.props.isOwner && <Button className="add-skills-button" color="primary" onClick={this.toggle}>Add skills</Button>}
         <Modal isOpen={this.state.modal} toggle={this.toggle} className="add-skills-modal">
           <ModalHeader toggle={this.toggle}>Add Skills</ModalHeader>
           <ModalBody>

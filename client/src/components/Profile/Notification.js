@@ -5,100 +5,55 @@ import '../../css/Notification.css'
 
 class Notification extends Component {
   
-  componentDidMount = () => {
-    //get full name and icon with API call here using this.props
-  }
 
-  acceptGroupInvite = () => {
-    //join group (api call), use redux
-  }
-
-  acceptFriendRequest = () => {
-    //accept friend request, use redux
-  }
-
-  showOffense = () => {
-    //show offense modal (see add skills form) SPRINT 3 
-  }
-
-  renderGroupInvite = (notification, i) => {
-    return (
-      <div className="Notification">
-        <div className="notification-icon">ICON</div>
-        <div className="notification-info">
-          <div>You have been invited to <strong>{/*this.props.group.name, use redux*/}</strong></div>
-          <ButtonGroup className="buttons">
-            <Button color="success" onClick={this.acceptGroupInvite}>Accept</Button>{' '}
-            <Button color="danger" onClick={() => this.props.deleteNotification(i)}>Reject</Button>
-          </ButtonGroup>
-        </div>
-        <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(i)}></i> 
-      </div>
-    )
-  }
-
-  renderFriendInvite = (notification, i) => {
-    return (
-      <div className="Notification">
-        <div className="notification-icon">ICON</div>
-        <div className="notification-info">
-          <div><strong>{/*this.props.friend.name, use redux*/}</strong> has sent you a friend request!</div>
-          <ButtonGroup className="buttons">
-            <Button color="success" onClick={this.acceptFriendInvite}>Accept</Button>{' '}
-            <Button color="danger" onClick={() => this.props.deleteNotification(i)}>Reject</Button>
-          </ButtonGroup>
-        </div>
-        <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(i)}></i> 
-      </div>
-    )
-  }
-
-  renderModWarning = (notification, i) => {
-    return (
-      <div className="Notification" onClick={this.showOffense}>
-        <div className="notification-icon">ICON</div>
-        <div className="notification-info">
-          You have received a warning from a moderator! Click to view offense.
-        </div>
-        <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(i)}></i> 
-      </div>
-    )
-  }
-
-  renderKickNotification = (notification, i) => {
-    //Sprint 2
-    return (
-      <div className="Notification">
-        <div className="notification-icon">ICON</div>
-        <div className="notification-info">
-      
-        </div>
-        <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(i)}></i> 
-      </div>
-    )
-  }
-
-  renderRateRequest = (notification, i) => {
-    //Sprint 2 or 3
-    return (
-      <div className="Notification">
-        <div className="notification-icon">ICON</div>
-        <div className="notification-info">
-      
-        </div>
-        <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(i)}></i> 
-      </div>
-    )
+  getResponse = (notification) => {
+    switch (notification.type) {
+      case 0:
+      case 8:
+      case 12:
+        // Group invite
+        return (
+            <ButtonGroup>
+              <Button color="success" onClick={() => this.props.acceptNotification(notification.messageID)}>Join</Button>
+              <Button color="danger" onClick={() => this.props.rejectNotification(notification.messageID)}>Ignore</Button>
+            </ButtonGroup>
+        )
+      case 1:
+      case 4:
+        // Friend invite
+        return (
+            <ButtonGroup>
+              <Button color="success" onClick={() => this.props.acceptNotification(notification.messageID)}>Accept</Button>
+              <Button color="danger" onClick={() => this.props.rejectNotification(notification.messageID)}>Reject</Button>
+            </ButtonGroup>
+        )
+      case 9:
+        // Mod request
+        // TODO: Show mod application
+        return
+      case 11:
+        // Mod invite
+        // TODO: Show mod application
+        return
+      default:
+        return
+    }
   }
 
   render() {
     const { notification } = this.props
+    if(notification.type === 14) {
+      return
+    }
+
     return (
       <div className="Notification">
         <div className="notification-info">
          {notification.content}
+         {this.getResponse(notification)}
         </div>
         <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(notification.messageID)}></i> 
+        <i className="fa fa-envelope" onClick={() => this.props.markAsRead(notification.messageID)}></i> 
       </div>
     )
   }

@@ -18,7 +18,9 @@ import com.styxxco.cliquer.service.AccountService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.method.P;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -26,9 +28,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -59,15 +66,19 @@ public class AccountServiceImpl implements AccountService {
     @Autowired
     private SimpMessagingTemplate template;
 
+    @Value("${spring.account.path}")
+    private String picturePath;
+
     public AccountServiceImpl() {
 
     }
 
-    public AccountServiceImpl(AccountRepository ar, SkillRepository sr, MessageRepository mr, GroupRepository gr) {
+    public AccountServiceImpl(AccountRepository ar, SkillRepository sr, MessageRepository mr, GroupRepository gr, RoleRepository rr) {
         this.accountRepository = ar;
         this.skillRepository = sr;
         this.messageRepository = mr;
         this.groupRepository = gr;
+        this.roleRepository = rr;
     }
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -90,8 +101,13 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Account user = new Account(username, email, firstName, lastName);
+        user.setAuthorities(getUserRoles());
         user.log("Account created");
         this.accountRepository.save(user);
+        if(email.equals("buckmast@purdue.edu") || email.equals("knagar@purdue.edu") || email.equals("montgo38@purdue.edu")
+                || email.equals("reed226@purdue.edu") || email.equals("toth21@purdue.edu")) {
+            return addToModerators(user.getAccountID());
+        }
         return user;
     }
 
@@ -124,9 +140,7 @@ public class AccountServiceImpl implements AccountService {
 
         if (userLoaded == null) {
             Account account = createAccount(tokenHolder.getUid(), tokenHolder.getEmail(), firstName, lastName);
-            account.setAuthorities(getUserRoles());
             account.setPassword(UUID.randomUUID().toString());
-            System.out.println(account.toString());
             accountRepository.save(account);
             log.info("registerUser -> user \"" + account.getFirstName() + " " + account.getLastName() + "\" created");
             return account;
@@ -204,6 +218,9 @@ public class AccountServiceImpl implements AccountService {
                 }
             }
         }
+        if (!user.isAccountEnabled()) {
+            user.tryUnsuspend();
+        }
         return user;
     }
 
@@ -214,33 +231,41 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Account user = accountRepository.findByUsername(username);
+        if(!user.isAccountEnabled() && user.tryUnsuspend() > 0)
+        {
+            log.info("User " + username + " is currently suspended");
+            return null;
+        }
         user.setTimer();
         accountRepository.save(user);
         return user;
     }
 
     @Override
-    public Map<String, ? extends Searchable> searchWithFilter(String type, String query, boolean suggestions, boolean weights) {
-        switch (type) {
-            case "firstname":
-                return searchByFirstName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "lastname":
-                return searchByLastName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "fullname":
-                return searchByFullName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "username":
-                Map<String, Account> map = new HashMap<>();
-                Account account = searchByUsername(query);
-                map.put(account.getUsername(), account);
-                return map;
-            case "reputation":
-                return searchByReputation(Integer.parseInt(query), suggestions, weights).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "skill":
-                return searchBySkill(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "group":
-                return searchByGroupName(query).stream().collect(Collectors.toMap(Group::getGroupID, _it -> _it));
-            case "isPublic":
-                return searchByGroupPublic(query).stream().collect(Collectors.toMap(Group::getGroupID, _it -> _it));
+    public Map<String, ? extends Searchable> searchWithFilter(String userId, String type, String query) {
+        if (type.contentEquals("profile")) {
+
+            Map<String, Account> results = searchByFullName(query);
+
+            Account user = searchByUsername(query);
+            if (user != null) {
+                results.put(user.getUsername(), user);
+            }
+            List<Account> sorted = this.sortByReputation(new ArrayList<>(results.values()));
+            results = new TreeMap<>();
+            for (Account a: sorted) {
+                results.put(a.getUsername(), maskPublicProfile(a));
+            }
+            if (!accountRepository.existsByAccountID(userId)) {
+                log.info("User " + userId + " not found");
+                return null;
+            }
+            user = accountRepository.findByAccountID(userId);
+            results.remove(user.getUsername());
+            return results;
+
+        } else if (type.contentEquals("group")) {
+            return searchByGroupPublic(query).stream().collect(Collectors.toMap(Group::getGroupID, _it -> _it));
         }
         return null;
     }
@@ -321,27 +346,70 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Account> searchByFullName(String firstName, String lastName) {
-        List<Account> accounts = accountRepository.findByFirstNameContainsIgnoreCase(firstName);
-        List<Account> masked = new ArrayList<>();
-        for (Account account : accounts) {
-            if (account.getLastName().toLowerCase().equals(lastName.toLowerCase()) && !account.isOptedOut()) {
-                masked.add(this.maskPublicProfile(account));
+    public Map<String, Account> searchByFullName(String firstName, String lastName) {
+        List<Account> first = searchByFirstName(firstName);
+        List<Account> last = searchByLastName(lastName);
+        Map<String, Account> listOne = first.stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
+        Map<String, Account> listTwo = last.stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
+
+        Map<String, Account> masked = new TreeMap<>();
+        if (firstName.contentEquals(lastName)) { //The search did not contain a space
+            for (String key: listOne.keySet()) {
+                if (!listOne.get(key).isOptedOut()) {
+                    masked.put(key, maskPublicProfile(listOne.get(key)));
+                }
+            }
+
+            for (String key: listTwo.keySet()) {
+                if (!listTwo.get(key).isOptedOut()) {
+                    masked.put(key, maskPublicProfile(listTwo.get(key)));
+                }
+            }
+        } else {
+            for (String key: listOne.keySet()) {
+                if (listTwo.containsKey(key)) {
+                    if (!listOne.get(key).isOptedOut()) {
+                        masked.put(key, maskPublicProfile(listOne.get(key)));
+                    }
+                }
             }
         }
+
         return masked;
     }
 
     @Override
-    public List<Account> searchByFullName(String fullName) {
-        String arr[] = fullName.split(" ");
-        if (arr.length == 2) {
-            return searchByFullName(arr[0], arr[1]);
+    public void setLocation(String userId, String latitude, String longitude) {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return;
         }
-        return null;
+        Account user = accountRepository.findByAccountID(userId);
+        try {
+            double lat = Double.parseDouble(latitude);
+            double lon = Double.parseDouble(longitude);
+            user.setLatitude(lat);
+            user.setLongitude(lon);
+            accountRepository.save(user);
+        } catch (NumberFormatException e) {
+            log.info("Could not parse location");
+            return;
+        }
     }
 
 
+    @Override
+    public Map<String, Account> searchByFullName(String fullName) {
+        String arr[] = fullName.split(" ");
+        if (arr.length == 2) {
+            return searchByFullName(arr[0], arr[1]);
+        } else {
+            return searchByFullName(arr[0], arr[0]);
+        }
+    }
+
+
+    /* TODO: Remove once front end updates to new search type */
     @Override
     public List<Account> searchByReputation(int minimumRep, boolean includeSuggested, boolean includeWeights) {
         List<Account> accounts = accountRepository.findAll();
@@ -369,6 +437,13 @@ public class AccountServiceImpl implements AccountService {
             return this.moveSuggestedToTop(qualified, minimumRep, includeWeights);
         }
         return qualified;
+    }
+
+    public List<Account> sortByReputation(List<Account> unsorted) {
+        Comparator<Account> byReputation = Comparator.comparingInt(Account::getReputation);
+        byReputation = byReputation.reversed();
+        unsorted.sort(byReputation);
+        return this.moveSuggestedToTop(unsorted, 0, true);
     }
 
     @Override
@@ -497,9 +572,24 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Skill addSkillToDatabase(String modId, String skillName) {
+        if (!accountRepository.existsByAccountID(modId)) {
+            log.info("Moderator " + modId + " not found");
+            return null;
+        }
+        Account moderator = accountRepository.findByAccountID(modId);
+        if(!moderator.isModerator()) {
+            log.info("Account " + modId + " is not a moderator");
+            moderator.log("Attempted to use moderator tool");
+            accountRepository.save(moderator);
+            return null;
+        }
+        return addSkillToDatabase(skillName);
+    }
+
+    @Override
     public List<Skill> getAllValidSkills() {
         List<Skill> skills = skillRepository.findBySkillLevel(0);
-        System.out.println(skills);
         Collections.sort(skills);
         return skills;
     }
@@ -620,7 +710,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Message> getMessages(String userId, boolean includeRead, String startDate /* YEAR-MONTH-DAY */) {
+    public List<Message> getMessages(String userId, String read, String startDate /* YEAR-MONTH-DAY */) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
@@ -636,12 +726,30 @@ public class AccountServiceImpl implements AccountService {
                 return null;
             }
         }
+
+        boolean includeRead = false;
+        try {
+            includeRead = Boolean.parseBoolean(read);
+        } catch (Exception e) {
+            log.info("Could not parse boolean");
+        }
+
+        List<String> toDelete = new ArrayList<>();
         for (String id : user.getMessageIDs().keySet()) {
             Message message = messageRepository.findByMessageID(id);
+            if (message == null) {
+                toDelete.add(id);
+                continue;
+            }
             if ((includeRead || !message.isRead()) && (start == null || !message.getCreationDate().isBefore(start))) {
                 messages.add(message);
             }
         }
+        for (String id: toDelete) {
+            user.removeMessage(id);
+        }
+        accountRepository.save(user);
+
         Comparator<Message> byTime = Comparator.comparing(Message::getCreationTime);
         messages.sort(byTime);
         Comparator<Message> byDate = Comparator.comparing(Message::getCreationDate);
@@ -690,22 +798,11 @@ public class AccountServiceImpl implements AccountService {
         messageRepository.delete(messageId);
         user.removeMessage(messageId);
         accountRepository.save(user);
-        Message parent = messageRepository.findByParentIDAndAndSenderID(message.getParentID());
-        parent.decrement();
-        messageRepository.save(parent);
-
-        // TODO: update for decided rules
-        if (parent.getCounter() < -5) {
-            deleteMessageByParent(parent.getParentID());
-            user.deniedMod();
-            user.log("Deny mod request");
-            accountRepository.save(user);
-        }
         return message;
     }
 
     @Override
-    public Message acceptModInvite(String userId, String messageId) {
+    public Message acceptModInvite(String userId, String messageId, String reason) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
@@ -718,11 +815,19 @@ public class AccountServiceImpl implements AccountService {
         Message message = messageRepository.findByMessageID(messageId);
         messageRepository.delete(messageId);
         user.removeMessage(messageId);
+
+        List<Account> moderators = accountRepository.findByIsModeratorTrue();
+        if (moderators.size() == 0) {
+            addToModerators(userId);
+            return message;
+        }
+
         user.log("Send mod request");
         accountRepository.save(user);
         String parentID = "modRequest[" + userId + "]";
-        Message request = new Message(parentID, user.getFullName(), "I would like to become a moderator. Care to look at my account?", Types.MOD_REQUEST);
-        request.setParentID(parentID);
+        Message request = new Message(userId, user.getFullName(), "Care to look at my account? I would like to become a moderator for the following reason: " + reason, Types.MOD_REQUEST);
+        request.setParentID(request.getMessageID());
+        messageRepository.save(request);
         sendMessageToMods(userId, request);
         return request;
     }
@@ -742,17 +847,52 @@ public class AccountServiceImpl implements AccountService {
         messageRepository.delete(messageId);
         user.removeMessage(messageId);
         accountRepository.save(user);
-        Message parent = messageRepository.findByParentIDAndAndSenderID(message.getParentID());
+        Message parent = messageRepository.findByMessageID(message.getParentID());
         parent.increment();
         messageRepository.save(parent);
+        List<Account> moderators = accountRepository.findByIsModeratorTrue();
 
         // TODO: update for decided rules
-        if (parent.getCounter() > 5) {
-            deleteMessageByParent(parent.getParentID());
-            addToModerators(userId);
-            user.log("Accept mod request");
-            accountRepository.save(user);
+        if (parent.getCounter() == Math.ceil(moderators.size()/2.0)) {
+            addToModerators(parent.getSenderID());
+            deleteMessageByParent(parent.getMessageID());
         }
+        return message;
+    }
+
+    @Override
+    public Message acceptKickRequest(String userId, String messageId) {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if (!messageRepository.existsByMessageID(messageId)) {
+            log.info("Message " + messageId + " not found");
+            return null;
+        }
+        Message message = messageRepository.findByMessageID(messageId);
+        message.setRead(true);
+        messageRepository.save(message);
+        Group group = groupService.acceptVoteKick(message.getGroupID(), userId);
+        return message;
+    }
+
+    @Override
+    public Message rejectKickRequest(String userId, String messageId) {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        if (!messageRepository.existsByMessageID(messageId)) {
+            log.info("Message " + messageId + " not found");
+            return null;
+        }
+        Message message = messageRepository.findByMessageID(messageId);
+        message.setRead(true);
+        messageRepository.save(message);
+        Group group = groupService.denyVoteKick(message.getGroupID(), userId);
         return message;
     }
 
@@ -785,6 +925,9 @@ public class AccountServiceImpl implements AccountService {
             case Types.MOD_REQUEST:
                 rejectModRequest(userId, messageId);
                 break;
+            case Types.KICK_REQUEST:
+                rejectKickRequest(userId, messageId);
+                break;
         }
     }
 
@@ -813,13 +956,17 @@ public class AccountServiceImpl implements AccountService {
                 acceptJoinRequest(userId, messageId);
                 break;
             case Types.MOD_INVITE:
-                acceptModInvite(userId, messageId);
+                acceptModInvite(userId, messageId, "No particular reason");
                 break;
             case Types.MOD_REQUEST:
                 acceptModRequest(userId, messageId);
                 break;
             case Types.SEARCH_INVITE:
                 acceptSearchInvite(userId, messageId);
+                break;
+            case Types.KICK_REQUEST:
+                acceptKickRequest(userId, messageId);
+                break;
         }
     }
 
@@ -830,7 +977,8 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Group group = groupRepository.findByGroupID(groupId);
-        if(!group.hasGroupMember(userId)) {
+        Account acc = accountRepository.findByUsername(userId);
+        if(!group.hasGroupMember(acc.getAccountID())) {
             log.info("User " + userId + " is not in group " + groupId);
             return null;
         }
@@ -848,7 +996,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Message reactToChatMessage(String groupId, String userId, String messageId, int reaction)
+    public Message reactToChatMessage(String groupId, String userId, String messageId, String reaction)
     {
         if (!groupRepository.existsByGroupID(groupId)) {
             log.info("Group " + groupId + " not found");
@@ -864,10 +1012,19 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Message message = messageRepository.findByMessageID(messageId);
-        if(message.getReaction(userId) == reaction) {
+
+        int react = Message.Reactions.UP_VOTE;
+
+        try {
+            react = Integer.parseInt(reaction);
+        } catch (NumberFormatException e) {
+            log.info("Could not parse reaction string");
+        }
+
+        if(message.getReaction(userId) == react) {
             message.removeReaction(userId);
         } else {
-            message.addReaction(userId, reaction);
+            message.addReaction(userId, react);
         }
         messageRepository.save(message);
         return message;
@@ -876,10 +1033,14 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Message sendMessage(String senderId, String receiverId, String content, int type) {
         String senderName;
-        if (accountRepository.existsByAccountID(senderId)) {
+        Boolean groupName = false;
+        if (accountRepository.existsByUsername(senderId)) {
+            senderName = accountRepository.findByUsername(senderId).getFullName();
+        } else if(accountRepository.existsByAccountID(senderId)){
             senderName = accountRepository.findByAccountID(senderId).getFullName();
         } else if (groupRepository.existsByGroupID(senderId)) {
             senderName = groupRepository.findByGroupID(senderId).getGroupName();
+            groupName = true;
         } else {
             log.info("Sender " + senderId + " not found");
             return null;
@@ -890,11 +1051,20 @@ public class AccountServiceImpl implements AccountService {
                 log.info("Group " + receiverId + " not found");
                 return null;
             }
+            if (groupName){
+                senderName = "this-is-a-group-message";
+            }
             Group receiver = groupRepository.findByGroupID(receiverId);
             message = new Message(senderId, senderName, content, type);
+            message.setTopicID(receiverId);
             messageRepository.save(message);
             receiver.addMessage(message.getMessageID());
             groupRepository.save(receiver);
+            try {
+                template.convertAndSend("/group/" + receiver.getGroupID(), message);
+            } catch (Exception e) {
+                log.info("Could not send message");
+            }
         } else {
             if (!accountRepository.existsByAccountID(receiverId)) {
                 log.info("Account " + receiverId + " not found");
@@ -915,14 +1085,18 @@ public class AccountServiceImpl implements AccountService {
         for (Account mod : mods) {
             Message copy = new Message(message.getSenderID(), message.getSenderName(), message.getContent(), message.getType());
             copy.setParentID(message.getParentID());
+            copy.setGroupID(message.getGroupID());
+            copy.setTopicID(message.getTopicID());
+            copy.setTopicName(message.getTopicName());
+            copy.setChatMessageID(message.getChatMessageID());
             mod.addMessage(copy);
             messageRepository.save(copy);
             accountRepository.save(mod);
-        }
-        try {
-            template.convertAndSend("/moderators", message);
-        } catch (Exception e) {
-            log.info("Could not send message");
+            try {
+                template.convertAndSend("/notification/" + mod.getAccountID(), message);
+            } catch (Exception e) {
+                log.info("Could not send message");
+            }
         }
         return message;
     }
@@ -964,6 +1138,7 @@ public class AccountServiceImpl implements AccountService {
         return message;
     }
 
+    /* Deletes all messages associated with said parent NOTE: ONLY SEARCHES THROUGH MODS */
     @Override
     public void deleteMessageByParent(String parentId) {
         List<Message> group = messageRepository.findByParentID(parentId);
@@ -1024,9 +1199,7 @@ public class AccountServiceImpl implements AccountService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (group != null) {
-            user.log("Create group " + group.getGroupName());
-        }
+
         return group;
     }
 
@@ -1038,13 +1211,20 @@ public class AccountServiceImpl implements AccountService {
         }
         Group group = groupRepository.findByGroupID(groupId);
         String purpose = null;
-        int proximity = -1;
+        String name = null;
+        int proximity;
         List<String> skillNames = new ArrayList<>();
 
         try {
             JSONObject obj = new JSONObject(json);
+            name = obj.getString("name");
             purpose = obj.getString("purpose");
             proximity = obj.getInt("proximity");
+
+            if (proximity <= 0) {
+                proximity = Account.MAX_PROXIMITY;
+            }
+
             for (Object k : obj.keySet()) {
                 String key = k.toString();
                 if (key.contentEquals("skillsReq")) {
@@ -1058,15 +1238,14 @@ public class AccountServiceImpl implements AccountService {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-        List<Account> qualified = groupService.broadcastEvent(group.getGroupID(), group.getGroupLeaderID(), purpose, proximity, skillNames);
+        sendMessage(group.getGroupLeaderID(), group.getGroupID(), "We are hosting an event called " + name + "! Here are the details: " + purpose, Message.Types.CHAT_MESSAGE);
+        List<Account> qualified = groupService.broadcastEvent(group.getGroupID(), group.getGroupLeaderID(), name, purpose, proximity, skillNames);
         if (qualified == null) {
             log.info("Could not create broadcast event");
             return null;
         }
-        Account leader = accountRepository.findByAccountID(group.getGroupLeaderID());
-        leader.log("Create event for group " + group.getGroupName() + " for purpose " + purpose);
-        accountRepository.save(leader);
         return group;
     }
 
@@ -1107,6 +1286,9 @@ public class AccountServiceImpl implements AccountService {
         if (group.getGroupLeaderID().equals(user.getAccountID())) {
             if (group.getGroupMemberIDs().size() == 1) {
                 user.removeGroup(groupId);
+                for(String messageID : group.getChatMessageIDs()) {
+                    messageRepository.delete(messageID);
+                }
                 groupRepository.delete(group);
                 accountRepository.save(user);
                 return user;
@@ -1122,7 +1304,12 @@ public class AccountServiceImpl implements AccountService {
         group.removeGroupMember(user.getAccountID());
         groupRepository.save(group);
         accountRepository.save(user);
-        sendMessage(groupId, groupId, user.getFullName() + " has left the group", Types.CHAT_MESSAGE);
+        Message toSend = sendMessage(groupId, groupId, user.getFullName() + " has left the group", Types.CHAT_MESSAGE);
+        try {
+            template.convertAndSend("/group/" + groupId, toSend);
+        } catch (Exception e) {
+            log.info("Could not send message");
+        }
         return user;
 
     }
@@ -1139,7 +1326,6 @@ public class AccountServiceImpl implements AccountService {
             return;
         }
         Message message = messageRepository.findByMessageID(messageId);
-        System.out.println("MESSAGE: " + message.getContent() + "[" + message.getType() + "]");
         switch (message.getType()) {
             /* RATE_REQUEST HANDLED ELSEWHERE */
             case Types.GROUP_INVITE:
@@ -1243,12 +1429,43 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         message.setGroupID(groupId);
+        messageRepository.save(message);
         try {
             template.convertAndSend("/notification/" + friendId, message);
         } catch (Exception e) {
             log.info("Could not send message");
         }
         return message;
+    }
+
+    @Override
+    public void startKickVote(String userId, String kickedId, String groupId) {
+        Group group = groupService.startVoteKick(groupId, userId, kickedId);
+        if (group == null) {
+            return;
+        }
+        Account leader = accountRepository.findByAccountID(userId);
+        Account kickee = accountRepository.findByAccountID(kickedId);
+
+        for (String memberId: group.getGroupMemberIDs().keySet()) {
+            if (memberId.contentEquals(leader.getAccountID())) continue;
+            if (memberId.contentEquals(kickee.getAccountID())) continue;
+            Account member = accountRepository.findByAccountID(memberId);
+            Message voteTicket = new Message(leader.getAccountID(), leader.getFullName(), "You can now vote to kick " + kickee.getFullName() + " from group " + group.getGroupName(), Types.KICK_REQUEST);
+            voteTicket.setTopicID(kickee.getAccountID());
+            voteTicket.setTopicName(kickee.getFullName());
+            voteTicket.setParentID("VoteToKick:" + kickedId + ":FromGroup:" + groupId);
+            voteTicket.setGroupID(groupId);
+            member.addMessage(voteTicket);
+            messageRepository.save(voteTicket);
+            accountRepository.save(member);
+
+            try {
+                template.convertAndSend("/notification/" + member.getAccountID(), voteTicket);
+            } catch (Exception e) {
+                log.info("Could not send message");
+            }
+        }
     }
 
     @Override
@@ -1396,10 +1613,16 @@ public class AccountServiceImpl implements AccountService {
         }
         Group group = groupRepository.findByGroupID(invite.getGroupID());
         Message accepted = groupService.acceptJoinRequest(userId, inviteId);
-        sendMessage(group.getGroupID(), group.getGroupID(), user.getFullName() + " has joined the group!", Types.CHAT_MESSAGE);
+        Message chatMessage = sendMessage(group.getGroupID(), group.getGroupID(), invite.getSenderName() + " has joined the group!", Types.CHAT_MESSAGE);
 
         try {
             template.convertAndSend("/notification/" + invite.getSenderID(), accepted);
+        } catch (Exception e) {
+            log.info("Could not send message");
+        }
+
+        try {
+            template.convertAndSend("/group/" + group.getGroupID(), chatMessage);
         } catch (Exception e) {
             log.info("Could not send message");
         }
@@ -1463,9 +1686,16 @@ public class AccountServiceImpl implements AccountService {
         user.removeMessage(inviteId);
         user.log("Accept group invite for group " + group.getGroupName());
         accountRepository.save(user);
-        sendMessage(group.getGroupID(), group.getGroupID(), user.getFullName() + " has joined the group!", Types.CHAT_MESSAGE);
+        Message chatMessage = sendMessage(group.getGroupID(), group.getGroupID(), user.getFullName() + " has joined the group!", Types.CHAT_MESSAGE);
         addToGroup(userId, group.getGroupID());
         messageRepository.delete(inviteId);
+
+        try {
+            template.convertAndSend("/group/" + group.getGroupID(), chatMessage);
+        } catch (Exception e) {
+            log.info("Could not send message");
+        }
+
         return invite;
     }
 
@@ -1510,16 +1740,16 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account removeFriend(String username, String friendId) {
-        if (!accountRepository.existsByUsername(username)) {
-            log.info("User " + username + " not found");
+    public Account removeFriend(String userId, String friendId) {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
             return null;
         }
         if (!accountRepository.existsByAccountID(friendId)) {
             log.info("User " + friendId + " not found");
             return null;
         }
-        Account user = accountRepository.findByUsername(username);
+        Account user = accountRepository.findByAccountID(userId);
         Account friend = accountRepository.findByAccountID(friendId);
         user.removeFriend(friend.getAccountID());
         friend.removeFriend(user.getAccountID());
@@ -1623,7 +1853,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account rateUser(String userId, String rateeId, String messageId, String json, boolean endorse) {
+    public Account rateUser(String userId, String rateeId, String groupId, String json, boolean endorse) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
@@ -1632,18 +1862,13 @@ public class AccountServiceImpl implements AccountService {
             log.info("User " + rateeId + " not found");
             return null;
         }
-        if (!messageRepository.existsByMessageID(messageId)) {
-            log.info("Could not find rate request");
+        if (!groupRepository.existsByGroupID(groupId)) {
+            log.info("Group " + groupId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
         Account ratee = accountRepository.findByAccountID(rateeId);
-        Message message = messageRepository.findByMessageID(messageId);
-
-        user.removeMessage(messageId);
-        messageRepository.delete(message.getMessageID());
-        user.log("Rate user " + ratee.getFullName());
-        accountRepository.save(user);
+        Group group = groupRepository.findByGroupID(groupId);
 
         Map<String, Integer> map = null;
         try {
@@ -1661,17 +1886,17 @@ public class AccountServiceImpl implements AccountService {
             log.info("Map is null");
             return null;
         }
-        groupService.rateGroupMember(message.getGroupID(), userId, rateeId, endorse, map);
+        groupService.rateGroupMember(group.getGroupID(), userId, rateeId, endorse, map);
         ratee.setRank(getReputationRanking(ratee.getUsername()));
         checkModStatus(ratee.getAccountID());
         return ratee;
     }
 
     @Override
-    public void addToModerators (String userId){
+    public Account addToModerators (String userId){
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
-            return;
+            return null;
         }
         Account user = accountRepository.findByAccountID(userId);
         Message congrats = new Message(userId, user.getFullName(),"Congratulations! You're a moderator now!", Types.MOD_ACCEPTED);
@@ -1685,21 +1910,22 @@ public class AccountServiceImpl implements AccountService {
         } catch (Exception e) {
             log.info("Could not send message");
         }
+        return user;
     }
 
     // TODO: update for decided rules
     @Override
-    public void checkModStatus (String userId) {
+    public Message checkModStatus (String userId) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
-            return;
+            return null;
         }
         Account user = accountRepository.findByAccountID(userId);
         if (!user.isModerator()) { //if user is not already a moderator
             if (!user.isDeniedMod()) { //if user already denied being a moderator
                 if (!user.isNewUser()) { //if user is not a new user
                     if (user.getReputation() >= 50) { //if user has reputation higher than 50
-                        if (user.getGroupIDs().keySet().size() > 5) { //user has to be in at least 5 groups
+                        if (user.getGroupIDs().keySet().size() >= 5) { //user has to be in at least 5 groups
                             Message offer = new Message(userId, user.getFullName(),"You are now able to apply to be a moderator!", Types.MOD_INVITE);
                             user.addMessage(offer);
                             messageRepository.save(offer);
@@ -1709,18 +1935,346 @@ public class AccountServiceImpl implements AccountService {
                             } catch (Exception e) {
                                 log.info("Could not send message");
                             }
+                            return offer;
                         }
                     }
                 }
             }
         }
+        return null;
     }
 
-
-    // TODO: update user flags
     @Override
-    public int flagUser(String modId, String userId) {
-        return 0;
+    public Account flagUser(String modId, String messageId) {
+        if (!messageRepository.existsByMessageID(messageId)) {
+            log.info("Message " + messageId + " not found");
+            return null;
+        }
+        Message report = messageRepository.findByMessageID(messageId);
+
+        if (!accountRepository.existsByAccountID(modId)) {
+            log.info("User " + modId + " not found");
+            return null;
+        }
+        Account mod = accountRepository.findByAccountID(modId);
+
+        if (!accountRepository.existsByAccountID(report.getTopicID())) {
+            log.info("User " + report.getTopicID() + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(report.getTopicID());
+
+        if (!mod.isModerator()) {
+            log.info(mod.getFullName() + " is not a moderator");
+            mod.log("Attempted to use moderator tool");
+            accountRepository.save(mod);
+            return null;
+        }
+
+        List<Message> reports = messageRepository.findByParentID(report.getParentID());
+
+        if (mod.hasFlagged(user.getAccountID())) {
+            user.removeFlag();
+            for (Message r: reports) {
+                r.decrement();
+                messageRepository.save(r);
+            }
+            report.decrement();
+        } else {
+            user.addFlag();
+            for (Message r: reports) {
+                r.increment();
+                messageRepository.save(r);
+            }
+            report.increment();
+        }
+        mod.toggleFlag(user.getAccountID());
+        accountRepository.save(user);
+        accountRepository.save(mod);
+
+        report.setRead(true);
+        messageRepository.save(report);
+
+        return user;
     }
 
+    @Override
+    public Account suspendUser(String modId, String messageId) {
+        if (!accountRepository.existsByAccountID(modId)) {
+            log.info("User " + modId + " not found");
+            return null;
+        }
+        Account mod = accountRepository.findByAccountID(modId);
+
+        if (!messageRepository.existsByMessageID(messageId)) {
+            log.info("Message " + messageId + " not found");
+            return null;
+        }
+        Message report = messageRepository.findByMessageID(messageId);
+
+        if (!accountRepository.existsByAccountID(report.getTopicID())) {
+            log.info("User " + report.getTopicID() + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(report.getTopicID());
+
+        if (!mod.isModerator()) {
+            log.info(mod.getFullName() + " is not a moderator");
+            mod.log("Attempted to use moderator tool");
+            accountRepository.save(mod);
+            return null;
+        }
+        if (user.isAccountEnabled()) {
+            if(user.getSuspendTime() == 0)
+            {
+                user.setSuspendTime(24*60);
+            }
+            user.suspend(2*user.getSuspendTime());
+            user.setFlags(user.getFlags() - 5);
+            accountRepository.save(user);
+        }
+        deleteMessageByParent(report.getParentID());
+        return user;
+    }
+
+    @Override
+    public Message reportUser(String userId, String reporteeId, String reason) {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        if (!accountRepository.existsByAccountID(reporteeId)) {
+            log.info("User " + reporteeId + " not found");
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        Account reportee = accountRepository.findByAccountID(reporteeId);
+        user.log("Report user " + reportee.getFullName());
+        reportee.log("Reported by user " + user.getFullName());
+        accountRepository.save(user);
+        accountRepository.save(reportee);
+        Message message = new Message(user.getAccountID(), user.getFullName(), reason, Types.MOD_REPORT);
+        message.setParentID("Report:" + reportee.getAccountID());
+        message.setTopicID(reportee.getAccountID());
+        message.setTopicName(reportee.getFullName());
+        sendMessageToMods(user.getAccountID(), message);
+        return message;
+    }
+
+    @Override
+    public List<String> getActivityLog(String modId, String userId, String startDate, String endDate)
+    {
+        if (!accountRepository.existsByAccountID(modId)) {
+            log.info("Moderator " + modId + " not found");
+            return null;
+        }
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account moderator = accountRepository.findByAccountID(modId);
+        if(!moderator.isModerator()) {
+            log.info("Account " + modId + " is not a moderator");
+            moderator.log("Attempted to use moderator tool");
+            accountRepository.save(moderator);
+            return null;
+        }
+        Account account = accountRepository.findByAccountID(userId);
+        if(startDate == null && endDate == null) {
+            return account.getLogs();
+        }
+        if(startDate == null){
+            startDate = "2000-01-01";
+        }
+        if(endDate == null){
+            endDate = LocalDate.now().toString();
+        }
+        LocalDate start = LocalDate.parse(startDate);
+        LocalDate end = LocalDate.parse(endDate);
+        List<String> log = new ArrayList<>();
+        for(String info : account.getLogs()) {
+            LocalDate date = LocalDate.parse(info.substring(info.length()-10));
+            if(!date.isBefore(start) && !date.isAfter(end)) {
+                log.add(info);
+            }
+        }
+        return log;
+    }
+
+    @Override
+    public Message reportGroupMember(String groupId, String reporterId, String messageId, String reason) {
+        if (!groupRepository.existsByGroupID(groupId)) {
+            log.info("Group " + groupId + " not found");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(groupId);
+        if (!group.hasGroupMember(reporterId)) {
+            log.info("User " + reporterId + " is not in group " + groupId);
+            return null;
+        }
+        if (!group.hasMessage(messageId)) {
+            log.info("Group " + groupId + " does not contain message " + messageId);
+            return null;
+        }
+        Message message = messageRepository.findByMessageID(messageId);
+        Account reporter = accountRepository.findByAccountID(reporterId);
+        Account reportee = accountRepository.findByAccountID(message.getSenderID());
+        reporter.log("Report user " + reportee.getFullName());
+        reportee.log("Reported by user " + reporter.getFullName());
+        accountRepository.save(reporter);
+        accountRepository.save(reportee);
+        Message report = new Message(reporterId, reporter.getFullName(), reason, Message.Types.MOD_REPORT);
+        report.setParentID("Report:" + reportee.getAccountID());
+        report.setGroupID(groupId);
+        report.setTopicID(reportee.getAccountID());
+        report.setTopicName(reportee.getFullName());
+        report.setChatMessageID(messageId);
+        sendMessageToMods(reporterId, report);
+        return report;
+    }
+
+    @Override
+    public List<Message> getReportContext(String modId, String messageId, String startId, String endId) {
+        if (!accountRepository.existsByAccountID(modId)) {
+            log.info("Moderator " + modId + " not found");
+            return null;
+        }
+        Account moderator = accountRepository.findByAccountID(modId);
+        if(!moderator.isModerator()) {
+            log.info("Account " + modId + " is not a moderator");
+            moderator.log("Attempted to use moderator tool");
+            accountRepository.save(moderator);
+            return null;
+        }
+        if(!messageRepository.existsByMessageID(messageId)) {
+            log.info("Message " + messageId + " not found");
+            return null;
+        }
+        if(!moderator.hasMessage(messageId)) {
+            log.info("Moderator " + modId + " does not have message " + messageId);
+            return null;
+        }
+        Message report = messageRepository.findByMessageID(messageId);
+
+        if(report.getChatMessageID() == null) {
+            log.info("Report " + messageId + " does not pertain to a group chat");
+            return null;
+        }
+        Group group = groupRepository.findByGroupID(report.getGroupID());
+
+        if (!messageRepository.existsByMessageID(startId)) {
+            log.info("Could not find lower boundary message");
+            startId = report.getChatMessageID();
+        }
+        if (!messageRepository.existsByMessageID(endId)) {
+            log.info("Could not find upper boundary message");
+            endId = report.getChatMessageID();
+        }
+
+        int start = Math.max(group.getChatMessageIDs().indexOf(startId)-5, 0);
+        int end = Math.min(group.getChatMessageIDs().indexOf(endId)+5, group.getChatMessageIDs().size()-1);
+        List<Message> context = new ArrayList<>();
+        for(int i = start; i <= end; i++) {
+            context.add(messageRepository.findByMessageID(group.getChatMessageIDs().get(i)));
+        }
+        return context;
+    }
+
+    @Override
+    public List<Message> getMessageHistory(String modId, String userId) {
+        if (!accountRepository.existsByAccountID(modId)) {
+            log.info("Moderator " + modId + " not found");
+            return null;
+        }
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account moderator = accountRepository.findByAccountID(modId);
+        if(!moderator.isModerator()) {
+            log.info("Account " + modId + " is not a moderator");
+            moderator.log("Attempted to use moderator tool");
+            accountRepository.save(moderator);
+            return null;
+        }
+        return messageRepository.findBySenderID(userId);
+    }
+
+    public Account editUserProfile(String modId, String userId, String field, String value)
+    {
+        if (!accountRepository.existsByAccountID(modId)) {
+            log.info("Moderator " + modId + " not found");
+            return null;
+        }
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return null;
+        }
+        Account moderator = accountRepository.findByAccountID(modId);
+        if(!moderator.isModerator()) {
+            log.info("Account " + modId + " is not a moderator");
+            moderator.log("Attempted to use moderator tool");
+            accountRepository.save(moderator);
+            return null;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        switch(field) {
+            case "reputation" :{
+                int reputation = Integer.parseInt(value);
+                user.setReputation(reputation);
+                break;
+            }
+            case "latitude" :{
+                double latitude = Double.parseDouble(value);
+                user.setLatitude(latitude);
+                break;
+            }
+            case "longitude" :{
+                double longitude = Double.parseDouble(value);
+                user.setLongitude(longitude);
+                break;
+            }
+            case "suspendTime" :{
+                int time = Integer.parseInt(value);
+                user.setSuspendTime(time);
+                break;
+            }
+            case "loggedInTime" :{
+                int time = Integer.parseInt(value);
+                user.setLoggedInTime(time);
+                break;
+            }
+            case "isModerator" :{
+                addToModerators(userId);
+                user = accountRepository.findByAccountID(userId);
+                break;
+            }
+            case "isNewUser" :{
+                boolean flag = Boolean.parseBoolean(value);
+                user.setNewUser(flag);
+                break;
+            }
+        }
+        accountRepository.save(user);
+        return user;
+    }
+
+    /* TODO: Finish upload picture once Jordan knows how it will be sent */
+    @Override
+    public void uploadPicture(String userId, MultipartFile file) throws Exception {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            throw new UsernameNotFoundException("Could not find user");
+        }
+        Account user = accountRepository.findByAccountID(userId);
+
+        if (!file.isEmpty()) {
+            BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(new File(picturePath, file.getOriginalFilename())));
+            outputStream.write(file.getBytes());
+            outputStream.flush();
+            outputStream.close();
+        }
+        user.setPicturePath(picturePath + "/" + file.getOriginalFilename());
+        accountRepository.save(user);
+    }
 }

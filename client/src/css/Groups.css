@@ -15,6 +15,7 @@
 .Groups.container-fluid {
     margin: 0;
     padding: 0;
+    
 }
 
 .Groups .row {
@@ -23,4 +24,12 @@
 
 .Groups .group-item {
     cursor: pointer;
+}
+
+.public-check-box{
+    padding-left: 20x
+}
+
+body {
+    overflow-y: hidden;
 }

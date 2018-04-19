@@ -36,6 +36,8 @@ public class SprintTwoServicesTest {
     @Autowired
     public GroupRepository groupRepository;
     @Autowired
+    public RoleRepository roleRepository;
+    @Autowired
     public GroupService groupService;
     @Autowired
     public AccountService accountService;
@@ -43,8 +45,8 @@ public class SprintTwoServicesTest {
     /* Back end Unit Test for User Story 10 */
     @Test
     public void testGroupSearchFilters() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
 
         Group cliquer = groupService.createGroup(
                 "Cliquer",
@@ -156,9 +158,9 @@ public class SprintTwoServicesTest {
     /* Back end Unit Test for User Story 13 */
     @Test
     public void testFriendInvites() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
-        Account kevin = accountService.createAccount("knagar", "montgo38@purdue.edu", "Kevin", "Nagar");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "montgo38@pdue.edu", "Kevin", "Nagar");
 
         Message invite = accountService.sendFriendInvite(jordan.getAccountID(), shawn.getAccountID());
         assertEquals(jordan.getAccountID(), invite.getSenderID());
@@ -199,11 +201,11 @@ public class SprintTwoServicesTest {
     /* Back end Unit Test for User Story 15 */
     @Test
     public void testReputationSuggestions() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
-        Account kevin = accountService.createAccount("knagar", "montgo38@purdue.edu", "Kevin", "Nagar");
-        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
-        Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@purdue.edu", "Rhys", "Buckmaster");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "montgo38@pdue.edu", "Kevin", "Nagar");
+        Account buckmaster = accountService.createAccount("buckmast", "buckmast@pdue.edu", "Jordan", "Buckmaster");
+        Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@pdue.edu", "Rhys", "Buckmaster");
 
         jordan.setReputation(55);
         shawn.setReputation(59);
@@ -237,9 +239,9 @@ public class SprintTwoServicesTest {
     /* Back end Unit Test for User Story 16 */
     @Test
     public void testOptingOutOfSearch() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "UniqueJordan", "Reed");
-        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "UniqueJordan", "Buckmaster");
-        Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@purdue.edu", "Rhys", "Buckmaster");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "UniqueJordan", "Reed");
+        Account buckmaster = accountService.createAccount("buckmast", "buckmast@pdue.edu", "UniqueJordan", "Buckmaster");
+        Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@pdue.edu", "Rhys", "Buckmaster");
 
         jordan.setReputation(55);
         jordan.setOptedOut(true);
@@ -253,8 +255,8 @@ public class SprintTwoServicesTest {
         List<Account> results = accountService.searchByFirstName("UniqueJordan");
         assertEquals(1, results.size());
 
-        results = accountService.searchByFullName("UniqueJordan Reed");
-        assertEquals(0, results.size());
+        Map<String, Account> searchMap = accountService.searchByFullName("UniqueJordan Reed");
+        assertEquals(0, searchMap.size());
 
         results = accountService.searchByLastName("Reed");
         assertEquals(0, results.size());
@@ -267,9 +269,9 @@ public class SprintTwoServicesTest {
     /* Back end Unit Test for User Story 17 */
     @Test
     public void testReputationRange() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
-        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
+        Account buckmaster = accountService.createAccount("buckmast", "buckmast@pdue.edu", "Jordan", "Buckmaster");
 
         jordan.setReputation(40);
         shawn.setReputation(80);
@@ -294,10 +296,10 @@ public class SprintTwoServicesTest {
     /* Back end Unit Test for User Story 20 */
     @Test
     public void testNewUserFlag() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
-        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
-        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
+        Account buckmaster = accountService.createAccount("buckmast", "buckmast@pdue.edu", "Jordan", "Buckmaster");
 
         jordan.setReputation(40);
         jordan.setLoggedInTime(Account.NEW_USER_HOURS*30);
@@ -345,9 +347,9 @@ public class SprintTwoServicesTest {
     /* Back end Unit Test for User Story 23 */
     @Test
     public void testPublicPrivateGroupSearch() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
-        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
 
         Group cliquer = groupService.createGroup(
                 "Cliquer",
@@ -398,9 +400,9 @@ public class SprintTwoServicesTest {
     /* Back end Unit Test for User Story 24 */
     @Test
     public void testGroupClosing() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
-        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
 
         Group cliquer = groupService.createGroup(
                 "Cliquer",
@@ -429,11 +431,11 @@ public class SprintTwoServicesTest {
     /* Back end Unit Test for User Story 25 */
     @Test
     public void testGroupMemberKicking() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
-        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
-        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
-        Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@purdue.edu", "Rhys", "Buckmaster");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
+        Account buckmaster = accountService.createAccount("buckmast", "buckmast@pdue.edu", "Jordan", "Buckmaster");
+        Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@pdue.edu", "Rhys", "Buckmaster");
 
         Group cliquer = groupService.createGroup(
                 "Cliquer",
@@ -476,11 +478,11 @@ public class SprintTwoServicesTest {
     /* Back end Unit Test for User Story 28 */
     @Test
     public void testJoiningGroup() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
-        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
-        Account buckmaster = accountService.createAccount("buckmast", "buckmast@purdue.edu", "Jordan", "Buckmaster");
-        Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@purdue.edu", "Rhys", "Buckmaster");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
+        Account buckmaster = accountService.createAccount("buckmast", "buckmast@pdue.edu", "Jordan", "Buckmaster");
+        Account rhys = accountService.createAccount("rbuckmas", "rbuckmas@pdue.edu", "Rhys", "Buckmaster");
 
         Group cliquer = groupService.createGroup(
                 "Cliquer",
@@ -596,8 +598,8 @@ public class SprintTwoServicesTest {
     /* Back end Unit Test for User Story 30 */
     @Test
     public void testChatHistory() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
 
         Group cliquer = groupService.createGroup(
                 "Cliquer",
@@ -610,7 +612,7 @@ public class SprintTwoServicesTest {
         accountService.sendMessage(kevin.getAccountID(), cliquer.getGroupID(), "Hey", Types.CHAT_MESSAGE);
         accountService.sendMessage(jordan.getAccountID(), cliquer.getGroupID(), "Bye", Types.CHAT_MESSAGE);
 
-        List<Message> messages = accountService.getChatHistory(cliquer.getGroupID(), jordan.getAccountID());
+        List<Message> messages = accountService.getChatHistory(cliquer.getGroupID(), jordan.getUsername());
 
         assertEquals(3, messages.size());
 
@@ -622,9 +624,9 @@ public class SprintTwoServicesTest {
     /* Back end Unit Test for User Story 32 */
     @Test
     public void testSkillRating() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
-        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
 
         Group cliquer = groupService.createGroup(
                 "Cliquer",
@@ -708,9 +710,9 @@ public class SprintTwoServicesTest {
     /* Back end Unit Test for User Story 33 */
     @Test
     public void testReputationRating() {
-        Account jordan = accountService.createAccount("reed226", "reed226@purdue.edu", "Jordan", "Reed");
-        Account shawn = accountService.createAccount("montgo38", "montgo38@purdue.edu", "Shawn", "Montgomery");
-        Account kevin = accountService.createAccount("knagar", "knagar@purdue.edu", "Kevin", "Nagar");
+        Account jordan = accountService.createAccount("reed226", "reed226@pdue.edu", "Jordan", "Reed");
+        Account shawn = accountService.createAccount("montgo38", "montgo38@pdue.edu", "Shawn", "Montgomery");
+        Account kevin = accountService.createAccount("knagar", "knagar@pdue.edu", "Kevin", "Nagar");
 
         Group cliquer = groupService.createGroup(
                 "Cliquer",

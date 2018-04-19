@@ -332,3 +332,58 @@ export const postRateForm = genericDispatch(
     postRateFormHasError, postRateFormIsLoading, postRateFormDataSuccess, 'POST'
 )
 
+export function inviteAllHasError(hasError) {
+    return {
+        type: 'INVITE_ALL_ERROR',
+        hasError
+    }  
+}
+
+export function inviteAllIsLoading(isLoading) {
+    return {
+        type: 'INVITE_ALL_IS_LOADING',
+        isLoading
+    }
+}
+
+export function inviteAllDataSuccess(data) {
+    return {
+        type: 'INVITE_ALL_DATA_SUCCESS',
+        data
+    }
+}
+
+export const inviteAll = genericDispatch(
+    inviteAllHasError, inviteAllIsLoading, inviteAllDataSuccess, 'POST'
+)
+
+export function createEventHasError(hasError) {
+    return {
+        type: 'CREATE_EVENT_ERROR',
+        hasError
+    }  
+}
+
+export function createEventIsLoading(isLoading) {
+    return {
+        type: 'CREATE_EVENT_IS_LOADING',
+        isLoading
+    }
+}
+
+export function createEventDataSuccess(data) {
+    return {
+        type: 'CREATE_EVENT_DATA_SUCCESS',
+        data
+    }
+}
+
+export const createEvent = genericDispatch(
+    createEventHasError, createEventIsLoading, createEventDataSuccess, 'POST'
+)
+
+export function clearGroups() {
+    return {
+        type: 'CLEAR_GROUPS'
+    }
+}
