@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Alert, Badge, Button, InputGroupAddon, Input, InputGroup,
-        Card, CardImg, CardText, CardBody, CardTitle} from 'reactstrap'
+        Card, CardImg, CardText, CardBody, CardTitle, Row,
+        ButtonGroup} from 'reactstrap'
 import SockJsClient from 'react-stomp'
 
 import '../../css/Chat.css'
@@ -11,20 +12,34 @@ import Logo from '../../img/cliquerLogoWarn.png'
 
 const Message = ({message, sender, align, time}) => {
   if (!message) return <div></div>;
-  var time1 = ""
-  var time2 = ""
-  if (align == "sender-message-right"){
-    time1 = time
-  }else{
-    time2 = time
+  if (align == "sender-message-left"){
+    return  <div className={align}>
+            <Badge className={align.concat("-badge")}>{sender}</Badge>
+            <br/>
+              <Alert className="single-message" className={align.concat("-alert")}> {message} </Alert>
+              <ButtonGroup vertical className="up-vote-down-vote">
+                <i class="fas fa-thumbs-up"></i>
+                <span>0</span>
+                <div className="thumbs-down-flip">
+                  <i class="fas fa-thumbs-down"></i>
+                </div>
+              </ButtonGroup>
+              <span className="time-stamp-left">{time}</span>
+            </div>
   }
   return (
     <div className={align}>
       <Badge className={align.concat("-badge")}>{sender}</Badge>
       <br/>
-      <span className="time-stamp-right">{time1}</span>
-      <Alert className="single-message" className={align.concat("-alert")}> {message} </Alert>
-      <span className="time-stamp-left">{time2}</span>
+        <span className="time-stamp-right">{time}</span>
+        <ButtonGroup vertical className="up-vote-down-vote">
+          <i class="fas fa-thumbs-up"></i>
+          <span>0</span>
+          <div className="thumbs-down-flip">
+            <i class="fas fa-thumbs-down"></i>
+          </div>
+        </ButtonGroup>
+        <Alert className="single-message" className={align.concat("-alert")}> {message} </Alert>
     </div>);
 };
 
