@@ -1,15 +1,13 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { TabContent, TabPane, Nav, NavItem, NavLink, 
-  Card, Button, CardTitle, CardText, Row, Col, ListGroup, ListGroupItem,
+  Button, ListGroup, ListGroupItem,
   Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import classnames from 'classnames';
 import Geocode from "react-geocode"
 
 import '../../css/Profile.css'
 import SkillsPanel from './SkillsPanel'
-import FriendsPanel from './FriendsPanel'
-import UserInfo from './UserInfo'
 import NotificationPanel from './NotificationPanel'
 import { getSkills, getProfile, getGroups, flagUser, setLocation, setCity, reportUser } from '../../redux/actions'
 import url from '../../server.js'
@@ -122,7 +120,7 @@ class Profile extends Component {
   }
   
   render() {
-    const { user, profile, skills, groups, token } = this.props
+    const { profile, skills, groups } = this.props
     const ownerID = this.props.match.params.ownerID
 
     if(!profile || profile.accountID !== ownerID){

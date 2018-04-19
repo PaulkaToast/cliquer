@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 
 import '../css/Register.css'
 import Logo from '../img/cliquerLogo.png'
-import { auth, firebase } from '../firebase'
+import { auth } from '../firebase'
 import { registerUser, setToken } from '../redux/actions'
 import url from '../server.js'
 

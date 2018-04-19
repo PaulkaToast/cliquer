@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Alert, Badge, Button, InputGroupAddon, Input, InputGroup,
-        Card, CardImg, CardText, CardBody, CardTitle, Row,
+        Card, CardImg, CardText, CardBody, CardTitle,
         ButtonGroup, UncontrolledTooltip } from 'reactstrap'
 import SockJsClient from 'react-stomp'
 
@@ -23,31 +23,35 @@ class Message extends Component{
     this.sendDownVote = this.sendDownVote.bind(this);
   } 
   sendUpVote = (event) => {
-    event.preventDefault(); 
+    event.preventDefault();
+    var newState = this.state;
     if(!this.state.reaction){
-      this.state.reaction = true
-      this.state.up = true
+      newState.reaction = true
+      newState.up = true
     }else if(this.state.reaction && this.state.up){
-      this.state.reaction = false
-      this.state.up = false
+      newState.reaction = false
+      newState.up = false
     }else if(this.state.reaction && this.state.down){
-      this.state.down = false
-      this.state.up = true
+      newState.down = false
+      newState.up = true
     }
+    this.setState(newState);
     this.props.sendReaction(this.props.messageId, 0);
   }
   sendDownVote = (event) => {
-    event.preventDefault(); 
+    event.preventDefault();
+    var newState = this.state;
     if(!this.state.reaction){
-      this.state.reaction = true
-      this.state.down = true
+      newState.reaction = true
+      newState.down = true
     }else if(this.state.reaction && this.state.down){
-      this.state.reaction = false
-      this.state.down = false
+      newState.reaction = false
+      newState.down = false
     }else if(this.state.reaction && this.state.up){
-      this.state.up = false
-      this.state.down = true
+      newState.up = false
+      newState.down = true
     }
+    this.setState(newState);
     this.props.sendReaction(this.props.messageId, 1);
   }
   render() {
@@ -68,11 +72,11 @@ class Message extends Component{
   }
 
   if (!message) return <div></div>;
-  if (align == "sender-message-left"){
+  if (align === "sender-message-left"){
     return  <div className={align}>
             <Badge className={align.concat("-badge")}>{sender}</Badge>
             <br/>
-              <Alert className="single-message" className={align.concat("-alert")}> {message} </Alert>
+              <Alert className={align.concat("-alert single-message")}> {message} </Alert>
               <ButtonGroup vertical className="up-vote-down-vote">
                 <i className={up.concat("vote fas fa-thumbs-up")}
                   onClick={this.sendUpVote} id={"up"+messageId}></i>
@@ -103,7 +107,7 @@ class Message extends Component{
               {downToolTip}
           </div>
         </ButtonGroup>
-        <Alert className="single-message" className={align.concat("-alert")}> {message} </Alert>
+        <Alert className={align.concat("-alert single-message")}> {message} </Alert>
     </div>);
   };
 }
@@ -128,25 +132,24 @@ class Chat extends Component {
   }
 
   componentWillReceiveProps = (nextProps) => {
-    if(nextProps.group != this.props.group){
-      this.state.messages = [];
-      this.setState(this.state);
+    if(nextProps.group !== this.props.group){
+      var newState = this.state;
+      newState.messages = [];
+      this.setState(newState);
       setTimeout(() => this.onWebsocketConnect(), 1)
     }
   }
 
   sendMessage = (event) => {
     event.preventDefault();
-    if (this.state.msgInput == "") {
+    if (this.state.msgInput === "") {
       return;
-    }
-    const msg = {
-      senderId: this.props.user.uid,
-      content: this.state.msgInput,
     }
     this.clientRef.sendMessage('/app/' + this.props.user.uid + '/' 
                                + this.props.group.groupID + '/sendMessage', this.state.msgInput)
-    this.state.msgInput = "";
+    var newState = this.state;
+    newState.msgInput = "";
+    this.setState(newState);
     event.target.reset()
   }
 
@@ -157,10 +160,11 @@ class Chat extends Component {
   }
 
   handleMessage = (data) => {
-    if (data.length == 0) {
+    var messages;
+    if (data.length === 0) {
       return;
     } else if (data[0]){
-      this.state.messages = data.map( (m) => {
+      messages = data.map( (m) => {
         var hour = ""
         var minute = ""
         var time = ""
@@ -169,14 +173,14 @@ class Chat extends Component {
           hour = (m.creationTime["hour"] - 12) + ":" 
           ampm = " PM"
         }else{
-          if(m.creationTime["hour"] == 0){
+          if(m.creationTime["hour"] === 0){
             hour = 12 + ":"
           }else{
             hour = m.creationTime["hour"] + ":"
           }
           ampm = " AM"
         }
-        if(Math.floor(m.creationTime["minute"] / 10) == 0){
+        if(Math.floor(m.creationTime["minute"] / 10) === 0){
           minute = "0" + m.creationTime["minute"]
         }else{
           minute = m.creationTime["minute"]
@@ -188,16 +192,16 @@ class Chat extends Component {
         var downList = []
         var upList = []
         var votes = 0
-        Object.keys(m.reactions).map((key) => {
-          if (m.reactions[key] == 0){
-            if(key == this.props.accountID){
+        Object.keys(m.reactions).forEach((key) => {
+          if (m.reactions[key] === 0){
+            if(key === this.props.accountID){
               upMe = true
               votes = 1
             }else{
               upList.push(this.props.group.groupMemberIDs[key])
             }
           }else{
-            if(key == this.props.accountID){
+            if(key === this.props.accountID){
               downMe = true
               votes = -1
             }else{
@@ -212,8 +216,10 @@ class Chat extends Component {
           downMe: downMe, downList: downList, upList: upList, votes: votes, 
           messageId: m.messageID}
       })
-      this.state.shouldScroll = true;
-      this.setState(this.state)
+      const newState = this.state;
+      newState.shouldScroll = true;
+      newState.messages = messages;
+      this.setState(newState);
     } else {
         var hour = ""
         var minute = ""
@@ -223,14 +229,14 @@ class Chat extends Component {
           hour = (data.creationTime["hour"] - 12) + ":" 
           ampm = " PM"
         }else{
-          if(data.creationTime["hour"] == 0){
+          if(data.creationTime["hour"] === 0){
             hour = 12 + ":"
           }else{
             hour = data.creationTime["hour"] + ":"
           }
           ampm = " AM"
         }
-        if(Math.floor(data.creationTime["minute"] / 10) == 0){
+        if(Math.floor(data.creationTime["minute"] / 10) === 0){
           minute = "0" + data.creationTime["minute"]
         }else{
           minute = data.creationTime["minute"]
@@ -242,16 +248,16 @@ class Chat extends Component {
         var downList = []
         var upList = []
         var votes = 0
-        Object.keys(data.reactions).map((key) => {
-          if (data.reactions[key] == 0){
-            if(key == this.props.accountID){
+        Object.keys(data.reactions).forEach((key) => {
+          if (data.reactions[key] === 0){
+            if(key === this.props.accountID){
               upMe = true
               votes = 1
             }else{
               upList.push(this.props.group.groupMemberIDs[key])
             }
           }else{
-            if(key == this.props.accountID){
+            if(key === this.props.accountID){
               downMe = true
               votes = -1
             }else{
@@ -269,8 +275,8 @@ class Chat extends Component {
         };
 
         var updated = false
-        this.state.messages = this.state.messages.map((m) => {
-          if (m.messageId == data.messageID){
+        messages = this.state.messages.map((m) => {
+          if (m.messageId === data.messageID){
             updated = true;
             return newMsg;
           } else {
@@ -278,10 +284,13 @@ class Chat extends Component {
           }
         });
         
+        const newState = this.state;
         if (!updated){
-          this.state.messages.push(newMsg); 
+          newState.shouldScroll = true;
+          messages.push(newMsg); 
         }
-        this.setState(this.state);
+        newState.messages = messages;
+        this.setState(newState);
     }
   }
 
@@ -297,7 +306,9 @@ class Chat extends Component {
   componentDidUpdate() {
     if (this.state.shouldScroll){
       this.scrollToBottom();
-      this.state.shouldScroll = false
+      const newState = this.state;
+      newState.shouldScroll = false;
+      this.setState(newState);
     }
   }
 
@@ -351,11 +362,11 @@ class Chat extends Component {
           {
             messages.map((c, index) => {
               var dateDiv = <div></div>
-              if( c.date != passingDate){
-                var dateDiv = <div className="date-div-center"><Badge >{c.date}</Badge></div>
+              if( c.date !== passingDate){
+                dateDiv = <div className="date-div-center"><Badge >{c.date}</Badge></div>
                 passingDate = c.date
               } 
-              if( c.sender == "this-is-a-group-message"){
+              if( c.sender === "this-is-a-group-message"){
                 return <div className="group-message-div" key={index}>
                 <Badge className="group-message-badge" color="primary">{c.message}</Badge>
                 </div>

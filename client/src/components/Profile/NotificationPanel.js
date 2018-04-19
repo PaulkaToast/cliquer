@@ -4,7 +4,6 @@ import { connect } from 'react-redux'
 import '../../css/NotificationPanel.css'
 import Notification from './Notification'
 import { getMessages } from '../../redux/actions'
-import url from '../../server.js'
 
 class NotificationPanel extends Component {
 
