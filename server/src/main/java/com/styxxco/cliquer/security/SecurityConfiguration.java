@@ -74,7 +74,7 @@ public class SecurityConfiguration {
                     .addFilterBefore(tokenAuthorizationFilter(), BasicAuthenticationFilter.class)
                     .addFilterBefore(new CorsFilter(), ChannelProcessingFilter.class)
                     .authorizeRequests()
-                        .antMatchers("/login").permitAll()
+                        .antMatchers("/").permitAll()
                         .antMatchers("/register").permitAll()
                         .antMatchers("/getSkillList").permitAll()
                         .antMatchers("/sockJS/**").permitAll()

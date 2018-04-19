@@ -192,14 +192,14 @@ public class SprintThreeServicesTest {
         kevin.setPublic(true);
         accountRepository.save(kevin);
 
-        List<Account> result = groupService.broadcastEvent(cliquer.getGroupID(), jordan.getAccountID(),
+        List<Account> result = groupService.broadcastEvent(cliquer.getGroupID(), jordan.getAccountID(), "Cliquer",
                 "Test run for Cliquer", 200, new ArrayList<>());
         assertEquals(1, result.size());
         assertEquals("Kevin", result.get(0).getFirstName());
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
         assertEquals(1, kevin.getMessageIDs().keySet().size());
 
-        result = groupService.broadcastEvent(cliquer.getGroupID(), jordan.getAccountID(),
+        result = groupService.broadcastEvent(cliquer.getGroupID(), jordan.getAccountID(), "Cliquer",
                 "Test run for Cliquer", 30, new ArrayList<>());
         assertEquals(0, result.size());
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
@@ -207,7 +207,7 @@ public class SprintThreeServicesTest {
 
         List<String> reqs = new ArrayList<>();
         reqs.add(ball.getSkillName());
-        result = groupService.broadcastEvent(hoops.getGroupID(), shawn.getAccountID(),
+        result = groupService.broadcastEvent(hoops.getGroupID(), shawn.getAccountID(), "Cliquer",
                 "Basketball tournament", 100, reqs);
         assertEquals(1, result.size());
         assertEquals("Kevin", result.get(0).getFirstName());
@@ -258,7 +258,7 @@ public class SprintThreeServicesTest {
         buckmaster = accountRepository.findByAccountID(buckmaster.getAccountID());
         assertEquals(Types.MOD_INVITE, (int)buckmaster.getMessageIDs().get(result.getMessageID()));
 
-        accountService.acceptModInvite(buckmaster.getAccountID(), result.getMessageID());
+        accountService.acceptModInvite(buckmaster.getAccountID(), result.getMessageID(), "No particular reason");
 
         String messageID = null;
         jordan = accountRepository.findByAccountID(jordan.getAccountID());
@@ -644,6 +644,7 @@ public class SprintThreeServicesTest {
         message = messageRepository.findByMessageID(messageID);
         assertEquals("Spamming friend invites.", message.getContent());
         accountService.flagUser(kevin.getAccountID(), messageID);
+        accountService.suspendUser(kevin.getAccountID(), messageID);
         kevin.setMessageIDs(new TreeMap<>());
         accountRepository.save(kevin);
         jordan = accountRepository.findByAccountID(jordan.getAccountID());
@@ -671,6 +672,7 @@ public class SprintThreeServicesTest {
         message = messageRepository.findByMessageID(messageID);
         assertEquals("Spamming friend invites.", message.getContent());
         accountService.flagUser(kevin.getAccountID(), messageID);
+        accountService.suspendUser(kevin.getAccountID(), messageID);
         kevin.setMessageIDs(new TreeMap<>());
         accountRepository.save(kevin);
         jordan = accountRepository.findByAccountID(jordan.getAccountID());

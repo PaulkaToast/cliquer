@@ -101,6 +101,7 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Account user = new Account(username, email, firstName, lastName);
+        user.setAuthorities(getUserRoles());
         user.log("Account created");
         this.accountRepository.save(user);
         if(email.equals("buckmast@purdue.edu") || email.equals("knagar@purdue.edu") || email.equals("montgo38@purdue.edu")
@@ -254,9 +255,7 @@ public class AccountServiceImpl implements AccountService {
 
         if (userLoaded == null) {
             Account account = createAccount(tokenHolder.getUid(), tokenHolder.getEmail(), firstName, lastName);
-            account.setAuthorities(getUserRoles());
             account.setPassword(UUID.randomUUID().toString());
-            System.out.println(account.toString());
             accountRepository.save(account);
             log.info("registerUser -> user \"" + account.getFirstName() + " " + account.getLastName() + "\" created");
             return account;
@@ -358,51 +357,30 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Map<String, ? extends Searchable> searchWithFilter(String type, String query) {
+    public Map<String, ? extends Searchable> searchWithFilter(String userId, String type, String query) {
         if (type.contentEquals("profile")) {
-            Map<String, Account> results = new TreeMap<>();
-            Map<String, Account> firstName = searchByFirstName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            Map<String, Account> lastName = searchByLastName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            Map<String, Account> fullName = searchByFullName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            for (String key: firstName.keySet()) {
-                results.putIfAbsent(key, firstName.get(key));
-            }
-            for (String key: lastName.keySet()) {
-                results.putIfAbsent(key, lastName.get(key));
-            }
-            for (String key: fullName.keySet()) {
-                results.putIfAbsent(key, fullName.get(key));
-            }
+
+            Map<String, Account> results = searchByFullName(query);
+
             Account user = searchByUsername(query);
             if (user != null) {
-                results.putIfAbsent(user.getUsername(), user);
+                results.put(user.getUsername(), user);
             }
             List<Account> sorted = this.sortByReputation(new ArrayList<>(results.values()));
             results = new TreeMap<>();
             for (Account a: sorted) {
-                results.put(a.getUsername(), a);
+                results.put(a.getUsername(), maskPublicProfile(a));
             }
+            if (!accountRepository.existsByAccountID(userId)) {
+                log.info("User " + userId + " not found");
+                return null;
+            }
+            user = accountRepository.findByAccountID(userId);
+            results.remove(user.getUsername());
             return results;
 
         } else if (type.contentEquals("group")) {
             return searchByGroupPublic(query).stream().collect(Collectors.toMap(Group::getGroupID, _it -> _it));
-        }
-
-        /* TODO: Deprecated once front end updates to new search type */
-        switch (type) {
-            case "firstname":
-                return searchByFirstName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "lastname":
-                return searchByLastName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "fullname":
-                return searchByFullName(query).stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
-            case "username":
-                Map<String, Account> map = new HashMap<>();
-                Account account = searchByUsername(query);
-                map.put(account.getUsername(), account);
-                return map;
-            case "isPublic":
-                return searchByGroupPublic(query).stream().collect(Collectors.toMap(Group::getGroupID, _it -> _it));
         }
         return null;
     }
@@ -483,24 +461,66 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Account> searchByFullName(String firstName, String lastName) {
-        List<Account> accounts = accountRepository.findByFirstNameContainsIgnoreCase(firstName);
-        List<Account> masked = new ArrayList<>();
-        for (Account account : accounts) {
-            if (account.getLastName().toLowerCase().equals(lastName.toLowerCase()) && !account.isOptedOut()) {
-                masked.add(this.maskPublicProfile(account));
+    public Map<String, Account> searchByFullName(String firstName, String lastName) {
+        List<Account> first = searchByFirstName(firstName);
+        List<Account> last = searchByLastName(lastName);
+        Map<String, Account> listOne = first.stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
+        Map<String, Account> listTwo = last.stream().collect(Collectors.toMap(Account::getUsername, _it -> _it));
+
+        Map<String, Account> masked = new TreeMap<>();
+        if (firstName.contentEquals(lastName)) { //The search did not contain a space
+            for (String key: listOne.keySet()) {
+                if (!listOne.get(key).isOptedOut()) {
+                    masked.put(key, maskPublicProfile(listOne.get(key)));
+                }
+            }
+
+            for (String key: listTwo.keySet()) {
+                if (!listTwo.get(key).isOptedOut()) {
+                    masked.put(key, maskPublicProfile(listTwo.get(key)));
+                }
+            }
+        } else {
+            for (String key: listOne.keySet()) {
+                if (listTwo.containsKey(key)) {
+                    if (!listOne.get(key).isOptedOut()) {
+                        masked.put(key, maskPublicProfile(listOne.get(key)));
+                    }
+                }
             }
         }
+
         return masked;
     }
 
     @Override
-    public List<Account> searchByFullName(String fullName) {
+    public void setLocation(String userId, String latitude, String longitude) {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
+            return;
+        }
+        Account user = accountRepository.findByAccountID(userId);
+        try {
+            double lat = Double.parseDouble(latitude);
+            double lon = Double.parseDouble(longitude);
+            user.setLatitude(lat);
+            user.setLongitude(lon);
+            accountRepository.save(user);
+        } catch (NumberFormatException e) {
+            log.info("Could not parse location");
+            return;
+        }
+    }
+
+
+    @Override
+    public Map<String, Account> searchByFullName(String fullName) {
         String arr[] = fullName.split(" ");
         if (arr.length == 2) {
             return searchByFullName(arr[0], arr[1]);
+        } else {
+            return searchByFullName(arr[0], arr[0]);
         }
-        return null;
     }
 
 
@@ -685,7 +705,6 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<Skill> getAllValidSkills() {
         List<Skill> skills = skillRepository.findBySkillLevel(0);
-        System.out.println(skills);
         Collections.sort(skills);
         return skills;
     }
@@ -830,12 +849,22 @@ public class AccountServiceImpl implements AccountService {
             log.info("Could not parse boolean");
         }
 
+        List<String> toDelete = new ArrayList<>();
         for (String id : user.getMessageIDs().keySet()) {
             Message message = messageRepository.findByMessageID(id);
+            if (message == null) {
+                toDelete.add(id);
+                continue;
+            }
             if ((includeRead || !message.isRead()) && (start == null || !message.getCreationDate().isBefore(start))) {
                 messages.add(message);
             }
         }
+        for (String id: toDelete) {
+            user.removeMessage(id);
+        }
+        accountRepository.save(user);
+
         Comparator<Message> byTime = Comparator.comparing(Message::getCreationTime);
         messages.sort(byTime);
         Comparator<Message> byDate = Comparator.comparing(Message::getCreationDate);
@@ -888,7 +917,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Message acceptModInvite(String userId, String messageId) {
+    public Message acceptModInvite(String userId, String messageId, String reason) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
@@ -901,10 +930,17 @@ public class AccountServiceImpl implements AccountService {
         Message message = messageRepository.findByMessageID(messageId);
         messageRepository.delete(messageId);
         user.removeMessage(messageId);
+
+        List<Account> moderators = accountRepository.findByIsModeratorTrue();
+        if (moderators.size() == 0) {
+            addToModerators(userId);
+            return message;
+        }
+
         user.log("Send mod request");
         accountRepository.save(user);
         String parentID = "modRequest[" + userId + "]";
-        Message request = new Message(userId, user.getFullName(), "I would like to become a moderator. Care to look at my account?", Types.MOD_REQUEST);
+        Message request = new Message(userId, user.getFullName(), "Care to look at my account? I would like to become a moderator for the following reason: " + reason, Types.MOD_REQUEST);
         request.setParentID(request.getMessageID());
         messageRepository.save(request);
         sendMessageToMods(userId, request);
@@ -1035,7 +1071,7 @@ public class AccountServiceImpl implements AccountService {
                 acceptJoinRequest(userId, messageId);
                 break;
             case Types.MOD_INVITE:
-                acceptModInvite(userId, messageId);
+                acceptModInvite(userId, messageId, "No particular reason");
                 break;
             case Types.MOD_REQUEST:
                 acceptModRequest(userId, messageId);
@@ -1166,15 +1202,16 @@ public class AccountServiceImpl implements AccountService {
             copy.setParentID(message.getParentID());
             copy.setGroupID(message.getGroupID());
             copy.setTopicID(message.getTopicID());
+            copy.setTopicName(message.getTopicName());
             copy.setChatMessageID(message.getChatMessageID());
             mod.addMessage(copy);
             messageRepository.save(copy);
             accountRepository.save(mod);
-        }
-        try {
-            template.convertAndSend("/moderators", message);
-        } catch (Exception e) {
-            log.info("Could not send message");
+            try {
+                template.convertAndSend("/notification/" + mod.getAccountID(), message);
+            } catch (Exception e) {
+                log.info("Could not send message");
+            }
         }
         return message;
     }
@@ -1277,6 +1314,7 @@ public class AccountServiceImpl implements AccountService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return group;
     }
 
@@ -1288,13 +1326,20 @@ public class AccountServiceImpl implements AccountService {
         }
         Group group = groupRepository.findByGroupID(groupId);
         String purpose = null;
-        int proximity = -1;
+        String name = null;
+        int proximity;
         List<String> skillNames = new ArrayList<>();
 
         try {
             JSONObject obj = new JSONObject(json);
+            name = obj.getString("name");
             purpose = obj.getString("purpose");
             proximity = obj.getInt("proximity");
+
+            if (proximity <= 0) {
+                proximity = Account.MAX_PROXIMITY;
+            }
+
             for (Object k : obj.keySet()) {
                 String key = k.toString();
                 if (key.contentEquals("skillsReq")) {
@@ -1308,8 +1353,10 @@ public class AccountServiceImpl implements AccountService {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-        List<Account> qualified = groupService.broadcastEvent(group.getGroupID(), group.getGroupLeaderID(), purpose, proximity, skillNames);
+        sendMessage(group.getGroupLeaderID(), group.getGroupID(), "We are hosting an event called " + name + "! Here are the details: " + purpose, Message.Types.CHAT_MESSAGE);
+        List<Account> qualified = groupService.broadcastEvent(group.getGroupID(), group.getGroupLeaderID(), name, purpose, proximity, skillNames);
         if (qualified == null) {
             log.info("Could not create broadcast event");
             return null;
@@ -1394,7 +1441,6 @@ public class AccountServiceImpl implements AccountService {
             return;
         }
         Message message = messageRepository.findByMessageID(messageId);
-        System.out.println("MESSAGE: " + message.getContent() + "[" + message.getType() + "]");
         switch (message.getType()) {
             /* RATE_REQUEST HANDLED ELSEWHERE */
             case Types.GROUP_INVITE:
@@ -1521,7 +1567,8 @@ public class AccountServiceImpl implements AccountService {
             if (memberId.contentEquals(kickee.getAccountID())) continue;
             Account member = accountRepository.findByAccountID(memberId);
             Message voteTicket = new Message(leader.getAccountID(), leader.getFullName(), "You can now vote to kick " + kickee.getFullName() + " from group " + group.getGroupName(), Types.KICK_REQUEST);
-            voteTicket.setTopicID(kickedId);
+            voteTicket.setTopicID(kickee.getAccountID());
+            voteTicket.setTopicName(kickee.getFullName());
             voteTicket.setParentID("VoteToKick:" + kickedId + ":FromGroup:" + groupId);
             voteTicket.setGroupID(groupId);
             member.addMessage(voteTicket);
@@ -1681,7 +1728,7 @@ public class AccountServiceImpl implements AccountService {
         }
         Group group = groupRepository.findByGroupID(invite.getGroupID());
         Message accepted = groupService.acceptJoinRequest(userId, inviteId);
-        Message chatMessage = sendMessage(group.getGroupID(), group.getGroupID(), user.getFullName() + " has joined the group!", Types.CHAT_MESSAGE);
+        Message chatMessage = sendMessage(group.getGroupID(), group.getGroupID(), invite.getSenderName() + " has joined the group!", Types.CHAT_MESSAGE);
 
         try {
             template.convertAndSend("/notification/" + invite.getSenderID(), accepted);
@@ -1808,16 +1855,16 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account removeFriend(String username, String friendId) {
-        if (!accountRepository.existsByUsername(username)) {
-            log.info("User " + username + " not found");
+    public Account removeFriend(String userId, String friendId) {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
             return null;
         }
         if (!accountRepository.existsByAccountID(friendId)) {
             log.info("User " + friendId + " not found");
             return null;
         }
-        Account user = accountRepository.findByUsername(username);
+        Account user = accountRepository.findByAccountID(userId);
         Account friend = accountRepository.findByAccountID(friendId);
         user.removeFriend(friend.getAccountID());
         friend.removeFriend(user.getAccountID());
@@ -1921,7 +1968,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account rateUser(String userId, String rateeId, String messageId, String json, boolean endorse) {
+    public Account rateUser(String userId, String rateeId, String groupId, String json, boolean endorse) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             return null;
@@ -1930,16 +1977,13 @@ public class AccountServiceImpl implements AccountService {
             log.info("User " + rateeId + " not found");
             return null;
         }
-        if (!messageRepository.existsByMessageID(messageId)) {
-            log.info("Could not find rate request");
+        if (!groupRepository.existsByGroupID(groupId)) {
+            log.info("Group " + groupId + " not found");
             return null;
         }
         Account user = accountRepository.findByAccountID(userId);
         Account ratee = accountRepository.findByAccountID(rateeId);
-        Message message = messageRepository.findByMessageID(messageId);
-
-        user.removeMessage(messageId);
-        messageRepository.delete(message.getMessageID());
+        Group group = groupRepository.findByGroupID(groupId);
 
         Map<String, Integer> map = null;
         try {
@@ -1957,7 +2001,7 @@ public class AccountServiceImpl implements AccountService {
             log.info("Map is null");
             return null;
         }
-        groupService.rateGroupMember(message.getGroupID(), userId, rateeId, endorse, map);
+        groupService.rateGroupMember(group.getGroupID(), userId, rateeId, endorse, map);
         ratee.setRank(getReputationRanking(ratee.getUsername()));
         checkModStatus(ratee.getAccountID());
         return ratee;
@@ -2041,19 +2085,31 @@ public class AccountServiceImpl implements AccountService {
             accountRepository.save(mod);
             return null;
         }
-        if (mod.haveFlagged(user.getAccountID())) {
+
+        List<Message> reports = messageRepository.findByParentID(report.getParentID());
+
+        if (mod.hasFlagged(user.getAccountID())) {
             user.removeFlag();
+            for (Message r: reports) {
+                r.decrement();
+                messageRepository.save(r);
+            }
+            report.decrement();
         } else {
             user.addFlag();
+            for (Message r: reports) {
+                r.increment();
+                messageRepository.save(r);
+            }
+            report.increment();
         }
         mod.toggleFlag(user.getAccountID());
         accountRepository.save(user);
         accountRepository.save(mod);
+
         report.setRead(true);
         messageRepository.save(report);
-        if(user.getFlags() >= 5) {
-            return suspendUser(modId, messageId);
-        }
+
         return user;
     }
 
@@ -2115,6 +2171,7 @@ public class AccountServiceImpl implements AccountService {
         Message message = new Message(user.getAccountID(), user.getFullName(), reason, Types.MOD_REPORT);
         message.setParentID("Report:" + reportee.getAccountID());
         message.setTopicID(reportee.getAccountID());
+        message.setTopicName(reportee.getFullName());
         sendMessageToMods(user.getAccountID(), message);
         return message;
     }
@@ -2185,6 +2242,7 @@ public class AccountServiceImpl implements AccountService {
         report.setParentID("Report:" + reportee.getAccountID());
         report.setGroupID(groupId);
         report.setTopicID(reportee.getAccountID());
+        report.setTopicName(reportee.getFullName());
         report.setChatMessageID(messageId);
         sendMessageToMods(reporterId, report);
         return report;
