@@ -10,7 +10,40 @@ import { getChatLog, postChatMessage, updateChatLog } from '../../redux/actions'
 import url from '../../server'
 import Logo from '../../img/cliquerLogoWarn.png'
 
-const Message = ({message, sender, align, time, up, down, upList, downList, votes}) => {
+class Message extends Component{
+  constructor(props){
+    super(props);
+
+    this.state = {
+      reaction: false,
+      up: false,
+      down: false,
+    }
+    this.sendUpVote = this.sendUpVote.bind(this);
+    this.sendDownVote = this.sendDownVote.bind(this);
+  } 
+  sendUpVote = (event) => {
+    event.preventDefault(); 
+    if(!this.state.reaction){
+      this.state.reaction = true
+      this.state.up = true
+    }else if(this.state.reaction && this.state.up){
+      //this.state.reaction = false
+      //this.state.up = false
+      return;
+    }else if(this.state.reaction && this.state.down){
+      this.state.down = false
+      this.state.up = true
+    }
+    this.props.sendReaction(this.props.messageId, 0);
+  }
+  sendDownVote = (event) => {
+    event.preventDefault();
+  }
+  render() {
+  var {message, sender, align, time, up, down, 
+    upList, downList, votes, messageId} = this.props;
+
   if (!message) return <div></div>;
   if (align == "sender-message-left"){
     return  <div className={align}>
@@ -18,7 +51,8 @@ const Message = ({message, sender, align, time, up, down, upList, downList, vote
             <br/>
               <Alert className="single-message" className={align.concat("-alert")}> {message} </Alert>
               <ButtonGroup vertical className="up-vote-down-vote">
-                <i className={up.concat("vote fas fa-thumbs-up")}></i>
+                <i className={up.concat("vote fas fa-thumbs-up")}
+                  onClick={this.sendUpVote}></i>
                 <span>{votes}</span>
                 <div className="thumbs-down-flip">
                   <i className={down.concat("vote fas fa-thumbs-down")}></i>
@@ -41,7 +75,8 @@ const Message = ({message, sender, align, time, up, down, upList, downList, vote
         </ButtonGroup>
         <Alert className="single-message" className={align.concat("-alert")}> {message} </Alert>
     </div>);
-};
+  };
+}
 
 class Chat extends Component {
 
@@ -51,7 +86,8 @@ class Chat extends Component {
     this.state = {
       messagesEnd: "",
       messages: [],
-      msgInput: ""
+      msgInput: "",
+      shouldScroll: false
     }
     this.handleChange = this.handleChange.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
@@ -82,6 +118,12 @@ class Chat extends Component {
                                + this.props.group.groupID + '/sendMessage', this.state.msgInput)
     this.state.msgInput = "";
     event.target.reset()
+  }
+
+  sendReaction = (messageId, reaction) => {
+    this.clientRef.sendMessage('/app/reactChatMessage/' 
+    + this.props.user.uid + '/' + messageId + '/' + this.props.group.groupID
+    + '/' + reaction, "")
   }
 
   handleMessage = (data) => {
@@ -116,27 +158,31 @@ class Chat extends Component {
         var downList = []
         var upList = []
         var votes = 0
-        Object.keys(m.reactions).map(function(key){
+        Object.keys(m.reactions).map((key) => {
           if (m.reactions[key] == 0){
             if(key == this.props.user.uid){
               upMe = true
+              votes = 1
             }else{
               upList.push(key)
             }
           }else{
             if(key == this.props.user.uid){
               downMe = true
+              votes = -1
             }else{
               downList.push(key)
             }
           }
         })
-        votes = upList.length - downList.length
+        votes = votes + upList.length - downList.length
         return {sender: m.senderName, message: m.content, id: m.senderID, 
           date: m.creationDate["dayOfWeek"] + " " + m.creationDate["month"] + 
           " " + m.creationDate["dayOfMonth"], time: time, upMe: upMe,
-          downMe: downMe, downList: downList, upList: upList, votes: votes}
+          downMe: downMe, downList: downList, upList: upList, votes: votes, 
+          messageId: m.messageID}
       })
+      this.state.shouldScroll = true;
       this.setState(this.state)
     } else {
         var hour = ""
@@ -166,29 +212,46 @@ class Chat extends Component {
         var downList = []
         var upList = []
         var votes = 0
-        Object.keys(data.reactions).map(function(key){
+        Object.keys(data.reactions).map((key) => {
           if (data.reactions[key] == 0){
             if(key == this.props.user.uid){
               upMe = true
+              votes = 1
             }else{
               upList.push(key)
             }
           }else{
             if(key == this.props.user.uid){
               downMe = true
+              votes = -1
             }else{
               downList.push(key)
             }
           }
         })
-        votes = upList.length - downList.length
-      this.state.messages.push({
-        sender: data.senderName, message: data.content, id: data.senderID, 
-        date: data.creationDate["dayOfWeek"] + " " + data.creationDate["month"] + 
-        " " + data.creationDate["dayOfMonth"], time: time, upMe: upMe,
-        downMe: downMe, downList: downList, upList: upList, votes: votes
-      })
-      this.setState(this.state)
+        votes = votes + upList.length - downList.length;
+        const newMsg = {
+          sender: data.senderName, message: data.content, id: data.senderID, 
+          date: data.creationDate["dayOfWeek"] + " " + data.creationDate["month"] + 
+          " " + data.creationDate["dayOfMonth"], time: time, upMe: upMe,
+          downMe: downMe, downList: downList, upList: upList, votes: votes,
+          messageId: data.messageID
+        };
+
+        var updated = false
+        this.state.messages = this.state.messages.map((m) => {
+          if (m.messageId == data.messageID){
+            updated = true;
+            return newMsg;
+          } else {
+            return m;
+          }
+        });
+        
+        if (!updated){
+          this.state.messages.push(newMsg); 
+        }
+        this.setState(this.state);
     }
   }
 
@@ -202,7 +265,10 @@ class Chat extends Component {
   }
   
   componentDidUpdate() {
-    this.scrollToBottom();
+    if (this.state.shouldScroll){
+      this.scrollToBottom();
+      this.state.shouldScroll = false
+    }
   }
 
   onWebsocketConnect() {
@@ -267,21 +333,24 @@ class Chat extends Component {
               var upS = "-"
               var downS = "-"
               if( c.upMe ){
-                upS = "up"
+                upS = "up-"
               }
               if( c.downMe ){
-                downS = "down"
+                downS = "down-"
               }
               if( c.id === this.props.user.uid ){
                 return <div key={index}>{dateDiv}<Message align="sender-message-right" 
                 key={index} sender={c.sender} message={c.message} time={c.time}
                 up={upS} down={downS} upList={c.upList} downList={c.downList}
-                votes={c.votes}></Message></div>
+                votes={c.votes} messageId={c.messageId}
+                sendReaction={this.sendReaction}></Message></div>
               } else {
                 return <div key={index}>{dateDiv}<Message align="sender-message-left" 
                 key={index} sender={c.sender} message={c.message} time={c.time}
                 up={upS} down={downS} upList={c.upList} downList={c.downList}
-                votes={c.votes}></Message></div>
+                votes={c.votes} messageId={c.messageId}
+                sendReaction={this.sendReaction}
+                ></Message></div>
               }
             })
           }
