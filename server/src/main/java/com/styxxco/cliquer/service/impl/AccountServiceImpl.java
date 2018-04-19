@@ -101,6 +101,7 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Account user = new Account(username, email, firstName, lastName);
+        user.setAuthorities(getUserRoles());
         user.log("Account created");
         this.accountRepository.save(user);
         if(email.equals("buckmast@purdue.edu") || email.equals("knagar@purdue.edu") || email.equals("montgo38@purdue.edu")
@@ -139,9 +140,7 @@ public class AccountServiceImpl implements AccountService {
 
         if (userLoaded == null) {
             Account account = createAccount(tokenHolder.getUid(), tokenHolder.getEmail(), firstName, lastName);
-            account.setAuthorities(getUserRoles());
             account.setPassword(UUID.randomUUID().toString());
-            System.out.println(account.toString());
             accountRepository.save(account);
             log.info("registerUser -> user \"" + account.getFirstName() + " " + account.getLastName() + "\" created");
             return account;
@@ -255,7 +254,7 @@ public class AccountServiceImpl implements AccountService {
             List<Account> sorted = this.sortByReputation(new ArrayList<>(results.values()));
             results = new TreeMap<>();
             for (Account a: sorted) {
-                results.put(a.getUsername(), a);
+                results.put(a.getUsername(), maskPublicProfile(a));
             }
             if (!accountRepository.existsByAccountID(userId)) {
                 log.info("User " + userId + " not found");
@@ -591,7 +590,6 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<Skill> getAllValidSkills() {
         List<Skill> skills = skillRepository.findBySkillLevel(0);
-        System.out.println(skills);
         Collections.sort(skills);
         return skills;
     }
@@ -1312,7 +1310,6 @@ public class AccountServiceImpl implements AccountService {
             return;
         }
         Message message = messageRepository.findByMessageID(messageId);
-        System.out.println("MESSAGE: " + message.getContent() + "[" + message.getType() + "]");
         switch (message.getType()) {
             /* RATE_REQUEST HANDLED ELSEWHERE */
             case Types.GROUP_INVITE:
@@ -1958,16 +1955,12 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
 
-        System.out.println("User flags: " + user.getFlags());
-        System.out.println("Mod has flagged: " + mod.hasFlagged(user.getAccountID()));
         if (mod.hasFlagged(user.getAccountID())) {
             user.removeFlag();
         } else {
             user.addFlag();
         }
         mod.toggleFlag(user.getAccountID());
-        System.out.println("User flags after: " + user.getFlags());
-        System.out.println("Mod has flagged after: " + mod.hasFlagged(user.getAccountID()));
 
         accountRepository.save(user);
         accountRepository.save(mod);
