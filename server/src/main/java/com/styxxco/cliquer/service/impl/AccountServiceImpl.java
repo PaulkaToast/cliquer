@@ -103,7 +103,7 @@ public class AccountServiceImpl implements AccountService {
         Account user = new Account(username, email, firstName, lastName);
         user.setAuthorities(getUserRoles());
         user.log("Account created");
-        this.accountRepository.save(user);
+        accountRepository.save(user);
         if(email.equals("buckmast@purdue.edu") || email.equals("knagar@purdue.edu") || email.equals("montgo38@purdue.edu")
                 || email.equals("reed226@purdue.edu") || email.equals("toth21@purdue.edu")) {
             return addToModerators(user.getAccountID());
@@ -130,6 +130,7 @@ public class AccountServiceImpl implements AccountService {
         user.getNumRatings().put("JavaScript", 10);
         user.getTotalRating().put("Verilog", 8);
         user.getNumRatings().put("Verilog", 2);
+        accountRepository.save(user);
         user = accountRepository.findByAccountID(user.getAccountID());
         return user;
     }
@@ -147,6 +148,7 @@ public class AccountServiceImpl implements AccountService {
         user.addSkill(skillRepository.findBySkillNameAndSkillLevel("Basketball", 5));
         user.getTotalRating().put("Basketball", 5);
         user.getNumRatings().put("Basketball", 1);
+        accountRepository.save(user);
         groupService.createGroup("Cliquer", "Create an app for forming groups with new people", user.getAccountID());
         groupService.createGroup("All C-ing", "You'll C", user.getAccountID());
         user = accountRepository.findByAccountID(user.getAccountID());
@@ -166,6 +168,7 @@ public class AccountServiceImpl implements AccountService {
         user.addSkill(skillRepository.findBySkillNameAndSkillLevel("Really Long Skill Name That Likely Needs To Be Shortened When It Is Shown On The Front End", 9));
         user.getTotalRating().put("Really Long Skill Name That Likely Needs To Be Shortened When It Is Shown On The Front End", 27);
         user.getNumRatings().put("Really Long Skill Name That Likely Needs To Be Shortened When It Is Shown On The Front End", 3);
+        accountRepository.save(user);
         groupService.createGroup("Spring Project", "Make a project using Spring", user.getAccountID());
         groupService.createGroup("Database Project", "Make a project using databases", user.getAccountID());
         groupService.createGroup("Coup Group", "Play Coup", user.getAccountID());
@@ -221,6 +224,7 @@ public class AccountServiceImpl implements AccountService {
         user.getNumRatings().put("Java", 2);
         user.getTotalRating().put("C", 24);
         user.getNumRatings().put("C", 3);
+        accountRepository.save(user);
         groupService.createGroup("App Ideas", "Think of and start making a new application", user.getAccountID());
         user = accountRepository.findByAccountID(user.getAccountID());
         return user;
