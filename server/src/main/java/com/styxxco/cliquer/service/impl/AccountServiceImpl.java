@@ -734,12 +734,22 @@ public class AccountServiceImpl implements AccountService {
             log.info("Could not parse boolean");
         }
 
+        List<String> toDelete = new ArrayList<>();
         for (String id : user.getMessageIDs().keySet()) {
             Message message = messageRepository.findByMessageID(id);
+            if (message == null) {
+                toDelete.add(id);
+                continue;
+            }
             if ((includeRead || !message.isRead()) && (start == null || !message.getCreationDate().isBefore(start))) {
                 messages.add(message);
             }
         }
+        for (String id: toDelete) {
+            user.removeMessage(id);
+        }
+        accountRepository.save(user);
+
         Comparator<Message> byTime = Comparator.comparing(Message::getCreationTime);
         messages.sort(byTime);
         Comparator<Message> byDate = Comparator.comparing(Message::getCreationDate);
@@ -1202,7 +1212,7 @@ public class AccountServiceImpl implements AccountService {
         Group group = groupRepository.findByGroupID(groupId);
         String purpose = null;
         String name = null;
-        int proximity = -1;
+        int proximity;
         List<String> skillNames = new ArrayList<>();
 
         try {
@@ -1210,6 +1220,10 @@ public class AccountServiceImpl implements AccountService {
             name = obj.getString("name");
             purpose = obj.getString("purpose");
             proximity = obj.getInt("proximity");
+
+            if (proximity <= 0) {
+                proximity = Account.MAX_PROXIMITY;
+            }
 
             for (Object k : obj.keySet()) {
                 String key = k.toString();
@@ -1224,8 +1238,9 @@ public class AccountServiceImpl implements AccountService {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-        List<Account> qualified = groupService.broadcastEvent(group.getGroupID(), group.getGroupLeaderID(), purpose, proximity, skillNames);
+        List<Account> qualified = groupService.broadcastEvent(group.getGroupID(), group.getGroupLeaderID(), name, purpose, proximity, skillNames);
         if (qualified == null) {
             log.info("Could not create broadcast event");
             return null;
@@ -1724,16 +1739,16 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account removeFriend(String username, String friendId) {
-        if (!accountRepository.existsByUsername(username)) {
-            log.info("User " + username + " not found");
+    public Account removeFriend(String userId, String friendId) {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
             return null;
         }
         if (!accountRepository.existsByAccountID(friendId)) {
             log.info("User " + friendId + " not found");
             return null;
         }
-        Account user = accountRepository.findByUsername(username);
+        Account user = accountRepository.findByAccountID(userId);
         Account friend = accountRepository.findByAccountID(friendId);
         user.removeFriend(friend.getAccountID());
         friend.removeFriend(user.getAccountID());

@@ -90,7 +90,7 @@ public interface AccountService extends UserDetailsService {
     Message acceptFriendInvite(String userId, String inviteId);
     Message rejectInvite(String userId, String inviteId);
     Account addFriend(String userId, String friendId);
-    Account removeFriend(String username, String friendId);
+    Account removeFriend(String userId, String friendId);
 
     /* Moderator related services */
     Message sendMessageToMods(String senderId, Message message);
