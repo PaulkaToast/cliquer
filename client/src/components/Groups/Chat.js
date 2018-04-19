@@ -66,7 +66,7 @@ class Message extends Component{
                 <span>{votes}</span>
                 <div className="thumbs-down-flip">
                   <i className={down.concat("vote fas fa-thumbs-down")}
-                  onClick={this.sendDownVote}></i>
+                    onClick={this.sendDownVote}></i>
                 </div>
               </ButtonGroup>
               <span className="time-stamp-left">{time}</span>
@@ -78,10 +78,12 @@ class Message extends Component{
       <br/>
         <span className="time-stamp-right">{time}</span>
         <ButtonGroup vertical className="up-vote-down-vote">
-          <i className={up.concat("vote fas fa-thumbs-up")}></i>
+          <i className={up.concat("vote fas fa-thumbs-up")}
+            onClick={this.sendUpVote}></i>
           <span>{votes}</span>
           <div className="thumbs-down-flip">
-            <i className={down.concat("vote fas fa-thumbs-down")}></i>
+            <i className={down.concat("vote fas fa-thumbs-down")}
+              onClick={this.sendDownVote}></i>
           </div>
         </ButtonGroup>
         <Alert className="single-message" className={align.concat("-alert")}> {message} </Alert>
