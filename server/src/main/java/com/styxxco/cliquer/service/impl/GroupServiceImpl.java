@@ -851,7 +851,7 @@ public class GroupServiceImpl implements GroupService {
             if(group.getGroupMemberIDs().containsKey(account.getAccountID())) {
                 continue;
             }
-            if(!account.isPublic() || account.isOptedOut()) {
+            if(account.isOptedOut()) {
                 continue;
             }
             if(account.distanceTo(leader.getLatitude(), leader.getLongitude()) > proximity) {
@@ -871,12 +871,14 @@ public class GroupServiceImpl implements GroupService {
                     "You have been invited to the event " + eventName + " hosted by group " + group.getGroupName() + "! Here are the details: " + description,
                     Message.Types.EVENT_INVITE);
             invite.setGroupID(groupId);
+            messageRepository.save(invite);
             account.addMessage(invite);
             accountRepository.save(account);
             qualified.add(account);
 
             try {
                 template.convertAndSend("/notification/" + account.getAccountID(), invite);
+                System.out.println("SENT EVENT INVITE TO: " + account.getFullName());
             } catch (Exception e) {
                 log.info("Could not send message");
             }

@@ -1240,6 +1240,7 @@ public class AccountServiceImpl implements AccountService {
             e.printStackTrace();
             return null;
         }
+        sendMessage(group.getGroupLeaderID(), group.getGroupID(), "We are hosting an event called " + name + "! Here are the details: " + purpose, Message.Types.CHAT_MESSAGE);
         List<Account> qualified = groupService.broadcastEvent(group.getGroupID(), group.getGroupLeaderID(), name, purpose, proximity, skillNames);
         if (qualified == null) {
             log.info("Could not create broadcast event");
@@ -1970,13 +1971,24 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
 
+        List<Message> reports = messageRepository.findByParentID(report.getParentID());
+
         if (mod.hasFlagged(user.getAccountID())) {
             user.removeFlag();
+            for (Message r: reports) {
+                r.decrement();
+                messageRepository.save(r);
+            }
+            report.decrement();
         } else {
             user.addFlag();
+            for (Message r: reports) {
+                r.increment();
+                messageRepository.save(r);
+            }
+            report.increment();
         }
         mod.toggleFlag(user.getAccountID());
-
         accountRepository.save(user);
         accountRepository.save(mod);
 
