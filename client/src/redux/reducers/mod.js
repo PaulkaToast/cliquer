@@ -60,6 +60,18 @@ function mod(state = {}, action) {
             return Object.assign({}, state, {
                 suspendUserIsLoading: action.isLoading,
             })
+        case 'APPLY_FOR_MOD_HAS_ERROR':
+            return Object.assign({}, state, {
+                applyForModHasError: action.hasError,
+            })
+        case 'APPLY_FOR_MOD_DATA_SUCCESS':
+            return Object.assign({}, state, {
+                applyForModData: action.data,
+            })
+        case 'APPLY_FOR_MOD_IS_LOADING':
+            return Object.assign({}, state, {
+                applyForModIsLoading: action.isLoading,
+            })    
         default:
             return state
     }

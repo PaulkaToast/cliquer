@@ -14,7 +14,6 @@ import NotificationPanel from './NotificationPanel'
 import { getSkills, getProfile, getGroups, flagUser, setLocation, setCity, reportUser } from '../../redux/actions'
 import url from '../../server.js'
 import nFlag from '../../img/newUser.png'
-import mFlag from '../../img/moderator.png'
 
 class Profile extends Component {
   constructor(props) {
@@ -131,7 +130,6 @@ class Profile extends Component {
         <div className="loader">Loading...</div>
       )
     }
-    let modflag = profile.moderator ? mFlag : "";
     let flag = profile.newUser ? nFlag : "";
     return (
       <div>
