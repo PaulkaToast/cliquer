@@ -1,6 +1,7 @@
 package com.styxxco.cliquer.tests;
 
 import com.styxxco.cliquer.database.*;
+import com.styxxco.cliquer.domain.Account;
 import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.GroupService;
 import com.styxxco.cliquer.service.impl.AccountServiceImpl;
@@ -32,7 +33,7 @@ public class PopulateDatabase {
     public AccountService accountService;
 
     @Test
-    public void populateSkills()
+    public void populateDatabase()
     {
         clearDatabase();
         accountService.addSkillToDatabase("Java");

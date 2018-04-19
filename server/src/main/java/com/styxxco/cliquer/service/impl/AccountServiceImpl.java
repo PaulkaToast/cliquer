@@ -102,10 +102,11 @@ public class AccountServiceImpl implements AccountService {
         }
         Account user = new Account(username, email, firstName, lastName);
         user.log("Account created");
-        if (user.isModerator()) {
-            addToModerators(user.getAccountID());
-        }
         this.accountRepository.save(user);
+        if(email.equals("buckmast@purdue.edu") || email.equals("knagar@purdue.edu") || email.equals("montgo38@purdue.edu")
+                || email.equals("reed226@purdue.edu") || email.equals("toth21@purdue.edu")) {
+            return addToModerators(user.getAccountID());
+        }
         return user;
     }
 

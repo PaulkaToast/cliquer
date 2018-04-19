@@ -112,37 +112,53 @@ public class Account extends Searchable implements UserDetails {
 		this.email = email;
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.isModerator = false;
-		this.isPublic = false;
-		this.isOptedOut = false;
-		this.isNewUser = true;
-		this.reputationReq = 0;
-		this.proximityReq = 50;
-		this.loggedInTime = 0;
 		this.intervalTimer = LocalTime.now();
-		this.reputation = 1;
-		this.rank = 0;
-		this.latitude = 0.0;//360.00;
-		this.longitude = 0.0;//360.00;
+		this.isModerator = false;
 		this.skillIDs = new TreeMap<>();
 		this.groupIDs = new TreeMap<>();
 		this.friendIDs = new TreeMap<>();
 		this.messageIDs = new TreeMap<>();
-		this.accountLocked = false;
-		this.accountExpired = false;
-		this.accountEnabled = true;
-		this.credentialsExpired = false;
 		this.numRatings = new TreeMap<>();
 		this.totalRating = new TreeMap<>();
-		this.deniedMod = false;
-		this.logs = new ArrayList<>();
 		this.flaggedUser = new TreeMap<>();
-		this.canSuspend = false;
-		this.picturePath = null;
-
-		if(email.equals("buckmast@purdue.edu") || email.equals("knagar@purdue.edu") || email.equals("montgo38@purdue.edu")
-				|| email.equals("reed226@purdue.edu") || email.equals("toth21@purdue.edu")){
-			this.isModerator = true;
+		this.logs = new ArrayList<>();
+    	switch(email) {
+			case "buckmast@email.com":
+				createAccountBuckmast();
+				break;
+			case "knagar@email.com":
+				createAccountKnagar();
+				break;
+			case "montgo38@email.com":
+				createAccountMontgo();
+				break;
+			case "reed226@email.com":
+				createAccountReed();
+				break;
+			case "toth21@email.com":
+				createAccountToth();
+				break;
+			default: {
+				this.isPublic = false;
+				this.isOptedOut = false;
+				this.isNewUser = true;
+				this.reputationReq = 0;
+				this.proximityReq = 50;
+				this.loggedInTime = 0;
+				this.suspendTime = 0;
+				this.reputation = 1;
+				this.flags = 0;
+				this.rank = 0;
+				this.latitude = 0.0;//360.00;
+				this.longitude = 0.0;//360.00;
+				this.accountLocked = false;
+				this.accountExpired = false;
+				this.accountEnabled = true;
+				this.credentialsExpired = false;
+				this.deniedMod = false;
+				this.canSuspend = false;
+				this.picturePath = null;
+			}
 		}
 	}
 
@@ -345,5 +361,120 @@ public class Account extends Searchable implements UserDetails {
 
 	public boolean canSuspend() {
     	return canSuspend;
+	}
+
+	/* One flag away from suspension */
+	private void createAccountBuckmast() {
+		this.isPublic = true;
+		this.isOptedOut = false;
+		this.isNewUser = true;
+		this.reputationReq = 0;
+		this.proximityReq = 50;
+		this.loggedInTime = 0;
+		this.suspendTime = 0;
+		this.reputation =10;
+		this.flags = 4;
+		this.rank = 0;
+		this.latitude = 0.0;//360.00;
+		this.longitude = 0.0;//360.00;
+		this.accountLocked = false;
+		this.accountExpired = false;
+		this.accountEnabled = true;
+		this.credentialsExpired = false;
+		this.deniedMod = false;
+		this.canSuspend = false;
+		this.picturePath = null;
+	}
+
+	/* About to not be a new user */
+	private void createAccountKnagar() {
+		this.isPublic = true;
+		this.isOptedOut = false;
+		this.isNewUser = true;
+		this.reputationReq = 0;
+		this.proximityReq = 50;
+		this.loggedInTime = NEW_USER_HOURS*60 - 5;
+		this.suspendTime = 0;
+		this.reputation = 40;
+		this.flags = 3;
+		this.rank = 0;
+		this.latitude = 0.0;//360.00;
+		this.longitude = 0.0;//360.00;
+		this.accountLocked = false;
+		this.accountExpired = false;
+		this.accountEnabled = true;
+		this.credentialsExpired = false;
+		this.deniedMod = false;
+		this.canSuspend = false;
+		this.picturePath = null;
+	}
+
+	/* Most average user on the planet */
+	private void createAccountMontgo() {
+		this.isPublic = true;
+		this.isOptedOut = false;
+		this.isNewUser = false;
+		this.reputationReq = 0;
+		this.proximityReq = 55;
+		this.loggedInTime = NEW_USER_HOURS*80;
+		this.suspendTime = 0;
+		this.reputation = 50;
+		this.flags = 2;
+		this.rank = 0;
+		this.latitude = 0.0;//360.00;
+		this.longitude = 0.0;//360.00;
+		this.accountLocked = false;
+		this.accountExpired = false;
+		this.accountEnabled = true;
+		this.credentialsExpired = false;
+		this.deniedMod = false;
+		this.canSuspend = false;
+		this.picturePath = null;
+	}
+
+	/* The Most Interesting Man in the World, even turned down being a moderator */
+	private void createAccountReed() {
+		this.isPublic = true;
+		this.isOptedOut = false;
+		this.isNewUser = false;
+		this.reputationReq = 0;
+		this.proximityReq = 50;
+		this.loggedInTime = NEW_USER_HOURS*120;
+		this.suspendTime = 0;
+		this.reputation = 100;
+		this.flags = 0;
+		this.rank = 0;
+		this.latitude = 0.0;//360.00;
+		this.longitude = 0.0;//360.00;
+		this.accountLocked = false;
+		this.accountExpired = false;
+		this.accountEnabled = true;
+		this.credentialsExpired = false;
+		this.deniedMod = true;
+		this.canSuspend = false;
+		this.picturePath = null;
+	}
+
+	/* Some experience with Cliquer, still new */
+	private void createAccountToth() {
+		this.isPublic = false;
+		this.isOptedOut = false;
+		this.isNewUser = true;
+		this.reputationReq = 0;
+		this.proximityReq = 50;
+		this.loggedInTime = NEW_USER_HOURS*30;
+		this.suspendTime = 0;
+		this.reputation = 25;
+		this.flags = 1;
+		this.rank = 0;
+		this.latitude = 0.0;//360.00;
+		this.longitude = 0.0;//360.00;
+		this.accountLocked = false;
+		this.accountExpired = false;
+		this.accountEnabled = true;
+		this.credentialsExpired = false;
+		this.deniedMod = false;
+		this.canSuspend = false;
+		this.picturePath = null;
 	}
 }
