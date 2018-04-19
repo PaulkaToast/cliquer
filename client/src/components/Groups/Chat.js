@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Alert, Badge, Button, InputGroupAddon, Input, InputGroup,
         Card, CardImg, CardText, CardBody, CardTitle, Row,
-        ButtonGroup, Tooltip} from 'reactstrap'
+        ButtonGroup, UncontrolledTooltip } from 'reactstrap'
 import SockJsClient from 'react-stomp'
 
 import '../../css/Chat.css'
@@ -54,6 +54,19 @@ class Message extends Component{
   var {message, sender, align, time, up, down, 
     upList, downList, votes, messageId} = this.props;
 
+  var upToolTip = "";
+  if (upList.length > 0) {
+    upToolTip = <UncontrolledTooltip  placement="top" target={"up"+messageId}>
+      {upList.join(", ")}
+    </UncontrolledTooltip >
+  }
+  var downToolTip = "";
+  if (downList.length > 0) {
+    downToolTip = <UncontrolledTooltip  placement="bottom" target={"down"+messageId}>
+      {downList.join(", ")}
+    </UncontrolledTooltip >
+  }
+
   if (!message) return <div></div>;
   if (align == "sender-message-left"){
     return  <div className={align}>
@@ -62,11 +75,13 @@ class Message extends Component{
               <Alert className="single-message" className={align.concat("-alert")}> {message} </Alert>
               <ButtonGroup vertical className="up-vote-down-vote">
                 <i className={up.concat("vote fas fa-thumbs-up")}
-                  onClick={this.sendUpVote}></i>
+                  onClick={this.sendUpVote} id={"up"+messageId}></i>
+                  {upToolTip}
                 <span>{votes}</span>
                 <div className="thumbs-down-flip">
                   <i className={down.concat("vote fas fa-thumbs-down")}
-                    onClick={this.sendDownVote}></i>
+                    onClick={this.sendDownVote} id={"down"+messageId}></i>
+                    {downToolTip}
                 </div>
               </ButtonGroup>
               <span className="time-stamp-left">{time}</span>
@@ -79,11 +94,13 @@ class Message extends Component{
         <span className="time-stamp-right">{time}</span>
         <ButtonGroup vertical className="up-vote-down-vote">
           <i className={up.concat("vote fas fa-thumbs-up")}
-            onClick={this.sendUpVote}></i>
+            onClick={this.sendUpVote} id={"up"+messageId}></i>
+            {upToolTip}
           <span>{votes}</span>
           <div className="thumbs-down-flip">
             <i className={down.concat("vote fas fa-thumbs-down")}
-              onClick={this.sendDownVote}></i>
+              onClick={this.sendDownVote} id={"down"+messageId}></i>
+              {downToolTip}
           </div>
         </ButtonGroup>
         <Alert className="single-message" className={align.concat("-alert")}> {message} </Alert>
