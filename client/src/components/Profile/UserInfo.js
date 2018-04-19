@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
 import '../../css/UserInfo.css'
 
-import jmbuck from '../../img/avatar.png'
-
 class UserInfo extends Component {
   render() {
     const { user } = this.props

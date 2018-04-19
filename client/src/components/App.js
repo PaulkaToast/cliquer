@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import '../css/App.css'
 import { firebase } from '../firebase'
-import { logIn, logOut, setToken, setLocation, getProfile, 
+import { logIn, logOut, setToken, getProfile, 
          addObjectID, requestFriend, clearProfile, clearObjectID,
          clearGroups, addIsMod } from '../redux/actions'
 import { history } from '../redux/store'
@@ -74,7 +74,7 @@ class App extends Component {
   }
 
   goToProfile = (ev, memberID, button1, button2) => {
-    if((!ev && !button1 && !button2) || ev.target !== button1 && ev.target !== button2) {
+    if((!ev && !button1 && !button2) || (ev.target !== button1 && ev.target !== button2)) {
       history.push(`/profile/${memberID}`)
     }
   }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Button, Navbar, NavbarBrand, Nav, NavItem, NavLink,
-         InputGroup, InputGroupAddon, InputGroupButtonDropdown,
-         Input, DropdownToggle, DropdownMenu, DropdownItem, Collapse, 
+         InputGroup, InputGroupAddon,
+         Input, Collapse, 
          NavbarToggler, Col } from 'reactstrap'
 
 import '../css/Navbar.css'

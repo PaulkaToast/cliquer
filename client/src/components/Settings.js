@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import { Container, Row, Col, Button, Modal, ModalHeader, ModalBody,
-         ModalFooter, Input, Label, FormGroup,
+         Input, Label, FormGroup,
          Form } from 'reactstrap'
 import { connect } from 'react-redux'
-import { Link } from 'react-router-dom'
 import Toggle from 'react-toggle'
 
 import '../css/Settings.css'
@@ -101,8 +100,8 @@ class Settings extends Component {
     //TODO: default value on optOut/isPublic
     //TODO: controlled vs uncontrolled input
     const reputation = this.props.profile ? this.props.profile.reputation : 0
-    const minRep = this.props.profile ? this.props.profile.reputationReq : 0
-    const proximity = this.props.profile ? this.props.profile.proximityReq : 0
+    //const minRep = this.props.profile ? this.props.profile.reputationReq : 0
+    //const proximity = this.props.profile ? this.props.profile.proximityReq : 0
     const optOut = this.props.profile ? this.props.profile.optedOut : false
     const isPublic = this.props.profile ? this.props.profile.public : false
     if(!this.props.profile){

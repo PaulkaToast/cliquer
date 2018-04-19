@@ -1,7 +1,4 @@
 import React, { Component } from 'react'
-import { Alert, Badge, Button, InputGroupAddon, Input, 
-  InputGroup, Navbar, NavbarToggler, Collapse, NavItem, Nav,
-NavbarBrand} from 'reactstrap'
 
 import '../css/PublicGroups.css'
 import SearchResults from './SearchResults'
