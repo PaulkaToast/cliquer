@@ -10,7 +10,7 @@ import { getChatLog, postChatMessage, updateChatLog } from '../../redux/actions'
 import url from '../../server'
 import Logo from '../../img/cliquerLogoWarn.png'
 
-const Message = ({message, sender, align, time}) => {
+const Message = ({message, sender, align, time, up, down, upList, downList, votes}) => {
   if (!message) return <div></div>;
   if (align == "sender-message-left"){
     return  <div className={align}>
@@ -18,10 +18,10 @@ const Message = ({message, sender, align, time}) => {
             <br/>
               <Alert className="single-message" className={align.concat("-alert")}> {message} </Alert>
               <ButtonGroup vertical className="up-vote-down-vote">
-                <i class="fas fa-thumbs-up"></i>
-                <span>0</span>
+                <i className={up.concat("vote fas fa-thumbs-up")}></i>
+                <span>{votes}</span>
                 <div className="thumbs-down-flip">
-                  <i class="fas fa-thumbs-down"></i>
+                  <i className={down.concat("vote fas fa-thumbs-down")}></i>
                 </div>
               </ButtonGroup>
               <span className="time-stamp-left">{time}</span>
@@ -33,10 +33,10 @@ const Message = ({message, sender, align, time}) => {
       <br/>
         <span className="time-stamp-right">{time}</span>
         <ButtonGroup vertical className="up-vote-down-vote">
-          <i class="fas fa-thumbs-up"></i>
-          <span>0</span>
+          <i className={up.concat("vote fas fa-thumbs-up")}></i>
+          <span>{votes}</span>
           <div className="thumbs-down-flip">
-            <i class="fas fa-thumbs-down"></i>
+            <i className={down.concat("vote fas fa-thumbs-down")}></i>
           </div>
         </ButtonGroup>
         <Alert className="single-message" className={align.concat("-alert")}> {message} </Alert>
@@ -110,9 +110,32 @@ class Chat extends Component {
           minute = m.creationTime["minute"]
         }
         time = hour + minute + ampm
+
+        var upMe = false
+        var downMe = false
+        var downList = []
+        var upList = []
+        var votes = 0
+        Object.keys(m.reactions).map(function(key){
+          if (m.reactions[key] == 0){
+            if(key == this.props.user.uid){
+              upMe = true
+            }else{
+              upList.push(key)
+            }
+          }else{
+            if(key == this.props.user.uid){
+              downMe = true
+            }else{
+              downList.push(key)
+            }
+          }
+        })
+        votes = upList.length - downList.length
         return {sender: m.senderName, message: m.content, id: m.senderID, 
           date: m.creationDate["dayOfWeek"] + " " + m.creationDate["month"] + 
-          " " + m.creationDate["dayOfMonth"], time: time}
+          " " + m.creationDate["dayOfMonth"], time: time, upMe: upMe,
+          downMe: downMe, downList: downList, upList: upList, votes: votes}
       })
       this.setState(this.state)
     } else {
@@ -137,10 +160,33 @@ class Chat extends Component {
           minute = data.creationTime["minute"]
         }
         time = hour + minute + ampm
+
+        var upMe = false
+        var downMe = false
+        var downList = []
+        var upList = []
+        var votes = 0
+        Object.keys(data.reactions).map(function(key){
+          if (data.reactions[key] == 0){
+            if(key == this.props.user.uid){
+              upMe = true
+            }else{
+              upList.push(key)
+            }
+          }else{
+            if(key == this.props.user.uid){
+              downMe = true
+            }else{
+              downList.push(key)
+            }
+          }
+        })
+        votes = upList.length - downList.length
       this.state.messages.push({
         sender: data.senderName, message: data.content, id: data.senderID, 
         date: data.creationDate["dayOfWeek"] + " " + data.creationDate["month"] + 
-        " " + data.creationDate["dayOfMonth"], time: time
+        " " + data.creationDate["dayOfMonth"], time: time, upMe: upMe,
+        downMe: downMe, downList: downList, upList: upList, votes: votes
       })
       this.setState(this.state)
     }
@@ -218,10 +264,24 @@ class Chat extends Component {
                 <Badge className="group-message-badge" color="primary">{c.message}</Badge>
                 </div>
               }
+              var upS = "-"
+              var downS = "-"
+              if( c.upMe ){
+                upS = "up"
+              }
+              if( c.downMe ){
+                downS = "down"
+              }
               if( c.id === this.props.user.uid ){
-                return <div key={index}>{dateDiv}<Message align="sender-message-right" key={index} sender={c.sender} message={c.message} time={c.time}></Message></div>
+                return <div key={index}>{dateDiv}<Message align="sender-message-right" 
+                key={index} sender={c.sender} message={c.message} time={c.time}
+                up={upS} down={downS} upList={c.upList} downList={c.downList}
+                votes={c.votes}></Message></div>
               } else {
-                return <div key={index}>{dateDiv}<Message align="sender-message-left" key={index} sender={c.sender} message={c.message} time={c.time}></Message></div>
+                return <div key={index}>{dateDiv}<Message align="sender-message-left" 
+                key={index} sender={c.sender} message={c.message} time={c.time}
+                up={upS} down={downS} upList={c.upList} downList={c.downList}
+                votes={c.votes}></Message></div>
               }
             })
           }

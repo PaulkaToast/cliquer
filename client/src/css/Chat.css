@@ -82,3 +82,17 @@
     -ms-transform: scale(-1, 1);
     transform: scale(-1, 1);
 }
+.-vote{
+    -webkit-text-stroke: 1px black;
+    color: transparent;
+}
+
+.up-vote{
+    -webkit-text-stroke: 1px black;
+    color: #A7C5BD;
+}
+
+.down-vote{
+    -webkit-text-stroke: 1px black;
+    color: #CF4647;
+}
