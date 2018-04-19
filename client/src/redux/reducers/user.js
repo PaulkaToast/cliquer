@@ -49,6 +49,10 @@ function user(state = {}, action) {
             return Object.assign({}, state, {
                 accountID: null
             })
+        case 'ADD_IS_MOD':
+            return Object.assign({}, state, {
+                isMod: action.isMod
+            })      
         default:
             return state
     }

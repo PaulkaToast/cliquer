@@ -5,7 +5,8 @@ import { connect } from 'react-redux'
 import '../css/App.css'
 import { firebase } from '../firebase'
 import { logIn, logOut, setToken, setLocation, getProfile, 
-         addObjectID, requestFriend, clearProfile, clearObjectID } from '../redux/actions'
+         addObjectID, requestFriend, clearProfile, clearObjectID,
+         clearGroups, addIsMod } from '../redux/actions'
 import { history } from '../redux/store'
 import url from '../server'
 import Login from './Login'
@@ -24,8 +25,9 @@ class App extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if(this.loggedIn() && nextProps.profile && !this.props.profile && !this.props.accountID) {
-      this.props.addObjectID(nextProps.profile.accountID)
+    if(this.loggedIn() && ((nextProps.profile && !this.props.profile && !this.props.accountID) || nextProps.account)) {
+      this.props.addObjectID(nextProps.profile ? nextProps.profile.accountID : nextProps.account.accountID)
+      this.props.addIsMod(nextProps.profile ? nextProps.profile.moderator : nextProps.account.moderator)
     }
   }
 
@@ -37,11 +39,14 @@ class App extends Component {
           .then((token) => {
             this.props.setToken(token)
             this.props.clearProfile()
+            this.props.clearGroups()
             this.props.getProfile(`${url}/api/getProfile?username=${authUser.uid}&type=user`, { 'X-Authorization-Firebase': token})
           })
       } else {
         this.props.clearProfile()
         this.props.clearObjectID()
+        this.props.clearGroups()
+        this.props.addIsMod(false)
         this.props.logOut(authUser)
       }
       this.setState({ isLoading: false })
@@ -53,7 +58,7 @@ class App extends Component {
   }
 
   isMod = () => {
-    return true
+    return this.props.isMod
   }
 
   isLoggedInWithFacebook = () => {
@@ -114,6 +119,8 @@ const mapStateToProps = (state) => {
     loggedIn: state.auth.loggedIn,
     accountID: state.user.accountID,
     profile: state.profile && state.profile.getData ? state.profile.getData : null,
+    isMod: state.user.isMod,
+    account: state.auth.data ? state.auth.data : null,
 	}
 }
 
@@ -124,8 +131,10 @@ const mapDispatchToProps = (dispatch) => {
     setToken: (token) => dispatch(setToken(token)),
     getProfile: (url, headers) => dispatch(getProfile(url, headers)),
     addObjectID: (id) => dispatch(addObjectID(id)),
+    addIsMod: (isMod) => dispatch(addIsMod(isMod)),
     requestFriend: (url, headers) => dispatch(requestFriend(url, headers)),
     clearProfile: () => dispatch(clearProfile()),
+    clearGroups: () => dispatch(clearGroups()),
     clearObjectID: () => dispatch(clearObjectID()),
 	}
 }

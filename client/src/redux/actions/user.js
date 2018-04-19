@@ -60,6 +60,13 @@ export function addObjectID(id) {
     }
 }
 
+export function addIsMod(isMod) {
+    return {
+        type: 'ADD_IS_MOD',
+        isMod 
+    }
+}
+
 export function clearObjectID() {
     return {
         type: 'CLEAR_OBJECT_ID',

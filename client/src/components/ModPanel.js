@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { Redirect } from 'react-router'
 import { Modal, ModalHeader, ModalBody, ModalFooter,
          Form, FormGroup, Label, Input, Button } from 'reactstrap'
 
@@ -79,6 +80,17 @@ class ModPanel extends Component {
   }
 
   render() {
+
+    if(!this.props.isModerator && !this.props.accountID) {
+      return (
+        <div className="loader">Loading...</div>
+      )
+    }
+
+    if(!this.props.isModerator && this.props.accountID) {
+      return <Redirect to='/groups'/>
+    }
+
     return (
       <div className="ModPanel">
         {this.renderReportList()}
@@ -109,6 +121,7 @@ const mapStateToProps = (state) => {
     accountID: state.user.accountID,
     token: state.auth.token,
     messages: state.messages && state.messages.data ? state.messages.data : null,
+    isModerator: state.user.isMod
 	}
 }
 

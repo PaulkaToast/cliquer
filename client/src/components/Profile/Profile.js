@@ -133,6 +133,9 @@ class Profile extends Component {
       )
     }
 
+    console.log(profile.fullName)
+    console.log(profile.fullName === 'Shawn Montgomery')
+
     let flag = profile.newUser ? nFlag : "";
     return (
       <div>
@@ -168,7 +171,7 @@ class Profile extends Component {
           <TabPane className="profile-tab" tabId="1">
             <hr/>
             <h1>
-              {profile.fullName}<img className="profile-user-flag" src={flag} alt=""></img>
+              {profile.moderator && <i className="fas fa-user-secret"></i>} {profile.fullName}<img className="profile-user-flag" src={flag} alt=""></img>
             </h1>
             <hr/>
             <h4>

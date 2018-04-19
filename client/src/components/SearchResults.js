@@ -11,18 +11,16 @@ class SearchResults extends Component {
 
   componentDidMount = () => {
     const { query, category } = this.props.match ? this.props.match.params : this.props
-    console.log(this.props.token)
     if(query && category && this.props.token) {
-      this.props.search(`${url}/api/search?query=${query}&type=${category}`, { 'X-Authorization-Firebase': this.props.token})
+      this.props.search(`${url}/api/search?userId=${this.props.accountID}&query=${query}&type=${category}`, { 'X-Authorization-Firebase': this.props.token})
     }
   }
 
   componentWillReceiveProps = (nextProps) => {
     const { query, category } = nextProps.match ? nextProps.match.params : nextProps
     const oldQuery = this.props.match ? this.props.match.params.query : this.props.query
-    console.log(nextProps.token)
     if(category && oldQuery !== query && nextProps.token) {
-      this.props.search(`${url}/api/search?query=${query}&type=${category}`, { 'X-Authorization-Firebase': nextProps.token})
+      this.props.search(`${url}/api/search?userId=${nextProps.accountID}&query=${query}&type=${category}`, { 'X-Authorization-Firebase': nextProps.token})
     }
   }
 

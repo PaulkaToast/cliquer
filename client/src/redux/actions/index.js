@@ -1,6 +1,6 @@
 export { logIn, logOut, registerHasError, registerIsLoading, registerSuccess, registerUser, setToken } from './auth'
 export { updateUserData, addSkills, addNewSkill, deleteNewSkill, clearNewSkills, setCity,
-         setNewSkills, addObjectID, clearObjectID } from './user'
+         setNewSkills, addObjectID, clearObjectID, addIsMod } from './user'
 export { postSkillsHasError, postSkillsIsLoading, postSkillsDataSuccess, postSkills,
          getSkillsHasError, getSkillsIsLoading, getSkillsDataSuccess, getSkills,
          removeSkillHasError, removeSkillIsLoading, removeSkillDataSuccess, removeSkill,
@@ -24,7 +24,8 @@ export { getGroupsHasError, getGroupsIsLoading, getGroupsDataSuccess, getGroups,
          getRateFormHasError, getRateFormIsLoading, getRateFormDataSuccess, getRateForm,
          postRateFormHasError, postRateFormIsLoading, postRateFormDataSuccess, postRateForm,
          inviteAllHasError, inviteAllIsLoading, inviteAllDataSuccess, inviteAll,
-         createEventHasError, createEventIsLoading, createEventDataSuccess, createEvent} from './groups'
+         createEventHasError, createEventIsLoading, createEventDataSuccess, createEvent,
+         clearGroups } from './groups'
 export { addFriendHasError, addFriendIsLoading, addFriendDataSuccess, addFriend,
          removeFriendHasError, removeFriendIsLoading, removeFriendDataSuccess, removeFriend,
          requestFriendHasError, requestFriendIsLoading, requestFriendDataSuccess, requestFriend, } from './friends'

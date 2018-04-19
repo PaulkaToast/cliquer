@@ -382,3 +382,8 @@ export const createEvent = genericDispatch(
     createEventHasError, createEventIsLoading, createEventDataSuccess, 'POST'
 )
 
+export function clearGroups() {
+    return {
+        type: 'CLEAR_GROUPS'
+    }
+}
