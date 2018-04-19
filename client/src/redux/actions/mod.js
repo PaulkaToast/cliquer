@@ -75,21 +75,21 @@ export const reportMember = genericDispatch(
     reportMemberHasError, reportMemberIsLoading, reportMemberDataSuccess, 'POST'
 )
 
-export function suspendUserHasError(hasError) {
+export function submitSkillHasError(hasError) {
     return {
         type: 'SUBMIT_SKILL_HAS_ERROR',
         hasError
     }
 }
 
-export function suspendUserIsLoading(isLoading) {
+export function submitSkillIsLoading(isLoading) {
     return {
         type: 'SUBMIT_SKILL_IS_LOADING',
         isLoading
     }
 }
 
-export function suspendUserDataSuccess(data) {
+export function submitSkillDataSuccess(data) {
     return {
         type: 'SUBMIT_SKILL_DATA_SUCCESS',
         data
