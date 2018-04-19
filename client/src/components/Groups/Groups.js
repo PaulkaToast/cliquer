@@ -109,16 +109,18 @@ class Groups extends Component {
     this.toggleS() 
     if(ev.preventDefault) ev.preventDefault()
     const skillsReq = this.props.newSkills
+    const name = ev.target.name.value
     const purpose = ev.target.purpose.value
     const proximity = ev.target.proximity.value
 
     this.props.createEvent(`${url}/api/createEvent?userId=${this.props.accountID}&groupId=${this.props.currentGroup.groupID}`, { 'X-Authorization-Firebase': this.props.token}, 
                           JSON.stringify({
+                            name,
                             purpose,
                             proximity,
                             skillsReq
                           }))
-    this.toggle()
+    this.toggleE()
   }
 
   isOwner = (group) => {
@@ -276,6 +278,7 @@ class Groups extends Component {
                 {this.isOwner(this.props.currentGroup) && <Button color="primary" type="button" size="lg" onClick={() => this.props.allowRating(this.props.currentGroup.groupID)}>Allow Rating</Button>}
                 {this.isOwner(this.props.currentGroup) && <Button color="primary" type="button" size="lg" onClick={this.toggle}>Update Settings</Button>}
                 {this.isOwner(this.props.currentGroup) && <Button color="primary" type="button" size="lg" onClick={this.inviteAll}>Invite Eligible Members</Button>}
+                {this.isOwner(this.props.currentGroup) && <Button color="primary" type="button" size="lg" onClick={this.toggleE}>Create An Event</Button>}
                 <Button color="danger" type="button" size="lg" onClick={this.leaveGroup}>Leave Group</Button>
                 {this.isOwner(this.props.currentGroup) && <Button color="danger" type="button" size="lg" onClick={this.disbandGroup}>Disband Group</Button>}
               </ButtonGroup>
@@ -303,12 +306,9 @@ class Groups extends Component {
               </FormGroup>
               <FormGroup className="required">
                 <Label for="proximity">Maximum Proximity (Miles)</Label>
-                <Input type="number" name="proximity" id="proximity" min={0} defaultValue={proximity} />
+                <Input type="number" name="proximity" id="proximity" min={0} max={12450} defaultValue={proximity} />
               </FormGroup>     
               <FormGroup>
-                {/*<Label check>
-                  <Input className="public-check-box" type="checkbox" name="isPublic" defaultValue={isPublic}/>{' '}Public
-                </Label>*/}
                 <Label check>
                   <Toggle defaultChecked={isPublic} name="isPublic" />
                   <span> Make Group Public </span>
@@ -355,10 +355,10 @@ class Groups extends Component {
           </ModalFooter>
         </Modal>
 
-        <Modal isOpen={this.state.modalE} toggle={this.toggleE} className="update-settings-modal">
+        <Modal isOpen={this.state.modalE} toggle={this.toggleE} className="create-event-modal">
           <ModalHeader toggle={this.toggleE}>Create a Group Event</ModalHeader>
           <ModalBody>
-            <Form className="create-group-form" id="event-form" onSubmit={this.createEvent}>
+            <Form className="create-event-form" id="event-form" onSubmit={this.createEvent}>
               <FormGroup className="required">
                 <Label for="name">Event Name</Label>
                 <Input required type="text" name="name" id="name" />
@@ -367,13 +367,9 @@ class Groups extends Component {
               <Label for="purpose">Purpose</Label>
               <Input type="textarea" name="purpose" id="purpose"/>
             </FormGroup>
-              {/*<FormGroup className="required">
-                <Label for="reputation">Minimum Reputation</Label>
-                <Input type="number" name="reputation" id="repuation" min={0} max={reputation}/>
-              </FormGroup>*/}
               <FormGroup className="required">
                 <Label for="proximity">Maximum Proximity (Miles)</Label>
-                <Input required type="number" name="proximity" id="proximity" min={0} defaultValue={proximity} />
+                <Input required type="number" name="proximity" id="proximity" min={0} max={12450} defaultValue={0} />
               </FormGroup>     
             </Form>
             <div className="skills-form">

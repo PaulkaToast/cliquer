@@ -277,6 +277,8 @@ class Main extends Component {
                 goToProfile={this.props.goToProfile} 
                 markAsRead={this.markAsRead} 
                 deleteNotification={this.deleteNotification} 
+                acceptNotification={this.acceptNotification}
+                rejectNotification={this.rejectNotification}
                 inviteToGroup={this.inviteToGroup}
                 isMod={this.props.isMod} 
               />}

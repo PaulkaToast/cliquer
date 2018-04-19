@@ -120,14 +120,12 @@ class Settings extends Component {
       <div className="search-settings-section" md={{ size: 4, offset: 4}}>
       <Form onSubmit={this.handleSubmit}>
         <FormGroup className="search-settings">
-          {/*<Input type="checkbox" name="optOut" id="optOut"/>{' Opt out of search results'}*/}
           <Toggle defaultChecked={optOut} name="optOut" />
           <span> Opt out of search results </span>
         </FormGroup>
         <FormGroup>
-          {/*<Input type="checkbox" name="isPublic" id="isPublic"/>{' Make your profile public '}*/}
           <Toggle defaultChecked={isPublic} name="isPublic" />
-          <span> Make you profile public</span>
+          <span> Make your profile public</span>
         </FormGroup>
         <FormGroup>
           <Label for="reputation">Minimum Reputation</Label>

@@ -88,14 +88,12 @@ class Profile extends Component {
   }
 
   reportUser = (ownerID) => {
-    console.log('report')
     this.props.reportUser(`${url}/api/reportUser?userId=${this.props.accountID}&reporteeId=${ownerID}&reason=none`, { 'X-Authorization-Firebase': this.props.token})
   }
 
   setCity = (lat, long) => {
     Geocode.fromLatLng(lat, long).then(
       response => {
-        console.log(response)
         const address = response.results[2].formatted_address
         this.props.setCity(address)
         this.setState({ loading: false })
@@ -132,9 +130,6 @@ class Profile extends Component {
         <div className="loader">Loading...</div>
       )
     }
-
-    console.log(profile.fullName)
-    console.log(profile.fullName === 'Shawn Montgomery')
 
     let flag = profile.newUser ? nFlag : "";
     return (
@@ -183,24 +178,23 @@ class Profile extends Component {
                         : this.props.city
                         ? this.props.city
                         : 'Location not set'}
-              <i className="fa fa-pencil-alt" onClick={() => {
+             {this.isOwner(ownerID) && <i className="fa fa-pencil-alt" onClick={() => {
                    if (navigator.geolocation) {
                         this.setState({ loading: true })
                         navigator.geolocation.getCurrentPosition(position => {
-                          console.log('here')
                           const lat = position.coords.latitude
                           const long = position.coords.longitude
                           this.props.setLocation(`${url}/api/setLocation?userId=${ownerID}&latitude=${lat}&longitude=${long}`, { 'X-Authorization-Firebase': this.props.token})
                           this.setCity(lat, long)
                         },
                         error => {
-                          console.log('here2', error)
+                          console.log(error)
                         })
                     } else {
                       //TODO: Geolocation is not supported
                       alert('Geolocation is not supported in your browser. Please switch to a browser that does, such as Chrome or Firefox.')
                     } 
-              }}></i>
+                }}></i> }
             </h4>
             <hr/>
             
@@ -228,7 +222,12 @@ class Profile extends Component {
             </ListGroup>
           </TabPane>
           <TabPane tabId="3">
-            <NotificationPanel deleteNotification={this.props.deleteNotification} />
+            <NotificationPanel 
+              deleteNotification={this.props.deleteNotification} 
+              markAsRead={this.props.markAsRead} 
+              acceptNotification={this.props.acceptNotification}
+              rejectNotification={this.props.rejectNotification}
+            />
           </TabPane>
         </TabContent>
 
