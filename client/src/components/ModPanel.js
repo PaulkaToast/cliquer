@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router'
 import { Modal, ModalHeader, ModalBody, ModalFooter,
-         Form, FormGroup, Label, Input, Button } from 'reactstrap'
+         Form, FormGroup, Label, Input, Button, ButtonGroup } from 'reactstrap'
 
 import { submitSkill, flagUser } from '../redux/actions'
 import '../css/ModPanel.css'
@@ -15,19 +15,22 @@ class ModPanel extends Component {
     this.state = {
       modal: false,
       reports: [],
+      notifications: [],
     }
   }
 
   componentWillReceiveProps = (nextProps) => {
     const reports = []
+    const notifications = []
     if(nextProps.messages) {
       Object.values(nextProps.messages).forEach((message) => {
         console.log(message)
         if(message.type === 14) reports.push(message)
+        if(message.type === 9) notifications.push(message)
       })
     }
 
-    this.setState({ reports })
+    this.setState({ reports, notifications })
   }
 
   addNewSkill = (ev) => {
@@ -64,6 +67,36 @@ class ModPanel extends Component {
     )
   }
 
+  renderNotification = (notification) => {
+    return ( 
+    <div className="Notification">
+      <div className="notification-info">
+      {notification.content}
+        <ButtonGroup>
+          <Button color="success" onClick={() => this.props.acceptNotification(notification.messageID)}>Accept</Button>
+          <Button color="danger" onClick={() => this.props.rejectNotification(notification.messageID)}>Reject</Button>
+        </ButtonGroup>
+      </div>
+      <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(notification.messageID)}></i> 
+    </div>
+    )
+  }
+
+  renderModNotificationList = () => {
+    const { notifications } = this.state
+    return (
+      <div className="notification-list">
+        { notifications && notifications.length > 0 
+          && <ul className="notifications">
+              {notifications.map((notification) => {
+                return this.renderReport(notification)
+              })}
+            </ul>
+        }
+      </div>
+    )
+  }
+
   renderReportList = () => {
     const { reports } = this.state
     return (
@@ -94,6 +127,7 @@ class ModPanel extends Component {
     return (
       <div className="ModPanel">
         {this.renderReportList()}
+        {this.renderModNotificationList()}
         <Button color="primary" onClick={this.toggle}>Submit New Skill</Button>
         <Modal isOpen={this.state.modal} toggle={this.toggle} className="add-skill-modal">
           <ModalHeader toggle={this.toggle}>Submit New Skill</ModalHeader>

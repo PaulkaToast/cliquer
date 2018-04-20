@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Switch, Route, Redirect } from 'react-router'
 import NotificationSystem from 'react-notification-system'
-import { Button, ButtonGroup } from 'reactstrap'
+import { Button, ButtonGroup, Modal, ModalHeader, ModalBody, ModalFooter} from 'reactstrap'
 import SockJsClient from 'react-stomp'
 import { connect } from 'react-redux'
 
@@ -307,8 +307,7 @@ class Main extends Component {
                 rejectNotification={this.rejectNotification}
                 inviteToGroup={this.inviteToGroup} 
                 ownProfile={this.props.ownProfile}
-                isMod={this.props.isMod} 
-               
+                isMod={this.props.isMod}     
               />}
             />
             <Route path="/groups" render={(navProps) => 
@@ -320,7 +319,13 @@ class Main extends Component {
             />
             <Route path="/public" render={(navProps) => <PublicGroups {...navProps} accountID={this.props.accountID} requestToJoin={this.requestToJoin} />}/>
             <Route path="/settings" render={(navProps) => <Settings {...navProps} />}/>
-            <Route path="/mod" render={(navProps) => <ModPanel {...navProps} deleteNotification={this.deleteNotification} goToProfile={this.props.goToProfile}/>}/>
+            <Route path="/mod" render={(navProps) => 
+              <ModPanel {...navProps} 
+                deleteNotification={this.deleteNotification} 
+                goToProfile={this.props.goToProfile}/>}
+                acceptNotification={this.acceptNotification}
+                rejectNotification={this.rejectNotification}
+              />
             <Route path="/search/:category/:query" render={(navProps) => <SearchResults 
               {...navProps}
               sendFriendRequest={this.sendFriendRequest} 
