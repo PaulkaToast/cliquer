@@ -10,8 +10,7 @@ import Dropzone from 'react-dropzone'
 import '../../css/Profile.css'
 import SkillsPanel from './SkillsPanel'
 import NotificationPanel from './NotificationPanel'
-import { getSkills, getProfile, getGroups, flagUser, setLocation, setCity, reportUser, uploadFile,
-         clearProfile, clearSkills, clearGroups } from '../../redux/actions'
+import { getSkills, getProfile, getGroups, flagUser, setLocation, setCity, reportUser, clearGroups, clearSkills, clearProfile, uploadFile } from '../../redux/actions'
 import url from '../../server.js'
 import nFlag from '../../img/newUser.png'
 
@@ -28,6 +27,11 @@ class Profile extends Component {
     }
   }
 
+  componentWillMount = () => {
+    this.props.clearProfile()
+    this.props.clearSkills()
+    this.props.clearGroups()
+  }
 
   componentDidMount = () => {
     this.fetch(this.props)
@@ -55,7 +59,7 @@ class Profile extends Component {
       }
 
       // Get skills data
-      if(this.props.postData !== props.postData || (!props.skills && !props.skillsIsLoading)) {
+      if(props.postData !== props.postData || (!props.skills && !props.skillsIsLoading)) {
         this.props.getSkills(`${url}/api/getSkills?userId=${ownerID}`, { 'X-Authorization-Firebase': props.token})
       }
 
@@ -141,7 +145,7 @@ class Profile extends Component {
         {groups && Object.keys(groups).length > 0
         && Object.keys(groups).map((gid, i) => {
           if (groups[gid].groupMemberIDs[this.props.profile.accountID]){
-            return "";
+            return null;
           }else{
           return(<ListGroupItem key={gid}>
               {groups[gid].groupName} <Button className="invite-to-group-button" type="button" size="lg" 

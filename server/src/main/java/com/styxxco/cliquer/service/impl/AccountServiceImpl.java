@@ -2063,7 +2063,6 @@ public class AccountServiceImpl implements AccountService {
         }
 
         List<Message> reports = messageRepository.findByParentID(report.getParentID());
-
         if (mod.hasFlagged(user.getAccountID())) {
             user.removeFlag();
             for (Message r: reports) {
