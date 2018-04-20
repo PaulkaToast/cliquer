@@ -29,7 +29,7 @@ public interface AccountService extends UserDetailsService {
     Account removeSkill(String username, String skillName);
     Account deleteAccount(String username);
     Account rateUser(String userId, String rateeId, String messageId, String json, boolean endorse);
-    void uploadPicture(String userId, MultipartFile file) throws Exception;
+    void uploadPicture(String userId, String file) throws Exception;
     void requestRating(String userId, String groupId);
     void setLocation(String userId, String latitude, String longitude);
 

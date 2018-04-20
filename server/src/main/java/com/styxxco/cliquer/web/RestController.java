@@ -15,9 +15,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static java.time.temporal.ChronoUnit.MINUTES;
 
 @Log4j
 @Controller
@@ -56,7 +59,11 @@ public class RestController {
         if (user.isAccountEnabled()) {
             return new ResponseEntity<>(user, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(user.getFullName() + "'s account is disabled until ", HttpStatus.OK);
+            long served = user.getStartSuspendTime().until(LocalDateTime.now(), MINUTES);
+            long timeLeft = user.getSuspendTime() - served;
+            String body = "{\"status\": \"" + user.getFullName() + " 's account is disabled until " + LocalDateTime.now().plusMinutes(timeLeft) + "\"}";
+            System.out.println(body);
+            return new ResponseEntity<>(body, HttpStatus.OK);
         }
     }
 
@@ -282,6 +289,7 @@ public class RestController {
     public @ResponseBody ResponseEntity<?> applyForMod(@RequestParam(value = "userId") String userId,
                                                        @RequestParam(value = "messageId") String messageId,
                                                        @RequestBody String reason) {
+        System.out.println("APPLY FOR MOD REASON: " + reason);
         Message message = accountService.acceptModInvite(userId, messageId, reason);
         if (message == null) {
             return new ResponseEntity<>("Could not apply for moderator", HttpStatus.BAD_REQUEST);
@@ -299,12 +307,9 @@ public class RestController {
         return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
 
-    // TODO: Determine if this call could be removed
-    @Deprecated
     @RequestMapping(value = "/mod/suspendUser", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> suspendUser(@RequestParam(value = "modId") String modId,
-                                                       @RequestParam(value = "messageId") String messageId,
-                                                       @RequestParam(value = "time") long time) {
+                                                       @RequestParam(value = "messageId") String messageId) {
         Account user = accountService.suspendUser(modId, messageId);
         if(user == null){
             return new ResponseEntity<>("Could not suspend user", HttpStatus.BAD_REQUEST);
@@ -391,10 +396,10 @@ public class RestController {
     }
 
     @RequestMapping(value = "/api/uploadFile", method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<?> uploadFile(@RequestParam("userId") String userId,
-                                                      @RequestParam("file") MultipartFile file) {
+    public @ResponseBody ResponseEntity<?> uploadFile(@RequestParam(value = "userId") String userId,
+                                                      @RequestBody String encoding) {
         try {
-            accountService.uploadPicture(userId, file);
+            accountService.uploadPicture(userId, encoding);
         } catch (Exception e) {
             log.info("Could not upload image properly");
             return new ResponseEntity<>("Could not upload image properly", HttpStatus.BAD_REQUEST);
@@ -403,16 +408,16 @@ public class RestController {
     }
 
     @RequestMapping(value = "/api/setLocation", method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<?> setLocation(@RequestParam("userId") String userId,
-                                                          @RequestParam("latitude") String latitude,
-                                                          @RequestParam("longitude") String longitude) {
+    public @ResponseBody ResponseEntity<?> setLocation(@RequestParam(value = "userId") String userId,
+                                                          @RequestParam(value = "latitude") String latitude,
+                                                          @RequestParam(value = "longitude") String longitude) {
         accountService.setLocation(userId, latitude, longitude);
         return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/mod/submitSkill", method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<?> submitSkill(@RequestParam("modId") String modId,
-                                                       @RequestParam("skillName") String skillName) {
+    public @ResponseBody ResponseEntity<?> submitSkill(@RequestParam(value = "modId") String modId,
+                                                       @RequestParam(value = "skillName") String skillName) {
         Skill skill = accountService.addSkillToDatabase(skillName);
         if (skill == null) {
             return new ResponseEntity<>("Could not add new skill", HttpStatus.BAD_REQUEST);

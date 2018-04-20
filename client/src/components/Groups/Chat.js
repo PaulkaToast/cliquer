@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Alert, Badge, Button, InputGroupAddon, Input, InputGroup,
-        Card, CardImg, CardText, CardBody, CardTitle} from 'reactstrap'
+        Card, CardImg, CardText, CardBody, CardTitle,
+        ButtonGroup, UncontrolledTooltip } from 'reactstrap'
 import SockJsClient from 'react-stomp'
 
 import '../../css/Chat.css'
@@ -9,24 +10,107 @@ import { getChatLog, postChatMessage, updateChatLog } from '../../redux/actions'
 import url from '../../server'
 import Logo from '../../img/cliquerLogoWarn.png'
 
-const Message = ({message, sender, align, time}) => {
+class Message extends Component{
+  constructor(props){
+    super(props);
+
+    this.state = {
+      reaction: false,
+      up: false,
+      down: false,
+    }
+    this.sendUpVote = this.sendUpVote.bind(this);
+    this.sendDownVote = this.sendDownVote.bind(this);
+  } 
+  sendUpVote = (event) => {
+    event.preventDefault();
+    var newState = this.state;
+    if(!this.state.reaction){
+      newState.reaction = true
+      newState.up = true
+    }else if(this.state.reaction && this.state.up){
+      newState.reaction = false
+      newState.up = false
+    }else if(this.state.reaction && this.state.down){
+      newState.down = false
+      newState.up = true
+    }
+    this.setState(newState);
+    this.props.sendReaction(this.props.messageId, 0);
+  }
+  sendDownVote = (event) => {
+    event.preventDefault();
+    var newState = this.state;
+    if(!this.state.reaction){
+      newState.reaction = true
+      newState.down = true
+    }else if(this.state.reaction && this.state.down){
+      newState.reaction = false
+      newState.down = false
+    }else if(this.state.reaction && this.state.up){
+      newState.up = false
+      newState.down = true
+    }
+    this.setState(newState);
+    this.props.sendReaction(this.props.messageId, 1);
+  }
+  render() {
+  var {message, sender, align, time, up, down, 
+    upList, downList, votes, messageId} = this.props;
+
+  var upToolTip = "";
+  if (upList.length > 0) {
+    upToolTip = <UncontrolledTooltip  placement="top" target={"up"+messageId}>
+      {upList.join(", ")}
+    </UncontrolledTooltip >
+  }
+  var downToolTip = "";
+  if (downList.length > 0) {
+    downToolTip = <UncontrolledTooltip  placement="bottom" target={"down"+messageId}>
+      {downList.join(", ")}
+    </UncontrolledTooltip >
+  }
+
   if (!message) return <div></div>;
-  var time1 = ""
-  var time2 = ""
-  if (align == "sender-message-right"){
-    time1 = time
-  }else{
-    time2 = time
+  if (align === "sender-message-left"){
+    return  <div className={align}>
+            <Badge className={align.concat("-badge")}>{sender}</Badge>
+            <br/>
+              <Alert className={align.concat("-alert single-message")}> {message} </Alert>
+              <ButtonGroup vertical className="up-vote-down-vote">
+                <i className={up.concat("vote fas fa-thumbs-up")}
+                  onClick={this.sendUpVote} id={"up"+messageId}></i>
+                  {upToolTip}
+                <span>{votes}</span>
+                <div className="thumbs-down-flip">
+                  <i className={down.concat("vote fas fa-thumbs-down")}
+                    onClick={this.sendDownVote} id={"down"+messageId}></i>
+                    {downToolTip}
+                </div>
+              </ButtonGroup>
+              <span className="time-stamp-left">{time}</span>
+            </div>
   }
   return (
     <div className={align}>
       <Badge className={align.concat("-badge")}>{sender}</Badge>
       <br/>
-      <span className="time-stamp-right">{time1}</span>
-      <Alert className="single-message" className={align.concat("-alert")}> {message} </Alert>
-      <span className="time-stamp-left">{time2}</span>
+        <span className="time-stamp-right">{time}</span>
+        <ButtonGroup vertical className="up-vote-down-vote">
+          <i className={up.concat("vote fas fa-thumbs-up")}
+            onClick={this.sendUpVote} id={"up"+messageId}></i>
+            {upToolTip}
+          <span>{votes}</span>
+          <div className="thumbs-down-flip">
+            <i className={down.concat("vote fas fa-thumbs-down")}
+              onClick={this.sendDownVote} id={"down"+messageId}></i>
+              {downToolTip}
+          </div>
+        </ButtonGroup>
+        <Alert className={align.concat("-alert single-message")}> {message} </Alert>
     </div>);
-};
+  };
+}
 
 class Chat extends Component {
 
@@ -36,7 +120,8 @@ class Chat extends Component {
     this.state = {
       messagesEnd: "",
       messages: [],
-      msgInput: ""
+      msgInput: "",
+      shouldScroll: false
     }
     this.handleChange = this.handleChange.bind(this);
     this.sendMessage = this.sendMessage.bind(this);
@@ -47,33 +132,39 @@ class Chat extends Component {
   }
 
   componentWillReceiveProps = (nextProps) => {
-    if(nextProps.group != this.props.group){
-      this.state.messages = [];
-      this.setState(this.state);
+    if(nextProps.group !== this.props.group){
+      var newState = this.state;
+      newState.messages = [];
+      this.setState(newState);
       setTimeout(() => this.onWebsocketConnect(), 1)
     }
   }
 
   sendMessage = (event) => {
     event.preventDefault();
-    if (this.state.msgInput == "") {
+    if (this.state.msgInput === "") {
       return;
-    }
-    const msg = {
-      senderId: this.props.user.uid,
-      content: this.state.msgInput,
     }
     this.clientRef.sendMessage('/app/' + this.props.user.uid + '/' 
                                + this.props.group.groupID + '/sendMessage', this.state.msgInput)
-    this.state.msgInput = "";
+    var newState = this.state;
+    newState.msgInput = "";
+    this.setState(newState);
     event.target.reset()
   }
 
+  sendReaction = (messageId, reaction) => {
+    this.clientRef.sendMessage('/app/reactChatMessage/' 
+    + this.props.user.uid + '/' + messageId + '/' + this.props.group.groupID
+    + '/' + reaction, "")
+  }
+
   handleMessage = (data) => {
-    if (data.length == 0) {
+    var messages;
+    if (data.length === 0) {
       return;
     } else if (data[0]){
-      this.state.messages = data.map( (m) => {
+      messages = data.map( (m) => {
         var hour = ""
         var minute = ""
         var time = ""
@@ -82,24 +173,53 @@ class Chat extends Component {
           hour = (m.creationTime["hour"] - 12) + ":" 
           ampm = " PM"
         }else{
-          if(m.creationTime["hour"] == 0){
+          if(m.creationTime["hour"] === 0){
             hour = 12 + ":"
           }else{
             hour = m.creationTime["hour"] + ":"
           }
           ampm = " AM"
         }
-        if(Math.floor(m.creationTime["minute"] / 10) == 0){
+        if(Math.floor(m.creationTime["minute"] / 10) === 0){
           minute = "0" + m.creationTime["minute"]
         }else{
           minute = m.creationTime["minute"]
         }
         time = hour + minute + ampm
+
+        var upMe = false
+        var downMe = false
+        var downList = []
+        var upList = []
+        var votes = 0
+        Object.keys(m.reactions).forEach((key) => {
+          if (m.reactions[key] === 0){
+            if(key === this.props.accountID){
+              upMe = true
+              votes = 1
+            }else{
+              upList.push(this.props.group.groupMemberIDs[key])
+            }
+          }else{
+            if(key === this.props.accountID){
+              downMe = true
+              votes = -1
+            }else{
+              downList.push(this.props.group.groupMemberIDs[key])
+            }
+          }
+        })
+        votes = votes + upList.length - downList.length
         return {sender: m.senderName, message: m.content, id: m.senderID, 
           date: m.creationDate["dayOfWeek"] + " " + m.creationDate["month"] + 
-          " " + m.creationDate["dayOfMonth"], time: time}
+          " " + m.creationDate["dayOfMonth"], time: time, upMe: upMe,
+          downMe: downMe, downList: downList, upList: upList, votes: votes, 
+          messageId: m.messageID}
       })
-      this.setState(this.state)
+      const newState = this.state;
+      newState.shouldScroll = true;
+      newState.messages = messages;
+      this.setState(newState);
     } else {
         var hour = ""
         var minute = ""
@@ -109,25 +229,68 @@ class Chat extends Component {
           hour = (data.creationTime["hour"] - 12) + ":" 
           ampm = " PM"
         }else{
-          if(data.creationTime["hour"] == 0){
+          if(data.creationTime["hour"] === 0){
             hour = 12 + ":"
           }else{
             hour = data.creationTime["hour"] + ":"
           }
           ampm = " AM"
         }
-        if(Math.floor(data.creationTime["minute"] / 10) == 0){
+        if(Math.floor(data.creationTime["minute"] / 10) === 0){
           minute = "0" + data.creationTime["minute"]
         }else{
           minute = data.creationTime["minute"]
         }
         time = hour + minute + ampm
-      this.state.messages.push({
-        sender: data.senderName, message: data.content, id: data.senderID, 
-        date: data.creationDate["dayOfWeek"] + " " + data.creationDate["month"] + 
-        " " + data.creationDate["dayOfMonth"], time: time
-      })
-      this.setState(this.state)
+
+        var upMe = false
+        var downMe = false
+        var downList = []
+        var upList = []
+        var votes = 0
+        Object.keys(data.reactions).forEach((key) => {
+          if (data.reactions[key] === 0){
+            if(key === this.props.accountID){
+              upMe = true
+              votes = 1
+            }else{
+              upList.push(this.props.group.groupMemberIDs[key])
+            }
+          }else{
+            if(key === this.props.accountID){
+              downMe = true
+              votes = -1
+            }else{
+              downList.push(this.props.group.groupMemberIDs[key])
+            }
+          }
+        })
+        votes = votes + upList.length - downList.length;
+        const newMsg = {
+          sender: data.senderName, message: data.content, id: data.senderID, 
+          date: data.creationDate["dayOfWeek"] + " " + data.creationDate["month"] + 
+          " " + data.creationDate["dayOfMonth"], time: time, upMe: upMe,
+          downMe: downMe, downList: downList, upList: upList, votes: votes,
+          messageId: data.messageID
+        };
+
+        var updated = false
+        messages = this.state.messages.map((m) => {
+          if (m.messageId === data.messageID){
+            updated = true;
+            return newMsg;
+          } else {
+            return m;
+          }
+        });
+        
+        const newState = this.state;
+        if (!updated){
+          newState.shouldScroll = true;
+          messages.push(newMsg); 
+        }
+        newState.messages = messages;
+        this.setState(newState);
     }
   }
 
@@ -141,7 +304,12 @@ class Chat extends Component {
   }
   
   componentDidUpdate() {
-    this.scrollToBottom();
+    if (this.state.shouldScroll){
+      this.scrollToBottom();
+      const newState = this.state;
+      newState.shouldScroll = false;
+      this.setState(newState);
+    }
   }
 
   onWebsocketConnect() {
@@ -194,19 +362,36 @@ class Chat extends Component {
           {
             messages.map((c, index) => {
               var dateDiv = <div></div>
-              if( c.date != passingDate){
-                var dateDiv = <div className="date-div-center"><Badge >{c.date}</Badge></div>
+              if( c.date !== passingDate){
+                dateDiv = <div className="date-div-center"><Badge >{c.date}</Badge></div>
                 passingDate = c.date
               } 
-              if( c.sender == "this-is-a-group-message"){
+              if( c.sender === "this-is-a-group-message"){
                 return <div className="group-message-div" key={index}>
                 <Badge className="group-message-badge" color="primary">{c.message}</Badge>
                 </div>
               }
+              var upS = "-"
+              var downS = "-"
+              if( c.upMe ){
+                upS = "up-"
+              }
+              if( c.downMe ){
+                downS = "down-"
+              }
               if( c.id === this.props.user.uid ){
-                return <div key={index}>{dateDiv}<Message align="sender-message-right" key={index} sender={c.sender} message={c.message} time={c.time}></Message></div>
+                return <div key={index}>{dateDiv}<Message align="sender-message-right" 
+                key={index} sender={c.sender} message={c.message} time={c.time}
+                up={upS} down={downS} upList={c.upList} downList={c.downList}
+                votes={c.votes} messageId={c.messageId}
+                sendReaction={this.sendReaction}></Message></div>
               } else {
-                return <div key={index}>{dateDiv}<Message align="sender-message-left" key={index} sender={c.sender} message={c.message} time={c.time}></Message></div>
+                return <div key={index}>{dateDiv}<Message align="sender-message-left" 
+                key={index} sender={c.sender} message={c.message} time={c.time}
+                up={upS} down={downS} upList={c.upList} downList={c.downList}
+                votes={c.votes} messageId={c.messageId}
+                sendReaction={this.sendReaction}
+                ></Message></div>
               }
             })
           }

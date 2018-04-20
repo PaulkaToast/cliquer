@@ -33,20 +33,20 @@ class SkillsForm extends Component {
 
   getSuggestions = (value) => {
     const escapedValue = value.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    
+
     if (escapedValue === '') {
       return []
     }
-  
+
     const regex = new RegExp('\\b' + escapedValue, 'i')
-    
+
     return this.props.skills.filter(skill => regex.test(this.getSuggestionValue(skill)))
   }
 
   getSuggestions = value => {
     const inputValue = value.trim().toLowerCase()
     const inputLength = inputValue.length
-  
+
     return inputLength === 0 ? [] : this.props.skills.filter(skill =>
       skill.toLowerCase().slice(0, inputLength) === inputValue
     )
@@ -103,7 +103,7 @@ class SkillsForm extends Component {
     }
     this.setState({ value: '' })
   }
-  
+
   deleteNewSkill = (skill) => {
     this.props.deleteSkill(skill)
   }
@@ -111,7 +111,7 @@ class SkillsForm extends Component {
   renderSuggestion = (suggestion, { query }) => {
     const matches = AutosuggestHighlightMatch(suggestion, query)
     const parts = AutosuggestHighlightParse(suggestion, matches)
-  
+
     return (
       <span className={'suggestion-content'}>
         <span className="name">
@@ -119,7 +119,7 @@ class SkillsForm extends Component {
             parts.map((part, index) => {
               const className = part.highlight ? 'highlight' : null
               return (
-                <span className={className} key={index}>{part.text}</span>
+                <span className={className} key={index}>{(part.highlight || part.text === ' ') ? part.text : part.text.substring(0, 10) + '...'}</span>
               )
             })
           }
@@ -134,7 +134,7 @@ class SkillsForm extends Component {
         {this.props.newSkills.map((skill, i) => {
           return (
             <div key={i} className="animated slideInUp new-skill">
-              <i className="fa fa-times delete" onClick={() => this.deleteNewSkill(skill)}></i> 
+              <i className="fa fa-times delete" onClick={() => this.deleteNewSkill(skill)}></i>
               <span className="skill-text">{skill}</span>
             </div>
           )
@@ -145,7 +145,7 @@ class SkillsForm extends Component {
 
   renderInputComponent = inputProps => {
     return (
-      <input 
+      <input
         className={`${this.state.animation} new-skill-input form-control`}
         id="skillInput"
         required
@@ -208,4 +208,3 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SkillsForm)
-

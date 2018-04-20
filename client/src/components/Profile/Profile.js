@@ -1,17 +1,16 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { TabContent, TabPane, Nav, NavItem, NavLink, 
-  Card, Button, CardTitle, CardText, Row, Col, ListGroup, ListGroupItem,
+  Button, ListGroup, ListGroupItem,
   Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import classnames from 'classnames';
-import Geocode from "react-geocode"
+import Geocode from 'react-geocode'
+import Dropzone from 'react-dropzone'
 
 import '../../css/Profile.css'
 import SkillsPanel from './SkillsPanel'
-import FriendsPanel from './FriendsPanel'
-import UserInfo from './UserInfo'
 import NotificationPanel from './NotificationPanel'
-import { getSkills, getProfile, getGroups, flagUser, setLocation, setCity, reportUser } from '../../redux/actions'
+import { getSkills, getProfile, getGroups, flagUser, setLocation, setCity, reportUser, uploadFile } from '../../redux/actions'
 import url from '../../server.js'
 import nFlag from '../../img/newUser.png'
 
@@ -22,8 +21,9 @@ class Profile extends Component {
     this.state = {
       activeTab: '1',
       modal: false,
+      modalU: false,
       flagged: false,
-      loading: false
+      loading: false,
     }
   }
 
@@ -71,11 +71,11 @@ class Profile extends Component {
   }
 
   toggleM = () => {
-    if(this.state.modal) {
-      this.setState({ modal: false })
-    } else {
-      this.setState({ modal: true })
-    }
+    this.setState({ modal: !this.state.modal })
+  }
+
+  toggleU = () => {
+    this.setState({ modalU: !this.state.modalU, dropped: false })
   }
 
   isOwner = (accountID) => {
@@ -104,6 +104,34 @@ class Profile extends Component {
     )
   }
 
+  loadImage = (image) => {
+    if (FileReader && image) {
+      let fr = new FileReader()
+      fr.onload = () => {
+          document.querySelector('#profile-picture').src = fr.result
+          this.props.uploadFile(`${url}/api/uploadFile?userId=${this.props.accountID}`, { 'X-Authorization-Firebase': this.props.token}, JSON.stringify(fr.result))
+          //this.setState({ profilePic: file })
+      }
+      fr.readAsDataURL(image)
+    }
+  }
+
+  onDrop = (accepted, rejected) => {
+    this.setState({ dropped: true })
+    if(accepted[0]) {
+      let fileObject = {
+        lastModified     : accepted[0].lastModified,
+        lastModifiedDate : accepted[0].lastModifiedDate,
+        name             : accepted[0].name,
+        size             : accepted[0].size,
+        type             : accepted[0].type
+     }
+      const image = btoa(JSON.stringify(fileObject))
+      const file = atob(image)
+      this.loadImage(accepted[0])
+    }
+  }
+
   renderGroupList = () => {
     const groups = this.props.groups
     const ownerID = this.props.match.params.ownerID
@@ -112,17 +140,21 @@ class Profile extends Component {
       <ListGroup>
         {groups && Object.keys(groups).length > 0
         && Object.keys(groups).map((gid, i) => {
-          return (<ListGroupItem>
-            {groups[gid].groupName} <Button className="invite-to-group-button" type="button" size="lg" 
-            onClick={() => this.inviteAndToggle(gid, ownerID)}>Invite</Button>
-          </ListGroupItem>)
+          if (groups[gid].groupMemberIDs[this.props.profile.accountID]){
+            return "";
+          }else{
+          return(<ListGroupItem>
+              {groups[gid].groupName} <Button className="invite-to-group-button" type="button" size="lg" 
+              onClick={() => this.inviteAndToggle(gid, ownerID)}>Invite</Button>
+            </ListGroupItem>)
+          }
         })}
       </ListGroup>
     )  
   }
   
   render() {
-    const { user, profile, skills, groups, token } = this.props
+    const { profile, skills, groups } = this.props
     const ownerID = this.props.match.params.ownerID
 
     if(!profile || profile.accountID !== ownerID){
@@ -142,6 +174,7 @@ class Profile extends Component {
               Profile
             </NavLink>
           </NavItem>
+        {this.isOwner(ownerID) &&
           <NavItem>
             <NavLink
               className={classnames({ active: this.state.activeTab === '2' })}
@@ -150,7 +183,8 @@ class Profile extends Component {
               Friends
             </NavLink>
           </NavItem>
-          {this.isOwner(ownerID) && 
+        }
+        {this.isOwner(ownerID) && 
             <NavItem>
               <NavLink
                 className={classnames({ active: this.state.activeTab === '2' })}
@@ -164,9 +198,12 @@ class Profile extends Component {
         <TabContent activeTab={this.state.activeTab}>
           <TabPane className="profile-tab" tabId="1">
             <hr/>
-            <h1>
-              {profile.moderator && <i className="fas fa-user-secret"></i>} {profile.fullName}<img className="profile-user-flag" src={flag} alt=""></img>
-            </h1>
+            <div className="main-info">
+              <img id="profile-picture" onClick={this.toggleU} src={profile.picture} alt=""></img>
+              <h1>
+                {profile.moderator && <i className="fas fa-user-secret"></i>} {profile.fullName}<img className="profile-user-flag" src={flag} alt=""></img>
+              </h1>
+            </div>
             <hr/>
             <h4>
               Reputation: {profile.reputation}
@@ -197,7 +234,8 @@ class Profile extends Component {
             </h4>
             <hr/>
             
-            {!this.isOwner(ownerID) && <Button type="button" size="lg" onClick={() => this.props.sendFriendRequest(ownerID)}>Send Friend Request</Button>}
+            {!this.isOwner(ownerID) && !this.props.ownProfile.friendIDs[this.props.profile.accountID] && 
+            <Button type="button" size="lg" onClick={() => this.props.sendFriendRequest(ownerID)}>Send Friend Request</Button>}
             {!this.isOwner(ownerID) && groups && Object.keys(groups).length > 0 && 
               <Button type="button" size="lg" onClick={this.toggleM}>Invite To Group</Button>}
             {!this.isOwner(ownerID) && 
@@ -214,9 +252,9 @@ class Profile extends Component {
             </h4>
             <ListGroup>
             {this.props.profile && this.props.profile.friendIDs && Object.keys(this.props.profile.friendIDs).map((key) =>
-            { return <ListGroupItem onClick={() => this.props.goToProfile(key)} key={key}>
-            {profile.friendIDs[key]}
-            <Button className="friend-cancel-button" onClick={() => {}} color="link">x</Button>
+            { return <ListGroupItem  key={key}>
+              <a href={"/profile/" + key}>{profile.friendIDs[key]}</a>
+              <Button className="friend-cancel-button" onClick={() => {}} color="link">x</Button>
             </ListGroupItem>})}
             </ListGroup>
           </TabPane>
@@ -230,7 +268,32 @@ class Profile extends Component {
           </TabPane>
         </TabContent>
 
-        <Modal isOpen={this.state.modal} toggle={this.toggleM} className="update-settings-modal">
+        <Modal isOpen={this.state.modalU} toggle={this.toggleU} className="upload-image-modal">
+          <ModalHeader toggle={this.toggleU}>Upload Image</ModalHeader>
+          <ModalBody>
+          <Dropzone
+            accept="image/jpeg, image/png"
+            maxSize={5000000}
+            className="picture-upload"
+            acceptStyle={{borderColor: 'green'}}
+            rejectStyle={{borderColor: 'red'}}
+            multiple={false}
+            onDrop={this.onDrop}
+          >
+           { !this.state.dropped ?
+           <div>
+              <p>Drop a picture here, or click to upload a picture.</p>
+              <p>Only .jpeg and .png images less than 5 MB will be accepted</p>
+            </div>
+            : <p>Your picture has been uploaded!</p>}
+          </Dropzone>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="secondary" onClick={this.toggleU}>Close</Button>
+          </ModalFooter>
+        </Modal>
+
+        <Modal isOpen={this.state.modal} toggle={this.toggleM} className="invite-modal">
           <ModalHeader toggle={this.toggleM}>Invite To Group</ModalHeader>
           <ModalBody>
             {this.renderGroupList()}
@@ -270,6 +333,7 @@ const mapDispatchToProps = (dispatch) => {
     setLocation: (url, headers) => dispatch(setLocation(url, headers)),
     reportUser: (url, headers) => dispatch(reportUser(url, headers)),
     setCity: (city) => dispatch(setCity(city)),
+    uploadFile: (url, headers, body) => dispatch(uploadFile(url, headers, body)),
   }
 }
 

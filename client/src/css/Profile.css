@@ -83,3 +83,21 @@
     box-shadow: 0 2.5em 0 0;
   }
 }
+
+.picture-upload {
+  width: 90%;
+  margin: auto;
+  height: 200px;
+  border-width: 2px;
+  border-color: rgb(102, 102, 102);
+  border-style: dashed;
+  border-radius: 5px;
+  padding: 1rem;
+}
+
+img#profile-picture {
+  border-radius: 50% !important;
+  width: 128px;
+  height: 128px;
+  cursor: pointer;
+}
