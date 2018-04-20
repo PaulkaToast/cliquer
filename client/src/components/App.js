@@ -13,6 +13,8 @@ import Login from './Login'
 import Register from './Register'
 import Main from './Main'
 
+var oldProfile = undefined;
+
 class App extends Component {
 
   constructor(props) {
@@ -101,6 +103,7 @@ class App extends Component {
                 allowHTML={false}
                 accountID={this.props.accountID}
                 goToProfile={this.goToProfile}
+                ownProfile={this.props.ownProfile}
                 isMod={this.isMod}
               />
             : <Redirect to="/login" />
@@ -111,9 +114,8 @@ class App extends Component {
   }
 }
 
-
 const mapStateToProps = (state) => {
-	return {
+	var props = {
     user: state.user.data,
     position: state.user.position,
     loggedIn: state.auth.loggedIn,
@@ -121,7 +123,18 @@ const mapStateToProps = (state) => {
     profile: state.profile && state.profile.getData ? state.profile.getData : null,
     isMod: state.user.isMod,
     account: state.auth.data ? state.auth.data : null,
-	}
+  }
+
+  if (state.profile.getData && 
+      (state.user.accountID === state.profile.getData.accountID)) {
+    oldProfile = state.profile.getData;
+  }
+  if (state.profile.getData && 
+      (state.user.accountID !== state.profile.getData.accountID)) {
+    props.ownProfile = oldProfile;
+  }
+  
+  return props;
 }
 
 const mapDispatchToProps = (dispatch) => {

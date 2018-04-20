@@ -3,14 +3,20 @@ import { Button } from 'reactstrap'
 import { connect } from 'react-redux'
 
 import '../css/SearchResults.css'
-import { search } from '../redux/actions'
+import { search, getProfile } from '../redux/actions'
 import url from '../server'
 import nFlag from '../img/newUser.png'
 
 class SearchResults extends Component {
 
   componentDidMount = () => {
-    const { query, category } = this.props.match ? this.props.match.params : this.props
+    const { query, category } = this.props.match ? this.props.match.params : this.props;
+
+    if (this.props.accountID && this.props.token) {    
+      // Get profile data
+      this.props.getProfile(`${url}/api/getProfile?userId=${this.props.accountID}&type=user`, { 'X-Authorization-Firebase': this.props.token})
+    }
+
     if(query && category && this.props.token) {
       this.props.search(`${url}/api/search?userId=${this.props.accountID}&query=${query}&type=${category}`, { 'X-Authorization-Firebase': this.props.token})
     }
@@ -51,7 +57,9 @@ class SearchResults extends Component {
             <div className="search-reputation">{user.reputation}</div>
           </div>
         </div>
-        <Button color="success" className="friend-request" onClick={() => this.props.sendFriendRequest(user.accountID)}>Send Friend Request</Button>
+        {this.props.profile && !this.props.profile.friendIDs[user.accountID] &&
+          <Button color="success" className="friend-request" onClick={() => this.props.sendFriendRequest(user.accountID)}>Send Friend Request</Button>
+        }
       </div>
     )
   }
@@ -101,11 +109,13 @@ const mapStateToProps = (state) => {
     token: state.auth.token,
     results: state.search && state.search.data ? state.search.data : null,
     accountID: state.user.accountID,
+    profile: state.profile && state.profile.getData ? state.profile.getData : null,
 	}
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    getProfile: (url, headers) => dispatch(getProfile(url, headers)),
     search: (url, headers) => dispatch(search(url, headers))
   }
 }

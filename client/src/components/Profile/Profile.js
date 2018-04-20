@@ -110,10 +110,14 @@ class Profile extends Component {
       <ListGroup>
         {groups && Object.keys(groups).length > 0
         && Object.keys(groups).map((gid, i) => {
-          return (<ListGroupItem>
-            {groups[gid].groupName} <Button className="invite-to-group-button" type="button" size="lg" 
-            onClick={() => this.inviteAndToggle(gid, ownerID)}>Invite</Button>
-          </ListGroupItem>)
+          if (groups[gid].groupMemberIDs[this.props.profile.accountID]){
+            return "";
+          }else{
+          return(<ListGroupItem>
+              {groups[gid].groupName} <Button className="invite-to-group-button" type="button" size="lg" 
+              onClick={() => this.inviteAndToggle(gid, ownerID)}>Invite</Button>
+            </ListGroupItem>)
+          }
         })}
       </ListGroup>
     )  
@@ -141,6 +145,7 @@ class Profile extends Component {
               Profile
             </NavLink>
           </NavItem>
+        {this.isOwner(ownerID) &&
           <NavItem>
             <NavLink
               className={classnames({ active: this.state.activeTab === '2' })}
@@ -149,7 +154,8 @@ class Profile extends Component {
               Friends
             </NavLink>
           </NavItem>
-          {this.isOwner(ownerID) && 
+        }
+        {this.isOwner(ownerID) && 
             <NavItem>
               <NavLink
                 className={classnames({ active: this.state.activeTab === '2' })}
@@ -196,7 +202,8 @@ class Profile extends Component {
             </h4>
             <hr/>
             
-            {!this.isOwner(ownerID) && <Button type="button" size="lg" onClick={() => this.props.sendFriendRequest(ownerID)}>Send Friend Request</Button>}
+            {!this.isOwner(ownerID) && !this.props.ownProfile.friendIDs[this.props.profile.accountID] && 
+            <Button type="button" size="lg" onClick={() => this.props.sendFriendRequest(ownerID)}>Send Friend Request</Button>}
             {!this.isOwner(ownerID) && groups && Object.keys(groups).length > 0 && 
               <Button type="button" size="lg" onClick={this.toggleM}>Invite To Group</Button>}
             {!this.isOwner(ownerID) && 
@@ -213,9 +220,9 @@ class Profile extends Component {
             </h4>
             <ListGroup>
             {this.props.profile && this.props.profile.friendIDs && Object.keys(this.props.profile.friendIDs).map((key) =>
-            { return <ListGroupItem onClick={() => this.props.goToProfile(key)} key={key}>
-            {profile.friendIDs[key]}
-            <Button className="friend-cancel-button" onClick={() => {}} color="link">x</Button>
+            { return <ListGroupItem  key={key}>
+              <a href={"/profile/" + key}>{profile.friendIDs[key]}</a>
+              <Button className="friend-cancel-button" onClick={() => {}} color="link">x</Button>
             </ListGroupItem>})}
             </ListGroup>
           </TabPane>
