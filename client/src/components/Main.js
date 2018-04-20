@@ -220,6 +220,7 @@ class Main extends Component {
   }
 
   acceptNotification = (messageID) => {
+    console.log('accepted')
     this.clientRef.sendMessage(`/app/acceptNotification/${this.props.accountID}/${messageID}`)
   }
 

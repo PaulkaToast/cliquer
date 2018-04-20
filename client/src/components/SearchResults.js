@@ -10,7 +10,7 @@ import nFlag from '../img/newUser.png'
 class SearchResults extends Component {
 
   componentDidMount = () => {
-    const { query, category } = this.props.match ? this.props.match.params : this.props;
+    const { query, category } = this.props.match ? this.props.match.params : this.props
 
     if (this.props.accountID && this.props.token) {    
       // Get profile data
@@ -25,6 +25,7 @@ class SearchResults extends Component {
   componentWillReceiveProps = (nextProps) => {
     const { query, category } = nextProps.match ? nextProps.match.params : nextProps
     const oldQuery = this.props.match ? this.props.match.params.query : this.props.query
+
     if(category && oldQuery !== query && nextProps.token) {
       this.props.search(`${url}/api/search?userId=${nextProps.accountID}&query=${query}&type=${category}`, { 'X-Authorization-Firebase': nextProps.token})
     }
@@ -57,7 +58,7 @@ class SearchResults extends Component {
             <div className="search-reputation">{user.reputation}</div>
           </div>
         </div>
-        {this.props.profile && !this.props.profile.friendIDs[user.accountID] &&
+        {this.props.profile && this.props.profile.friendIDs && !this.props.profile.friendIDs[user.accountID] &&
           <Button color="success" className="friend-request" onClick={() => this.props.sendFriendRequest(user.accountID)}>Send Friend Request</Button>
         }
       </div>
@@ -91,6 +92,7 @@ class SearchResults extends Component {
   }
 
   render() {
+    console.log(this.props.profile)
     const { category } = this.props.match ? this.props.match.params : this.props
     return (
       <div className="SearchResults">
@@ -116,7 +118,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     getProfile: (url, headers) => dispatch(getProfile(url, headers)),
-    search: (url, headers) => dispatch(search(url, headers))
+    search: (url, headers) => dispatch(search(url, headers)),
   }
 }
 
