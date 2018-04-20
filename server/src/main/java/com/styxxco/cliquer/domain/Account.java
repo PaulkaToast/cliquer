@@ -93,6 +93,7 @@ public class Account extends Searchable implements UserDetails {
     private Map<String, String> groupIDs;
 
     private Map<String, String> friendIDs;
+
 	@JsonIgnore
     private Map<String, Integer> messageIDs;
 

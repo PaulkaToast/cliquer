@@ -1328,6 +1328,7 @@ public class AccountServiceImpl implements AccountService {
                         }
                     }
                     groupRepository.save(group);
+                    continue;
                 }
                 groupService.updateGroupSettings(group.getGroupID(), group.getGroupLeaderID(), key, obj.get(key).toString());
             }
@@ -1447,52 +1448,6 @@ public class AccountServiceImpl implements AccountService {
         }
         return user;
 
-    }
-
-    @Override
-    public void handleNotifications(String userId, String messageId, boolean accept) {
-        if (!accountRepository.existsByAccountID(userId)) {
-            log.info("User " + userId + " not found");
-            return;
-        }
-        Account user = accountRepository.findByAccountID(userId);
-        if (!messageRepository.existsByMessageID(messageId)) {
-            log.info("Message " + messageId + " not found");
-            return;
-        }
-        Message message = messageRepository.findByMessageID(messageId);
-        switch (message.getType()) {
-            /* RATE_REQUEST HANDLED ELSEWHERE */
-            case Types.GROUP_INVITE:
-                if (accept) {
-                    acceptGroupInvite(userId, messageId);
-                } else {
-                    rejectInvite(userId, messageId);
-                }
-                break;
-            case Types.FRIEND_INVITE:
-                if (accept) {
-                    acceptFriendInvite(userId, messageId);
-                } else {
-                    rejectInvite(userId, messageId);
-                }
-                break;
-            case Types.MOD_FLAG:
-                break;
-            case Types.JOIN_REQUEST:
-                if (accept) {
-                    acceptJoinRequest(userId, messageId);
-                } else {
-                    rejectJoinRequest(userId, messageId);
-                }
-                break;
-            case Types.GROUP_ACCEPTED:
-                deleteMessage(userId, messageId);
-                break;
-            case Types.FRIEND_ACCEPTED:
-                deleteMessage(userId, messageId);
-                break;
-        }
     }
 
     @Override
@@ -1978,6 +1933,7 @@ public class AccountServiceImpl implements AccountService {
                         }
                     }
                     groupRepository.save(group);
+                    continue;
                 }
                 groupService.updateGroupSettings(groupId, user.getAccountID(), key, obj.get(key).toString());
             }
@@ -2394,22 +2350,14 @@ public class AccountServiceImpl implements AccountService {
         return user;
     }
 
-    /* TODO: Finish upload picture once Jordan knows how it will be sent */
     @Override
-    public void uploadPicture(String userId, String file) throws Exception {
+    public void uploadPicture(String userId, String file) {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             throw new UsernameNotFoundException("Could not find user");
         }
         Account user = accountRepository.findByAccountID(userId);
         user.setPicture(file.substring(1, file.length() - 1));
-//        if (!file.isEmpty()) {
-//            BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(new File(picturePath, file.getOriginalFilename())));
-//            outputStream.write(file.getBytes());
-//            outputStream.flush();
-//            outputStream.close();
-//        }
-//        user.setPicturePath(picturePath + "/" + file.getOriginalFilename());
         accountRepository.save(user);
     }
 }

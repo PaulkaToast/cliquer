@@ -144,6 +144,9 @@ public class GroupServiceImpl implements GroupService {
                     log.info("Invalid reputation requirement");
                     return null;
                 }
+                if (repReq > accountRepository.findByAccountID(groupLeaderId).getReputation()) {
+                    repReq = accountRepository.findByAccountID(groupLeaderId).getReputation();
+                }
                 group.setReputationReq(repReq / accountRepository.findByAccountID(groupLeaderId).getReputation());
                 break;
             case "proximityReq" :
@@ -155,8 +158,7 @@ public class GroupServiceImpl implements GroupService {
                     return null;
                 }
                 if(proxReq <= 0) {
-                    log.info("Invalid proximity requirement");
-                    return null;
+                    proxReq = Account.MAX_PROXIMITY;
                 }
                 group.setProximityReq(proxReq);
                 break;

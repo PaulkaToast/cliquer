@@ -56,15 +56,12 @@ public class RestController {
         if (user == null) {
             return new ResponseEntity<>("Could not fetch profile with the query", HttpStatus.BAD_REQUEST);
         }
-        if (user.isAccountEnabled()) {
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } else {
-            long served = user.getStartSuspendTime().until(LocalDateTime.now(), MINUTES);
-            long timeLeft = user.getSuspendTime() - served;
-            String body = "{\"status\": \"" + user.getFullName() + " 's account is disabled until " + LocalDateTime.now().plusMinutes(timeLeft) + "\"}";
-            System.out.println(body);
-            return new ResponseEntity<>(body, HttpStatus.OK);
-        }
+        return new ResponseEntity<>(user, HttpStatus.OK);
+//            long served = user.getStartSuspendTime().until(LocalDateTime.now(), MINUTES);
+//            long timeLeft = user.getSuspendTime() - served;
+//            String body = "{\"status\": \"" + user.getFullName() + " 's account is disabled until " + LocalDateTime.now().plusMinutes(timeLeft) + "\"}";
+//            System.out.println(body);
+//            return new ResponseEntity<>(body, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/deleteProfile", method = RequestMethod.POST)
@@ -240,15 +237,6 @@ public class RestController {
             return new ResponseEntity<>("Could not update account settings", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(user, HttpStatus.OK);
-    }
-
-    /* TODO: Remove after completely deprecated by sockets */
-    @RequestMapping(value = "/api/handleNotification", method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<?> handleNotification(@RequestParam(value = "userId") String userId,
-                                                              @RequestParam(value = "messageId") String messageId,
-                                                              @RequestParam(value = "accept", required = false, defaultValue = "true") boolean accept) {
-        accountService.handleNotifications(userId, messageId, accept);
-        return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/getRateForm", method = RequestMethod.GET)
