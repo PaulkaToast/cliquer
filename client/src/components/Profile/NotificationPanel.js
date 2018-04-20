@@ -13,7 +13,7 @@ class NotificationPanel extends Component {
     return (
       <div className="NotificationPanel">
         { notifications 
-          && <ul className="notifications">
+          && <div>
               {Object.keys(notifications).map((key, i) => {
                 return <Notification
                   notification={notifications[key]}
@@ -25,7 +25,7 @@ class NotificationPanel extends Component {
                   key={notifications[key].messageID}
                 />
               })}
-            </ul>
+            </div>
         }
       </div>
     )

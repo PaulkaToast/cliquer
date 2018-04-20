@@ -22,11 +22,15 @@ class Message extends Component{
       modal: false,
       reported: false
     }
+    
     this.sendUpVote = this.sendUpVote.bind(this);
     this.sendDownVote = this.sendDownVote.bind(this);
     this.toggle = this.toggle.bind(this);
   } 
   toggle(){
+    if(this.state.reported){
+      return;
+    }
     this.setState({
       modal: !this.state.modal
     });
