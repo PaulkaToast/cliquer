@@ -2227,9 +2227,9 @@ public class AccountServiceImpl implements AccountService {
         Account reportee = null;
         String reporteeId = message.getSenderID();
         if (accountRepository.existsByAccountID(reporteeId)){
-            reporter = accountRepository.findByAccountID(reporteeId);
+            reportee = accountRepository.findByAccountID(reporteeId);
         }else if (accountRepository.existsByUsername(reporteeId)){
-            reporter = accountRepository.findByUsername(reporteeId);
+            reportee = accountRepository.findByUsername(reporteeId);
         }else{
             log.info("Reporter " + reporteeId + " not found");
             return null;
