@@ -19,6 +19,7 @@
 }
 .sender-message-right-badge{
     background-color: #dbdbdb;
+    margin-left: 10px;
 }
 
 .sender-message-right-alert{
@@ -31,6 +32,7 @@
 
 .sender-message-left-badge{
     background-color: #A7C5BD;
+    margin-right: 10px;
 }
 
 .sender-message-left-alert{
@@ -82,17 +84,51 @@
     -ms-transform: scale(-1, 1);
     transform: scale(-1, 1);
 }
-.-vote{
+.-vote-up{
     -webkit-text-stroke: 1px black;
     color: transparent;
 }
 
-.up-vote{
+.-vote-up:hover{
+    -webkit-text-stroke: 1px #A7C5BD;
+    color:transparent;
+}
+
+.-vote-down{
+    -webkit-text-stroke: 1px black;
+    color: transparent;
+}
+
+.-vote-down:hover{
+    -webkit-text-stroke: 1px #CF4647;
+    color: transparent;
+}
+
+
+.up-vote-up{
     -webkit-text-stroke: 1px black;
     color: #A7C5BD;
 }
 
-.down-vote{
+.up-vote-up:hover{
+    -webkit-text-stroke: 1px black;
+    color: rgba(167, 197, 189, 0.60);
+}
+
+.down-vote-down{
     -webkit-text-stroke: 1px black;
     color: #CF4647;
+}
+
+.down-vote-down:hover{
+    -webkit-text-stroke: 1px black;
+    color: rgba(207, 70, 71, 0.60)
+}
+
+.-warning{
+    color: rgb(224, 224, 224);
+}
+
+.-warning:hover{
+    color: #d8b859;
 }

@@ -75,15 +75,16 @@ class Message extends Component{
   if (align === "sender-message-left"){
     return  <div className={align}>
             <Badge className={align.concat("-badge")}>{sender}</Badge>
+            <i class="fas fa-exclamation-triangle -warning"></i>
             <br/>
               <Alert className={align.concat("-alert single-message")}> {message} </Alert>
               <ButtonGroup vertical className="up-vote-down-vote">
-                <i className={up.concat("vote fas fa-thumbs-up")}
+                <i className={up.concat("vote-up fas fa-thumbs-up")}
                   onClick={this.sendUpVote} id={"up"+messageId}></i>
                   {upToolTip}
                 <span>{votes}</span>
                 <div className="thumbs-down-flip">
-                  <i className={down.concat("vote fas fa-thumbs-down")}
+                  <i className={down.concat("vote-down fas fa-thumbs-down")}
                     onClick={this.sendDownVote} id={"down"+messageId}></i>
                     {downToolTip}
                 </div>
@@ -93,16 +94,17 @@ class Message extends Component{
   }
   return (
     <div className={align}>
+      <i className="fas fa-exclamation-triangle -warning"></i>
       <Badge className={align.concat("-badge")}>{sender}</Badge>
       <br/>
         <span className="time-stamp-right">{time}</span>
         <ButtonGroup vertical className="up-vote-down-vote">
-          <i className={up.concat("vote fas fa-thumbs-up")}
+          <i className={up.concat("vote-up fas fa-thumbs-up")}
             onClick={this.sendUpVote} id={"up"+messageId}></i>
             {upToolTip}
           <span>{votes}</span>
           <div className="thumbs-down-flip">
-            <i className={down.concat("vote fas fa-thumbs-down")}
+            <i className={down.concat("vote-down fas fa-thumbs-down")}
               onClick={this.sendDownVote} id={"down"+messageId}></i>
               {downToolTip}
           </div>
