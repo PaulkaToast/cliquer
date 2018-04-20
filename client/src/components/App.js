@@ -28,7 +28,10 @@ class App extends Component {
 
   componentWillReceiveProps(nextProps) {
     if(this.loggedIn() && ((nextProps.profile && !this.props.profile && !this.props.accountID) || nextProps.account)) {
-      if(this.accountEnabled) this.props.logOut(this.props.user)
+      if(nextProps.profile && nextProps.profile.suspended) {
+        alert(`Your account has been suspended for ${this.formatDuration(nextProps.profile.suspendTime)}.`)
+        this.props.logOut(this.props.user)
+      }
       this.props.addObjectID(nextProps.profile ? nextProps.profile.accountID : nextProps.account.accountID)
       this.props.addIsMod(nextProps.profile ? nextProps.profile.moderator : nextProps.account.moderator)
     }
@@ -79,9 +82,26 @@ class App extends Component {
     return false 
   }
 
+  formatDuration = (totalTime) => {
+    let minutes = totalTime
+    let hours = Math.floor(minutes / 60) 
+    minutes = minutes % 60
+    let days = Math.floor(hours / 24) 
+    hours = hours % 24
+    let output = ""
+    if(days) output += `${days} ${days === 1 ? 'day' : 'days'}, `
+    if(hours) output += `${hours} ${hours === 1 ? 'hour' : 'hours'}, `
+    if(minutes) {
+      output += `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`
+    } else {
+      //Cut out ending comma and space
+      output = output.substr(0, output.length-2)
+    }
+    return output
+  }
+
   goToProfile = (ev, memberID, button1, button2) => {
     if((!ev && !button1 && !button2) || (ev.target === ev.currentTarget)) {
-      console.log('hello')
       history.push(`/profile/${memberID}`)
     }
   }
@@ -110,6 +130,7 @@ class App extends Component {
                 goToProfile={this.goToProfile}
                 ownProfile={this.props.ownProfile}
                 isMod={this.isMod}
+                formatDuration={this.formatDuration}
               />
             : <Redirect to="/login" />
           }/>
