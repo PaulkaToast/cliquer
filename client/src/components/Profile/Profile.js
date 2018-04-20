@@ -220,9 +220,9 @@ class Profile extends Component {
             </h4>
             <ListGroup>
             {this.props.profile && this.props.profile.friendIDs && Object.keys(this.props.profile.friendIDs).map((key) =>
-            { return <ListGroupItem onClick={() => this.props.goToProfile(key)} key={key}>
-            {profile.friendIDs[key]}
-            <Button className="friend-cancel-button" onClick={() => {}} color="link">x</Button>
+            { return <ListGroupItem  key={key}>
+              <a href={"/profile/" + key}>{profile.friendIDs[key]}</a>
+              <Button className="friend-cancel-button" onClick={() => {}} color="link">x</Button>
             </ListGroupItem>})}
             </ListGroup>
           </TabPane>
