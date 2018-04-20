@@ -253,7 +253,7 @@ class Profile extends Component {
             </h4>
             <ListGroup>
             {this.props.profile && this.props.profile.friendIDs && Object.keys(this.props.profile.friendIDs).map((key) =>
-            { return <ListGroupItem  key={key}>
+            { return <ListGroupItem className="d-flex justify-content-between align-items-center" key={key}>
               <a href={"/profile/" + key}>{profile.friendIDs[key]}</a>
               <Button className="friend-cancel-button" onClick={() => {}} color="link">x</Button>
             </ListGroupItem>})}

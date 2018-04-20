@@ -327,6 +327,7 @@ public class AccountServiceImpl implements AccountService {
             log.info("User " + userid + " not found");
         }
         username = user.getUsername();
+
         user.setRank(this.getReputationRanking(username));
         switch (type) {
             case "user":
