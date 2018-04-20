@@ -342,7 +342,7 @@ public class AccountServiceImpl implements AccountService {
                 break;
         }
 
-        if (!user.isAccountEnabled()) {
+        if (user.isSuspended()) {
             user.tryUnsuspend();
         }
         return user;
@@ -355,10 +355,9 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Account user = accountRepository.findByUsername(username);
-        if(!user.isAccountEnabled() && user.tryUnsuspend() > 0)
+        if(user.isSuspended() && user.tryUnsuspend() > 0)
         {
             log.info("User " + username + " is currently suspended");
-            return null;
         }
         user.setTimer();
         accountRepository.save(user);
@@ -2117,7 +2116,7 @@ public class AccountServiceImpl implements AccountService {
             accountRepository.save(mod);
             return null;
         }
-        if (user.isAccountEnabled()) {
+        if (!user.isSuspended()) {
             if(user.getSuspendTime() == 0)
             {
                 user.setSuspendTime(24*60);

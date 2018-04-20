@@ -45,6 +45,8 @@ public class Account extends Searchable implements UserDetails {
 	private boolean deniedMod;
 	private boolean isNewUser;
 	private boolean canSuspend;
+	private boolean isSuspended;
+
 	@JsonIgnore
 	private int loggedInTime;			/* Minutes that user has spent logged in */
 	@JsonIgnore
@@ -61,7 +63,7 @@ public class Account extends Searchable implements UserDetails {
 	private boolean accountLocked;
 	@JsonIgnore
 	private boolean accountExpired;
-
+	@JsonIgnore
 	private boolean accountEnabled;
 	@JsonIgnore
 	private boolean credentialsExpired;
@@ -160,6 +162,7 @@ public class Account extends Searchable implements UserDetails {
 				this.deniedMod = false;
 				this.canSuspend = false;
 				this.picture = null;
+				this.isSuspended = false;
 			}
 		}
 	}
@@ -334,13 +337,13 @@ public class Account extends Searchable implements UserDetails {
     	long timeLeft = suspendTime - served;
     	if (timeLeft < 0) {
     		startSuspendTime = null;
-    		accountEnabled = true;
+			isSuspended = false;
 		}
 		return timeLeft;
 	}
 
 	public void suspend(long minutes) {
-		this.accountEnabled = false;
+		this.isSuspended = true;
 		this.startSuspendTime = LocalDateTime.now();
 		this.suspendTime = minutes;
 	}
@@ -386,6 +389,7 @@ public class Account extends Searchable implements UserDetails {
 		this.deniedMod = false;
 		this.canSuspend = false;
 		this.picture = null;
+		this.isSuspended = false;
 	}
 
 	/* About to not be a new user */
@@ -409,6 +413,7 @@ public class Account extends Searchable implements UserDetails {
 		this.deniedMod = false;
 		this.canSuspend = false;
 		this.picture = null;
+		this.isSuspended = false;
 	}
 
 	/* Most average user on the planet */
@@ -432,6 +437,7 @@ public class Account extends Searchable implements UserDetails {
 		this.deniedMod = false;
 		this.canSuspend = false;
 		this.picture = null;
+		this.isSuspended = false;
 	}
 
 	/* The Most Interesting Man in the World, even turned down being a moderator */
@@ -455,6 +461,7 @@ public class Account extends Searchable implements UserDetails {
 		this.deniedMod = true;
 		this.canSuspend = false;
 		this.picture = null;
+		this.isSuspended = false;
 	}
 
 	/* Some experience with Cliquer, still new */
@@ -478,5 +485,6 @@ public class Account extends Searchable implements UserDetails {
 		this.deniedMod = false;
 		this.canSuspend = false;
 		this.picture = null;
+		this.isSuspended = false;
 	}
 }
