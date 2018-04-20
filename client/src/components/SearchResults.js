@@ -29,11 +29,11 @@ class SearchResults extends Component {
       <div className="search-result" key={group.groupID}>
         <div className="right-content">
           <div className="right-top-content">
-            <div className="search-name">{group.groupName}</div>
+            <div className="search-name">{group.groupName.length > window.innerWidth/75 ? (group.groupName.substring(0, window.innerWidth/75) + '...') : group.groupName}</div>
             <div className="search-reputation">{}</div>
           </div>
           <div className="right-bottom-content">
-            <div className="search-bio">{group.groupPurpose ? group.groupPurpose : 'This group has no purpose.'}</div>
+            <div className="search-bio">{group.groupPurpose ? (group.groupPurpose.length > window.innerWidth/25 ? (group.groupPurpose.substring(0, window.innerWidth/25) + '...') : group.groupPurpose) : 'This group has no purpose.'}</div>
           </div>
         </div>
         <Button color="success" className="friend-request" onClick={() => this.props.requestToJoin(group.groupID, group.groupLeaderID)}>Request to Join</Button>
@@ -47,7 +47,7 @@ class SearchResults extends Component {
       <div className="search-result" onClick={(ev) => this.props.goToProfile(ev, user.accountID, document.querySelector('.friend-request'))} key={user.accountID}>
         <div className="right-content">
           <div className="right-top-content">
-            <div className="search-name">{user.fullName}<img className="profile-user-flag" src={flag} alt=""></img></div>
+            <div className="search-name">{user.fullName != null ? (user.fullName.length > window.innerWidth/50 ? (user.fullName.substring(0, window.innerWidth/50) + '...') : user.fullName) : user.fullName}<img className="profile-user-flag" src={flag} alt=""></img></div>
             <div className="search-reputation">{user.reputation}</div>
           </div>
         </div>
@@ -72,7 +72,7 @@ class SearchResults extends Component {
             {Object.keys(results).map((key, i) => {
               if(i % 2 === 1) {
                 return renderResult(results[key], i)
-              } 
+              }
             })}
           </ul>
         </div>
@@ -85,7 +85,7 @@ class SearchResults extends Component {
     return (
       <div className="SearchResults">
         { category === 'group' || category === 'isPublic'
-          ? this.renderResults(this.renderGroupPreview) 
+          ? this.renderResults(this.renderGroupPreview)
           : this.renderResults(this.renderUserPreview)
         }
       </div>
