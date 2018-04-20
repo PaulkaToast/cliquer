@@ -112,7 +112,7 @@ class Message extends Component{
             </InputGroup>
             <br/>
             <ButtonGroup>
-              <Button color="danger" type="submit" onSubmit={this.handleReport}>Report Message</Button>
+              <Button color="danger" type="submit">Report Message</Button>
               <Button color="secondary" onClick={this.toggle}>Cancel</Button>
             </ButtonGroup>
           </Form>
