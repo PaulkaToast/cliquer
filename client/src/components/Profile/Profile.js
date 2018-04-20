@@ -10,7 +10,7 @@ import Dropzone from 'react-dropzone'
 import '../../css/Profile.css'
 import SkillsPanel from './SkillsPanel'
 import NotificationPanel from './NotificationPanel'
-import { getSkills, getProfile, getGroups, flagUser, setLocation, setCity, reportUser, clearGroups, clearSkills, clearProfile } from '../../redux/actions'
+import { getSkills, getProfile, getGroups, flagUser, setLocation, setCity, reportUser, clearGroups, clearSkills, clearProfile, uploadFile } from '../../redux/actions'
 import url from '../../server.js'
 import nFlag from '../../img/newUser.png'
 

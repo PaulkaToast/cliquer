@@ -9,10 +9,6 @@ class Notification extends Component {
   getResponse = (notification) => {
     switch (notification.type) {
       case 0:
-<<<<<<< HEAD
-=======
-      case 8:
->>>>>>> master
       case 12:
         // Group invite
         return (
