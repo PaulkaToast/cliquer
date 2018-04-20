@@ -2106,11 +2106,7 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
 
-<<<<<<< HEAD
-=======
         List<Message> reports = messageRepository.findByParentID(report.getParentID());
-
->>>>>>> master
         if (mod.hasFlagged(user.getAccountID())) {
             user.removeFlag();
             for (Message r: reports) {
@@ -2127,10 +2123,6 @@ public class AccountServiceImpl implements AccountService {
             report.increment();
         }
         mod.toggleFlag(user.getAccountID());
-<<<<<<< HEAD
-
-=======
->>>>>>> master
         accountRepository.save(user);
         accountRepository.save(mod);
 
