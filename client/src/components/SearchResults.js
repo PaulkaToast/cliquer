@@ -57,7 +57,7 @@ class SearchResults extends Component {
             <div className="search-reputation">{user.reputation}</div>
           </div>
         </div>
-        {!this.props.profile.friendIDs[user.accountID] &&
+        {this.props.profile && !this.props.profile.friendIDs[user.accountID] &&
           <Button color="success" className="friend-request" onClick={() => this.props.sendFriendRequest(user.accountID)}>Send Friend Request</Button>
         }
       </div>
