@@ -96,3 +96,8 @@ img#profile-picture {
   height: 128px;
   cursor: pointer;
 }
+
+.friends-list-header {
+  margin-top: 10px;
+  text-align: center;
+}

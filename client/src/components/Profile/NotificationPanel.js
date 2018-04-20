@@ -12,6 +12,8 @@ class NotificationPanel extends Component {
     const { notifications } = this.props
     return (
       <div className="NotificationPanel">
+        <h4 className="notification-header"> Notifications </h4>
+        <hr/>
         { notifications 
           && <div>
               {Object.keys(notifications).map((key, i) => {
