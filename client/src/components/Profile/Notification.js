@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Button, ButtonGroup, Card, CardTitle, CardBody } from 'reactstrap'
+import { Button, ButtonGroup, Card, CardBody } from 'reactstrap'
 
 import '../../css/Notification.css'
 
@@ -15,7 +15,9 @@ class Notification extends Component {
           </h4>
         )
       case 0:
+        break;
       case 8:
+        break;
       case 12:
         // Group invite
         return ([
@@ -26,8 +28,9 @@ class Notification extends Component {
             </ButtonGroup>
         ]);
       case 1:
-        
+        break;
       case 4:
+        break;
       case 9:
         // Friend invite
         return ([
@@ -38,6 +41,7 @@ class Notification extends Component {
             </ButtonGroup>
         ])
       case 11:
+        break;
         // Mod invite
         // TODO: Show mod application
       default:
