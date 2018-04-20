@@ -50,6 +50,7 @@ class Profile extends Component {
 
       // Get profile data
       if((!props.profile && !props.profileIsLoading) || (props.profile && props.profile.accountID !== ownerID)) {
+        console.log('profile call')
         this.props.getProfile(`${url}/api/getProfile?userId=${ownerID}&type=${type}`, { 'X-Authorization-Firebase': props.token})
       }
 

@@ -43,6 +43,7 @@ class App extends Component {
             this.props.clearProfile()
             this.props.clearGroups()
             this.props.clearSkills()
+            console.log('app call')
             this.props.getProfile(`${url}/api/getProfile?username=${authUser.uid}&type=user`, { 'X-Authorization-Firebase': token})
           })
       } else {
@@ -78,7 +79,9 @@ class App extends Component {
   }
 
   goToProfile = (ev, memberID, button1, button2) => {
+    console.log(ev.target, ev.currentTarget)
     if((!ev && !button1 && !button2) || (ev.target === ev.currentTarget)) {
+      console.log('hello')
       history.push(`/profile/${memberID}`)
     }
   }
