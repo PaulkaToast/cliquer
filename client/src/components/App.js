@@ -103,6 +103,7 @@ class App extends Component {
                 allowHTML={false}
                 accountID={this.props.accountID}
                 goToProfile={this.goToProfile}
+                ownProfile={this.props.ownProfile}
                 isMod={this.isMod}
               />
             : <Redirect to="/login" />
