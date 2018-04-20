@@ -28,6 +28,7 @@ class App extends Component {
 
   componentWillReceiveProps(nextProps) {
     if(this.loggedIn() && ((nextProps.profile && !this.props.profile && !this.props.accountID) || nextProps.account)) {
+      if(!this.accountEnabled) this.props.logOut(this.props.user)
       this.props.addObjectID(nextProps.profile ? nextProps.profile.accountID : nextProps.account.accountID)
       this.props.addIsMod(nextProps.profile ? nextProps.profile.moderator : nextProps.account.moderator)
     }
@@ -43,6 +44,7 @@ class App extends Component {
             this.props.clearProfile()
             this.props.clearGroups()
             this.props.clearSkills()
+            console.log('app call')
             this.props.getProfile(`${url}/api/getProfile?username=${authUser.uid}&type=user`, { 'X-Authorization-Firebase': token})
           })
       } else {
@@ -79,6 +81,7 @@ class App extends Component {
 
   goToProfile = (ev, memberID, button1, button2) => {
     if((!ev && !button1 && !button2) || (ev.target === ev.currentTarget)) {
+      console.log('hello')
       history.push(`/profile/${memberID}`)
     }
   }

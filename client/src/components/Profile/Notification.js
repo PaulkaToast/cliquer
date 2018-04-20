@@ -9,7 +9,6 @@ class Notification extends Component {
   getResponse = (notification) => {
     switch (notification.type) {
       case 0:
-      case 8:
       case 12:
         // Group invite
         return (
@@ -31,9 +30,8 @@ class Notification extends Component {
       case 11:
         // Mod invite
         // TODO: Show mod application
-        return
       default:
-        return
+        return null
     }
   }
 
@@ -51,6 +49,7 @@ class Notification extends Component {
         </div>
         <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(notification.messageID)}></i> 
         <i className="fa fa-envelope" onClick={() => this.props.markAsRead(notification.messageID)}></i> 
+        {this.getResponse(notification)}
       </div>
     )
   }

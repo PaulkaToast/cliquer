@@ -150,12 +150,10 @@ class Main extends Component {
             message: data.content,
             level: 'success',
             autoDismiss: 8,
-            children: (
-              <ButtonGroup>
-                <Button color="success" onClick={() => this.acceptNotification(data.messageID)}>Join</Button>
-                <Button color="danger" onClick={() => this.rejectNotification(data.messageID)}>Ignore</Button>
-              </ButtonGroup>
-            )
+            action: {
+              label: 'OK',
+              callback: () => this.deleteNotification(data.messageID)
+            }
           })
         break
         case 9:

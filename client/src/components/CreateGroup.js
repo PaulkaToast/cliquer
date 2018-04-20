@@ -14,6 +14,7 @@ class CreateGroup extends Component {
       const uid = nextProps.uid 
       // Get profile data
       if(!nextProps.profile && !nextProps.profileIsLoading) {
+        console.log('create call')
         this.props.getProfile(`${url}/api/getProfile?username=${uid}&type=user`, { 'X-Authorization-Firebase': nextProps.token})
       }
     }

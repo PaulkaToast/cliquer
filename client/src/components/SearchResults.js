@@ -14,6 +14,7 @@ class SearchResults extends Component {
 
     if (this.props.accountID && this.props.token) {    
       // Get profile data
+      console.log('search results')
       this.props.getProfile(`${url}/api/getProfile?userId=${this.props.accountID}&type=user`, { 'X-Authorization-Firebase': this.props.token})
     }
 
@@ -52,10 +53,10 @@ class SearchResults extends Component {
     let flag = user.newUser ? nFlag : "";
     return (
       <div className="search-result" onClick={(ev) => this.props.goToProfile(ev, user.accountID, document.querySelector('.friend-request'))} key={user.accountID}>
-        <div className="right-content">
-          <div className="right-top-content">
-            <div className="search-name">{user.fullName != null ? (user.fullName.length > window.innerWidth/50 ? (user.fullName.substring(0, window.innerWidth/50) + '...') : user.fullName) : user.fullName}<img className="profile-user-flag" src={flag} alt=""></img></div>
-            <div className="search-reputation">{user.reputation}</div>
+        <div className="right-content" onClick={(ev) => this.props.goToProfile(ev, user.accountID, document.querySelector('.friend-request'))}>
+          <div className="right-top-content" onClick={(ev) => this.props.goToProfile(ev, user.accountID, document.querySelector('.friend-request'))}>
+            <div className="search-name" onClick={(ev) => this.props.goToProfile(ev, user.accountID, document.querySelector('.friend-request'))}>{user.fullName != null ? (user.fullName.length > window.innerWidth/50 ? (user.fullName.substring(0, window.innerWidth/50) + '...') : user.fullName) : user.fullName}<img className="profile-user-flag" src={flag} alt=""></img></div>
+            <div className="search-reputation" onClick={(ev) => this.props.goToProfile(ev, user.accountID, document.querySelector('.friend-request'))}>{user.reputation}</div>
           </div>
         </div>
         {this.props.profile && this.props.profile.friendIDs && !this.props.profile.friendIDs[user.accountID] &&
