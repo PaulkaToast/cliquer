@@ -304,8 +304,7 @@ class Main extends Component {
               {...navProps}
               sendFriendRequest={this.sendFriendRequest} 
               goToProfile={this.props.goToProfile} 
-              requestToJoin={this.requestToJoin}
-              ownProfile={this.props.ownProfile} />}/>
+              requestToJoin={this.requestToJoin}/>}/>
             <Route path='/' render={(navProps) => <Redirect to="/groups" />}/>
         </Switch>
       
