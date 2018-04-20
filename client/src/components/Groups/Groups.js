@@ -14,7 +14,7 @@ import Group from './Group'
 import Chat from './Chat'
 import SkillsForm from '../Profile/SkillsForm'
 import { getGroups, setCurrentGroup,
-         leaveGroup, deleteGroup, clearNewSkills, setGroupSettings, 
+         leaveGroup, deleteGroup, clearNewSkills, setGroupSettings,
          getProfile, kick, getRateForm, postRateForm, inviteAll,
          createEvent } from '../../redux/actions'
 import url from '../../server'
@@ -46,7 +46,7 @@ class Groups extends Component {
         this.props.getGroups(`${url}/api/getUserGroups?username=${nextProps.user.uid}`, { 'X-Authorization-Firebase': nextProps.token })
     }
   }
- 
+
   // Detailed settings modal
   toggle = () => {
     if(this.state.modal) {
@@ -83,7 +83,7 @@ class Groups extends Component {
   }
 
   updateSettings = (ev) => {
-    this.toggleS() 
+    this.toggleS()
     if(ev.preventDefault) ev.preventDefault()
     const skillsReq = this.props.newSkills
     const groupName = ev.target.name.value
@@ -92,7 +92,7 @@ class Groups extends Component {
     const proximityReq = ev.target.proximity.value
     const isPublic = ev.target.isPublic.checked
 
-    this.props.setSettings(`${url}/api/setGroupSettings?username=${this.props.user.uid}&groupId=${this.props.currentGroup.groupID}`, { 'X-Authorization-Firebase': this.props.token}, 
+    this.props.setSettings(`${url}/api/setGroupSettings?username=${this.props.user.uid}&groupId=${this.props.currentGroup.groupID}`, { 'X-Authorization-Firebase': this.props.token},
                           JSON.stringify({
                             groupName,
                             groupPurpose,
@@ -105,14 +105,14 @@ class Groups extends Component {
   }
 
   createEvent = (ev) => {
-    this.toggleS() 
+    this.toggleS()
     if(ev.preventDefault) ev.preventDefault()
     const skillsReq = this.props.newSkills
     const name = ev.target.name.value
     const purpose = ev.target.purpose.value
     const proximity = ev.target.proximity.value
 
-    this.props.createEvent(`${url}/api/createEvent?userId=${this.props.accountID}&groupId=${this.props.currentGroup.groupID}`, { 'X-Authorization-Firebase': this.props.token}, 
+    this.props.createEvent(`${url}/api/createEvent?userId=${this.props.accountID}&groupId=${this.props.currentGroup.groupID}`, { 'X-Authorization-Firebase': this.props.token},
                           JSON.stringify({
                             name,
                             purpose,
@@ -128,7 +128,7 @@ class Groups extends Component {
 
   canRate = (accountID, memberID) => {
     let canRate = false
-    
+
     if(this.props.currentGroup.ratingsToGive[accountID] && Object.keys(this.props.currentGroup.ratingsToGive).length > 0) {
       this.props.currentGroup.ratingsToGive[accountID].forEach((element) => {
         if(memberID === element) {
@@ -153,7 +153,7 @@ class Groups extends Component {
     Object.keys(this.props.rateForm).forEach((key, i) => {
       skills[key] = ev.target[`skill${i}`].value
     })
-    
+
     this.props.postRateForm(`${url}/api/rateUser?userId=${this.props.accountID}&rateeId=${this.state.memberID}&groupId=${this.props.currentGroup.groupID}&endorse=${endorse}`, { 'X-Authorization-Firebase': this.props.token}, JSON.stringify(skills))
     this.setState({ memberID: '' })
     this.toggleR()
@@ -182,7 +182,7 @@ class Groups extends Component {
     this.props.deleteGroup(`${url}/api/deleteGroup?username=${this.props.user.uid}&groupId=${this.props.currentGroup.groupID}`, { 'X-Authorization-Firebase': this.props.token}, null, this.props.currentGroup.groupID)
     this.clearGroup()
   }
-  
+
   leaveGroup = () => {
     this.props.leaveGroup(`${url}/api/leaveGroup?username=${this.props.user.uid}&groupId=${this.props.currentGroup.groupID}`, { 'X-Authorization-Firebase': this.props.token}, null, this.props.currentGroup.groupID)
     this.clearGroup()
@@ -194,8 +194,8 @@ class Groups extends Component {
           {this.props.currentGroup
           && Object.keys(this.props.currentGroup.groupMemberIDs).map((memberID, i) => {
             if(memberID !== this.props.accountID) {
-              return ( 
-                <ListGroupItem onClick={(ev) => this.props.goToProfile(ev, memberID, document.querySelector('.kick-button'), document.querySelector('.rate-button'))} key={memberID} className="d-flex justify-content-between align-items-center" action> 
+              return (
+                <ListGroupItem onClick={(ev) => this.props.goToProfile(ev, memberID, document.querySelector('.kick-button'), document.querySelector('.rate-button'))} key={memberID} className="d-flex justify-content-between align-items-center" action>
                   {this.props.currentGroup.groupMemberIDs[memberID]}
                   {this.isOwner(this.props.currentGroup) && <Button type="button" className="kick-button" size="lg" onClick={() => this.kickUser(this.props.currentGroup, memberID)}>Kick</Button>}
                   {this.canRate(this.props.accountID, memberID) && <Button type="button" className="rate-button" size="lg" onClick={() => this.getRateForm(this.props.currentGroup, memberID)}>Rate</Button>}
@@ -212,8 +212,11 @@ class Groups extends Component {
     const { groups } = this.props
     return (
       <ListGroup>
-          {groups 
+          {groups
           && Object.keys(groups).map((gid, i) => {
+            if(groups[gid].groupName.length > window.innerWidth/50){
+                groups[gid].groupName = groups[gid].groupName.substring(0, window.innerWidth/50) + '...'
+            }
             return <Group
                 changeGroup={this.changeGroup}
                 group={groups[gid]}
@@ -232,7 +235,7 @@ class Groups extends Component {
     const reputation = this.props.profile ? this.props.profile.reputation : null
     const skills = this.props.currentGroup ? this.props.currentGroup.skillsReq : null
     const proximity = this.props.currentGroup ? this.props.currentGroup.proximityReq : null
-    
+
     return (
         <Container fluid className="Groups">
           <Navbar className="group-nav" color="primary" dark expand="md">
@@ -249,7 +252,7 @@ class Groups extends Component {
                   </NavLink>
                 </NavItem>
               </Nav>
-            </Navbar>        
+            </Navbar>
 
         <Row className="h-100">
           <Col className="group-list-panel h-100" xs="3">
@@ -283,7 +286,7 @@ class Groups extends Component {
           </Popover>
         </div>
         }
-        
+
         <Modal isOpen={this.state.modal} toggle={this.toggle} className="update-settings-modal">
           <ModalHeader toggle={this.toggle}>Update Settings for {name}</ModalHeader>
           <ModalBody>
@@ -304,7 +307,7 @@ class Groups extends Component {
               <FormGroup className="required">
                 <Label for="proximity">Maximum Proximity (Miles)</Label>
                 <Input type="number" name="proximity" id="proximity" min={0} max={12450} defaultValue={proximity} />
-              </FormGroup>     
+              </FormGroup>
               <FormGroup>
                 <Label check>
                   <Toggle defaultChecked={isPublic} name="isPublic" />
@@ -316,7 +319,7 @@ class Groups extends Component {
               <Label for="skills">Preferred Skills</Label>
               <SkillsForm id="skills" autoFocus={false} defaultSkills={skills}/>
             </div>
-       
+
           </ModalBody>
           <ModalFooter>
             <Button color="primary" type="button" onClick={() => this.updateSettings({ target: document.querySelector('#settings-form')})}>Submit</Button>{' '}
@@ -367,12 +370,12 @@ class Groups extends Component {
               <FormGroup className="required">
                 <Label for="proximity">Maximum Proximity (Miles)</Label>
                 <Input required type="number" name="proximity" id="proximity" min={0} max={12450} defaultValue={0} />
-              </FormGroup>     
+              </FormGroup>
             </Form>
             <div className="skills-form">
               <Label for="skills">Preferred Skills</Label>
               <SkillsForm id="skills" autoFocus={false} />
-            </div> 
+            </div>
           </ModalBody>
           <ModalFooter>
             <Button color="primary" type="button" onClick={() => this.createEvent({ target: document.querySelector('#event-form')})}>Create Event</Button>{' '}
