@@ -17,8 +17,8 @@ class Notification extends Component {
       case 0:
         // Group invite
         return ([
-          <h4 className="notification-response">Group Invite</h4>,
-          <ButtonGroup className="notification-buttons">
+          <h4 className="notification-response" key={this.props.notification.messageID}>Group Invite</h4>,
+          <ButtonGroup className="notification-buttons" key={this.props.notification.messageID + "button"}>
             <Button color="success" onClick={() => this.props.acceptNotification(notification.messageID)}>Join</Button>
             <Button color="danger" onClick={() => this.props.rejectNotification(notification.messageID)}>Ignore</Button>
           </ButtonGroup>
@@ -30,8 +30,8 @@ class Notification extends Component {
       case 1:
          // Friend invite
          return ([
-          <h4 className="notification-response">Friend Invite</h4>,
-          <ButtonGroup className="notification-buttons">
+          <h4 className="notification-response" key={this.props.notification.messageID}>Friend Invite</h4>,
+          <ButtonGroup className="notification-buttons" key={this.props.notification.messageID + "button"}>
             <Button color="success" onClick={() => this.props.acceptNotification(notification.messageID)}>Accept</Button>
             <Button color="danger" onClick={() => this.props.rejectNotification(notification.messageID)}>Reject</Button>
           </ButtonGroup>
