@@ -106,3 +106,28 @@ export const setLocation = genericDispatch(
     setLocationHasError, setLocationIsLoading, setLocationDataSuccess, 'POST'
 )
 
+export function uploadFileHasError(hasError) {
+    return {
+        type: 'UPLOAD_FILE_HAS_ERROR',
+        hasError
+    }  
+}
+
+export function uploadFileIsLoading(isLoading) {
+    return {
+        type: 'UPLOAD_FILE_IS_LOADING',
+        isLoading
+    }
+}
+
+export function uploadFileDataSuccess(data) {
+    return {
+        type: 'UPLOAD_FILE_DATA_SUCCESS',
+        data
+    }
+}
+
+export const uploadFile = genericDispatch(
+    uploadFileHasError, uploadFileIsLoading, uploadFileDataSuccess, 'POST'
+)
+

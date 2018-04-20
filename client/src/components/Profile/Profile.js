@@ -4,14 +4,15 @@ import { TabContent, TabPane, Nav, NavItem, NavLink,
   Card, Button, CardTitle, CardText, Row, Col, ListGroup, ListGroupItem,
   Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
 import classnames from 'classnames';
-import Geocode from "react-geocode"
+import Geocode from 'react-geocode'
+import Dropzone from 'react-dropzone'
 
 import '../../css/Profile.css'
 import SkillsPanel from './SkillsPanel'
 import FriendsPanel from './FriendsPanel'
 import UserInfo from './UserInfo'
 import NotificationPanel from './NotificationPanel'
-import { getSkills, getProfile, getGroups, flagUser, setLocation, setCity, reportUser } from '../../redux/actions'
+import { getSkills, getProfile, getGroups, flagUser, setLocation, setCity, reportUser, uploadFile } from '../../redux/actions'
 import url from '../../server.js'
 import nFlag from '../../img/newUser.png'
 
@@ -22,8 +23,9 @@ class Profile extends Component {
     this.state = {
       activeTab: '1',
       modal: false,
+      modalU: false,
       flagged: false,
-      loading: false
+      loading: false,
     }
   }
 
@@ -71,11 +73,11 @@ class Profile extends Component {
   }
 
   toggleM = () => {
-    if(this.state.modal) {
-      this.setState({ modal: false })
-    } else {
-      this.setState({ modal: true })
-    }
+    this.setState({ modal: !this.state.modal })
+  }
+
+  toggleU = () => {
+    this.setState({ modalU: !this.state.modalU, dropped: false })
   }
 
   isOwner = (accountID) => {
@@ -102,6 +104,34 @@ class Profile extends Component {
         console.error(error)
       }
     )
+  }
+
+  loadImage = (image) => {
+    if (FileReader && image) {
+      let fr = new FileReader()
+      fr.onload = () => {
+          document.querySelector('#profile-picture').src = fr.result
+          this.props.uploadFile(`${url}/api/uploadFile?userId=${this.props.accountID}`, { 'X-Authorization-Firebase': this.props.token}, JSON.stringify(fr.result))
+          //this.setState({ profilePic: file })
+      }
+      fr.readAsDataURL(image)
+    }
+  }
+
+  onDrop = (accepted, rejected) => {
+    this.setState({ dropped: true })
+    if(accepted[0]) {
+      let fileObject = {
+        lastModified     : accepted[0].lastModified,
+        lastModifiedDate : accepted[0].lastModifiedDate,
+        name             : accepted[0].name,
+        size             : accepted[0].size,
+        type             : accepted[0].type
+     }
+      const image = btoa(JSON.stringify(fileObject))
+      const file = atob(image)
+      this.loadImage(accepted[0])
+    }
   }
 
   renderGroupList = () => {
@@ -165,9 +195,12 @@ class Profile extends Component {
         <TabContent activeTab={this.state.activeTab}>
           <TabPane className="profile-tab" tabId="1">
             <hr/>
-            <h1>
-              {profile.moderator && <i className="fas fa-user-secret"></i>} {profile.fullName}<img className="profile-user-flag" src={flag} alt=""></img>
-            </h1>
+            <div className="main-info">
+              <img id="profile-picture" onClick={this.toggleU} src={profile.picture} alt=""></img>
+              <h1>
+                {profile.moderator && <i className="fas fa-user-secret"></i>} {profile.fullName}<img className="profile-user-flag" src={flag} alt=""></img>
+              </h1>
+            </div>
             <hr/>
             <h4>
               Reputation: {profile.reputation}
@@ -231,7 +264,32 @@ class Profile extends Component {
           </TabPane>
         </TabContent>
 
-        <Modal isOpen={this.state.modal} toggle={this.toggleM} className="update-settings-modal">
+        <Modal isOpen={this.state.modalU} toggle={this.toggleU} className="upload-image-modal">
+          <ModalHeader toggle={this.toggleU}>Upload Image</ModalHeader>
+          <ModalBody>
+          <Dropzone
+            accept="image/jpeg, image/png"
+            maxSize={5000000}
+            className="picture-upload"
+            acceptStyle={{borderColor: 'green'}}
+            rejectStyle={{borderColor: 'red'}}
+            multiple={false}
+            onDrop={this.onDrop}
+          >
+           { !this.state.dropped ?
+           <div>
+              <p>Drop a picture here, or click to upload a picture.</p>
+              <p>Only .jpeg and .png images less than 5 MB will be accepted</p>
+            </div>
+            : <p>Your picture has been uploaded!</p>}
+          </Dropzone>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="secondary" onClick={this.toggleU}>Close</Button>
+          </ModalFooter>
+        </Modal>
+
+        <Modal isOpen={this.state.modal} toggle={this.toggleM} className="invite-modal">
           <ModalHeader toggle={this.toggleM}>Invite To Group</ModalHeader>
           <ModalBody>
             {this.renderGroupList()}
@@ -271,8 +329,8 @@ const mapDispatchToProps = (dispatch) => {
     setLocation: (url, headers) => dispatch(setLocation(url, headers)),
     reportUser: (url, headers) => dispatch(reportUser(url, headers)),
     setCity: (city) => dispatch(setCity(city)),
+    uploadFile: (url, headers, body) => dispatch(uploadFile(url, headers, body)),
   }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Profile)
-

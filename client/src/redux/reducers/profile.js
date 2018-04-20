@@ -48,6 +48,18 @@ function profile(state = {}, action) {
             return Object.assign({}, state, {
                 setLocationIsLoading: action.isLoading,
             })
+        case 'UPLOAD_FILE_HAS_ERROR':
+            return Object.assign({}, state, {
+                uploadFileHasError: action.hasError,
+            })
+        case 'UPLOAD_FILE_DATA_SUCCESS':
+            return Object.assign({}, state, {
+                uploadFileData: action.data,
+            })
+        case 'UPLOAD_FILE_IS_LOADING':
+            return Object.assign({}, state, {
+                uploadFileIsLoading: action.isLoading,
+            })
         case 'CLEAR_PROFILE':
             return Object.assign({}, state, {
                 getData: null,

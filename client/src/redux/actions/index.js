@@ -9,6 +9,7 @@ export { getProfileHasError, getProfileIsLoading, getProfileDataSuccess, getProf
          deleteProfileHasError, deleteProfileIsLoading, deleteProfileDataSuccess, deleteProfile,
          setSettingsHasError, setSettingsIsLoading, setSettingsDataSuccess, setSettings,
          setLocationHasError, setLocationIsLoading, setLocationDataSuccess, setLocation,
+         uploadFileHasError, uploadFileIsLoading, uploadFileDataSuccess, uploadFile,
          clearProfile } from './profile'
 export { getGroupsHasError, getGroupsIsLoading, getGroupsDataSuccess, getGroups,
          groupInviteHasError, groupInviteIsLoading, groupInviteDataSuccess, groupInvite,
