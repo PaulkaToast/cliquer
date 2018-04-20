@@ -89,7 +89,7 @@ class ModPanel extends Component {
         { notifications && notifications.length > 0 
           && <ul className="notifications">
               {notifications.map((notification) => {
-                return this.renderReport(notification)
+                return this.renderNotification(notification)
               })}
             </ul>
         }

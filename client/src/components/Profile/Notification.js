@@ -40,7 +40,7 @@ class Notification extends Component {
   render() {
     const { notification } = this.props
     if(notification.type === 14 || notification.type === 9) {
-      return
+      return null
     }
 
     return (
