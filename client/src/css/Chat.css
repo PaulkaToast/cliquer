@@ -132,3 +132,7 @@
 .-warning:hover{
     color: #eecb60;
 }
+
+.message-box-report{
+    height: 100px;
+}

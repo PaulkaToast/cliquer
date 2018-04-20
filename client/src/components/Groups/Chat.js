@@ -2,7 +2,8 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Alert, Badge, Button, InputGroupAddon, Input, InputGroup,
         Card, CardImg, CardText, CardBody, CardTitle,
-        ButtonGroup, UncontrolledTooltip } from 'reactstrap'
+        ButtonGroup, UncontrolledTooltip, Modal,
+        ModalHeader, ModalBody, InputGroupText } from 'reactstrap'
 import SockJsClient from 'react-stomp'
 
 import '../../css/Chat.css'
@@ -18,10 +19,22 @@ class Message extends Component{
       reaction: false,
       up: false,
       down: false,
+      modal: false
     }
     this.sendUpVote = this.sendUpVote.bind(this);
     this.sendDownVote = this.sendDownVote.bind(this);
+    this.toggle = this.toggle.bind(this);
   } 
+  toggle(){
+    this.setState({
+      modal: !this.state.modal
+    });
+  }
+  handleReport = (ev) => {
+    const reason = ev.currentTarget.reason.value
+    const messageId = this.props.messageId
+    this.props.sendReport(reason, messageId);
+  }
   sendUpVote = (event) => {
     event.preventDefault();
     var newState = this.state;
@@ -70,12 +83,42 @@ class Message extends Component{
       {downList.join(", ")}
     </UncontrolledTooltip >
   }
+  var modalDiv = 
+    <div>
+      <Modal isOpen={this.state.modal} toggle={this.toggle}>
+        <ModalHeader>Report Message</ModalHeader>
+        <ModalBody>
+          <InputGroup>
+            <InputGroupAddon addonType="prepend" className="input-header">User</InputGroupAddon>
+            <Input placeholder={sender} disabled="true"/>
+          </InputGroup>
+          <br/>
+          <InputGroup>
+            <InputGroupAddon addonType="prepend" className="input-header">Msg</InputGroupAddon>
+            <Input type="textarea" className="message-box-report" disabled="true" placeholder={message}/>
+          </InputGroup>
+          <br/>
+          <InputGroup>
+            <InputGroupAddon addonType="prepend" className="input-header">Reason</InputGroupAddon>
+            <Input type="textarea" className="message-box-report" 
+              placeholder="Please include your reason for reporting."
+              name="reason"/>
+          </InputGroup>
+          <br/>
+          <ButtonGroup>
+            <Button color="danger" type="submit" onSubmit={this.handleReport}>Report Message</Button>
+            <Button color="secondary" onClick={this.toggle}>Cancel</Button>
+          </ButtonGroup>
+        </ModalBody>
+      </Modal>
+    </div>
 
   if (!message) return <div></div>;
   if (align === "sender-message-left"){
     return  <div className={align}>
             <Badge className={align.concat("-badge")}>{sender}</Badge>
-            <i class="fas fa-exclamation-triangle -warning"></i>
+            <i class="fas fa-exclamation-triangle -warning" 
+              onClick={this.toggle}></i>
             <br/>
               <Alert className={align.concat("-alert single-message")}> {message} </Alert>
               <ButtonGroup vertical className="up-vote-down-vote">
@@ -90,6 +133,7 @@ class Message extends Component{
                 </div>
               </ButtonGroup>
               <span className="time-stamp-left">{time}</span>
+              {modalDiv}
             </div>
   }
   return (
@@ -109,6 +153,7 @@ class Message extends Component{
           </div>
         </ButtonGroup>
         <Alert className={align.concat("-alert single-message")}> {message} </Alert>
+        {modalDiv}
     </div>);
   };
 }
@@ -158,6 +203,10 @@ class Chat extends Component {
     this.clientRef.sendMessage('/app/reactChatMessage/' 
     + this.props.user.uid + '/' + messageId + '/' + this.props.group.groupID
     + '/' + reaction, "")
+  }
+
+  sendReport = (reason, messageId) => {
+    return;
   }
 
   handleMessage = (data) => {
@@ -391,7 +440,7 @@ class Chat extends Component {
                 key={index} sender={c.sender} message={c.message} time={c.time}
                 up={upS} down={downS} upList={c.upList} downList={c.downList}
                 votes={c.votes} messageId={c.messageId}
-                sendReaction={this.sendReaction}
+                sendReaction={this.sendReaction} sendReport={this.sendReport}
                 ></Message></div>
               }
             })
