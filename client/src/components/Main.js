@@ -250,6 +250,9 @@ class Main extends Component {
   }
 
   getAllMessages = (clientRef) => {
+    if (!this.clientRef) {
+      return;
+    }
     this.clientRef.sendMessage(`/app/${this.props.accountID}/true/1970-01-01/allMessages`)
   }
 

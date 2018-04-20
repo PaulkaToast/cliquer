@@ -28,7 +28,7 @@ class App extends Component {
 
   componentWillReceiveProps(nextProps) {
     if(this.loggedIn() && ((nextProps.profile && !this.props.profile && !this.props.accountID) || nextProps.account)) {
-      if(!this.accountEnabled) this.props.logOut(this.props.user)
+      if(this.accountEnabled) this.props.logOut(this.props.user)
       this.props.addObjectID(nextProps.profile ? nextProps.profile.accountID : nextProps.account.accountID)
       this.props.addIsMod(nextProps.profile ? nextProps.profile.moderator : nextProps.account.moderator)
     }
