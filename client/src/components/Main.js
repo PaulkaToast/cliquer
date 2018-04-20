@@ -220,7 +220,6 @@ class Main extends Component {
   }
 
   acceptNotification = (messageID) => {
-    console.log('accepted')
     this.clientRef.sendMessage(`/app/acceptNotification/${this.props.accountID}/${messageID}`)
   }
 
@@ -322,10 +321,11 @@ class Main extends Component {
             <Route path="/mod" render={(navProps) => 
               <ModPanel {...navProps} 
                 deleteNotification={this.deleteNotification} 
-                goToProfile={this.props.goToProfile}/>}
+                goToProfile={this.props.goToProfile}
                 acceptNotification={this.acceptNotification}
                 rejectNotification={this.rejectNotification}
-              />
+              />}
+            />
             <Route path="/search/:category/:query" render={(navProps) => <SearchResults 
               {...navProps}
               sendFriendRequest={this.sendFriendRequest} 
