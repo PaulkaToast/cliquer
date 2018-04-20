@@ -202,7 +202,7 @@ class Profile extends Component {
             </h4>
             <hr/>
             
-            {!this.isOwner(ownerID) && /*this.props.ownProfile.friendIDs[this.props.profile.accountID] && */
+            {!this.isOwner(ownerID) && !this.props.ownProfile.friendIDs[this.props.profile.accountID] && 
             <Button type="button" size="lg" onClick={() => this.props.sendFriendRequest(ownerID)}>Send Friend Request</Button>}
             {!this.isOwner(ownerID) && groups && Object.keys(groups).length > 0 && 
               <Button type="button" size="lg" onClick={this.toggleM}>Invite To Group</Button>}

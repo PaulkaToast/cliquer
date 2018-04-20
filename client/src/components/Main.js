@@ -279,9 +279,10 @@ class Main extends Component {
                 deleteNotification={this.deleteNotification} 
                 acceptNotification={this.acceptNotification}
                 rejectNotification={this.rejectNotification}
-                inviteToGroup={this.inviteToGroup}
-                isMod={this.props.isMod} 
+                inviteToGroup={this.inviteToGroup} 
                 ownProfile={this.props.ownProfile}
+                isMod={this.props.isMod} 
+               
               />}
             />
             <Route path="/groups" render={(navProps) => 
