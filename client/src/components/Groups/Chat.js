@@ -94,7 +94,6 @@ class Message extends Component{
   }
   return (
     <div className={align}>
-      <i className="fas fa-exclamation-triangle -warning"></i>
       <Badge className={align.concat("-badge")}>{sender}</Badge>
       <br/>
         <span className="time-stamp-right">{time}</span>
