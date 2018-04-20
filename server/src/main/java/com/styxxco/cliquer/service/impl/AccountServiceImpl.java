@@ -328,6 +328,7 @@ public class AccountServiceImpl implements AccountService {
             log.info("User " + userid + " not found");
         }
         username = user.getUsername();
+
         user.setRank(this.getReputationRanking(username));
         switch (type) {
             case "user":
@@ -2208,9 +2209,31 @@ public class AccountServiceImpl implements AccountService {
             log.info("Group " + groupId + " does not contain message " + messageId);
             return null;
         }
+        if (!messageRepository.existsByMessageID(messageId)) {
+           log.info("Message " + messageId +" not found");
+           return null;
+        }
         Message message = messageRepository.findByMessageID(messageId);
-        Account reporter = accountRepository.findByAccountID(reporterId);
-        Account reportee = accountRepository.findByAccountID(message.getSenderID());
+
+        Account reporter = null;
+        if (accountRepository.existsByAccountID(reporterId)){
+            reporter = accountRepository.findByAccountID(reporterId);
+        }else if (accountRepository.existsByUsername(reporterId)){
+            reporter = accountRepository.findByUsername(reporterId);
+        }else{
+            log.info("Reporter " + reporterId + " not found");
+            return null;
+        }
+        Account reportee = null;
+        String reporteeId = message.getSenderID();
+        if (accountRepository.existsByAccountID(reporteeId)){
+            reporter = accountRepository.findByAccountID(reporteeId);
+        }else if (accountRepository.existsByUsername(reporteeId)){
+            reporter = accountRepository.findByUsername(reporteeId);
+        }else{
+            log.info("Reporter " + reporteeId + " not found");
+            return null;
+        }
         reporter.log("Report user " + reportee.getFullName());
         reportee.log("Reported by user " + reporter.getFullName());
         accountRepository.save(reporter);

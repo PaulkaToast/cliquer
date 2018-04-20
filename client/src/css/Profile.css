@@ -102,7 +102,14 @@ img#profile-picture {
   cursor: pointer;
 }
 
+
+.friends-list-header {
+  margin-top: 10px;
+  text-align: center;
+}
+
 .suspended {
   padding-top: 1rem;
   margin: auto;
+
 }

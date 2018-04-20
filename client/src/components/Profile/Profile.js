@@ -227,6 +227,9 @@ class Profile extends Component {
         </Nav>
         <TabContent activeTab={this.state.activeTab}>
           <TabPane className="profile-tab" tabId="1">
+            <h4 className="friends-list-header">
+              Profile Page
+            </h4>
             <hr/>
             <div className="main-info">
               <img id="profile-picture" onClick={this.toggleU} src={profile.picture} alt=""></img>
@@ -281,12 +284,13 @@ class Profile extends Component {
               <SkillsPanel skills={skills} isOwner={this.isOwner(ownerID)}/>
           </TabPane>
           <TabPane tabId="2">
-            <h4>
-              Friends:
+            <h4 className="friends-list-header">
+              Friends
             </h4>
+            <hr/>
             <ListGroup>
             {this.props.profile && this.props.profile.friendIDs && Object.keys(this.props.profile.friendIDs).map((key) =>
-            { return <ListGroupItem  key={key}>
+            { return <ListGroupItem className="d-flex justify-content-between align-items-center" key={key}>
               <a href={"/profile/" + key}>{profile.friendIDs[key]}</a>
               <Button className="friend-cancel-button" onClick={() => {}} color="link">x</Button>
             </ListGroupItem>})}

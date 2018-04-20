@@ -2,11 +2,12 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Alert, Badge, Button, InputGroupAddon, Input, InputGroup,
         Card, CardImg, CardText, CardBody, CardTitle,
-        ButtonGroup, UncontrolledTooltip } from 'reactstrap'
+        ButtonGroup, UncontrolledTooltip, Modal,
+        ModalHeader, ModalBody, Form } from 'reactstrap'
 import SockJsClient from 'react-stomp'
 
 import '../../css/Chat.css'
-import { getChatLog, postChatMessage, updateChatLog } from '../../redux/actions'
+import { getChatLog, postChatMessage, updateChatLog, reportMember } from '../../redux/actions'
 import url from '../../server'
 import Logo from '../../img/cliquerLogoWarn.png'
 
@@ -18,10 +19,31 @@ class Message extends Component{
       reaction: false,
       up: false,
       down: false,
+      modal: false,
+      reported: false
     }
+    
     this.sendUpVote = this.sendUpVote.bind(this);
     this.sendDownVote = this.sendDownVote.bind(this);
+    this.toggle = this.toggle.bind(this);
   } 
+  toggle(){
+    if(this.state.reported){
+      return;
+    }
+    this.setState({
+      modal: !this.state.modal
+    });
+  }
+  handleReport = (ev) => {
+    ev.preventDefault();
+
+    this.toggle();
+    const reason = ev.currentTarget.reason.value;
+    const messageId = this.props.messageId;
+    this.props.sendReport(reason, messageId);
+    this.setState({reported: !this.state.reported});
+  }
   sendUpVote = (event) => {
     event.preventDefault();
     var newState = this.state;
@@ -70,25 +92,59 @@ class Message extends Component{
       {downList.join(", ")}
     </UncontrolledTooltip >
   }
+  var modalDiv = 
+    <div>
+      <Modal isOpen={this.state.modal} toggle={this.toggle}>
+        <ModalHeader>Report Message</ModalHeader>
+        <ModalBody>
+          <Form onSubmit={this.handleReport}>
+            <InputGroup>
+              <InputGroupAddon addonType="prepend" className="input-header">User</InputGroupAddon>
+              <Input placeholder={sender} disabled="true"/>
+            </InputGroup>
+            <br/>
+            <InputGroup>
+              <InputGroupAddon addonType="prepend" className="input-header">Msg</InputGroupAddon>
+              <Input type="textarea" className="message-box-report" disabled="true" placeholder={message}/>
+            </InputGroup>
+            <br/>
+            <InputGroup>
+              <InputGroupAddon addonType="prepend" className="input-header">Reason</InputGroupAddon>
+              <Input type="textarea" className="message-box-report" 
+                placeholder="Please include your reason for reporting."
+                name="reason"/>
+            </InputGroup>
+            <br/>
+            <ButtonGroup>
+              <Button color="danger" type="submit">Report Message</Button>
+              <Button color="secondary" onClick={this.toggle}>Cancel</Button>
+            </ButtonGroup>
+          </Form>
+        </ModalBody>
+      </Modal>
+    </div>
 
   if (!message) return <div></div>;
   if (align === "sender-message-left"){
     return  <div className={align}>
             <Badge className={align.concat("-badge")}>{sender}</Badge>
+            <i class="fas fa-exclamation-triangle -warning" 
+              onClick={this.toggle}></i>
             <br/>
               <Alert className={align.concat("-alert single-message")}> {message} </Alert>
               <ButtonGroup vertical className="up-vote-down-vote">
-                <i className={up.concat("vote fas fa-thumbs-up")}
+                <i className={up.concat("vote-up fas fa-thumbs-up")}
                   onClick={this.sendUpVote} id={"up"+messageId}></i>
                   {upToolTip}
                 <span>{votes}</span>
                 <div className="thumbs-down-flip">
-                  <i className={down.concat("vote fas fa-thumbs-down")}
+                  <i className={down.concat("vote-down fas fa-thumbs-down")}
                     onClick={this.sendDownVote} id={"down"+messageId}></i>
                     {downToolTip}
                 </div>
               </ButtonGroup>
               <span className="time-stamp-left">{time}</span>
+              {modalDiv}
             </div>
   }
   return (
@@ -97,17 +153,18 @@ class Message extends Component{
       <br/>
         <span className="time-stamp-right">{time}</span>
         <ButtonGroup vertical className="up-vote-down-vote">
-          <i className={up.concat("vote fas fa-thumbs-up")}
+          <i className={up.concat("vote-up fas fa-thumbs-up")}
             onClick={this.sendUpVote} id={"up"+messageId}></i>
             {upToolTip}
           <span>{votes}</span>
           <div className="thumbs-down-flip">
-            <i className={down.concat("vote fas fa-thumbs-down")}
+            <i className={down.concat("vote-down fas fa-thumbs-down")}
               onClick={this.sendDownVote} id={"down"+messageId}></i>
               {downToolTip}
           </div>
         </ButtonGroup>
         <Alert className={align.concat("-alert single-message")}> {message} </Alert>
+        {modalDiv}
     </div>);
   };
 }
@@ -157,6 +214,13 @@ class Chat extends Component {
     this.clientRef.sendMessage('/app/reactChatMessage/' 
     + this.props.user.uid + '/' + messageId + '/' + this.props.group.groupID
     + '/' + reaction, "")
+  }
+
+  sendReport = (reason, messageId) => {
+    const endpoint = `${url}/api/reportMember?userId=${this.props.accountID}&groupId=${this.props.group.groupID}&messageId=${messageId}`;
+    console.log(endpoint);
+    this.props.reportMember(endpoint, 
+      {'X-Authorization-Firebase': this.props.token}, reason )
   }
 
   handleMessage = (data) => {
@@ -390,7 +454,7 @@ class Chat extends Component {
                 key={index} sender={c.sender} message={c.message} time={c.time}
                 up={upS} down={downS} upList={c.upList} downList={c.downList}
                 votes={c.votes} messageId={c.messageId}
-                sendReaction={this.sendReaction}
+                sendReaction={this.sendReaction} sendReport={this.sendReport}
                 ></Message></div>
               }
             })
@@ -425,6 +489,7 @@ const mapDispatchToProps = (dispatch) => {
     getLog: (url, header) => dispatch(getChatLog(url, header)),
     postMessage: (url, header) => dispatch(postChatMessage(url, header)),
     updateLog: (message) => dispatch(updateChatLog(message)),
+    reportMember: (url, header, body) => dispatch(reportMember(url, header, body))
 	}
 }
 

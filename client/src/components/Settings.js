@@ -139,7 +139,7 @@ class Settings extends Component {
             this.setState({ proximity: ev.target.value})
           }} />
         </FormGroup> 
-        <Button color="primary" type="submit" onSubmit={this.handleSubmit} block>Submit</Button>
+        <Button color="primary" type="submit" block>Submit</Button>
       </Form>  
       </div>
         <hr/>
