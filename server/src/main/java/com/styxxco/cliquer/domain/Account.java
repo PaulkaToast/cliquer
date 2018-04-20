@@ -36,10 +36,10 @@ public class Account extends Searchable implements UserDetails {
 	private String firstName;
 	private String lastName;
 
+	private String picture;
+
 	@JsonIgnore
 	private String password;
-
-	private String picturePath;
 
 	private boolean isModerator;
 	private boolean deniedMod;
@@ -158,7 +158,7 @@ public class Account extends Searchable implements UserDetails {
 				this.credentialsExpired = false;
 				this.deniedMod = false;
 				this.canSuspend = false;
-				this.picturePath = null;
+				this.picture = null;
 			}
 		}
 	}
@@ -384,7 +384,7 @@ public class Account extends Searchable implements UserDetails {
 		this.credentialsExpired = false;
 		this.deniedMod = false;
 		this.canSuspend = false;
-		this.picturePath = null;
+		this.picture = null;
 	}
 
 	/* About to not be a new user */
@@ -407,7 +407,7 @@ public class Account extends Searchable implements UserDetails {
 		this.credentialsExpired = false;
 		this.deniedMod = false;
 		this.canSuspend = false;
-		this.picturePath = null;
+		this.picture = null;
 	}
 
 	/* Most average user on the planet */
@@ -430,7 +430,7 @@ public class Account extends Searchable implements UserDetails {
 		this.credentialsExpired = false;
 		this.deniedMod = false;
 		this.canSuspend = false;
-		this.picturePath = null;
+		this.picture = null;
 	}
 
 	/* The Most Interesting Man in the World, even turned down being a moderator */
@@ -453,7 +453,7 @@ public class Account extends Searchable implements UserDetails {
 		this.credentialsExpired = false;
 		this.deniedMod = true;
 		this.canSuspend = false;
-		this.picturePath = null;
+		this.picture = null;
 	}
 
 	/* Some experience with Cliquer, still new */
@@ -476,6 +476,6 @@ public class Account extends Searchable implements UserDetails {
 		this.credentialsExpired = false;
 		this.deniedMod = false;
 		this.canSuspend = false;
-		this.picturePath = null;
+		this.picture = null;
 	}
 }

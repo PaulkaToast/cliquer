@@ -19,6 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.method.P;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,12 +29,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
@@ -306,37 +309,23 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Account getProfile(String username, String userid, String type) {
         Account user = accountRepository.findByUsername(username);
-        if (username != null) {
-            user.setRank(this.getReputationRanking(user.getUsername()));
-            switch (type) {
-                case "user":
-                    user = getUserProfile(username);
-                    break;
-                case "member":
-                    user = getMemberProfile(username);
-                    break;
-                case "public":
-                    user = getPublicProfile(username);
-                    break;
-            }
-        } else {
-            Account account = accountRepository.findByAccountID(userid);
-            if (account != null) {
-                account.setRank(this.getReputationRanking(account.getUsername()));
-                String name = account.getUsername();
-                switch (type) {
-                    case "user":
-                        user = getUserProfile(name);
-                        break;
-                    case "member":
-                        user = getMemberProfile(name);
-                        break;
-                    case "public":
-                        user = getPublicProfile(name);
-                        break;
-                }
-            }
+        if (user == null) {
+            user = accountRepository.findByAccountID(userid);
         }
+
+        user.setRank(this.getReputationRanking(user.getUsername()));
+        switch (type) {
+            case "user":
+                user = getUserProfile(username);
+                break;
+            case "member":
+                user = getMemberProfile(username);
+                break;
+            case "public":
+                user = getPublicProfile(username);
+                break;
+        }
+
         if (!user.isAccountEnabled()) {
             user.tryUnsuspend();
         }
@@ -2393,20 +2382,20 @@ public class AccountServiceImpl implements AccountService {
 
     /* TODO: Finish upload picture once Jordan knows how it will be sent */
     @Override
-    public void uploadPicture(String userId, MultipartFile file) throws Exception {
+    public void uploadPicture(String userId, String file) throws Exception {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             throw new UsernameNotFoundException("Could not find user");
         }
         Account user = accountRepository.findByAccountID(userId);
-
-        if (!file.isEmpty()) {
-            BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(new File(picturePath, file.getOriginalFilename())));
-            outputStream.write(file.getBytes());
-            outputStream.flush();
-            outputStream.close();
-        }
-        user.setPicturePath(picturePath + "/" + file.getOriginalFilename());
+        user.setPicture(file.substring(1, file.length() - 1));
+//        if (!file.isEmpty()) {
+//            BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(new File(picturePath, file.getOriginalFilename())));
+//            outputStream.write(file.getBytes());
+//            outputStream.flush();
+//            outputStream.close();
+//        }
+//        user.setPicturePath(picturePath + "/" + file.getOriginalFilename());
         accountRepository.save(user);
     }
 }
