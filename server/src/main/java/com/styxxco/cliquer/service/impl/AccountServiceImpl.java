@@ -315,12 +315,19 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account getProfile(String username, String userid, String type) {
-        Account user = accountRepository.findByUsername(username);
-        if (user == null) {
+        Account user = null;
+        if(accountRepository.existsByUsername(username)) {
+            user = accountRepository.findByUsername(username);
+        } else if(accountRepository.existsByAccountID(userid)) {
             user = accountRepository.findByAccountID(userid);
+        } else {
+            log.info("User " + userid + " not found");
         }
-
-        user.setRank(this.getReputationRanking(user.getUsername()));
+        if( user == null ){
+            log.info("User " + userid + " not found");
+        }
+        username = user.getUsername();
+        user.setRank(this.getReputationRanking(username));
         switch (type) {
             case "user":
                 user = getUserProfile(username);
