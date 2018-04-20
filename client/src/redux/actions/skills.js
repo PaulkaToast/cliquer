@@ -103,6 +103,6 @@ export const getSkillsList = genericDispatch(
 
 export function clearSkills() {
     return {
-        type: 'CLEAR_SKILLS'
+        type: 'CLEAR_SKILLS',
     }
 }

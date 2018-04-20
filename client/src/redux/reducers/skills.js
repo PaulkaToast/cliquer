@@ -53,7 +53,7 @@ function skills(state = {}, action) {
             })
         case 'CLEAR_SKILLS':
             return Object.assign({}, state, {
-                getData: null,
+                getData: null
             })
         default:
             return state

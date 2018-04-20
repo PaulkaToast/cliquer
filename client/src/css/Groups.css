@@ -15,7 +15,8 @@
 .Groups.container-fluid {
     margin: 0;
     padding: 0;
-    
+    overflow-y: hidden;
+    height: 94%;
 }
 
 .Groups .row {
@@ -30,6 +31,10 @@
     padding-left: 20x
 }
 
-body {
-    overflow-y: hidden;
+.popover{
+    max-width: 100%;
+}
+
+.rate-kick-group{
+    margin-left: 10px;
 }

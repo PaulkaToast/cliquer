@@ -36,10 +36,10 @@ public class Account extends Searchable implements UserDetails {
 	private String firstName;
 	private String lastName;
 
+	private String picture;
+
 	@JsonIgnore
 	private String password;
-
-	private String picturePath;
 
 	private boolean isModerator;
 	private boolean deniedMod;
@@ -74,6 +74,7 @@ public class Account extends Searchable implements UserDetails {
 	public static final int MAX_SKILL = 10;
 	public static final int NEW_USER_HOURS = 24;
 	public static final int NEW_USER_REP = 50;		/* Reputation constant added to new user reputation */
+    public static final int MAX_PROXIMITY = 12450;
 
 	private double latitude;
 	private double longitude;
@@ -143,7 +144,7 @@ public class Account extends Searchable implements UserDetails {
 				this.isOptedOut = false;
 				this.isNewUser = true;
 				this.reputationReq = 0;
-				this.proximityReq = 50;
+				this.proximityReq = MAX_PROXIMITY;
 				this.loggedInTime = 0;
 				this.suspendTime = 0;
 				this.reputation = 1;
@@ -157,7 +158,7 @@ public class Account extends Searchable implements UserDetails {
 				this.credentialsExpired = false;
 				this.deniedMod = false;
 				this.canSuspend = false;
-				this.picturePath = null;
+				this.picture = null;
 			}
 		}
 	}
@@ -317,7 +318,7 @@ public class Account extends Searchable implements UserDetails {
 
 	public void addFlag() {
 		this.flags++;
-		if (this.flags > 2) {
+		if (this.flags >= 2) {
 			this.canSuspend = true;
 		}
 	}
@@ -372,8 +373,8 @@ public class Account extends Searchable implements UserDetails {
 		this.proximityReq = 50;
 		this.loggedInTime = 0;
 		this.suspendTime = 0;
-		this.reputation =10;
-		this.flags = 4;
+		this.reputation = 10;
+		this.flags = 2;
 		this.rank = 0;
 		this.latitude = 0.0;//360.00;
 		this.longitude = 0.0;//360.00;
@@ -383,7 +384,7 @@ public class Account extends Searchable implements UserDetails {
 		this.credentialsExpired = false;
 		this.deniedMod = false;
 		this.canSuspend = false;
-		this.picturePath = null;
+		this.picture = null;
 	}
 
 	/* About to not be a new user */
@@ -396,7 +397,7 @@ public class Account extends Searchable implements UserDetails {
 		this.loggedInTime = NEW_USER_HOURS*60 - 5;
 		this.suspendTime = 0;
 		this.reputation = 40;
-		this.flags = 3;
+		this.flags = 1;
 		this.rank = 0;
 		this.latitude = 0.0;//360.00;
 		this.longitude = 0.0;//360.00;
@@ -406,7 +407,7 @@ public class Account extends Searchable implements UserDetails {
 		this.credentialsExpired = false;
 		this.deniedMod = false;
 		this.canSuspend = false;
-		this.picturePath = null;
+		this.picture = null;
 	}
 
 	/* Most average user on the planet */
@@ -419,7 +420,7 @@ public class Account extends Searchable implements UserDetails {
 		this.loggedInTime = NEW_USER_HOURS*80;
 		this.suspendTime = 0;
 		this.reputation = 50;
-		this.flags = 2;
+		this.flags = 1;
 		this.rank = 0;
 		this.latitude = 0.0;//360.00;
 		this.longitude = 0.0;//360.00;
@@ -429,7 +430,7 @@ public class Account extends Searchable implements UserDetails {
 		this.credentialsExpired = false;
 		this.deniedMod = false;
 		this.canSuspend = false;
-		this.picturePath = null;
+		this.picture = null;
 	}
 
 	/* The Most Interesting Man in the World, even turned down being a moderator */
@@ -452,7 +453,7 @@ public class Account extends Searchable implements UserDetails {
 		this.credentialsExpired = false;
 		this.deniedMod = true;
 		this.canSuspend = false;
-		this.picturePath = null;
+		this.picture = null;
 	}
 
 	/* Some experience with Cliquer, still new */
@@ -475,6 +476,6 @@ public class Account extends Searchable implements UserDetails {
 		this.credentialsExpired = false;
 		this.deniedMod = false;
 		this.canSuspend = false;
-		this.picturePath = null;
+		this.picture = null;
 	}
 }

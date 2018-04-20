@@ -4,7 +4,6 @@ import { connect } from 'react-redux'
 import '../../css/NotificationPanel.css'
 import Notification from './Notification'
 import { getMessages } from '../../redux/actions'
-import url from '../../server.js'
 
 class NotificationPanel extends Component {
 
@@ -20,6 +19,9 @@ class NotificationPanel extends Component {
                   notification={notifications[key]}
                   i={i}
                   deleteNotification={this.props.deleteNotification}
+                  acceptNotification={this.props.acceptNotification}
+                  rejectNotification={this.props.rejectNotification}
+                  markAsRead={this.props.markAsRead}
                   key={notifications[key].messageID}
                 />
               })}

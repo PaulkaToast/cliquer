@@ -19,6 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.method.P;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,12 +29,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
@@ -43,6 +46,7 @@ import java.util.stream.Collectors;
 @Log4j
 @Service(value = AccountServiceImpl.NAME)
 public class AccountServiceImpl implements AccountService {
+
     public final static String NAME = "AccountService";
 
     @Autowired
@@ -101,12 +105,138 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
         Account user = new Account(username, email, firstName, lastName);
+        user.setAuthorities(getUserRoles());
         user.log("Account created");
-        this.accountRepository.save(user);
+        String picture = null;
+        try {
+            picture = StreamUtils.copyToString(new ClassPathResource("defaultImage.txt").getInputStream(), Charset.defaultCharset());
+        } catch (IOException e) {
+            log.info("Could not import default image file");
+        }
+        user.setPicture(picture);
+        accountRepository.save(user);
         if(email.equals("buckmast@purdue.edu") || email.equals("knagar@purdue.edu") || email.equals("montgo38@purdue.edu")
                 || email.equals("reed226@purdue.edu") || email.equals("toth21@purdue.edu")) {
             return addToModerators(user.getAccountID());
         }
+        switch(email){
+            case "buckmast@email.com":
+                return addInfoBuckmast(user);
+            case "knagar@email.com":
+                return addInfoKnagar(user);
+            case "montgo38@email.com":
+                return addInfoMontgo(user);
+            case "reed226@email.com":
+                return addInfoReed(user);
+            case "toth21@email.com":
+                return addInfoToth(user);
+            default: return user;
+        }
+    }
+
+    private Account addInfoBuckmast(Account user) {
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("JavaScript", 9));
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("Verilog", 4));
+        user.getTotalRating().put("JavaScript", 90);
+        user.getNumRatings().put("JavaScript", 10);
+        user.getTotalRating().put("Verilog", 8);
+        user.getNumRatings().put("Verilog", 2);
+        accountRepository.save(user);
+        return user;
+    }
+
+    private Account addInfoKnagar(Account user) {
+        groupService.createGroup("Cliquer", "Create an app for forming groups with new people", user.getAccountID());
+        groupService.createGroup("All C-ing", "You'll C", user.getAccountID());
+        user = accountRepository.findByAccountID(user.getAccountID());
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("JavaScript", 7));
+        user.getTotalRating().put("JavaScript", 21);
+        user.getNumRatings().put("JavaScript", 3);
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("C", 8));
+        user.getTotalRating().put("C", 32);
+        user.getNumRatings().put("C", 4);
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("Java", 7));
+        user.getTotalRating().put("Java", 28);
+        user.getNumRatings().put("Java", 4);
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("Basketball", 5));
+        user.getTotalRating().put("Basketball", 5);
+        user.getNumRatings().put("Basketball", 1);
+        accountRepository.save(user);
+        return user;
+    }
+
+    private Account addInfoMontgo(Account user) {
+        groupService.createGroup("Spring Project", "Make a project using Spring", user.getAccountID());
+        groupService.createGroup("Database Project", "Make a project using databases", user.getAccountID());
+        groupService.createGroup("Coup Group", "Play Coup", user.getAccountID());
+        groupService.createGroup("C Team", "Make a C project", user.getAccountID());
+        user = accountRepository.findByAccountID(user.getAccountID());
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("Java", 9));
+        user.getTotalRating().put("Java", 72);
+        user.getNumRatings().put("Java", 8);
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("C", 7));
+        user.getTotalRating().put("C", 35);
+        user.getNumRatings().put("C", 5);
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("Board Games", 7));
+        user.getTotalRating().put("C", 42);
+        user.getNumRatings().put("C", 6);
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("Really Long Skill Name That Likely Needs To Be Shortened When It Is Shown On The Front End", 9));
+        user.getTotalRating().put("Really Long Skill Name That Likely Needs To Be Shortened When It Is Shown On The Front End", 27);
+        user.getNumRatings().put("Really Long Skill Name That Likely Needs To Be Shortened When It Is Shown On The Front End", 3);
+        accountRepository.save(user);
+        return user;
+    }
+
+    private Account addInfoReed(Account user) {
+        groupService.createGroup("C Project", "Make a project in C", user.getAccountID());
+        groupService.createGroup("Java Project", "Make a project in Java", user.getAccountID());
+        groupService.createGroup("Starcraft Group", "Play Starcraft", user.getAccountID());
+        groupService.createGroup("Basketball Team", "Shooting hoops", user.getAccountID());
+        groupService.createGroup("Really Long Group Name That Likely Needs To Be Shortened When It Is Shown On The Front End",
+                "Really long group purpose that likely needs to be shortened when it is shown on the front end", user.getAccountID());
+        groupService.createGroup("Mario Fan Club", "Binge play Mario Odyssey", user.getAccountID());
+        user = accountRepository.findByAccountID(user.getAccountID());
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("Java", 8));
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("C", 8));
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("ARM", 6));
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("Real Time Strategy Games", 7));
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("Verilog", 5));
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("Basketball", 4));
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("Really Long Skill Name That Likely Needs To Be Shortened When It Is Shown On The Front End", 10));
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("Platformer Games", 9));
+        user.getTotalRating().put("Java", 56);
+        user.getNumRatings().put("Java", 7);
+        user.getTotalRating().put("C", 24);
+        user.getNumRatings().put("C", 3);
+        user.getTotalRating().put("ARM", 12);
+        user.getNumRatings().put("ARM", 2);
+        user.getTotalRating().put("Real Time Strategy Games", 70);
+        user.getNumRatings().put("Real Time Strategy Games", 10);
+        user.getTotalRating().put("Verilog", 10);
+        user.getNumRatings().put("Verilog", 2);
+        user.getTotalRating().put("Basketball", 4);
+        user.getNumRatings().put("Basketball", 1);
+        user.getTotalRating().put("Really Long Skill Name That Likely Needs To Be Shortened When It Is Shown On The Front End", 120);
+        user.getNumRatings().put("Really Long Skill Name That Likely Needs To Be Shortened When It Is Shown On The Front End", 12);
+        user.getTotalRating().put("Platformer Games", 54);
+        user.getNumRatings().put("Platformer Games", 6);
+        accountRepository.save(user);
+        return user;
+    }
+
+    private Account addInfoToth(Account user) {
+        groupService.createGroup("App Ideas", "Think of and start making a new application", user.getAccountID());
+        user = accountRepository.findByAccountID(user.getAccountID());
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("JavaScript", 9));
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("Java", 7));
+        user.addSkill(skillRepository.findBySkillNameAndSkillLevel("C", 8));
+        user.getTotalRating().put("JavaScript", 36);
+        user.getNumRatings().put("JavaScript", 4);
+        user.getTotalRating().put("Java", 14);
+        user.getNumRatings().put("Java", 2);
+        user.getTotalRating().put("C", 24);
+        user.getNumRatings().put("C", 3);
+        accountRepository.save(user);
         return user;
     }
 
@@ -139,7 +269,6 @@ public class AccountServiceImpl implements AccountService {
 
         if (userLoaded == null) {
             Account account = createAccount(tokenHolder.getUid(), tokenHolder.getEmail(), firstName, lastName);
-            account.setAuthorities(getUserRoles());
             account.setPassword(UUID.randomUUID().toString());
             accountRepository.save(account);
             log.info("registerUser -> user \"" + account.getFirstName() + " " + account.getLastName() + "\" created");
@@ -186,38 +315,31 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account getProfile(String username, String userid, String type) {
-        Account user = accountRepository.findByUsername(username);
-        if (username != null) {
-            user.setRank(this.getReputationRanking(user.getUsername()));
-            switch (type) {
-                case "user":
-                    user = getUserProfile(username);
-                    break;
-                case "member":
-                    user = getMemberProfile(username);
-                    break;
-                case "public":
-                    user = getPublicProfile(username);
-                    break;
-            }
+        Account user = null;
+        if(accountRepository.existsByUsername(username)) {
+            user = accountRepository.findByUsername(username);
+        } else if(accountRepository.existsByAccountID(userid)) {
+            user = accountRepository.findByAccountID(userid);
         } else {
-            Account account = accountRepository.findByAccountID(userid);
-            if (account != null) {
-                account.setRank(this.getReputationRanking(account.getUsername()));
-                String name = account.getUsername();
-                switch (type) {
-                    case "user":
-                        user = getUserProfile(name);
-                        break;
-                    case "member":
-                        user = getMemberProfile(name);
-                        break;
-                    case "public":
-                        user = getPublicProfile(name);
-                        break;
-                }
-            }
+            log.info("User " + userid + " not found");
         }
+        if( user == null ){
+            log.info("User " + userid + " not found");
+        }
+        username = user.getUsername();
+        user.setRank(this.getReputationRanking(username));
+        switch (type) {
+            case "user":
+                user = getUserProfile(username);
+                break;
+            case "member":
+                user = getMemberProfile(username);
+                break;
+            case "public":
+                user = getPublicProfile(username);
+                break;
+        }
+
         if (!user.isAccountEnabled()) {
             user.tryUnsuspend();
         }
@@ -254,7 +376,7 @@ public class AccountServiceImpl implements AccountService {
             List<Account> sorted = this.sortByReputation(new ArrayList<>(results.values()));
             results = new TreeMap<>();
             for (Account a: sorted) {
-                results.put(a.getUsername(), a);
+                results.put(a.getUsername(), maskPublicProfile(a));
             }
             if (!accountRepository.existsByAccountID(userId)) {
                 log.info("User " + userId + " not found");
@@ -734,12 +856,22 @@ public class AccountServiceImpl implements AccountService {
             log.info("Could not parse boolean");
         }
 
+        List<String> toDelete = new ArrayList<>();
         for (String id : user.getMessageIDs().keySet()) {
             Message message = messageRepository.findByMessageID(id);
+            if (message == null) {
+                toDelete.add(id);
+                continue;
+            }
             if ((includeRead || !message.isRead()) && (start == null || !message.getCreationDate().isBefore(start))) {
                 messages.add(message);
             }
         }
+        for (String id: toDelete) {
+            user.removeMessage(id);
+        }
+        accountRepository.save(user);
+
         Comparator<Message> byTime = Comparator.comparing(Message::getCreationTime);
         messages.sort(byTime);
         Comparator<Message> byDate = Comparator.comparing(Message::getCreationDate);
@@ -992,8 +1124,13 @@ public class AccountServiceImpl implements AccountService {
             log.info("Group " + groupId + " not found");
             return null;
         }
+        if(!accountRepository.existsByUsername(userId)){
+            log.info("User " + userId + " is not found" );
+            return null;
+        }
+        Account acc = accountRepository.findByUsername(userId);
         Group group = groupRepository.findByGroupID(groupId);
-        if(!group.hasGroupMember(userId)) {
+        if(!group.hasGroupMember(acc.getAccountID())) {
             log.info("User " + userId + " is not in group " + groupId);
             return null;
         }
@@ -1001,6 +1138,7 @@ public class AccountServiceImpl implements AccountService {
             log.info("Message " + messageId + " not found in chat for group " + groupId);
             return null;
         }
+
         Message message = messageRepository.findByMessageID(messageId);
 
         int react = Message.Reactions.UP_VOTE;
@@ -1011,11 +1149,18 @@ public class AccountServiceImpl implements AccountService {
             log.info("Could not parse reaction string");
         }
 
-        if(message.getReaction(userId) == react) {
-            message.removeReaction(userId);
+        if(message.getReaction(acc.getAccountID()) == react) {
+            message.removeReaction(acc.getAccountID());
         } else {
-            message.addReaction(userId, react);
+            message.addReaction(acc.getAccountID(), react);
         }
+
+        try {
+            template.convertAndSend("/group/" + group.getGroupID(), message);
+        } catch (Exception e) {
+            log.info("Could not send message");
+        }
+
         messageRepository.save(message);
         return message;
     }
@@ -1202,7 +1347,7 @@ public class AccountServiceImpl implements AccountService {
         Group group = groupRepository.findByGroupID(groupId);
         String purpose = null;
         String name = null;
-        int proximity = -1;
+        int proximity;
         List<String> skillNames = new ArrayList<>();
 
         try {
@@ -1210,6 +1355,10 @@ public class AccountServiceImpl implements AccountService {
             name = obj.getString("name");
             purpose = obj.getString("purpose");
             proximity = obj.getInt("proximity");
+
+            if (proximity <= 0) {
+                proximity = Account.MAX_PROXIMITY;
+            }
 
             for (Object k : obj.keySet()) {
                 String key = k.toString();
@@ -1224,8 +1373,10 @@ public class AccountServiceImpl implements AccountService {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-        List<Account> qualified = groupService.broadcastEvent(group.getGroupID(), group.getGroupLeaderID(), purpose, proximity, skillNames);
+        sendMessage(group.getGroupLeaderID(), group.getGroupID(), "We are hosting an event called " + name + "! Here are the details: " + purpose, Message.Types.CHAT_MESSAGE);
+        List<Account> qualified = groupService.broadcastEvent(group.getGroupID(), group.getGroupLeaderID(), name, purpose, proximity, skillNames);
         if (qualified == null) {
             log.info("Could not create broadcast event");
             return null;
@@ -1724,16 +1875,16 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account removeFriend(String username, String friendId) {
-        if (!accountRepository.existsByUsername(username)) {
-            log.info("User " + username + " not found");
+    public Account removeFriend(String userId, String friendId) {
+        if (!accountRepository.existsByAccountID(userId)) {
+            log.info("User " + userId + " not found");
             return null;
         }
         if (!accountRepository.existsByAccountID(friendId)) {
             log.info("User " + friendId + " not found");
             return null;
         }
-        Account user = accountRepository.findByUsername(username);
+        Account user = accountRepository.findByAccountID(userId);
         Account friend = accountRepository.findByAccountID(friendId);
         user.removeFriend(friend.getAccountID());
         friend.removeFriend(user.getAccountID());
@@ -1955,13 +2106,31 @@ public class AccountServiceImpl implements AccountService {
             return null;
         }
 
+<<<<<<< HEAD
+=======
+        List<Message> reports = messageRepository.findByParentID(report.getParentID());
+
+>>>>>>> master
         if (mod.hasFlagged(user.getAccountID())) {
             user.removeFlag();
+            for (Message r: reports) {
+                r.decrement();
+                messageRepository.save(r);
+            }
+            report.decrement();
         } else {
             user.addFlag();
+            for (Message r: reports) {
+                r.increment();
+                messageRepository.save(r);
+            }
+            report.increment();
         }
         mod.toggleFlag(user.getAccountID());
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
         accountRepository.save(user);
         accountRepository.save(mod);
 
@@ -2234,20 +2403,20 @@ public class AccountServiceImpl implements AccountService {
 
     /* TODO: Finish upload picture once Jordan knows how it will be sent */
     @Override
-    public void uploadPicture(String userId, MultipartFile file) throws Exception {
+    public void uploadPicture(String userId, String file) throws Exception {
         if (!accountRepository.existsByAccountID(userId)) {
             log.info("User " + userId + " not found");
             throw new UsernameNotFoundException("Could not find user");
         }
         Account user = accountRepository.findByAccountID(userId);
-
-        if (!file.isEmpty()) {
-            BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(new File(picturePath, file.getOriginalFilename())));
-            outputStream.write(file.getBytes());
-            outputStream.flush();
-            outputStream.close();
-        }
-        user.setPicturePath(picturePath + "/" + file.getOriginalFilename());
+        user.setPicture(file.substring(1, file.length() - 1));
+//        if (!file.isEmpty()) {
+//            BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(new File(picturePath, file.getOriginalFilename())));
+//            outputStream.write(file.getBytes());
+//            outputStream.flush();
+//            outputStream.close();
+//        }
+//        user.setPicturePath(picturePath + "/" + file.getOriginalFilename());
         accountRepository.save(user);
     }
 }

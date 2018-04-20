@@ -38,9 +38,7 @@ public class Message
 	private String chatMessageID;	/* ID of chat message that message refers to, if applicable	*/
 	private boolean read;
 
-	@JsonIgnore
 	private String parentID; /* ID if multiple messages belong to a particular action */
-	@JsonIgnore
 	private int counter; /* counter for votes */
 
     private Map<String, Integer> reactions;

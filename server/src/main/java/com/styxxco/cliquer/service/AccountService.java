@@ -29,7 +29,7 @@ public interface AccountService extends UserDetailsService {
     Account removeSkill(String username, String skillName);
     Account deleteAccount(String username);
     Account rateUser(String userId, String rateeId, String messageId, String json, boolean endorse);
-    void uploadPicture(String userId, MultipartFile file) throws Exception;
+    void uploadPicture(String userId, String file) throws Exception;
     void requestRating(String userId, String groupId);
     void setLocation(String userId, String latitude, String longitude);
 
@@ -90,7 +90,7 @@ public interface AccountService extends UserDetailsService {
     Message acceptFriendInvite(String userId, String inviteId);
     Message rejectInvite(String userId, String inviteId);
     Account addFriend(String userId, String friendId);
-    Account removeFriend(String username, String friendId);
+    Account removeFriend(String userId, String friendId);
 
     /* Moderator related services */
     Message sendMessageToMods(String senderId, Message message);

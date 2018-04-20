@@ -16,7 +16,7 @@ class SkillsPanel extends Component {
       modal: false,
     }
   }
-  
+
   addSkills = () => {
     this.props.postSkills(`${url}/api/addSkills?username=${this.props.uid}`, { 'X-Authorization-Firebase': this.props.token }, JSON.stringify(this.props.newSkills ? this.props.newSkills : []))
     this.toggle()
@@ -25,7 +25,7 @@ class SkillsPanel extends Component {
   removeSkill = (skill, index) => {
     if(this.props.uid && this.props.token) {
       this.props.removeSkill(`${url}/api/removeSkill?username=${this.props.uid}&name=${skill}`, { 'X-Authorization-Firebase': this.props.token}, null, index)
-    } 
+    }
   }
 
   toggle = (setState) => {
@@ -47,7 +47,7 @@ class SkillsPanel extends Component {
             {skill.skillName + " "}
             <Badge pill>{skill.skillLevel} </Badge>
             <Button className="skill-cancel-button" onClick={() => {this.removeSkill(skill.skillName, i)}} color="link">x</Button>
-          </ListGroupItem> 
+          </ListGroupItem>
           </div>
         })}
         </ListGroup>

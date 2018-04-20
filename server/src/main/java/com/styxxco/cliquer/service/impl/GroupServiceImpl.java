@@ -834,7 +834,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public List<Account> broadcastEvent(String groupId, String groupLeaderId, String description, int proximity, List<String> skillNames) {
+    public List<Account> broadcastEvent(String groupId, String groupLeaderId, String eventName, String description, int proximity, List<String> skillNames) {
         if(!groupRepository.existsByGroupID(groupId)) {
             log.info("Group " + groupId + " not found");
             return null;
@@ -851,7 +851,7 @@ public class GroupServiceImpl implements GroupService {
             if(group.getGroupMemberIDs().containsKey(account.getAccountID())) {
                 continue;
             }
-            if(!account.isPublic() || account.isOptedOut()) {
+            if(account.isOptedOut()) {
                 continue;
             }
             if(account.distanceTo(leader.getLatitude(), leader.getLongitude()) > proximity) {
@@ -868,15 +868,17 @@ public class GroupServiceImpl implements GroupService {
                 continue;
             }
             Message invite = new Message(groupLeaderId, leader.getFullName(),
-                    "You have been invited to an event hosted by group " + group.getGroupName() + "! Here are the details: " + description,
+                    "You have been invited to the event " + eventName + " hosted by group " + group.getGroupName() + "! Here are the details: " + description,
                     Message.Types.EVENT_INVITE);
             invite.setGroupID(groupId);
+            messageRepository.save(invite);
             account.addMessage(invite);
             accountRepository.save(account);
             qualified.add(account);
 
             try {
                 template.convertAndSend("/notification/" + account.getAccountID(), invite);
+                System.out.println("SENT EVENT INVITE TO: " + account.getFullName());
             } catch (Exception e) {
                 log.info("Could not send message");
             }

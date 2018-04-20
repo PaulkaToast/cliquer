@@ -192,14 +192,14 @@ public class SprintThreeServicesTest {
         kevin.setPublic(true);
         accountRepository.save(kevin);
 
-        List<Account> result = groupService.broadcastEvent(cliquer.getGroupID(), jordan.getAccountID(),
+        List<Account> result = groupService.broadcastEvent(cliquer.getGroupID(), jordan.getAccountID(), "Cliquer",
                 "Test run for Cliquer", 200, new ArrayList<>());
         assertEquals(1, result.size());
         assertEquals("Kevin", result.get(0).getFirstName());
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
         assertEquals(1, kevin.getMessageIDs().keySet().size());
 
-        result = groupService.broadcastEvent(cliquer.getGroupID(), jordan.getAccountID(),
+        result = groupService.broadcastEvent(cliquer.getGroupID(), jordan.getAccountID(), "Cliquer",
                 "Test run for Cliquer", 30, new ArrayList<>());
         assertEquals(0, result.size());
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
@@ -207,7 +207,7 @@ public class SprintThreeServicesTest {
 
         List<String> reqs = new ArrayList<>();
         reqs.add(ball.getSkillName());
-        result = groupService.broadcastEvent(hoops.getGroupID(), shawn.getAccountID(),
+        result = groupService.broadcastEvent(hoops.getGroupID(), shawn.getAccountID(), "Cliquer",
                 "Basketball tournament", 100, reqs);
         assertEquals(1, result.size());
         assertEquals("Kevin", result.get(0).getFirstName());
@@ -445,22 +445,22 @@ public class SprintThreeServicesTest {
 
         assertEquals(3, messages.size());
 
-        accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getAccountID(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.UP_VOTE));
+        accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getUsername(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.UP_VOTE));
         messages = accountService.getChatHistory(cliquer.getGroupID(), jordan.getUsername());
         assertEquals(1, messages.get(0).getReactions().size());
         assertEquals(Message.Reactions.UP_VOTE, messages.get(0).getReaction(kevin.getAccountID()));
 
-        accountService.reactToChatMessage(cliquer.getGroupID(), jordan.getAccountID(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.UP_VOTE));
+        accountService.reactToChatMessage(cliquer.getGroupID(), jordan.getUsername(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.UP_VOTE));
         messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getUsername());
         assertEquals(2, messages.get(0).getReactions().size());
         assertEquals(Message.Reactions.UP_VOTE, messages.get(0).getReaction(jordan.getAccountID()));
 
-        accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getAccountID(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.DOWN_VOTE));
+        accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getUsername(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.DOWN_VOTE));
         messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getUsername());
         assertEquals(2, messages.get(0).getReactions().size());
         assertEquals(Message.Reactions.DOWN_VOTE, messages.get(0).getReaction(kevin.getAccountID()));
 
-        accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getAccountID(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.DOWN_VOTE));
+        accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getUsername(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.DOWN_VOTE));
         messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getUsername());
         assertEquals(1, messages.get(0).getReactions().size());
         assertEquals(-1, messages.get(0).getReaction(kevin.getAccountID()));
@@ -672,6 +672,7 @@ public class SprintThreeServicesTest {
         message = messageRepository.findByMessageID(messageID);
         assertEquals("Spamming friend invites.", message.getContent());
         accountService.flagUser(kevin.getAccountID(), messageID);
+        accountService.suspendUser(kevin.getAccountID(), messageID);
         kevin.setMessageIDs(new TreeMap<>());
         accountService.suspendUser(kevin.getAccountID(), messageID);
         accountRepository.save(kevin);

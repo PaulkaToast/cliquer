@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Switch, Route, Redirect } from 'react-router'
 import NotificationSystem from 'react-notification-system'
-import { Button, ButtonGroup, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
+import { Button, ButtonGroup } from 'reactstrap'
 import SockJsClient from 'react-stomp'
 import { connect } from 'react-redux'
 
@@ -212,6 +212,7 @@ class Main extends Component {
   }
 
   acceptNotification = (messageID) => {
+    console.log('accepted')
     this.clientRef.sendMessage(`/app/acceptNotification/${this.props.accountID}/${messageID}`)
   }
 
@@ -262,6 +263,11 @@ class Main extends Component {
   }
 
   render() {
+    if(!this.props){
+      return (
+        <div className="loader">Loading...</div>
+      )
+    }
     return (
       <div className="Main h-100">
         {this.getWebsocket()}
@@ -275,8 +281,12 @@ class Main extends Component {
                 goToProfile={this.props.goToProfile} 
                 markAsRead={this.markAsRead} 
                 deleteNotification={this.deleteNotification} 
-                inviteToGroup={this.inviteToGroup}
+                acceptNotification={this.acceptNotification}
+                rejectNotification={this.rejectNotification}
+                inviteToGroup={this.inviteToGroup} 
+                ownProfile={this.props.ownProfile}
                 isMod={this.props.isMod} 
+               
               />}
             />
             <Route path="/groups" render={(navProps) => 
@@ -289,7 +299,11 @@ class Main extends Component {
             <Route path="/public" render={(navProps) => <PublicGroups {...navProps} accountID={this.props.accountID} requestToJoin={this.requestToJoin} />}/>
             <Route path="/settings" render={(navProps) => <Settings {...navProps} />}/>
             <Route path="/mod" render={(navProps) => <ModPanel {...navProps} deleteNotification={this.deleteNotification} goToProfile={this.props.goToProfile}/>}/>
-            <Route path="/search/:category/:query" render={(navProps) => <SearchResults {...navProps} sendFriendRequest={this.sendFriendRequest} goToProfile={this.props.goToProfile} requestToJoin={this.requestToJoin}/>}/>
+            <Route path="/search/:category/:query" render={(navProps) => <SearchResults 
+              {...navProps}
+              sendFriendRequest={this.sendFriendRequest} 
+              goToProfile={this.props.goToProfile} 
+              requestToJoin={this.requestToJoin}/>}/>
             <Route path='/' render={(navProps) => <Redirect to="/groups" />}/>
         </Switch>
       
