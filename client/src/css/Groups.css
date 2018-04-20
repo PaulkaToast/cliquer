@@ -15,7 +15,8 @@
 .Groups.container-fluid {
     margin: 0;
     padding: 0;
-    
+    overflow-y: hidden;
+    height: 94%;
 }
 
 .Groups .row {
@@ -28,8 +29,4 @@
 
 .public-check-box{
     padding-left: 20x
-}
-
-body {
-    overflow-y: hidden;
 }

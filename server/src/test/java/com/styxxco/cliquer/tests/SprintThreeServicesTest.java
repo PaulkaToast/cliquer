@@ -445,22 +445,22 @@ public class SprintThreeServicesTest {
 
         assertEquals(3, messages.size());
 
-        accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getAccountID(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.UP_VOTE));
+        accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getUsername(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.UP_VOTE));
         messages = accountService.getChatHistory(cliquer.getGroupID(), jordan.getUsername());
         assertEquals(1, messages.get(0).getReactions().size());
         assertEquals(Message.Reactions.UP_VOTE, messages.get(0).getReaction(kevin.getAccountID()));
 
-        accountService.reactToChatMessage(cliquer.getGroupID(), jordan.getAccountID(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.UP_VOTE));
+        accountService.reactToChatMessage(cliquer.getGroupID(), jordan.getUsername(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.UP_VOTE));
         messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getUsername());
         assertEquals(2, messages.get(0).getReactions().size());
         assertEquals(Message.Reactions.UP_VOTE, messages.get(0).getReaction(jordan.getAccountID()));
 
-        accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getAccountID(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.DOWN_VOTE));
+        accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getUsername(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.DOWN_VOTE));
         messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getUsername());
         assertEquals(2, messages.get(0).getReactions().size());
         assertEquals(Message.Reactions.DOWN_VOTE, messages.get(0).getReaction(kevin.getAccountID()));
 
-        accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getAccountID(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.DOWN_VOTE));
+        accountService.reactToChatMessage(cliquer.getGroupID(), kevin.getUsername(), messages.get(0).getMessageID(), String.valueOf(Message.Reactions.DOWN_VOTE));
         messages = accountService.getChatHistory(cliquer.getGroupID(), kevin.getUsername());
         assertEquals(1, messages.get(0).getReactions().size());
         assertEquals(-1, messages.get(0).getReaction(kevin.getAccountID()));

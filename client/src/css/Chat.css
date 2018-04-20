@@ -47,9 +47,13 @@
 }
 .time-stamp-right{
     margin-right: 3px;
+    margin-top: 20px;
+    color: grey;
 }
 .time-stamp-left{
     margin-left: 3px;
+    margin-top: 20px;
+    color: grey;
 }
 
 .group-message-div{
@@ -64,4 +68,31 @@
 .select-a-group-warning{
     margin-top: 10px;
     text-align: center;
+}
+
+.up-vote-down-vote{
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.thumbs-down-flip{
+    -moz-transform: scale(-1, 1);
+    -webkit-transform: scale(-1, 1);
+    -o-transform: scale(-1, 1);
+    -ms-transform: scale(-1, 1);
+    transform: scale(-1, 1);
+}
+.-vote{
+    -webkit-text-stroke: 1px black;
+    color: transparent;
+}
+
+.up-vote{
+    -webkit-text-stroke: 1px black;
+    color: #A7C5BD;
+}
+
+.down-vote{
+    -webkit-text-stroke: 1px black;
+    color: #CF4647;
 }
