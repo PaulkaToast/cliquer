@@ -50,11 +50,6 @@ public class RestController {
             return new ResponseEntity<>("Could not fetch profile with the query", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(user, HttpStatus.OK);
-//            long served = user.getStartSuspendTime().until(LocalDateTime.now(), MINUTES);
-//            long timeLeft = user.getSuspendTime() - served;
-//            String body = "{\"status\": \"" + user.getFullName() + " 's account is disabled until " + LocalDateTime.now().plusMinutes(timeLeft) + "\"}";
-//            System.out.println(body);
-//            return new ResponseEntity<>(body, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/deleteProfile", method = RequestMethod.POST)

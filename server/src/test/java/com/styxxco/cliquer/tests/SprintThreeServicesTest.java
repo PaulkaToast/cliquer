@@ -632,7 +632,7 @@ public class SprintThreeServicesTest {
         kevin.setMessageIDs(new TreeMap<>());
         accountRepository.save(kevin);
         jordan = accountRepository.findByAccountID(jordan.getAccountID());
-        assertEquals(true, jordan.isAccountEnabled());
+        assertEquals(false, jordan.isSuspended());
 
         accountService.reportUser(shawn.getAccountID(), jordan.getAccountID(), "Spamming friend invites.");
         kevin = accountRepository.findByAccountID(kevin.getAccountID());
@@ -648,10 +648,9 @@ public class SprintThreeServicesTest {
         kevin.setMessageIDs(new TreeMap<>());
         accountRepository.save(kevin);
         jordan = accountRepository.findByAccountID(jordan.getAccountID());
-        assertEquals(false, jordan.isAccountEnabled());
+        assertEquals(true, jordan.isSuspended());
 
         Account result = accountService.getUserProfile(jordan.getUsername());
-        assertNull(result);
 
         jordan = accountRepository.findByAccountID(jordan.getAccountID());
         assertEquals(2*24*60, jordan.getSuspendTime());
@@ -677,7 +676,7 @@ public class SprintThreeServicesTest {
         accountService.suspendUser(kevin.getAccountID(), messageID);
         accountRepository.save(kevin);
         jordan = accountRepository.findByAccountID(jordan.getAccountID());
-        assertEquals(false, jordan.isAccountEnabled());
+        assertEquals(true, jordan.isSuspended());
 
         jordan = accountRepository.findByAccountID(jordan.getAccountID());
         assertEquals(4*24*60, jordan.getSuspendTime());
