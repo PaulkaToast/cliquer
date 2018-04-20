@@ -110,10 +110,14 @@ class Profile extends Component {
       <ListGroup>
         {groups && Object.keys(groups).length > 0
         && Object.keys(groups).map((gid, i) => {
-          return (<ListGroupItem>
-            {groups[gid].groupName} <Button className="invite-to-group-button" type="button" size="lg" 
-            onClick={() => this.inviteAndToggle(gid, ownerID)}>Invite</Button>
-          </ListGroupItem>)
+          if (groups[gid].groupMemberIDs[this.props.profile.accountID]){
+            return "";
+          }else{
+          return(<ListGroupItem>
+              {groups[gid].groupName} <Button className="invite-to-group-button" type="button" size="lg" 
+              onClick={() => this.inviteAndToggle(gid, ownerID)}>Invite</Button>
+            </ListGroupItem>)
+          }
         })}
       </ListGroup>
     )  
