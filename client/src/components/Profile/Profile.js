@@ -145,6 +145,7 @@ class Profile extends Component {
               Profile
             </NavLink>
           </NavItem>
+        {this.isOwner(ownerID) &&
           <NavItem>
             <NavLink
               className={classnames({ active: this.state.activeTab === '2' })}
@@ -153,7 +154,8 @@ class Profile extends Component {
               Friends
             </NavLink>
           </NavItem>
-          {this.isOwner(ownerID) && 
+        }
+        {this.isOwner(ownerID) && 
             <NavItem>
               <NavLink
                 className={classnames({ active: this.state.activeTab === '2' })}
