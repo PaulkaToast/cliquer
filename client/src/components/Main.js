@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Switch, Route, Redirect } from 'react-router'
 import NotificationSystem from 'react-notification-system'
-import { Button, ButtonGroup, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
+import { Button, ButtonGroup } from 'reactstrap'
 import SockJsClient from 'react-stomp'
 import { connect } from 'react-redux'
 

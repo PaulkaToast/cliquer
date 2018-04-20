@@ -66,13 +66,15 @@ class SearchResults extends Component {
               if(i % 2 === 0) {
                return renderResult(results[key], i)
               }
+              return "";
             })}
           </ul>
           <ul className="results-list">
             {Object.keys(results).map((key, i) => {
               if(i % 2 === 1) {
                 return renderResult(results[key], i)
-              } 
+              }
+              return "";
             })}
           </ul>
         </div>

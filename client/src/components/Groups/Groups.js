@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Switch, Route } from 'react-router'
 import { Button, ButtonGroup, Col, Row, Container, Navbar,
         NavbarBrand, Nav, NavItem, NavLink, Popover,
-        PopoverHeader, PopoverBody, Badge, ListGroup,
+        PopoverHeader, PopoverBody, ListGroup,
         Modal, ModalHeader, ModalBody, ModalFooter,
         Form, FormGroup, Label, Input,
         ListGroupItem  } from 'reactstrap'
@@ -149,10 +148,9 @@ class Groups extends Component {
 
   sendRating = (ev) => {
     if(ev.preventDefault) ev.preventDefault()
-    const length = this.props.rateForm ? Object.keys(this.props.rateForm).length : 0
     const endorse = ev.target.endorse.checked
     let skills = {}
-    Object.keys(this.props.rateForm).map((key, i) => {
+    Object.keys(this.props.rateForm).forEach((key, i) => {
       skills[key] = ev.target[`skill${i}`].value
     })
     
@@ -204,7 +202,7 @@ class Groups extends Component {
                 </ListGroupItem>
               )
             }
-            return 
+            return "";
           })}
       </ListGroup>
     )
@@ -234,10 +232,9 @@ class Groups extends Component {
     const reputation = this.props.profile ? this.props.profile.reputation : null
     const skills = this.props.currentGroup ? this.props.currentGroup.skillsReq : null
     const proximity = this.props.currentGroup ? this.props.currentGroup.proximityReq : null
-    const rateForm = this.props.rateForm
     
     return (
-        <Container fluid className="Groups h-100">
+        <Container fluid className="Groups">
           <Navbar className="group-nav" color="primary" dark expand="md">
             <NavbarBrand> Groups </NavbarBrand>
               <Nav hidden={!this.props.currentGroup} className="ml-auto" navbar>
@@ -259,7 +256,7 @@ class Groups extends Component {
             {this.renderGroupsList()}
           </Col>
           <Col xs="9">
-            <Chat group={this.props.currentGroup} handleNotification={this.props.handleNotification}/>
+            <Chat group={this.props.currentGroup} accountID={this.props.accountID} handleNotification={this.props.handleNotification}/>
           </Col>
         </Row>
         { this.props.currentGroup &&

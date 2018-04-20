@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 @Log4j
 @Service(value = AccountServiceImpl.NAME)
 public class AccountServiceImpl implements AccountService {
+
     public final static String NAME = "AccountService";
 
     @Autowired
@@ -1117,8 +1118,13 @@ public class AccountServiceImpl implements AccountService {
             log.info("Group " + groupId + " not found");
             return null;
         }
+        if(!accountRepository.existsByUsername(userId)){
+            log.info("User " + userId + " is not found" );
+            return null;
+        }
+        Account acc = accountRepository.findByUsername(userId);
         Group group = groupRepository.findByGroupID(groupId);
-        if(!group.hasGroupMember(userId)) {
+        if(!group.hasGroupMember(acc.getAccountID())) {
             log.info("User " + userId + " is not in group " + groupId);
             return null;
         }
@@ -1126,6 +1132,7 @@ public class AccountServiceImpl implements AccountService {
             log.info("Message " + messageId + " not found in chat for group " + groupId);
             return null;
         }
+
         Message message = messageRepository.findByMessageID(messageId);
 
         int react = Message.Reactions.UP_VOTE;
@@ -1136,11 +1143,18 @@ public class AccountServiceImpl implements AccountService {
             log.info("Could not parse reaction string");
         }
 
-        if(message.getReaction(userId) == react) {
-            message.removeReaction(userId);
+        if(message.getReaction(acc.getAccountID()) == react) {
+            message.removeReaction(acc.getAccountID());
         } else {
-            message.addReaction(userId, react);
+            message.addReaction(acc.getAccountID(), react);
         }
+
+        try {
+            template.convertAndSend("/group/" + group.getGroupID(), message);
+        } catch (Exception e) {
+            log.info("Could not send message");
+        }
+
         messageRepository.save(message);
         return message;
     }
