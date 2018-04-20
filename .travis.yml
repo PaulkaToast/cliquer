@@ -35,3 +35,4 @@ matrix:
     
 notifications:
   email: false
+  slack: 307team2018:UMeq9yYX3L2PLSLJxT2gzb9X
