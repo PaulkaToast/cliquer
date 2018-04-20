@@ -109,7 +109,7 @@ class Message extends Component{
             </InputGroup>
             <br/>
             <InputGroup>
-              <InputGroupAddon addonType="prepend" className="input-header">Reason</InputGroupAddon>
+              <InputGroupAddon addonType="prepend" className="input-header" required="true">Reason</InputGroupAddon>
               <Input type="textarea" className="message-box-report" 
                 placeholder="Please include your reason for reporting."
                 name="reason"/>
