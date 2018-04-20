@@ -100,3 +100,9 @@ export function getSkillsListDataSuccess(data) {
 export const getSkillsList = genericDispatch(
     getSkillsListHasError, getSkillsListIsLoading, getSkillsListDataSuccess, 'GET'
 )
+
+export function clearSkills() {
+    return {
+        type: 'CLEAR_SKILLS',
+    }
+}

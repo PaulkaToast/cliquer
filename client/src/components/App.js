@@ -6,7 +6,7 @@ import '../css/App.css'
 import { firebase } from '../firebase'
 import { logIn, logOut, setToken, getProfile, 
          addObjectID, requestFriend, clearProfile, clearObjectID,
-         clearGroups, addIsMod } from '../redux/actions'
+         clearGroups, clearSkills, addIsMod } from '../redux/actions'
 import { history } from '../redux/store'
 import url from '../server'
 import Login from './Login'
@@ -42,12 +42,14 @@ class App extends Component {
             this.props.setToken(token)
             this.props.clearProfile()
             this.props.clearGroups()
+            this.props.clearSkills()
             this.props.getProfile(`${url}/api/getProfile?username=${authUser.uid}&type=user`, { 'X-Authorization-Firebase': token})
           })
       } else {
         this.props.clearProfile()
         this.props.clearObjectID()
         this.props.clearGroups()
+        this.props.clearSkills()
         this.props.addIsMod(false)
         this.props.logOut(authUser)
       }
@@ -149,6 +151,7 @@ const mapDispatchToProps = (dispatch) => {
     clearProfile: () => dispatch(clearProfile()),
     clearGroups: () => dispatch(clearGroups()),
     clearObjectID: () => dispatch(clearObjectID()),
+    clearSkills: () => dispatch(clearSkills()),
 	}
 }
 

@@ -10,7 +10,8 @@ import Dropzone from 'react-dropzone'
 import '../../css/Profile.css'
 import SkillsPanel from './SkillsPanel'
 import NotificationPanel from './NotificationPanel'
-import { getSkills, getProfile, getGroups, flagUser, setLocation, setCity, reportUser, uploadFile } from '../../redux/actions'
+import { getSkills, getProfile, getGroups, flagUser, setLocation, setCity, reportUser, uploadFile,
+         clearProfile, clearSkills, clearGroups } from '../../redux/actions'
 import url from '../../server.js'
 import nFlag from '../../img/newUser.png'
 
@@ -34,6 +35,12 @@ class Profile extends Component {
 
   componentWillReceiveProps = (nextProps) => {
     this.fetch(nextProps)
+  }
+
+  componentWillUnmount = () => {
+    this.props.clearSkills()
+    this.props.clearGroups()
+    this.props.clearProfile()
   }
 
   fetch = (props) => {
@@ -335,6 +342,9 @@ const mapDispatchToProps = (dispatch) => {
     reportUser: (url, headers) => dispatch(reportUser(url, headers)),
     setCity: (city) => dispatch(setCity(city)),
     uploadFile: (url, headers, body) => dispatch(uploadFile(url, headers, body)),
+    clearSkills: () => dispatch(clearSkills()),
+    clearGroups: () => dispatch(clearGroups()),
+    clearProfile: () => dispatch(clearProfile()),
   }
 }
 
