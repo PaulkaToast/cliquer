@@ -15,6 +15,7 @@ import com.styxxco.cliquer.database.*;
 import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.security.SecurityConfiguration;
 import com.styxxco.cliquer.service.AccountService;
+import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -743,6 +744,7 @@ public class AccountServiceImpl implements AccountService {
             Group group = groupRepository.findByGroupID(groupID);
             groups.add(group);
         }
+        
         return groups;
     }
 
@@ -975,7 +977,7 @@ public class AccountServiceImpl implements AccountService {
         List<Account> moderators = accountRepository.findByIsModeratorTrue();
 
         // TODO: update for decided rules
-        if (parent.getCounter() == Math.ceil(moderators.size()/2.0)) {
+        if (parent.getCounter() >= 2) {
             addToModerators(parent.getSenderID());
             deleteMessageByParent(parent.getMessageID());
         }
