@@ -28,6 +28,7 @@ class App extends Component {
 
   componentWillReceiveProps(nextProps) {
     if(this.loggedIn() && ((nextProps.profile && !this.props.profile && !this.props.accountID) || nextProps.account)) {
+      if(!this.accountEnabled) this.props.logOut(this.props.user)
       this.props.addObjectID(nextProps.profile ? nextProps.profile.accountID : nextProps.account.accountID)
       this.props.addIsMod(nextProps.profile ? nextProps.profile.moderator : nextProps.account.moderator)
     }
@@ -79,7 +80,6 @@ class App extends Component {
   }
 
   goToProfile = (ev, memberID, button1, button2) => {
-    console.log(ev.target, ev.currentTarget)
     if((!ev && !button1 && !button2) || (ev.target === ev.currentTarget)) {
       console.log('hello')
       history.push(`/profile/${memberID}`)

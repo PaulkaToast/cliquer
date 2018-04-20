@@ -118,6 +118,24 @@ class Profile extends Component {
     }
   }
 
+  formatDuration = (totalTime) => {
+    let minutes = totalTime
+    let hours = Math.floor(minutes / 60) 
+    minutes = minutes % 60
+    let days = Math.floor(hours / 24) 
+    hours = hours % 24
+    let output = ""
+    if(days) output += `${days} ${days === 1 ? 'day' : 'days'}, `
+    if(hours) output += `${hours} ${hours === 1 ? 'hour' : 'hours'}, `
+    if(minutes) {
+      output += `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`
+    } else {
+      //Cut out ending comma and space
+      output = output.substr(0, output.length-2)
+    }
+    return output
+  }
+
   loadImage = (image) => {
     if (FileReader && image) {
       let fr = new FileReader()
@@ -164,6 +182,14 @@ class Profile extends Component {
     if(!profile || profile.accountID !== ownerID){
       return (
         <div className="loader">Loading...</div>
+      )
+    }
+
+    if(!profile.accountEnabled) {
+      return (
+        <div className="suspended">
+          {this.isOwner(ownerID) ? 'Your' : 'This'} account has been suspended for {this.formatDuration(profile.suspendTime)}
+        </div>
       )
     }
     let flag = profile.newUser ? nFlag : "";
@@ -242,7 +268,7 @@ class Profile extends Component {
             </h4>
             <hr/>
             
-            {!this.isOwner(ownerID) && !this.props.ownProfile.friendIDs[this.props.profile.accountID] && 
+            {!this.isOwner(ownerID) && this.props.ownProfile && !this.props.ownProfile.friendIDs[this.props.profile.accountID] && 
             <Button type="button" size="lg" onClick={() => this.props.sendFriendRequest(ownerID)}>Send Friend Request</Button>}
             {!this.isOwner(ownerID) && groups && Object.keys(groups).length > 0 && 
               <Button type="button" size="lg" onClick={this.toggleM}>Invite To Group</Button>}

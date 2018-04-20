@@ -101,3 +101,8 @@ img#profile-picture {
   height: 128px;
   cursor: pointer;
 }
+
+.suspended {
+  padding-top: 1rem;
+  margin: auto;
+}
