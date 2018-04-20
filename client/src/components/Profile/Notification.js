@@ -15,31 +15,31 @@ class Notification extends Component {
           </h4>
         )
       case 0:
-        break;
+        // Group invite
+        return ([
+          <h4 className="notification-response">Group Invite</h4>,
+          <ButtonGroup className="notification-buttons">
+            <Button color="success" onClick={() => this.props.acceptNotification(notification.messageID)}>Join</Button>
+            <Button color="danger" onClick={() => this.props.rejectNotification(notification.messageID)}>Ignore</Button>
+          </ButtonGroup>
+      ]);
       case 8:
         break;
       case 12:
-        // Group invite
-        return ([
-            <h4 className="notification-response">Group Invite</h4>,
-            <ButtonGroup className="notification-buttons">
-              <Button color="success" onClick={() => this.props.acceptNotification(notification.messageID)}>Join</Button>
-              <Button color="danger" onClick={() => this.props.rejectNotification(notification.messageID)}>Ignore</Button>
-            </ButtonGroup>
-        ]);
-      case 1:
         break;
+      case 1:
+         // Friend invite
+         return ([
+          <h4 className="notification-response">Friend Invite</h4>,
+          <ButtonGroup className="notification-buttons">
+            <Button color="success" onClick={() => this.props.acceptNotification(notification.messageID)}>Accept</Button>
+            <Button color="danger" onClick={() => this.props.rejectNotification(notification.messageID)}>Reject</Button>
+          </ButtonGroup>
+      ])
       case 4:
         break;
       case 9:
-        // Friend invite
-        return ([
-            <h4 className="notification-response">Friend Invite</h4>,
-            <ButtonGroup className="notification-buttons">
-              <Button color="success" onClick={() => this.props.acceptNotification(notification.messageID)}>Accept</Button>
-              <Button color="danger" onClick={() => this.props.rejectNotification(notification.messageID)}>Reject</Button>
-            </ButtonGroup>
-        ])
+       break;
       case 11:
         break;
         // Mod invite
