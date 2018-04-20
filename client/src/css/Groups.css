@@ -30,3 +30,11 @@
 .public-check-box{
     padding-left: 20x
 }
+
+.popover{
+    max-width: 100%;
+}
+
+.rate-kick-group{
+    margin-left: 10px;
+}
