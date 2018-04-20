@@ -124,3 +124,28 @@ export function suspendUserDataSuccess(data) {
 export const suspendUser = genericDispatch(
     suspendUserHasError, suspendUserIsLoading, suspendUserDataSuccess, 'POST'
 )
+
+export function applyForModHasError(hasError) {
+    return {
+        type: 'APPLY_FOR_MOD_HAS_ERROR',
+        hasError
+    }
+}
+
+export function applyForModIsLoading(isLoading) {
+    return {
+        type: 'APPLY_FOR_MOD_IS_LOADING',
+        isLoading
+    }
+}
+
+export function applyForModDataSuccess(data) {
+    return {
+        type: 'APPLY_FOR_MOD_DATA_SUCCESS',
+        data
+    }
+}
+
+export const applyForMod = genericDispatch(
+    applyForModHasError, applyForModIsLoading, applyForModDataSuccess, 'POST'
+)

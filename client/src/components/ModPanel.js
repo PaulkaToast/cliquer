@@ -2,9 +2,9 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router'
 import { Modal, ModalHeader, ModalBody, ModalFooter,
-         Form, FormGroup, Label, Input, Button } from 'reactstrap'
+         Form, FormGroup, Label, Input, Button, ButtonGroup } from 'reactstrap'
 
-import { submitSkill, flagUser } from '../redux/actions'
+import { submitSkill, flagUser, suspendUser } from '../redux/actions'
 import '../css/ModPanel.css'
 import url from '../server'
 
@@ -14,20 +14,27 @@ class ModPanel extends Component {
 
     this.state = {
       modal: false,
-      reports: [],
+      reports: {},
+      notifications: [],
     }
   }
 
   componentWillReceiveProps = (nextProps) => {
-    const reports = []
+    const reports = {}
+    const notifications = []
     if(nextProps.messages) {
       Object.values(nextProps.messages).forEach((message) => {
-        console.log(message)
-        if(message.type === 14) reports.push(message)
+        if(message.type === 14) {
+          reports[message.messageID] = message
+          reports[message.messageID].flagged = false
+          //2 is the number of flags required to suspend someone
+          reports[message.messageID].canSuspend = message.counter >= 2
+        }
+        if(message.type === 9) notifications.push(message)
       })
     }
 
-    this.setState({ reports })
+    this.setState({ reports, notifications })
   }
 
   addNewSkill = (ev) => {
@@ -38,8 +45,35 @@ class ModPanel extends Component {
   }
 
   flagUser = (messageID) => {
-      console.log('flag')
       this.props.flagUser(`${url}/mod/flagUser?modId=${this.props.accountID}&messageId=${messageID}`, { 'X-Authorization-Firebase': this.props.token})
+      
+      //Update report state
+      const reports = {...this.state.reports}
+      reports[messageID].flagged = !reports[messageID].flagged
+      if(reports[messageID].flagged) {
+        reports[messageID].counter++
+      } else {
+        reports[messageID].counter--
+      }
+      //2 is the number of flags required to suspend someone
+      reports[messageID].canSuspend = reports[messageID].counter >= 2
+      this.setState({ reports })
+  }
+
+  suspendUser = (messageID) => {
+    this.props.suspendUser(`${url}/mod/suspendUser?modId=${this.props.accountID}&messageId=${messageID}`, { 'X-Authorization-Firebase': this.props.token})
+
+    //Update report state
+    /*const reports = {...this.state.reports}
+    reports[messageID].flagged = !reports[messageID].flagged
+    if(reports[messageID].flagged) {
+      reports[messageID].counter++
+    } else {
+      reports[messageID].counter--
+    }
+    //2 is the number of flags required to suspend someone
+    reports[messageID].canSuspend = reports[messageID].counter >= 2
+    this.setState({ reports })*/
   }
 
   toggle = () => {
@@ -58,8 +92,39 @@ class ModPanel extends Component {
         <div className="reason">
         Reason: {report.content}
         </div>
-        <Button type="button" color="warning" size="lg" onClick={() => this.flagUser(report.messageID)}>Flag Reportee</Button>
+        <Button type="button" color="warning" size="lg" onClick={() => this.flagUser(report.messageID)}>{report.flagged ? 'Flagged' : 'Flag Reportee'}</Button>
+        {report.canSuspend && <Button type="button" color="warning" size="lg" onClick={() => this.suspendUser(report.messageID)}>{report.suspended ? 'Suspended' : 'Suspend Reportee'}</Button>}
         <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(report.messageID)}></i>  
+      </div>
+    )
+  }
+
+  renderNotification = (notification) => {
+    return ( 
+    <div className="Notification">
+      <div className="notification-info">
+      {notification.content}
+        <ButtonGroup>
+          <Button color="success" onClick={() => this.props.acceptNotification(notification.messageID)}>Accept</Button>
+          <Button color="danger" onClick={() => this.props.rejectNotification(notification.messageID)}>Reject</Button>
+        </ButtonGroup>
+      </div>
+      <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(notification.messageID)}></i> 
+    </div>
+    )
+  }
+
+  renderModNotificationList = () => {
+    const { notifications } = this.state
+    return (
+      <div className="notification-list">
+        { notifications && notifications.length > 0 
+          && <ul className="notifications">
+              {notifications.map((notification) => {
+                return this.renderNotification(notification)
+              })}
+            </ul>
+        }
       </div>
     )
   }
@@ -68,9 +133,9 @@ class ModPanel extends Component {
     const { reports } = this.state
     return (
       <div className="report-list">
-        { reports && reports.length > 0 
+        { reports
           && <ul className="reports">
-              {reports.map((report) => {
+              {Object.values(reports).map((report) => {
                 return this.renderReport(report)
               })}
             </ul>
@@ -94,6 +159,7 @@ class ModPanel extends Component {
     return (
       <div className="ModPanel">
         {this.renderReportList()}
+        {this.renderModNotificationList()}
         <Button color="primary" onClick={this.toggle}>Submit New Skill</Button>
         <Modal isOpen={this.state.modal} toggle={this.toggle} className="add-skill-modal">
           <ModalHeader toggle={this.toggle}>Submit New Skill</ModalHeader>
@@ -129,6 +195,7 @@ const mapDispatchToProps = (dispatch) => {
 	return {
     submitSkill: (url, headers) => dispatch(submitSkill(url, headers)),
     flagUser: (url, headers) => dispatch(flagUser(url, headers)),
+    suspendUser: (url, headers) => dispatch(suspendUser(url, headers)),
   }
 }
 

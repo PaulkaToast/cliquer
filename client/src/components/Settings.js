@@ -28,6 +28,7 @@ class Settings extends Component {
       const uid = nextProps.uid 
       // Get profile data
       if(!nextProps.profile && !nextProps.profileIsLoading) {
+        console.log('settings call')
         this.props.getProfile(`${url}/api/getProfile?username=${uid}&type=user`, { 'X-Authorization-Firebase': nextProps.token})
       } else if(nextProps.profile) {
         this.setState({ proximity: nextProps.profile.proximityReq, reputation: Math.round(nextProps.profile.reputationReq * nextProps.profile.reputation)})

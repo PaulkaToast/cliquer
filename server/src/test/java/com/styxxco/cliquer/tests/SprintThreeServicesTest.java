@@ -674,6 +674,7 @@ public class SprintThreeServicesTest {
         accountService.flagUser(kevin.getAccountID(), messageID);
         accountService.suspendUser(kevin.getAccountID(), messageID);
         kevin.setMessageIDs(new TreeMap<>());
+        accountService.suspendUser(kevin.getAccountID(), messageID);
         accountRepository.save(kevin);
         jordan = accountRepository.findByAccountID(jordan.getAccountID());
         assertEquals(false, jordan.isAccountEnabled());

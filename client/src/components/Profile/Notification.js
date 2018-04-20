@@ -15,9 +15,7 @@ class Notification extends Component {
           </h4>
         )
       case 0:
-        
       case 8:
-
       case 12:
         // Group invite
         return ([
@@ -30,6 +28,7 @@ class Notification extends Component {
       case 1:
         
       case 4:
+      case 9:
         // Friend invite
         return ([
             <h4 className="notification-response">Friend Invite</h4>,
@@ -38,23 +37,18 @@ class Notification extends Component {
               <Button color="danger" onClick={() => this.props.rejectNotification(notification.messageID)}>Reject</Button>
             </ButtonGroup>
         ])
-      case 9:
-        // Mod request
-        // TODO: Show mod application
-        return
       case 11:
         // Mod invite
         // TODO: Show mod application
-        return
       default:
-        return
+        return null
     }
   }
 
   render() {
     const { notification } = this.props
-    if(notification.type === 14) {
-      return
+    if(notification.type === 14 || notification.type === 9) {
+      return null
     }
 
     return (

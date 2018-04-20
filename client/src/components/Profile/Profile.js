@@ -10,7 +10,7 @@ import Dropzone from 'react-dropzone'
 import '../../css/Profile.css'
 import SkillsPanel from './SkillsPanel'
 import NotificationPanel from './NotificationPanel'
-import { getSkills, getProfile, getGroups, flagUser, setLocation, setCity, reportUser, uploadFile } from '../../redux/actions'
+import { getSkills, getProfile, getGroups, flagUser, setLocation, setCity, reportUser, clearGroups, clearSkills, clearProfile, uploadFile } from '../../redux/actions'
 import url from '../../server.js'
 import nFlag from '../../img/newUser.png'
 
@@ -27,6 +27,11 @@ class Profile extends Component {
     }
   }
 
+  componentWillMount = () => {
+    this.props.clearProfile()
+    this.props.clearSkills()
+    this.props.clearGroups()
+  }
 
   componentDidMount = () => {
     this.fetch(this.props)
@@ -36,6 +41,12 @@ class Profile extends Component {
     this.fetch(nextProps)
   }
 
+  componentWillUnmount = () => {
+    this.props.clearSkills()
+    this.props.clearGroups()
+    this.props.clearProfile()
+  }
+
   fetch = (props) => {
     if(props.uid && props.accountID && props.token) {    
       const ownerID = props.match.params.ownerID
@@ -43,11 +54,12 @@ class Profile extends Component {
 
       // Get profile data
       if((!props.profile && !props.profileIsLoading) || (props.profile && props.profile.accountID !== ownerID)) {
+        console.log('profile call')
         this.props.getProfile(`${url}/api/getProfile?userId=${ownerID}&type=${type}`, { 'X-Authorization-Firebase': props.token})
       }
 
       // Get skills data
-      if(this.props.postData !== props.postData || (!props.skills && !props.skillsIsLoading)) {
+      if(props.postData !== props.postData || (!props.skills && !props.skillsIsLoading)) {
         this.props.getSkills(`${url}/api/getSkills?userId=${ownerID}`, { 'X-Authorization-Firebase': props.token})
       }
 
@@ -92,16 +104,36 @@ class Profile extends Component {
   }
 
   setCity = (lat, long) => {
-    Geocode.fromLatLng(lat, long).then(
-      response => {
-        const address = response.results[2].formatted_address
-        this.props.setCity(address)
-        this.setState({ loading: false })
-      },
-      error => {
-        console.error(error)
-      }
-    )
+    if(lat && long) {
+      Geocode.fromLatLng(lat, long).then(
+        response => {
+          const address = response.results[2].formatted_address
+          this.props.setCity(address)
+          this.setState({ loading: false })
+        },
+        error => {
+          console.error(error)
+        }
+      )
+    }
+  }
+
+  formatDuration = (totalTime) => {
+    let minutes = totalTime
+    let hours = Math.floor(minutes / 60) 
+    minutes = minutes % 60
+    let days = Math.floor(hours / 24) 
+    hours = hours % 24
+    let output = ""
+    if(days) output += `${days} ${days === 1 ? 'day' : 'days'}, `
+    if(hours) output += `${hours} ${hours === 1 ? 'hour' : 'hours'}, `
+    if(minutes) {
+      output += `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`
+    } else {
+      //Cut out ending comma and space
+      output = output.substr(0, output.length-2)
+    }
+    return output
   }
 
   loadImage = (image) => {
@@ -110,7 +142,6 @@ class Profile extends Component {
       fr.onload = () => {
           document.querySelector('#profile-picture').src = fr.result
           this.props.uploadFile(`${url}/api/uploadFile?userId=${this.props.accountID}`, { 'X-Authorization-Firebase': this.props.token}, JSON.stringify(fr.result))
-          //this.setState({ profilePic: file })
       }
       fr.readAsDataURL(image)
     }
@@ -119,15 +150,6 @@ class Profile extends Component {
   onDrop = (accepted, rejected) => {
     this.setState({ dropped: true })
     if(accepted[0]) {
-      let fileObject = {
-        lastModified     : accepted[0].lastModified,
-        lastModifiedDate : accepted[0].lastModifiedDate,
-        name             : accepted[0].name,
-        size             : accepted[0].size,
-        type             : accepted[0].type
-     }
-      const image = btoa(JSON.stringify(fileObject))
-      const file = atob(image)
       this.loadImage(accepted[0])
     }
   }
@@ -141,9 +163,9 @@ class Profile extends Component {
         {groups && Object.keys(groups).length > 0
         && Object.keys(groups).map((gid, i) => {
           if (groups[gid].groupMemberIDs[this.props.profile.accountID]){
-            return "";
+            return null;
           }else{
-          return(<ListGroupItem>
+          return(<ListGroupItem key={gid}>
               {groups[gid].groupName} <Button className="invite-to-group-button" type="button" size="lg" 
               onClick={() => this.inviteAndToggle(gid, ownerID)}>Invite</Button>
             </ListGroupItem>)
@@ -163,6 +185,13 @@ class Profile extends Component {
       )
     }
 
+    if(!profile.accountEnabled) {
+      return (
+        <div className="suspended">
+          {this.isOwner(ownerID) ? 'Your' : 'This'} account has been suspended for {this.formatDuration(profile.suspendTime)}
+        </div>
+      )
+    }
     let flag = profile.newUser ? nFlag : "";
     return (
       <div>
@@ -218,7 +247,7 @@ class Profile extends Component {
                         : this.props.city
                         ? this.props.city
                         : 'Location not set'}
-             {this.isOwner(ownerID) && <i className="fa fa-pencil-alt" onClick={() => {
+             &nbsp;&nbsp;{this.isOwner(ownerID) && <i className="fa fa-pencil-alt" onClick={() => {
                    if (navigator.geolocation) {
                         this.setState({ loading: true })
                         navigator.geolocation.getCurrentPosition(position => {
@@ -228,7 +257,11 @@ class Profile extends Component {
                           this.setCity(lat, long)
                         },
                         error => {
+                          this.setState({ loading: false })
+                          this.props.setCity('Could not determine location. Please try again later.')
                           console.log(error)
+                        }, {
+                          timeout: 7000
                         })
                     } else {
                       //TODO: Geolocation is not supported
@@ -238,7 +271,7 @@ class Profile extends Component {
             </h4>
             <hr/>
             
-            {!this.isOwner(ownerID) && !this.props.ownProfile.friendIDs[this.props.profile.accountID] && 
+            {!this.isOwner(ownerID) && this.props.ownProfile && !this.props.ownProfile.friendIDs[this.props.profile.accountID] && 
             <Button type="button" size="lg" onClick={() => this.props.sendFriendRequest(ownerID)}>Send Friend Request</Button>}
             {!this.isOwner(ownerID) && groups && Object.keys(groups).length > 0 && 
               <Button type="button" size="lg" onClick={this.toggleM}>Invite To Group</Button>}
@@ -339,6 +372,9 @@ const mapDispatchToProps = (dispatch) => {
     reportUser: (url, headers) => dispatch(reportUser(url, headers)),
     setCity: (city) => dispatch(setCity(city)),
     uploadFile: (url, headers, body) => dispatch(uploadFile(url, headers, body)),
+    clearSkills: () => dispatch(clearSkills()),
+    clearGroups: () => dispatch(clearGroups()),
+    clearProfile: () => dispatch(clearProfile()),
   }
 }
 

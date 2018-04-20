@@ -42,7 +42,7 @@ class SkillsPanel extends Component {
       <div className="SkillsPanel">
         <ListGroup>
         { this.props.skills && this.props.skills.map((skill, i) => {
-          return <div >
+          return <div key={skill.skillName} >
           <ListGroupItem className="justify-content-between">
             {skill.skillName + " "}
             <Badge pill>{skill.skillLevel} </Badge>

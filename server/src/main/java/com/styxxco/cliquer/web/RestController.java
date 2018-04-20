@@ -1,6 +1,5 @@
 package com.styxxco.cliquer.web;
 
-import com.google.api.Http;
 import com.styxxco.cliquer.domain.*;
 import com.styxxco.cliquer.security.FirebaseFilter;
 import lombok.extern.log4j.Log4j;
@@ -8,19 +7,13 @@ import com.styxxco.cliquer.service.AccountService;
 import com.styxxco.cliquer.service.FirebaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static java.time.temporal.ChronoUnit.MINUTES;
 
 @Log4j
 @Controller
@@ -56,15 +49,12 @@ public class RestController {
         if (user == null) {
             return new ResponseEntity<>("Could not fetch profile with the query", HttpStatus.BAD_REQUEST);
         }
-        if (user.isAccountEnabled()) {
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } else {
-            long served = user.getStartSuspendTime().until(LocalDateTime.now(), MINUTES);
-            long timeLeft = user.getSuspendTime() - served;
-            String body = "{\"status\": \"" + user.getFullName() + " 's account is disabled until " + LocalDateTime.now().plusMinutes(timeLeft) + "\"}";
-            System.out.println(body);
-            return new ResponseEntity<>(body, HttpStatus.OK);
-        }
+        return new ResponseEntity<>(user, HttpStatus.OK);
+//            long served = user.getStartSuspendTime().until(LocalDateTime.now(), MINUTES);
+//            long timeLeft = user.getSuspendTime() - served;
+//            String body = "{\"status\": \"" + user.getFullName() + " 's account is disabled until " + LocalDateTime.now().plusMinutes(timeLeft) + "\"}";
+//            System.out.println(body);
+//            return new ResponseEntity<>(body, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/deleteProfile", method = RequestMethod.POST)
@@ -240,15 +230,6 @@ public class RestController {
             return new ResponseEntity<>("Could not update account settings", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(user, HttpStatus.OK);
-    }
-
-    /* TODO: Remove after completely deprecated by sockets */
-    @RequestMapping(value = "/api/handleNotification", method = RequestMethod.POST)
-    public @ResponseBody ResponseEntity<?> handleNotification(@RequestParam(value = "userId") String userId,
-                                                              @RequestParam(value = "messageId") String messageId,
-                                                              @RequestParam(value = "accept", required = false, defaultValue = "true") boolean accept) {
-        accountService.handleNotifications(userId, messageId, accept);
-        return new ResponseEntity<>(OKAY, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/api/getRateForm", method = RequestMethod.GET)

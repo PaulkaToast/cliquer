@@ -61,13 +61,13 @@ public class Account extends Searchable implements UserDetails {
 	private boolean accountLocked;
 	@JsonIgnore
 	private boolean accountExpired;
-	@JsonIgnore
+
 	private boolean accountEnabled;
 	@JsonIgnore
 	private boolean credentialsExpired;
-	@JsonIgnore
+
 	public long suspendTime; 			/* Amount of time in minutes the user is suspended */
-	@JsonIgnore
+
 	public LocalDateTime startSuspendTime;		/* Local Time the user started the suspend */
 
 	public static final int MAX_REP = 100;
@@ -93,6 +93,7 @@ public class Account extends Searchable implements UserDetails {
     private Map<String, String> groupIDs;
 
     private Map<String, String> friendIDs;
+
 	@JsonIgnore
     private Map<String, Integer> messageIDs;
 

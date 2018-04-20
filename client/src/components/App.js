@@ -6,7 +6,7 @@ import '../css/App.css'
 import { firebase } from '../firebase'
 import { logIn, logOut, setToken, getProfile, 
          addObjectID, requestFriend, clearProfile, clearObjectID,
-         clearGroups, addIsMod } from '../redux/actions'
+         clearGroups, clearSkills, addIsMod } from '../redux/actions'
 import { history } from '../redux/store'
 import url from '../server'
 import Login from './Login'
@@ -28,6 +28,7 @@ class App extends Component {
 
   componentWillReceiveProps(nextProps) {
     if(this.loggedIn() && ((nextProps.profile && !this.props.profile && !this.props.accountID) || nextProps.account)) {
+      if(!this.accountEnabled) this.props.logOut(this.props.user)
       this.props.addObjectID(nextProps.profile ? nextProps.profile.accountID : nextProps.account.accountID)
       this.props.addIsMod(nextProps.profile ? nextProps.profile.moderator : nextProps.account.moderator)
     }
@@ -42,12 +43,15 @@ class App extends Component {
             this.props.setToken(token)
             this.props.clearProfile()
             this.props.clearGroups()
+            this.props.clearSkills()
+            console.log('app call')
             this.props.getProfile(`${url}/api/getProfile?username=${authUser.uid}&type=user`, { 'X-Authorization-Firebase': token})
           })
       } else {
         this.props.clearProfile()
         this.props.clearObjectID()
         this.props.clearGroups()
+        this.props.clearSkills()
         this.props.addIsMod(false)
         this.props.logOut(authUser)
       }
@@ -76,7 +80,8 @@ class App extends Component {
   }
 
   goToProfile = (ev, memberID, button1, button2) => {
-    if((!ev && !button1 && !button2) || (ev.target !== button1 && ev.target !== button2)) {
+    if((!ev && !button1 && !button2) || (ev.target === ev.currentTarget)) {
+      console.log('hello')
       history.push(`/profile/${memberID}`)
     }
   }
@@ -149,6 +154,7 @@ const mapDispatchToProps = (dispatch) => {
     clearProfile: () => dispatch(clearProfile()),
     clearGroups: () => dispatch(clearGroups()),
     clearObjectID: () => dispatch(clearObjectID()),
+    clearSkills: () => dispatch(clearSkills()),
 	}
 }
 

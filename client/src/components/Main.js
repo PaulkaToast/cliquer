@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Switch, Route, Redirect } from 'react-router'
 import NotificationSystem from 'react-notification-system'
-import { Button, ButtonGroup } from 'reactstrap'
+import { Button, ButtonGroup, Modal, ModalHeader, ModalBody, ModalFooter} from 'reactstrap'
 import SockJsClient from 'react-stomp'
 import { connect } from 'react-redux'
 
@@ -14,8 +14,9 @@ import Profile from './Profile/Profile'
 import Settings from './Settings'
 import SearchResults from './SearchResults'
 import ModPanel from './ModPanel'
+import ModeratorApplication from './ModeratorApplication'
 import url from '../server'
-import { loadNotifications, handleNotifications, deleteNotification} from '../redux/actions'
+import { loadNotifications, handleNotifications, deleteNotification, applyForMod } from '../redux/actions'
 
 
 class Main extends Component {
@@ -26,6 +27,7 @@ class Main extends Component {
     this.state = {
       modal: false,
       groupID: '',
+      modNotification: null,
     }
   }
 
@@ -148,12 +150,10 @@ class Main extends Component {
             message: data.content,
             level: 'success',
             autoDismiss: 8,
-            children: (
-              <ButtonGroup>
-                <Button color="success" onClick={() => this.acceptNotification(data.messageID)}>Join</Button>
-                <Button color="danger" onClick={() => this.rejectNotification(data.messageID)}>Ignore</Button>
-              </ButtonGroup>
-            )
+            action: {
+              label: 'OK',
+              callback: () => this.deleteNotification(data.messageID)
+            }
           })
         break
         case 9:
@@ -188,10 +188,14 @@ class Main extends Component {
             title: 'Submit a Mod Application',
             message: data.content,
             level: 'success',
-            action: {
-              label: 'OK',
-              callback: () => this.acceptNotification(data.messageID)
-            }
+            children: (
+                <Button color="primary" onClick={() => {
+                  console.log('clicked')
+                  this.setState({ modNotification: data }, () => {
+                    this.toggle()
+                  })
+                }}>OK</Button>
+              )
           })
         break
         case 14:
@@ -249,6 +253,20 @@ class Main extends Component {
     this.clientRef.sendMessage(`/app/${this.props.accountID}/true/1970-01-01/allMessages`)
   }
 
+  toggle = () => {
+    console.log("toggle")
+    if(!this.state.modal) {
+      this.setState({ modal: true })
+    } else {
+      if(this.state.modNotification) {
+        console.log("Submitted")
+        this.props.applyForMod(`${url}/api/applyForMod?userId=${this.props.accountID}&messageId=${this.state.modNotification.messageID}`, { 'X-Authorization-Firebase': this.props.token}, JSON.stringify('No reason provided'))
+        this.acceptNotification(this.state.modNotification.messageID)
+        this.setState({ modal: true, modNotification: null })
+      }
+    }
+  }
+
   getWebsocket = () => {
     if(this.props.accountID) {
       return <SockJsClient url={`${url}/sockJS`} topics={[`/notification/${this.props.accountID}`]}
@@ -286,8 +304,7 @@ class Main extends Component {
                 rejectNotification={this.rejectNotification}
                 inviteToGroup={this.inviteToGroup} 
                 ownProfile={this.props.ownProfile}
-                isMod={this.props.isMod} 
-               
+                isMod={this.props.isMod}     
               />}
             />
             <Route path="/groups" render={(navProps) => 
@@ -299,7 +316,14 @@ class Main extends Component {
             />
             <Route path="/public" render={(navProps) => <PublicGroups {...navProps} accountID={this.props.accountID} requestToJoin={this.requestToJoin} />}/>
             <Route path="/settings" render={(navProps) => <Settings {...navProps} />}/>
-            <Route path="/mod" render={(navProps) => <ModPanel {...navProps} deleteNotification={this.deleteNotification} goToProfile={this.props.goToProfile}/>}/>
+            <Route path="/mod" render={(navProps) => 
+              <ModPanel {...navProps} 
+                deleteNotification={this.deleteNotification} 
+                goToProfile={this.props.goToProfile}
+                acceptNotification={this.acceptNotification}
+                rejectNotification={this.rejectNotification}
+              />}
+            />
             <Route path="/search/:category/:query" render={(navProps) => <SearchResults 
               {...navProps}
               sendFriendRequest={this.sendFriendRequest} 
@@ -307,7 +331,17 @@ class Main extends Component {
               requestToJoin={this.requestToJoin}/>}/>
             <Route path='/' render={(navProps) => <Redirect to="/groups" />}/>
         </Switch>
-      
+            
+        <Modal isOpen={this.state.modal} toggle={this.toggle} className="mod-application-modal">
+          <ModalHeader toggle={this.toggle}>Mod Application</ModalHeader>
+          <ModalBody>
+            <ModeratorApplication toggle={this.toggle} setState={this.setState} notification={this.state.modNotification} />
+          </ModalBody>
+          <ModalFooter>
+            <Button color="secondary" form="mod-application-form" onClick={this.toggle}>Submit</Button>
+          </ModalFooter>
+        </Modal>
+
         <NotificationSystem ref="notificationSystem" allowHTML={this.props.allowHTML} />
       </div>
     )
@@ -329,6 +363,7 @@ const mapDispatchToProps = (dispatch) => {
     loadNotifications: (notifications) => dispatch(loadNotifications(notifications)),
     handleNotification: (url, headers) => dispatch(handleNotifications(url, headers)),
     deleteNotification: (messageID) => dispatch(deleteNotification(messageID)),
+    applyForMod: (url, headers, body) => dispatch(applyForMod(url, headers, body)),
 	}
 }
 
