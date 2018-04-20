@@ -3,11 +3,11 @@ import { connect } from 'react-redux'
 import { Alert, Badge, Button, InputGroupAddon, Input, InputGroup,
         Card, CardImg, CardText, CardBody, CardTitle,
         ButtonGroup, UncontrolledTooltip, Modal,
-        ModalHeader, ModalBody, InputGroupText } from 'reactstrap'
+        ModalHeader, ModalBody, Form } from 'reactstrap'
 import SockJsClient from 'react-stomp'
 
 import '../../css/Chat.css'
-import { getChatLog, postChatMessage, updateChatLog } from '../../redux/actions'
+import { getChatLog, postChatMessage, updateChatLog, reportMember } from '../../redux/actions'
 import url from '../../server'
 import Logo from '../../img/cliquerLogoWarn.png'
 
@@ -19,7 +19,8 @@ class Message extends Component{
       reaction: false,
       up: false,
       down: false,
-      modal: false
+      modal: false,
+      reported: false
     }
     this.sendUpVote = this.sendUpVote.bind(this);
     this.sendDownVote = this.sendDownVote.bind(this);
@@ -31,9 +32,13 @@ class Message extends Component{
     });
   }
   handleReport = (ev) => {
-    const reason = ev.currentTarget.reason.value
-    const messageId = this.props.messageId
+    ev.preventDefault();
+
+    this.toggle();
+    const reason = ev.currentTarget.reason.value;
+    const messageId = this.props.messageId;
     this.props.sendReport(reason, messageId);
+    this.setState({reported: !this.state.reported});
   }
   sendUpVote = (event) => {
     event.preventDefault();
@@ -88,27 +93,29 @@ class Message extends Component{
       <Modal isOpen={this.state.modal} toggle={this.toggle}>
         <ModalHeader>Report Message</ModalHeader>
         <ModalBody>
-          <InputGroup>
-            <InputGroupAddon addonType="prepend" className="input-header">User</InputGroupAddon>
-            <Input placeholder={sender} disabled="true"/>
-          </InputGroup>
-          <br/>
-          <InputGroup>
-            <InputGroupAddon addonType="prepend" className="input-header">Msg</InputGroupAddon>
-            <Input type="textarea" className="message-box-report" disabled="true" placeholder={message}/>
-          </InputGroup>
-          <br/>
-          <InputGroup>
-            <InputGroupAddon addonType="prepend" className="input-header">Reason</InputGroupAddon>
-            <Input type="textarea" className="message-box-report" 
-              placeholder="Please include your reason for reporting."
-              name="reason"/>
-          </InputGroup>
-          <br/>
-          <ButtonGroup>
-            <Button color="danger" type="submit" onSubmit={this.handleReport}>Report Message</Button>
-            <Button color="secondary" onClick={this.toggle}>Cancel</Button>
-          </ButtonGroup>
+          <Form onSubmit={this.handleReport}>
+            <InputGroup>
+              <InputGroupAddon addonType="prepend" className="input-header">User</InputGroupAddon>
+              <Input placeholder={sender} disabled="true"/>
+            </InputGroup>
+            <br/>
+            <InputGroup>
+              <InputGroupAddon addonType="prepend" className="input-header">Msg</InputGroupAddon>
+              <Input type="textarea" className="message-box-report" disabled="true" placeholder={message}/>
+            </InputGroup>
+            <br/>
+            <InputGroup>
+              <InputGroupAddon addonType="prepend" className="input-header">Reason</InputGroupAddon>
+              <Input type="textarea" className="message-box-report" 
+                placeholder="Please include your reason for reporting."
+                name="reason"/>
+            </InputGroup>
+            <br/>
+            <ButtonGroup>
+              <Button color="danger" type="submit" onSubmit={this.handleReport}>Report Message</Button>
+              <Button color="secondary" onClick={this.toggle}>Cancel</Button>
+            </ButtonGroup>
+          </Form>
         </ModalBody>
       </Modal>
     </div>
@@ -206,7 +213,10 @@ class Chat extends Component {
   }
 
   sendReport = (reason, messageId) => {
-    return;
+    const endpoint = `${url}/api/reportMember?userId=${this.props.accountID}&groupId=${this.props.group.groupID}&messageId=${messageId}`;
+    console.log(endpoint);
+    this.props.reportMember(endpoint, 
+      {'X-Authorization-Firebase': this.props.token}, reason )
   }
 
   handleMessage = (data) => {
@@ -475,6 +485,7 @@ const mapDispatchToProps = (dispatch) => {
     getLog: (url, header) => dispatch(getChatLog(url, header)),
     postMessage: (url, header) => dispatch(postChatMessage(url, header)),
     updateLog: (message) => dispatch(updateChatLog(message)),
+    reportMember: (url, header, body) => dispatch(reportMember(url, header, body))
 	}
 }
 
