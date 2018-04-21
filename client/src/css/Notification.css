@@ -9,7 +9,17 @@
     display: inline-block;
 }
 
+.yes-read-notification {
+    color: rgb(204, 204, 204);
+    margin-right: 10px;
+    display: inline-block;
+}
+
 .read-notification:hover {
+    color: rgba(235, 123, 89, 0.5);
+}
+
+.yes-read-notification:hover {
     color: rgba(235, 123, 89, 0.5);
 }
 

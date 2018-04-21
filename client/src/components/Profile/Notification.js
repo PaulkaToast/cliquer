@@ -54,11 +54,14 @@ class Notification extends Component {
     if(notification.type === 14 || notification.type === 9) {
       return null
     }
-
+    var read = ""
+    if(notification.read){
+      read = "yes-"
+    }
     return (
       <Card className="notification-card">
         <CardBody>
-          <i className="fas fa-asterisk read-notification" onClick={() => this.props.markAsRead(notification.messageID)}></i>
+          <i className={read.concat("read-notification fas fa-asterisk")} onClick={() => this.props.markAsRead(notification.messageID)}></i>
           {this.getResponse(notification)}
           <hr/>
           <div className="d-flex justify-content-between align-items-center">

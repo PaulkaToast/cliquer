@@ -35,6 +35,27 @@ class NotificationPanel extends Component {
     this.setState(newState);
   }
 
+  acceptAndRender(messageId) {
+    this.props.acceptNotification(messageId);
+    var newState = this.state;
+    delete newState.notifications[messageId]
+    this.setState(newState);
+  }
+
+  rejectAndRender(messageId) {
+    this.props.rejectNotification(messageId);
+    var newState = this.state;
+    delete newState.notifications[messageId]
+    this.setState(newState);
+  }
+
+  readAndRender(messageId) {
+      this.props.markAsRead(messageId)
+      var newState = this.state;
+      newState.notifications[messageId].read = true;
+      this.setState(newState)
+  }
+
   render() {
     const notifications = this.state.notifications
     return (
@@ -48,9 +69,9 @@ class NotificationPanel extends Component {
                   notification={notifications[key]}
                   i={i}
                   deleteNotification={this.deleteAndRender.bind(this)}
-                  acceptNotification={this.props.acceptNotification}
-                  rejectNotification={this.props.rejectNotification}
-                  markAsRead={this.props.markAsRead}
+                  acceptNotification={this.acceptAndRender.bind(this)}
+                  rejectNotification={this.rejectAndRender.bind(this)}
+                  markAsRead={this.readAndRender.bind(this)}
                   key={notifications[key].messageID}
                 />
               })}

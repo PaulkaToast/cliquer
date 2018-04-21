@@ -163,7 +163,7 @@ class Profile extends Component {
     const { profile, skills, groups } = this.props
     const ownerID = this.props.match.params.ownerID
 
-    if(!profile || profile.accountID !== ownerID){
+    if(!profile || !ownerID || profile.accountID !== ownerID){
       return (
         <div className="loader">Loading...</div>
       )
