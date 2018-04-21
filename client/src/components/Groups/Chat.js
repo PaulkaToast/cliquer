@@ -128,7 +128,7 @@ class Message extends Component{
   if (align === "sender-message-left"){
     return  <div className={align}>
             <Badge className={align.concat("-badge")}>{sender}</Badge>
-            <i class="fas fa-exclamation-triangle -warning" 
+            <i className="fas fa-exclamation-triangle -warning" 
               onClick={this.toggle}></i>
             <br/>
               <Alert className={align.concat("-alert single-message")}> {message} </Alert>

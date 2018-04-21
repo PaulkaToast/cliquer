@@ -21,7 +21,7 @@ class NotificationPanel extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if(this.props != nextProps) {
+    if(this.props !== nextProps) {
       this.setState({
         notifications: nextProps.notifications
       });
