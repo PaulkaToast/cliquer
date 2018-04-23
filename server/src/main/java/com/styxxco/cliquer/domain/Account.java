@@ -221,6 +221,9 @@ public class Account extends Searchable implements UserDetails {
 	public void addGroup(Group group)
 	{
 		this.groupIDs.put(group.getGroupID(), group.getGroupName());
+		if (groupIDs.keySet().size() >= 3) {
+			isNewUser = false;
+		}
 	}
 
 	public void removeGroup(String groupID)
