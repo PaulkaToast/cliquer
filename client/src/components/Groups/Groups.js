@@ -225,13 +225,16 @@ class Groups extends Component {
     return (
       <ListGroup>
           {groups
-          && Object.keys(groups).map((gid, i) => {
-            if(groups[gid].groupName.length > window.innerWidth/50){
-                groups[gid].groupName = groups[gid].groupName.substring(0, window.innerWidth/50) + '...'
+          && Object.values(groups).sort((a, b) => {
+            if(a.groupName.toLowerCase() < b.groupName.toLowerCase()) return -1
+            else return 1
+          }).map((group, i) => {
+            if(group.groupName.length > window.innerWidth/50){
+                group.groupName = group.groupName.substring(0, window.innerWidth/50) + '...'
             }
             return <Group
                 changeGroup={this.changeGroup}
-                group={groups[gid]}
+                group={group}
                 key={i}
               />
           })}
