@@ -325,7 +325,7 @@ public class Account extends Searchable implements UserDetails {
 
 	public void addFlag() {
 		this.flags++;
-		if (this.flags >= 2) {
+		if (this.flags >= 1) {
 			this.canSuspend = true;
 		}
 	}
