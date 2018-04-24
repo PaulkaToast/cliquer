@@ -270,6 +270,10 @@ class Main extends Component {
     }
   }
 
+  applyForMod2 = (messageId, reason) => {
+    this.props.applyForMod(`${url}/api/applyForMod?userId=${this.props.accountID}&messageId=${messageId}`, { 'X-Authorization-Firebase': this.props.token}, reason)
+  }
+
   getWebsocket = () => {
     if(this.props.accountID) {
       return <SockJsClient url={`${url}/sockJS`} topics={[`/notification/${this.props.accountID}`]}
@@ -309,6 +313,7 @@ class Main extends Component {
                 ownProfile={this.props.ownProfile}
                 isMod={this.props.isMod}    
                 formatDuration={this.props.formatDuration} 
+                applyforModer={this.applyForMod2}
               />}
             />
             <Route path="/groups" render={(navProps) => 

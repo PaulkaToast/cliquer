@@ -307,6 +307,7 @@ class Profile extends Component {
               markAsRead={this.props.markAsRead} 
               acceptNotification={this.props.acceptNotification}
               rejectNotification={this.props.rejectNotification}
+              applyforModer={this.props.applyforModer}
             />
           </TabPane>
         </TabContent>

@@ -1,10 +1,32 @@
 import React, { Component } from 'react'
-import { Button, ButtonGroup, Card, CardBody } from 'reactstrap'
+import { Button, ButtonGroup, Card, CardBody, Modal,
+          ModalHeader, ModalBody, ModalFooter, Form,
+          InputGroup, InputGroupAddon, Input } from 'reactstrap'
 
 import '../../css/Notification.css'
 
 class Notification extends Component {
   
+  constructor(props) {
+    super(props)
+
+    this.state = { 
+      modal: false
+    }
+  }
+
+  toggle = () => {
+    this.setState({ modal: !this.state.modal })
+  }
+
+  handleSubmit = (ev) => {
+    ev.preventDefault();
+    this.toggle();
+    const reason = ev.currentTarget.reason.value;
+    const messageId = this.props.notification.messageID;
+    this.props.applyforModer(messageId, reason);
+    //this.props.acceptNotification(messageId);
+  }
 
   getResponse = (notification) => {
     switch (notification.type) {
@@ -73,9 +95,35 @@ class Notification extends Component {
       case 9:
        break;
       case 11:
+        return ([<h4 className="notification-response" key={this.props.notification.messageID}>
+          Ready to become a Mod?</h4>,
+        <ButtonGroup className="notification-buttons" key={this.props.notification.messageID + "button"}>
+          <Button color="success" onClick={() => this.toggle()}>Accept</Button>
+          <Button color="danger" onClick={() => this.props.rejectNotification(notification.messageID)}>Reject</Button>
+        </ButtonGroup>,
+
+        <Modal isOpen={this.state.modal} toggle={this.toggle} className="mod-application-modal">
+        <ModalHeader toggle={this.toggle}>Mod Application</ModalHeader>
+        <ModalBody>
+        <Form onSubmit={this.handleSubmit}>
+            <InputGroup>
+              <InputGroupAddon addonType="prepend" className="input-header" required="true">Reason</InputGroupAddon>
+              <Input type="textarea" className="message-box-report" 
+                placeholder="Let us know why you would want to become a moderator!"
+                name="reason"/>
+            </InputGroup>
+            <br/>
+            <ButtonGroup>
+              <Button color="success" type="submit">Apply</Button>
+              <Button color="secondary" onClick={this.toggle}>Cancel</Button>
+            </ButtonGroup>
+          </Form>
+        </ModalBody>
+      </Modal>
+        ])
         break;
         // Mod invite
-        // TODO: Show mod application
+        return 
       default:
         return null
     }
