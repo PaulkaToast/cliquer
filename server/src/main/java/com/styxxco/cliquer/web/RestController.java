@@ -317,6 +317,13 @@ public class RestController {
         return new ResponseEntity<>(log, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/mod/getSkills", method = RequestMethod.GET)
+    public @ResponseBody ResponseEntity<?> getSkills(){
+        List<Skill> skills = accountService.getAllValidSkills();
+
+        return new ResponseEntity<>(skills, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/mod/addSkill", method = RequestMethod.POST)
     public @ResponseBody ResponseEntity<?> addSkill(@RequestParam(value = "modId") String modId,
                                                     @RequestParam(value = "skillName") String skillName) {
