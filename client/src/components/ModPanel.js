@@ -2,9 +2,11 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router'
 import { Modal, ModalHeader, ModalBody, ModalFooter,
-         Form, FormGroup, Label, Input, Button, ButtonGroup } from 'reactstrap'
+         Form, FormGroup, Label, Input, Button, ButtonGroup,
+         Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap'
 
 import { submitSkill, flagUser, suspendUser } from '../redux/actions'
+import classnames from 'classnames';
 import '../css/ModPanel.css'
 import url from '../server'
 
@@ -13,9 +15,18 @@ class ModPanel extends Component {
     super(props)
 
     this.state = {
+      activeTab: '1',
       modal: false,
       reports: {},
       notifications: [],
+    }
+  }
+
+  toggleT = (tab) => {
+    if (this.state.activeTab !== tab) {
+      this.setState({
+        activeTab: tab
+      })
     }
   }
 
@@ -158,9 +169,47 @@ class ModPanel extends Component {
 
     return (
       <div className="ModPanel">
-        {this.renderReportList()}
-        {this.renderModNotificationList()}
-        <Button color="primary" onClick={this.toggle}>Submit New Skill</Button>
+        <h4>Moderator Panel</h4>
+        <Nav tabs>
+          <NavItem>
+            <NavLink
+              className={classnames({ active: this.state.activeTab === '1' })}
+              onClick={() => { this.toggleT('1'); }}
+            >
+              Notifications
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink
+              className={classnames({ active: this.state.activeTab === '2' })}
+              onClick={() => { this.toggleT('2'); }}
+            >
+              Skills Panel
+            </NavLink>
+          </NavItem>
+            <NavItem>
+              <NavLink
+                className={classnames({ active: this.state.activeTab === '2' })}
+                onClick={() => { this.toggleT('3'); }}
+              >
+                Reports
+              </NavLink>
+            </NavItem>
+        </Nav>
+        <TabContent activeTab={this.state.activeTab}>
+          <TabPane className="notifcations-tab" tabId="1">
+            {this.renderModNotificationList()}
+          </TabPane>
+          <TabPane className="skills-tab" tabId="2">
+`           <Button color="primary" onClick={this.toggle}>Submit New Skill</Button>
+          </TabPane>
+          <TabPane className="reports-tab" tabId="3">
+            {this.renderReportList()}
+          </TabPane>
+        </TabContent>
+        
+        
+        
         <Modal isOpen={this.state.modal} toggle={this.toggle} className="add-skill-modal">
           <ModalHeader toggle={this.toggle}>Submit New Skill</ModalHeader>
           <ModalBody>
