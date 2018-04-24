@@ -3,7 +3,8 @@ import { connect } from 'react-redux'
 import { Redirect } from 'react-router'
 import { Modal, ModalHeader, ModalBody, ModalFooter,
          Form, FormGroup, Label, Input, Button, ButtonGroup,
-         Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap'
+         Nav, NavItem, NavLink, TabContent, TabPane,
+         Card, CardBody } from 'reactstrap'
 
 import { submitSkill, flagUser, suspendUser } from '../redux/actions'
 import classnames from 'classnames';
@@ -93,7 +94,7 @@ class ModPanel extends Component {
 
   renderReport = (report) => {
     return (
-      <div key={report.messageID} className="report">
+      /*<div key={report.messageID} className="report">
         <div className="reporter">
         Reporter: <strong className="link" onClick={() => this.props.goToProfile(null, report.senderID)}>{report.senderName}</strong>
         </div>
@@ -106,13 +107,53 @@ class ModPanel extends Component {
         <Button type="button" color="warning" size="lg" onClick={() => this.flagUser(report.messageID)}>{report.flagged ? 'Flagged' : 'Flag Reportee'}</Button>
         {report.canSuspend && <Button type="button" color="warning" size="lg" onClick={() => this.suspendUser(report.messageID)}>{report.suspended ? 'Suspended' : 'Suspend Reportee'}</Button>}
         <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(report.messageID)}></i>  
-      </div>
+      </div>*/
+      <Card className="notification-card" key={report.messageID}>
+        <CardBody>
+          <div className="d-flex align-items-left">
+          </div>
+          <div className="d-flex justify-content-between align-items-center">
+            <div>
+              <span>Reporter</span>
+              <h4 className="link-thing" onClick={() => this.props.goToProfile(null, report.senderID)}> 
+                {report.senderName}
+              </h4>
+            </div>
+            <h2 className="fas fa-hand-point-right"></h2>
+            <div>
+              <span>Reportee</span>
+              <h4 className="link-thing" onClick={() => this.props.goToProfile(null, report.topicID)}>
+                {report.topicName}
+              </h4> 
+            </div>
+          </div>
+          <hr/>
+         
+          <div className="d-flex justify-content-between align-items-center">
+            {report.content}
+          
+          <Button type="button" color="warning" size="lg" onClick={() => this.flagUser(report.messageID)}>{report.flagged ? 'Flagged' : 'Flag Reportee'}</Button>
+        {report.canSuspend && <Button type="button" color="warning" size="lg" onClick={() => this.suspendUser(report.messageID)}>{report.suspended ? 'Suspended' : 'Suspend Reportee'}</Button>}
+         
+          </div>       
+        </CardBody>
+      </Card>
     )
   }
 
   renderNotification = (notification) => {
     return ( 
-    <div className="Notification">
+      <Card className="notification-card">
+        <CardBody>
+          <hr/>
+          <div className="d-flex justify-content-between align-items-center">
+            {notification.content}
+            <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(notification.messageID)}></i>
+          </div>       
+        </CardBody>
+      </Card>
+
+    /*<div className="Notification">
       <div className="notification-info">
       {notification.content}
         <ButtonGroup>
@@ -121,7 +162,7 @@ class ModPanel extends Component {
         </ButtonGroup>
       </div>
       <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(notification.messageID)}></i> 
-    </div>
+    </div>*/
     )
   }
 
@@ -207,8 +248,6 @@ class ModPanel extends Component {
             {this.renderReportList()}
           </TabPane>
         </TabContent>
-        
-        
         
         <Modal isOpen={this.state.modal} toggle={this.toggle} className="add-skill-modal">
           <ModalHeader toggle={this.toggle}>Submit New Skill</ModalHeader>
