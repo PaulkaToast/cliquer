@@ -149,3 +149,28 @@ export function applyForModDataSuccess(data) {
 export const applyForMod = genericDispatch(
     applyForModHasError, applyForModIsLoading, applyForModDataSuccess, 'POST'
 )
+
+export function getSkillsHasError(hasError) {
+    return {
+        type: 'GET_SKILLS_HAS_ERROR',
+        hasError
+    }
+}
+
+export function getSkillsIsLoading(isLoading) {
+    return {
+        type: 'GET_SKILLS_IS_LOADING',
+        isLoading
+    }
+}
+
+export function getSkillsDataSuccess(data) {
+    return {
+        type: 'GET_SKILLS_DATA_SUCCESS',
+        data
+    }
+}
+
+export const getSkills = genericDispatch(
+    getSkillsHasError, getSkillsIsLoading, getSkillsDataSuccess, "GET"
+)

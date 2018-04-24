@@ -6,7 +6,7 @@ import { Modal, ModalHeader, ModalBody, ModalFooter,
          Nav, NavItem, NavLink, TabContent, TabPane,
          Card, CardBody } from 'reactstrap'
 
-import { submitSkill, flagUser, suspendUser } from '../redux/actions'
+import { submitSkill, flagUser, suspendUser, getSkills } from '../redux/actions'
 import classnames from 'classnames';
 import '../css/ModPanel.css'
 import url from '../server'
@@ -20,6 +20,7 @@ class ModPanel extends Component {
       modal: false,
       reports: {},
       notifications: [],
+      skills: []
     }
   }
 
@@ -29,6 +30,11 @@ class ModPanel extends Component {
         activeTab: tab
       })
     }
+  }
+
+  componentDidMount = () => {
+    this.fetch(this.props)
+    this.setState({skills: this.props.skills})
   }
 
   componentWillReceiveProps = (nextProps) => {
@@ -45,14 +51,17 @@ class ModPanel extends Component {
         if(message.type === 9) notifications.push(message)
       })
     }
-
-    this.setState({ reports, notifications })
+    this.fetch(nextProps)
+    this.setState({ reports, notifications, skills: nextProps.skills })
   }
 
   addNewSkill = (ev) => {
     ev.preventDefault()
     const skill = ev.target.name.value
     this.props.submitSkill(`${url}/mod/submitSkill?modId=${this.props.accountID}&skillName=${skill}`, { 'X-Authorization-Firebase': this.props.token})
+    var newState = this.state
+    newState.skills.push({skillName: skill})
+    this.setState(newState)
     this.toggle()
   }
 
@@ -90,6 +99,26 @@ class ModPanel extends Component {
 
   toggle = () => {
     this.setState({ modal: !this.state.modal })
+  }
+
+  fetch = (props) => {
+    if(!props.skills){
+      this.props.getSkills(`${url}/mod/getSkills`, { 'X-Authorization-Firebase': props.token})
+    }
+  }
+
+  acceptAndRender(messageId) {
+    this.props.acceptReport(messageId);
+    var newState = this.state;
+    delete newState.notifications[messageId]
+    this.setState(newState);
+  }
+
+  rejectAndRender(messageId) {
+    this.props.rejectReport(messageId);
+    var newState = this.state;
+    delete newState.notifications[messageId]
+    this.setState(newState);
   }
 
   renderReport = (report) => {
@@ -176,9 +205,25 @@ class ModPanel extends Component {
     )
   }
 
+  renderSkills = () => {
+    return (
+      <div className="all-skills-container">
+        {this.props.skills.map((s) => {
+            return <Button className="skills-button-all" color="primary" outline disabled>{s.skillName}</Button>
+        })}
+      </div>
+    )
+  }
+
   render() {
 
     if(!this.props.isModerator && !this.props.accountID) {
+      return (
+        <div className="loader">Loading...</div>
+      )
+    }
+
+    if(!this.props.skills){
       return (
         <div className="loader">Loading...</div>
       )
@@ -228,7 +273,11 @@ class ModPanel extends Component {
             <h4 className="friends-list-header">
               Skills Panel
             </h4>
-`           <Button color="primary" onClick={this.toggle}>Submit New Skill</Button>
+            {this.renderSkills()}
+            <br/>
+            <div className="all-skills-container">
+              <Button color="primary" onClick={this.toggle}>Submit New Skill</Button>
+            </div>
           </TabPane>
           <TabPane className="reports-tab" tabId="3">
             <h4 className="friends-list-header">
@@ -259,12 +308,14 @@ class ModPanel extends Component {
 }
 
 const mapStateToProps = (state) => {
+  console.log(state)
 	return {
     user: state.user.data,
     accountID: state.user.accountID,
     token: state.auth.token,
     messages: state.messages && state.messages.data ? state.messages.data : null,
-    isModerator: state.user.isMod
+    isModerator: state.user.isMod,
+    skills: state.skills.getData ? state.skills.getData : null 
 	}
 }
 
@@ -273,6 +324,7 @@ const mapDispatchToProps = (dispatch) => {
     submitSkill: (url, headers) => dispatch(submitSkill(url, headers)),
     flagUser: (url, headers) => dispatch(flagUser(url, headers)),
     suspendUser: (url, headers) => dispatch(suspendUser(url, headers)),
+    getSkills: (url, headers) => dispatch(getSkills(url, headers)),
   }
 }
 

@@ -28,3 +28,18 @@
     cursor: pointer;
     color: grey;
 }
+
+.skills-button-all{
+    border-radius: 5px;
+    border: 2px solid #524656; 
+    padding: 1px;
+    padding-left: 5px;
+    padding-right: 5px; 
+    margin-top: 5px;
+    margin-right: 5px;
+ 
+}
+
+.all-skills-container{
+    text-align: center;
+}
