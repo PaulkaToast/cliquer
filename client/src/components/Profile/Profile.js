@@ -5,7 +5,6 @@ import { TabContent, TabPane, Nav, NavItem, NavLink,
   Modal, ModalHeader, ModalBody, ModalFooter,
   Form, InputGroup, InputGroupAddon, Input, ButtonGroup } from 'reactstrap'
 import classnames from 'classnames';
-import Geocode from 'react-geocode'
 import Dropzone from 'react-dropzone'
 
 import '../../css/Profile.css'
@@ -14,7 +13,8 @@ import NotificationPanel from './NotificationPanel'
 import { getSkills, getProfile, getGroups, flagUser, setLocation, 
       setCity, reportUser, clearGroups, clearSkills, clearProfile, 
       uploadFile, reportMember} from '../../redux/actions'
-import url from '../../server.js'
+import url from '../../server'
+import { mapsKey } from '../../firebase'
 import nFlag from '../../img/newUser.png'
 
 class Profile extends Component {
@@ -130,16 +130,14 @@ class Profile extends Component {
 
   setCity = (lat, long) => {
     if(lat && long) {
-      Geocode.fromLatLng(lat, long).then(
-        response => {
-          const address = response.results[2].formatted_address
+      fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=${mapsKey}`)
+        .then(response => response.json())
+        .then(data => {
+          const address = data.results[2].formatted_address
           this.props.setCity(address)
           this.setState({ loading: false })
-        },
-        error => {
-          console.error(error)
-        }
-      )
+        })
+        .catch(error => console.log(error))
     }
   }
 
@@ -286,7 +284,7 @@ class Profile extends Component {
               <Button type="button" color="warning" size="lg" onClick={() => this.toggleR()}>Report User</Button>}
             <hr/>
             <h4>
-              Skills:
+              Skills and Interests:
             </h4>
               <SkillsPanel skills={skills} isOwner={this.isOwner(ownerID)}/>
           </TabPane>
