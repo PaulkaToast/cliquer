@@ -94,20 +94,6 @@ class ModPanel extends Component {
 
   renderReport = (report) => {
     return (
-      /*<div key={report.messageID} className="report">
-        <div className="reporter">
-        Reporter: <strong className="link" onClick={() => this.props.goToProfile(null, report.senderID)}>{report.senderName}</strong>
-        </div>
-        <div className="reporter">
-        Reportee: <strong className="link" onClick={() => this.props.goToProfile(null, report.topicID)}>{report.topicName}</strong>
-        </div>
-        <div className="reason">
-        Reason: {report.content}
-        </div>
-        <Button type="button" color="warning" size="lg" onClick={() => this.flagUser(report.messageID)}>{report.flagged ? 'Flagged' : 'Flag Reportee'}</Button>
-        {report.canSuspend && <Button type="button" color="warning" size="lg" onClick={() => this.suspendUser(report.messageID)}>{report.suspended ? 'Suspended' : 'Suspend Reportee'}</Button>}
-        <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(report.messageID)}></i>  
-      </div>*/
       <Card className="notification-card" key={report.messageID}>
         <CardBody>
           <div className="d-flex align-items-left">
@@ -128,13 +114,14 @@ class ModPanel extends Component {
             </div>
           </div>
           <hr/>
-         
+          <span>Reason</span>
+          <br/>
+          {report.content}
+          <hr/>
           <div className="d-flex justify-content-between align-items-center">
-            {report.content}
-          
-          <Button type="button" color="warning" size="lg" onClick={() => this.flagUser(report.messageID)}>{report.flagged ? 'Flagged' : 'Flag Reportee'}</Button>
-        {report.canSuspend && <Button type="button" color="warning" size="lg" onClick={() => this.suspendUser(report.messageID)}>{report.suspended ? 'Suspended' : 'Suspend Reportee'}</Button>}
-         
+            <Button type="button" color="warning" size="lg" onClick={() => this.flagUser(report.messageID)}>{report.flagged ? 'Flagged' : 'Flag Reportee'}</Button>
+            {report.canSuspend && <Button type="button" color="warning" size="lg" onClick={() => this.suspendUser(report.messageID)}>{report.suspended ? 'Suspended' : 'Suspend Reportee'}</Button>}
+            <i className="fa fa-times delete-button" onClick={() => this.props.deleteNotification(report.messageID)}></i>
           </div>       
         </CardBody>
       </Card>
@@ -145,24 +132,17 @@ class ModPanel extends Component {
     return ( 
       <Card className="notification-card">
         <CardBody>
+          {notification.content}
           <hr/>
           <div className="d-flex justify-content-between align-items-center">
-            {notification.content}
-            <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(notification.messageID)}></i>
+            <ButtonGroup>
+              <Button color="success" onClick={() => this.props.acceptNotification(notification.messageID)}>Accept</Button>
+              <Button color="danger" onClick={() => this.props.rejectNotification(notification.messageID)}>Reject</Button>
+            </ButtonGroup>
+            <i className="fa fa-times delete-button" onClick={() => this.props.deleteNotification(notification.messageID)}></i>
           </div>       
         </CardBody>
       </Card>
-
-    /*<div className="Notification">
-      <div className="notification-info">
-      {notification.content}
-        <ButtonGroup>
-          <Button color="success" onClick={() => this.props.acceptNotification(notification.messageID)}>Accept</Button>
-          <Button color="danger" onClick={() => this.props.rejectNotification(notification.messageID)}>Reject</Button>
-        </ButtonGroup>
-      </div>
-      <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(notification.messageID)}></i> 
-    </div>*/
     )
   }
 
@@ -239,12 +219,21 @@ class ModPanel extends Component {
         </Nav>
         <TabContent activeTab={this.state.activeTab}>
           <TabPane className="notifcations-tab" tabId="1">
+            <h4 className="friends-list-header">
+              Notifications
+            </h4>
             {this.renderModNotificationList()}
           </TabPane>
           <TabPane className="skills-tab" tabId="2">
+            <h4 className="friends-list-header">
+              Skills Panel
+            </h4>
 `           <Button color="primary" onClick={this.toggle}>Submit New Skill</Button>
           </TabPane>
           <TabPane className="reports-tab" tabId="3">
+            <h4 className="friends-list-header">
+              Reports
+            </h4>
             {this.renderReportList()}
           </TabPane>
         </TabContent>
