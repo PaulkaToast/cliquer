@@ -24,8 +24,8 @@ class Settings extends Component {
   }
 
   componentWillReceiveProps = (nextProps) => {
-    if(nextProps.uid && nextProps.token) {    
-      const uid = nextProps.uid 
+    if(nextProps.uid && nextProps.token) {
+      const uid = nextProps.uid
       // Get profile data
       if(!nextProps.profile && !nextProps.profileIsLoading) {
         console.log('settings call')
@@ -47,7 +47,7 @@ class Settings extends Component {
     const proximityReq = ev.currentTarget.proximity.value
     const reputationReq = ev.currentTarget.reputation.value
 
-    this.props.setSettings(`${url}/api/setSettings?username=${this.props.uid}`, { 'X-Authorization-Firebase': this.props.token}, 
+    this.props.setSettings(`${url}/api/setSettings?username=${this.props.uid}`, { 'X-Authorization-Firebase': this.props.token},
                           JSON.stringify({
                             isPublic,
                             isOptedOut,
@@ -113,7 +113,7 @@ class Settings extends Component {
     return (
       <Container>
         <h2 className="account-settings-label">Account Settings</h2>
-        <hr />        
+        <hr />
       <Label className="search-settings-label" md={{ size: 4, offset: 4}}>
         General Settings
       </Label>
@@ -138,9 +138,9 @@ class Settings extends Component {
           <Input type="number" name="proximity" id="proximity" min={0} value={this.state.proximity} onChange={(ev) => {
             this.setState({ proximity: ev.target.value})
           }} />
-        </FormGroup> 
+        </FormGroup>
         <Button color="primary" type="submit" block>Submit</Button>
-      </Form>  
+      </Form>
       </div>
         <hr/>
       <Row>
@@ -196,11 +196,13 @@ class Settings extends Component {
           </ModalBody>
         </Modal>
         <hr />
-      <div className="delete_account_section" md={{ size: 4, offset: 4}}>
+      <div className="feedback_section" md={{ size: 4, offset: 4}}>
         <a href="mailto:cliquer307@gmail.com">
           <Button color="primary" size="lg" block>Send Feedback</Button>
         </a>
-        <Button color="danger" className="delete-button" size="lg" onClick={this.toggle} block>Delete Account</Button>
+      </div>
+      <div className="delete_account_section" md={{ size: 4, offset: 4}}>
+        <Button color="danger" size="lg" onClick={this.toggle} block>Delete Account</Button>
       </div>
       </Container>
     )

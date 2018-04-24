@@ -46,18 +46,29 @@
     padding-bottom: 30px;
 }
 
-.delete_account_section .delete-button {
-    margin-top: 1rem;
+.feedback_section {
+  max-width: 330px;
+  margin: 0 auto;
+  padding-top: 1.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.delete_account_section {
+  max-width: 330px;
+  margin: 0 auto;
+  padding-top: 0.5rem;
+  padding-bottom: 3rem;
 }
 .search-settings-section {
     margin-right: auto;
     margin-left: auto;
     max-width: 330px;
     margin-top: 0.75em;
+    padding-bottom: 35px;
 }
 .search-settings-label {
     text-align: center;
+    margin-top: 0.5em;
     font-size: 24px;
     color: #A3A3A3;
 }
-
