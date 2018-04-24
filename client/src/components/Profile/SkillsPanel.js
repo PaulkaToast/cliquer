@@ -23,7 +23,7 @@ class SkillsPanel extends Component {
   }
 
   componentWillReceiveProps = (nextProps) => {
-    if (nextProps != this.props){
+    if (nextProps !== this.props){
       this.setState({skills: nextProps.skills})
     }
   }

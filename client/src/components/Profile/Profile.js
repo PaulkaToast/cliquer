@@ -2,7 +2,8 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { TabContent, TabPane, Nav, NavItem, NavLink, 
   Button, ListGroup, ListGroupItem,
-  Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
+  Modal, ModalHeader, ModalBody, ModalFooter,
+  Form, InputGroup, InputGroupAddon, Input, ButtonGroup } from 'reactstrap'
 import classnames from 'classnames';
 import Geocode from 'react-geocode'
 import Dropzone from 'react-dropzone'
@@ -12,7 +13,7 @@ import SkillsPanel from './SkillsPanel'
 import NotificationPanel from './NotificationPanel'
 import { getSkills, getProfile, getGroups, flagUser, setLocation, 
       setCity, reportUser, clearGroups, clearSkills, clearProfile, 
-      uploadFile } from '../../redux/actions'
+      uploadFile, reportMember} from '../../redux/actions'
 import url from '../../server.js'
 import nFlag from '../../img/newUser.png'
 
@@ -26,7 +27,19 @@ class Profile extends Component {
       modalU: false,
       flagged: false,
       loading: false,
+      modalR: false,
+      reported: false
     }
+    this.toggleR = this.toggleR.bind(this);
+  }
+
+  toggleR(){
+    if(this.state.reported){
+      return;
+    }
+    var newState = this.state;
+    newState.modalR = !this.state.modalR;
+    this.setState(newState);
   }
 
   componentWillMount = () => {
@@ -101,9 +114,19 @@ class Profile extends Component {
     this.toggleM()
   }
 
-  reportUser = (ownerID) => {
-    this.props.reportUser(`${url}/api/reportUser?userId=${this.props.accountID}&reporteeId=${ownerID}&reason=none`, { 'X-Authorization-Firebase': this.props.token})
+  reportUser = (reason) => {
+    this.props.reportUser(`${url}/api/reportUser?userId=${this.props.accountID}&reporteeId=${this.props.profile.accountID}&reason=${reason}`, { 'X-Authorization-Firebase': this.props.token}, reason)
   }
+
+  handleReport = (ev) => {
+    ev.preventDefault();
+
+    this.toggleR();
+    const reason = ev.currentTarget.reason.value;
+    this.reportUser(reason);
+    this.setState({reported: !this.state.reported});
+  }
+
 
   setCity = (lat, long) => {
     if(lat && long) {
@@ -260,7 +283,7 @@ class Profile extends Component {
             {!this.isOwner(ownerID) && groups && Object.keys(groups).length > 0 && 
               <Button type="button" size="lg" onClick={this.toggleM}>Invite To Group</Button>}
             {!this.isOwner(ownerID) && 
-              <Button type="button" color="warning" size="lg" onClick={() => this.reportUser(ownerID)}>Report User</Button>}
+              <Button type="button" color="warning" size="lg" onClick={() => this.toggleR()}>Report User</Button>}
             <hr/>
             <h4>
               Skills:
@@ -324,6 +347,30 @@ class Profile extends Component {
             <Button color="secondary" onClick={this.toggleM}>Close</Button>
           </ModalFooter>
         </Modal>
+
+        <Modal isOpen={this.state.modalR} toggle={this.toggleR}>
+        <ModalHeader>Report User</ModalHeader>
+        <ModalBody>
+          <Form onSubmit={this.handleReport}>
+            <InputGroup>
+              <InputGroupAddon addonType="prepend" className="input-header">User</InputGroupAddon>
+              <Input placeholder={this.props.profile.fullName} disabled="true"/>
+            </InputGroup>
+            <br/>
+            <InputGroup>
+              <InputGroupAddon addonType="prepend" className="input-header" required="true">Reason</InputGroupAddon>
+              <Input type="textarea" className="message-box-report" 
+                placeholder="Please include your reason for reporting."
+                name="reason"/>
+            </InputGroup>
+            <br/>
+            <ButtonGroup>
+              <Button color="danger" type="submit">Report Message</Button>
+              <Button color="secondary" onClick={this.toggleR}>Cancel</Button>
+            </ButtonGroup>
+          </Form>
+        </ModalBody>
+      </Modal>
       </div>
     )
   } 
