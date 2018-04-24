@@ -19,7 +19,7 @@ class ModPanel extends Component {
       activeTab: '1',
       modal: false,
       reports: {},
-      notifications: [],
+      notifications: {},
       skills: []
     }
   }
@@ -48,7 +48,7 @@ class ModPanel extends Component {
           //2 is the number of flags required to suspend someone
           reports[message.messageID].canSuspend = message.counter >= 2
         }
-        if(message.type === 9) notifications.push(message)
+        if(message.type === 9) notifications[message.messageID] = message
       })
     }
     this.fetch(nextProps)
@@ -107,19 +107,35 @@ class ModPanel extends Component {
     }
   }
 
+  deleteAndRenderR(messageId) {
+    this.props.deleteNotification(messageId);
+    var newState = this.state;
+    delete newState.reports[messageId]
+    this.setState(newState);
+  }
+
+  deleteAndRender(messageId) {
+    this.props.deleteNotification(messageId);
+    var newState = this.state;
+    delete newState.notifications[messageId]
+    this.setState(newState);
+  }
+
   acceptAndRender(messageId) {
-    this.props.acceptReport(messageId);
+    this.props.acceptNotification(messageId);
     var newState = this.state;
     delete newState.notifications[messageId]
     this.setState(newState);
   }
 
   rejectAndRender(messageId) {
-    this.props.rejectReport(messageId);
+    this.props.rejectNotification(messageId);
     var newState = this.state;
     delete newState.notifications[messageId]
     this.setState(newState);
   }
+
+
 
   renderReport = (report) => {
     return (
@@ -150,7 +166,7 @@ class ModPanel extends Component {
           <div className="d-flex justify-content-between align-items-center">
             <Button type="button" color="warning" size="lg" onClick={() => this.flagUser(report.messageID)}>{report.flagged ? 'Flagged' : 'Flag Reportee'}</Button>
             {report.canSuspend && <Button type="button" color="warning" size="lg" onClick={() => this.suspendUser(report.messageID)}>{report.suspended ? 'Suspended' : 'Suspend Reportee'}</Button>}
-            <i className="fa fa-times delete-button" onClick={() => this.props.deleteNotification(report.messageID)}></i>
+            <i className="fa fa-times delete-button" onClick={() => this.deleteAndRenderR(report.messageID)}></i>
           </div>       
         </CardBody>
       </Card>
@@ -161,14 +177,23 @@ class ModPanel extends Component {
     return ( 
       <Card className="notification-card">
         <CardBody>
+        <div className="d-flex justify-content-between align-items-center">
+              <h4 className="link-thing" onClick={() => this.props.goToProfile(null, notification.senderID)}> 
+                {notification.senderName}
+              </h4>
+              <h4>
+                New Moderator Application
+              </h4>
+        </div>
+          <hr/>
           {notification.content}
           <hr/>
           <div className="d-flex justify-content-between align-items-center">
             <ButtonGroup>
-              <Button color="success" onClick={() => this.props.acceptNotification(notification.messageID)}>Accept</Button>
-              <Button color="danger" onClick={() => this.props.rejectNotification(notification.messageID)}>Reject</Button>
+              <Button color="success" onClick={() => this.acceptAndRender(notification.messageID)}>Accept</Button>
+              <Button color="danger" onClick={() => this.rejectAndRender(notification.messageID)}>Reject</Button>
             </ButtonGroup>
-            <i className="fa fa-times delete-button" onClick={() => this.props.deleteNotification(notification.messageID)}></i>
+            <i className="fa fa-times delete-button" onClick={() => this.deleteAndRender(notification.messageID)}></i>
           </div>       
         </CardBody>
       </Card>
@@ -179,10 +204,10 @@ class ModPanel extends Component {
     const { notifications } = this.state
     return (
       <div className="notification-list">
-        { notifications && notifications.length > 0 
-          && <ul className="notifications">
-              {notifications.map((notification) => {
-                return this.renderNotification(notification)
+        { notifications
+          && <ul>
+              {Object.values(notifications).map((not) => {
+                return this.renderNotification(not)
               })}
             </ul>
         }

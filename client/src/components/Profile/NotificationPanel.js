@@ -72,6 +72,7 @@ class NotificationPanel extends Component {
                   acceptNotification={this.acceptAndRender.bind(this)}
                   rejectNotification={this.rejectAndRender.bind(this)}
                   markAsRead={this.readAndRender.bind(this)}
+                  applyforModer={this.props.applyforModer}
                   key={notifications[key].messageID}
                 />
               })}
