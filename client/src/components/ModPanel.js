@@ -2,9 +2,12 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router'
 import { Modal, ModalHeader, ModalBody, ModalFooter,
-         Form, FormGroup, Label, Input, Button, ButtonGroup } from 'reactstrap'
+         Form, FormGroup, Label, Input, Button, ButtonGroup,
+         Nav, NavItem, NavLink, TabContent, TabPane,
+         Card, CardBody } from 'reactstrap'
 
-import { submitSkill, flagUser, suspendUser } from '../redux/actions'
+import { submitSkill, flagUser, suspendUser, getSkills } from '../redux/actions'
+import classnames from 'classnames';
 import '../css/ModPanel.css'
 import url from '../server'
 
@@ -13,10 +16,25 @@ class ModPanel extends Component {
     super(props)
 
     this.state = {
+      activeTab: '1',
       modal: false,
       reports: {},
       notifications: [],
+      skills: []
     }
+  }
+
+  toggleT = (tab) => {
+    if (this.state.activeTab !== tab) {
+      this.setState({
+        activeTab: tab
+      })
+    }
+  }
+
+  componentDidMount = () => {
+    this.fetch(this.props)
+    this.setState({skills: this.props.skills})
   }
 
   componentWillReceiveProps = (nextProps) => {
@@ -33,14 +51,17 @@ class ModPanel extends Component {
         if(message.type === 9) notifications.push(message)
       })
     }
-
-    this.setState({ reports, notifications })
+    this.fetch(nextProps)
+    this.setState({ reports, notifications, skills: nextProps.skills })
   }
 
   addNewSkill = (ev) => {
     ev.preventDefault()
     const skill = ev.target.name.value
     this.props.submitSkill(`${url}/mod/submitSkill?modId=${this.props.accountID}&skillName=${skill}`, { 'X-Authorization-Firebase': this.props.token})
+    var newState = this.state
+    newState.skills.push({skillName: skill})
+    this.setState(newState)
     this.toggle()
   }
 
@@ -80,37 +101,77 @@ class ModPanel extends Component {
     this.setState({ modal: !this.state.modal })
   }
 
+  fetch = (props) => {
+    if(!props.skills){
+      this.props.getSkills(`${url}/mod/getSkills`, { 'X-Authorization-Firebase': props.token})
+    }
+  }
+
+  acceptAndRender(messageId) {
+    this.props.acceptReport(messageId);
+    var newState = this.state;
+    delete newState.notifications[messageId]
+    this.setState(newState);
+  }
+
+  rejectAndRender(messageId) {
+    this.props.rejectReport(messageId);
+    var newState = this.state;
+    delete newState.notifications[messageId]
+    this.setState(newState);
+  }
+
   renderReport = (report) => {
     return (
-      <div key={report.messageID} className="report">
-        <div className="reporter">
-        Reporter: <strong className="link" onClick={() => this.props.goToProfile(null, report.senderID)}>{report.senderName}</strong>
-        </div>
-        <div className="reporter">
-        Reportee: <strong className="link" onClick={() => this.props.goToProfile(null, report.topicID)}>{report.topicName}</strong>
-        </div>
-        <div className="reason">
-        Reason: {report.content}
-        </div>
-        <Button type="button" color="warning" size="lg" onClick={() => this.flagUser(report.messageID)}>{report.flagged ? 'Flagged' : 'Flag Reportee'}</Button>
-        {report.canSuspend && <Button type="button" color="warning" size="lg" onClick={() => this.suspendUser(report.messageID)}>{report.suspended ? 'Suspended' : 'Suspend Reportee'}</Button>}
-        <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(report.messageID)}></i>  
-      </div>
+      <Card className="notification-card" key={report.messageID}>
+        <CardBody>
+          <div className="d-flex align-items-left">
+          </div>
+          <div className="d-flex justify-content-between align-items-center">
+            <div>
+              <span>Reporter</span>
+              <h4 className="link-thing" onClick={() => this.props.goToProfile(null, report.senderID)}> 
+                {report.senderName}
+              </h4>
+            </div>
+            <h2 className="fas fa-hand-point-right"></h2>
+            <div>
+              <span>Reportee</span>
+              <h4 className="link-thing" onClick={() => this.props.goToProfile(null, report.topicID)}>
+                {report.topicName}
+              </h4> 
+            </div>
+          </div>
+          <hr/>
+          <span>Reason</span>
+          <br/>
+          {report.content}
+          <hr/>
+          <div className="d-flex justify-content-between align-items-center">
+            <Button type="button" color="warning" size="lg" onClick={() => this.flagUser(report.messageID)}>{report.flagged ? 'Flagged' : 'Flag Reportee'}</Button>
+            {report.canSuspend && <Button type="button" color="warning" size="lg" onClick={() => this.suspendUser(report.messageID)}>{report.suspended ? 'Suspended' : 'Suspend Reportee'}</Button>}
+            <i className="fa fa-times delete-button" onClick={() => this.props.deleteNotification(report.messageID)}></i>
+          </div>       
+        </CardBody>
+      </Card>
     )
   }
 
   renderNotification = (notification) => {
     return ( 
-    <div className="Notification">
-      <div className="notification-info">
-      {notification.content}
-        <ButtonGroup>
-          <Button color="success" onClick={() => this.props.acceptNotification(notification.messageID)}>Accept</Button>
-          <Button color="danger" onClick={() => this.props.rejectNotification(notification.messageID)}>Reject</Button>
-        </ButtonGroup>
-      </div>
-      <i className="fa fa-times delete" onClick={() => this.props.deleteNotification(notification.messageID)}></i> 
-    </div>
+      <Card className="notification-card">
+        <CardBody>
+          {notification.content}
+          <hr/>
+          <div className="d-flex justify-content-between align-items-center">
+            <ButtonGroup>
+              <Button color="success" onClick={() => this.props.acceptNotification(notification.messageID)}>Accept</Button>
+              <Button color="danger" onClick={() => this.props.rejectNotification(notification.messageID)}>Reject</Button>
+            </ButtonGroup>
+            <i className="fa fa-times delete-button" onClick={() => this.props.deleteNotification(notification.messageID)}></i>
+          </div>       
+        </CardBody>
+      </Card>
     )
   }
 
@@ -144,9 +205,25 @@ class ModPanel extends Component {
     )
   }
 
+  renderSkills = () => {
+    return (
+      <div className="all-skills-container">
+        {this.props.skills.map((s) => {
+            return <Button className="skills-button-all" color="primary" outline disabled>{s.skillName}</Button>
+        })}
+      </div>
+    )
+  }
+
   render() {
 
     if(!this.props.isModerator && !this.props.accountID) {
+      return (
+        <div className="loader">Loading...</div>
+      )
+    }
+
+    if(!this.props.skills){
       return (
         <div className="loader">Loading...</div>
       )
@@ -158,9 +235,58 @@ class ModPanel extends Component {
 
     return (
       <div className="ModPanel">
-        {this.renderReportList()}
-        {this.renderModNotificationList()}
-        <Button color="primary" onClick={this.toggle}>Submit New Skill</Button>
+        <h4>Moderator Panel</h4>
+        <Nav tabs>
+          <NavItem>
+            <NavLink
+              className={classnames({ active: this.state.activeTab === '1' })}
+              onClick={() => { this.toggleT('1'); }}
+            >
+              Notifications
+            </NavLink>
+          </NavItem>
+          <NavItem>
+            <NavLink
+              className={classnames({ active: this.state.activeTab === '2' })}
+              onClick={() => { this.toggleT('2'); }}
+            >
+              Skills Panel
+            </NavLink>
+          </NavItem>
+            <NavItem>
+              <NavLink
+                className={classnames({ active: this.state.activeTab === '2' })}
+                onClick={() => { this.toggleT('3'); }}
+              >
+                Reports
+              </NavLink>
+            </NavItem>
+        </Nav>
+        <TabContent activeTab={this.state.activeTab}>
+          <TabPane className="notifcations-tab" tabId="1">
+            <h4 className="friends-list-header">
+              Notifications
+            </h4>
+            {this.renderModNotificationList()}
+          </TabPane>
+          <TabPane className="skills-tab" tabId="2">
+            <h4 className="friends-list-header">
+              Skills Panel
+            </h4>
+            {this.renderSkills()}
+            <br/>
+            <div className="all-skills-container">
+              <Button color="primary" onClick={this.toggle}>Submit New Skill</Button>
+            </div>
+          </TabPane>
+          <TabPane className="reports-tab" tabId="3">
+            <h4 className="friends-list-header">
+              Reports
+            </h4>
+            {this.renderReportList()}
+          </TabPane>
+        </TabContent>
+        
         <Modal isOpen={this.state.modal} toggle={this.toggle} className="add-skill-modal">
           <ModalHeader toggle={this.toggle}>Submit New Skill</ModalHeader>
           <ModalBody>
@@ -182,12 +308,14 @@ class ModPanel extends Component {
 }
 
 const mapStateToProps = (state) => {
+  console.log(state)
 	return {
     user: state.user.data,
     accountID: state.user.accountID,
     token: state.auth.token,
     messages: state.messages && state.messages.data ? state.messages.data : null,
-    isModerator: state.user.isMod
+    isModerator: state.user.isMod,
+    skills: state.skills.getData ? state.skills.getData : null 
 	}
 }
 
@@ -196,6 +324,7 @@ const mapDispatchToProps = (dispatch) => {
     submitSkill: (url, headers) => dispatch(submitSkill(url, headers)),
     flagUser: (url, headers) => dispatch(flagUser(url, headers)),
     suspendUser: (url, headers) => dispatch(suspendUser(url, headers)),
+    getSkills: (url, headers) => dispatch(getSkills(url, headers)),
   }
 }
 

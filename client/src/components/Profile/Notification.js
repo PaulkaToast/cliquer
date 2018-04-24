@@ -46,6 +46,10 @@ class Notification extends Component {
             <Button color="danger" onClick={() => this.props.rejectNotification(notification.messageID)}>Reject</Button>
           </ButtonGroup>
         ])
+      case 5:
+        //rate user
+        return (<h4 className="notification-response" key={this.props.notification.messageID}>
+        Rate Enabled</h4>)
 
       case 6: 
       // Group Request response

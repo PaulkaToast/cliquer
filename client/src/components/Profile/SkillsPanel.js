@@ -14,11 +14,24 @@ class SkillsPanel extends Component {
     super(props)
     this.state = {
       modal: false,
+      skills: []
+    }
+  }
+
+  componentDidMount = () => {
+    this.setState({skills: this.props.skills})
+  }
+
+  componentWillReceiveProps = (nextProps) => {
+    if (nextProps !== this.props){
+      this.setState({skills: nextProps.skills})
     }
   }
 
   addSkills = () => {
     this.props.postSkills(`${url}/api/addSkills?username=${this.props.uid}`, { 'X-Authorization-Firebase': this.props.token }, JSON.stringify(this.props.newSkills ? this.props.newSkills : []))
+    var newState = this.state
+    newState.skills.push({skillLevel: 0, skillName: this.props.newSkills})
     this.toggle()
   }
 
