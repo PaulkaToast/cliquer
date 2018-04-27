@@ -6,6 +6,8 @@
 
 Come clique away
 
+![Cliquer](https://imgur.com/a/n8fz3yC)
+
 ## Server Setup
 ### MongoDB
 1. Install MongoDB as defined here [MongoDB Manual](https://docs.mongodb.com/manual/installation/ "MongoDB Installation Manual")
