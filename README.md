@@ -1,6 +1,6 @@
 # Cliquer
 
-[![build status](https://travis-ci.com/PaulkaToast/cliquer.svg?token=P1VkBSZBd3mmuXRPmzZ6&branch=master)](https://travis-ci.com/PaulkaToast/cliquer)
+[![build status](https://travis-ci.com/PaulkaToast/cliquer.svg?token=P1VkBSZBd3mmuXRPmzZ6&branch=master)](https://travis-ci.org/PaulkaToast/cliquer.svg?branch=master)
 [![codecov](https://codecov.io/gh/PaulkaToast/cliquer/branch/master/graph/badge.svg?token=qvTUmklxrz)](https://codecov.io/gh/PaulkaToast/cliquer)
 
 

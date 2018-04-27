@@ -31,7 +31,7 @@ matrix:
         
       script: "mvn test"
       after_success:
-        - bash <(curl -s https://codecov.io/bash) -F server -t "c40160c7-daa8-4fbc-99df-f7383a356af3"
+        - bash <(curl -s https://codecov.io/bash) -F server 
     
 notifications:
   email: false
