@@ -6,7 +6,7 @@
 
 Come clique away
 
-![Cliquer](https://imgur.com/a/n8fz3yC)
+![Cliquer](https://i.imgur.com/oFNJe41.png)
 
 ## Server Setup
 ### MongoDB
